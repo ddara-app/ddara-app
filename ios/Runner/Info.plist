@@ -104,5 +104,10 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<!-- FCM 원격 푸시를 백그라운드에서 수신하기 위한 백그라운드 모드. -->
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>remote-notification</string>
+		</array>
 	</dict>
 </plist>

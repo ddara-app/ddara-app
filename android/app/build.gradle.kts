@@ -24,6 +24,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // flutter_local_notifications(22.x)가 요구하는 코어 라이브러리 디슈가링.
+        // (예약 알림 등 최신 java.time API 를 구버전 Android 에서 쓰기 위함)
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -57,4 +60,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // 코어 라이브러리 디슈가링 런타임. (isCoreLibraryDesugaringEnabled 와 짝)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

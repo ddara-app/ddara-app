@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -18,6 +19,8 @@ import 'core/deeplink/pending_invite.dart';
 import 'core/designsystem/theme/app_theme.dart';
 import 'core/local/provider/local_provider.dart';
 import 'core/network/dio_provider.dart';
+import 'core/notification/notification_service.dart';
+import 'core/notification/provider/fcm_token_sync.dart';
 import 'core/router/app_router.dart';
 import 'core/router/route_path.dart';
 import 'data/provider/repository_provider.dart';
@@ -35,6 +38,7 @@ Future<void> main() async {
     await dotenv.load(fileName: '.env');
     KakaoSdk.init(nativeAppKey: dotenv.get("KAKAO_NATIVE_APP_KEY"));
     await _initCrashReporting();
+    _registerFcmBackgroundHandler();
     SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayStyle);
 
     container = await _createContainer();
@@ -69,6 +73,18 @@ Future<void> _initCrashReporting() async {
     };
   } catch (_) {
     // Firebase 초기화 실패·지연은 무시하고 진행한다.
+  }
+}
+
+/// FCM 백그라운드/종료 상태 메시지 핸들러를 등록한다.
+///
+/// Firebase 초기화 이후 runApp 전에 1회 호출한다. Firebase 미초기화 등으로
+/// 실패해도 앱 실행은 계속한다. (알림 없이 동작)
+void _registerFcmBackgroundHandler() {
+  try {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  } catch (_) {
+    // 등록 실패는 무시하고 진행한다.
   }
 }
 
@@ -130,7 +146,31 @@ class _MyAppState extends ConsumerState<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _deepLink.init();
       unawaited(_recoverSession());
+      unawaited(_initMessaging());
     });
+  }
+
+  /// 로컬 알림 초기화 + FCM 핸들러/토큰 동기화 코디네이터를 기동한다.
+  ///
+  /// 권한 요청은 기존 권한 게이트가, 토큰의 서버 등록은 코디네이터가 로그인
+  /// 상태에 맞춰 처리한다. 초기화 실패는 앱 흐름을 막지 않는다.
+  Future<void> _initMessaging() async {
+    try {
+      await NotificationService.instance.init(
+        onMessageOpened: _handleMessageRoute,
+      );
+      await NotificationService.instance.checkInitialMessage();
+      // provider 를 read 해 토큰 동기화 리스너/구독을 살려 둔다.
+      ref.read(fcmTokenSyncProvider);
+    } catch (error) {
+      debugPrint('[FCM] 초기화 실패: $error');
+    }
+  }
+
+  /// 알림 탭으로 앱에 진입했을 때의 라우팅.
+  void _handleMessageRoute(RemoteMessage message) {
+    // TODO(fcm): message.data(예: screen/groupId 등)로 화면 라우팅 처리.
+    debugPrint('[FCM] 알림 탭 라우팅: ${message.data}');
   }
 
   /// 콜드 스타트 시 스플래시를 네트워크에 묶지 않기 위해, 로컬 토큰으로 낙관적
