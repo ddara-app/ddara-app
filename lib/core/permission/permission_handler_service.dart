@@ -39,6 +39,11 @@ class PermissionHandlerService implements PermissionService {
   }
 
   @override
+  Future<PermissionResult> cameraStatus() async {
+    return _toResult(await Permission.camera.status);
+  }
+
+  @override
   Future<bool> isNotificationGranted() async {
     final status = await Permission.notification.status;
     return status.isGranted;
@@ -51,6 +56,11 @@ class PermissionHandlerService implements PermissionService {
   }
 
   @override
+  Future<PermissionResult> notificationStatus() async {
+    return _toResult(await Permission.notification.status);
+  }
+
+  @override
   Future<bool> isPhotosGranted() async {
     final status = await Permission.photos.status;
     return status.isGranted || status.isLimited;
@@ -60,6 +70,11 @@ class PermissionHandlerService implements PermissionService {
   Future<PermissionResult> requestPhotos() async {
     final status = await Permission.photos.request();
     return _toResult(status, grantedWhenLimited: true);
+  }
+
+  @override
+  Future<PermissionResult> photosStatus() async {
+    return _toResult(await Permission.photos.status, grantedWhenLimited: true);
   }
 
   @override

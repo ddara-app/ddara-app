@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../permission/provider/permission_provider.dart';
+import '../router/app_router.dart';
 import '../router/route_path.dart';
 
 /// 미로그인/권한 미허용 상태에서 받은 초대코드를 잠시 보관한다.
@@ -21,6 +22,10 @@ final pendingInviteCodeProvider = StateProvider<String?>((ref) => null);
 /// 2. 보관된 초대코드가 있으면 → 홈을 깔고 그 위에 모임 참여 화면(코드 1회 소비).
 /// 3. 그 외 → 홈.
 Future<void> routeAfterAuth(WidgetRef ref, GoRouter router) async {
+  // 인증 성공으로 진입한 지점이므로 로그인 상태를 확정한다. (markLoggedOut 과 대칭)
+  // 같은 세션에서 로그아웃 후 재로그인해도 isLoggedIn 이 true 로 되돌아온다.
+  ref.read(authStateProvider.notifier).markLoggedIn();
+
   // 1. 카메라 권한 게이트. (홈 진입 게이트와 동일 정책)
   final acknowledged = ref.read(cameraNoticeAcknowledgedProvider);
   if (!acknowledged) {

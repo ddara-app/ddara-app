@@ -9,13 +9,23 @@ abstract interface class PermissionService {
 
   Future<PermissionResult> requestCamera();
 
+  /// 프롬프트 없이 현재 카메라 권한 상태만 읽는다.
+  /// (요청 다이얼로그가 뒤로가기로 닫혀 요청 결과를 못 받았을 때 복구용)
+  Future<PermissionResult> cameraStatus();
+
   Future<bool> isNotificationGranted();
 
   Future<PermissionResult> requestNotification();
 
+  /// 프롬프트 없이 현재 알림 권한 상태만 읽는다.
+  Future<PermissionResult> notificationStatus();
+
   Future<bool> isPhotosGranted();
 
   Future<PermissionResult> requestPhotos();
+
+  /// 프롬프트 없이 현재 저장공간(사진) 권한 상태만 읽는다.
+  Future<PermissionResult> photosStatus();
 
   Future<bool> openSettings();
 }

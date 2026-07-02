@@ -6,6 +6,7 @@ import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/data/provider/repository_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 BaseOptions _baseOptions() => BaseOptions(
@@ -30,24 +31,40 @@ final Provider<Dio> dioProvider = Provider<Dio>((ref) {
       storage: storage,
       retryDio: retryDio,
       recoverSession: () => ref.read(authRepositoryProvider).recoverSession(),
-      onSessionExpired: () async {
-        // 이미 비워졌으면(다른 401 핸들러가 처리) 중복 동작하지 않는다. (1회 가드)
-        final hasToken =
-            await storage.read(key: StorageKey.accessToken) != null;
-        if (!hasToken) return;
-
-        await storage.delete(key: StorageKey.accessToken);
-        await storage.delete(key: StorageKey.refreshToken);
-        await storage.delete(key: StorageKey.socialLoginType);
-
-        // 인증 상태 무효화(라우터 redirect 재평가용) 후, 로그인 화면으로 직접 이동.
-        // 라우터를 재생성하지 않으므로 명시적으로 보낸다. (invalidate 를 먼저 해야
-        // isLoggedIn=false 가 되어 login→home 바운스가 일어나지 않는다)
-        ref.invalidate(authStateProvider);
-        ref.read(routerProvider).go(RoutePath.login);
-      },
+      onSessionExpired: () => handleSessionExpired(
+        storage: storage,
+        // 인증 상태를 비로그인으로 즉시 확정(라우터 redirect 재평가용)한다.
+        markLoggedOut: () =>
+            ref.read(authStateProvider.notifier).markLoggedOut(),
+        // 라우터를 재생성하지 않으므로 로그인 화면으로 직접 보낸다.
+        goToLogin: () => ref.read(routerProvider).go(RoutePath.login),
+      ),
     ),
   );
 
   return dio;
 });
+
+/// 세션 복구가 불가능할 때(401 + 재발급/재인증 실패) 강제 로그아웃을 처리한다.
+///
+/// 로컬 토큰·소셜 정보를 지우고 → 인증 상태를 비로그인으로 **먼저** 확정한 뒤 →
+/// 로그인 화면으로 이동한다. 순서가 중요하다: [markLoggedOut] 으로 isLoggedIn 을
+/// 동기 확정한 뒤 [goToLogin] 을 불러야, redirect 가 stale 값(로그인=true)을 읽고
+/// 로그인 화면을 홈으로 바운스시키는 경합이 생기지 않는다.
+///
+/// 토큰이 이미 비워져 있으면(다른 401 핸들러가 처리) 아무것도 하지 않는다. (1회 가드)
+Future<void> handleSessionExpired({
+  required FlutterSecureStorage storage,
+  required void Function() markLoggedOut,
+  required void Function() goToLogin,
+}) async {
+  final hasToken = await storage.read(key: StorageKey.accessToken) != null;
+  if (!hasToken) return;
+
+  await storage.delete(key: StorageKey.accessToken);
+  await storage.delete(key: StorageKey.refreshToken);
+  await storage.delete(key: StorageKey.socialLoginType);
+
+  markLoggedOut();
+  goToLogin();
+}

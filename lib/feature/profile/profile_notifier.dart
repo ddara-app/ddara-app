@@ -64,9 +64,9 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
     // 토큰·소셜타입 정리와 로그아웃 API 호출은 UseCase가 담당한다.
     final success = await ref.read(logoutUseCaseProvider)();
 
-    // 로컬 인증 정보는 이미 비워졌으므로, 라우터가 인증 상태를 다시 계산하도록
-    // 무효화한다. (isLoggedIn → false)
-    ref.invalidate(authStateProvider);
+    // 로컬 인증 정보는 이미 비워졌으므로, 인증 상태를 비로그인으로 즉시 확정한다.
+    // (재계산을 기다리는 사이 redirect 가 stale 값을 읽어 홈으로 바운스되는 것을 막는다)
+    ref.read(authStateProvider.notifier).markLoggedOut();
 
     state = state.copyWith(
       logoutStatus: success ? LogoutStatus.success : LogoutStatus.fail,
@@ -85,9 +85,9 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
       // 서버 회원 탈퇴 + 소셜·로컬 인증 정보 정리는 UseCase가 담당한다.
       await ref.read(deleteAccountUseCaseProvider)();
 
-      // 로컬 인증 정보가 비워졌으므로, 라우터가 인증 상태를 다시 계산하도록
-      // 무효화한다. (isLoggedIn → false)
-      ref.invalidate(authStateProvider);
+      // 로컬 인증 정보가 비워졌으므로, 인증 상태를 비로그인으로 즉시 확정한다.
+      // (재계산을 기다리는 사이 redirect 가 stale 값을 읽어 홈으로 바운스되는 것을 막는다)
+      ref.read(authStateProvider.notifier).markLoggedOut();
 
       state = state.copyWith(withdrawStatus: WithdrawStatus.success);
     } catch (_) {
