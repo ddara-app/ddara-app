@@ -1,7 +1,6 @@
 import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
-import 'package:ddara/core/image/image_compressor.dart';
 import 'package:ddara/core/image/image_picker_service.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
@@ -158,14 +157,10 @@ class ProfilePage extends ConsumerWidget {
     // 프로필로 쓸 영역만 원형으로 잘라낸다. (아바타가 원형)
     final cropped = await picker.cropToCircle(picked.path);
     if (cropped == null) return; // 크롭 취소
-
-    // 업로드 용량을 줄이기 위해 아바타 크기로 축소한다. (원형 투명도 보존 위해 PNG)
-    final resizedPath =
-        await ImageCompressor.compressPng(cropped.path, maxSize: 512) ??
-        cropped.path;
     if (!context.mounted) return;
 
-    await _uploadProfileImage(context, ref, resizedPath);
+    // 리사이징·압축은 업로드 단계(UploadDataSource.compress)에서 처리한다.
+    await _uploadProfileImage(context, ref, cropped.path);
   }
 
   /// 준비된 이미지 파일을 서버에 업로드(멀티파트)하고 프로필 이미지를 갱신한다.

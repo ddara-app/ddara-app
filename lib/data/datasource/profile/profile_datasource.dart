@@ -16,29 +16,15 @@ class ProfileDataSource {
     return ProfileResponse.fromJson(response.data);
   }
 
-  /// 프로필 이미지를 멀티파트(`image` 필드)로 업로드하고 새 이미지 URL을 받는다.
+  /// S3에 업로드된 이미지 URL로 프로필 이미지를 갱신하고 새 이미지 URL을 받는다.
   ///
-  /// Content-Type(multipart/form-data)은 dio 가 FormData 를 감지해 자동 설정한다.
-  Future<ProfileImageResponse> uploadProfileImage(String path) async {
-    final formData = FormData.fromMap({
-      'image': await MultipartFile.fromFile(
-        path,
-        filename: path.split(RegExp(r'[/\\]')).last,
-        contentType: _mediaTypeOf(path),
-      ),
-    });
-
-    final response = await _dio.patch('$_baseUrl/profile-image', data: formData);
+  /// (파일 업로드는 공용 presign 흐름으로 먼저 처리하고, 여기서는 URL만 전달한다)
+  Future<ProfileImageResponse> updateProfileImage(String imageUrl) async {
+    final response = await _dio.patch(
+      '$_baseUrl/profile-image',
+      data: {'imageUrl': imageUrl},
+    );
     return ProfileImageResponse.fromJson(response.data);
-  }
-
-  /// 파일 확장자로 이미지 Content-Type 을 정한다. (서버는 jpg/png 만 허용)
-  DioMediaType _mediaTypeOf(String path) {
-    final ext = path.toLowerCase().split('.').last;
-    return switch (ext) {
-      'png' => DioMediaType('image', 'png'),
-      _ => DioMediaType('image', 'jpeg'),
-    };
   }
 
   /// 회원 탈퇴. (요청 body·응답 body 없음)
