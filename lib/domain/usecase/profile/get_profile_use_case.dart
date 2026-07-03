@@ -9,3 +9,4 @@ class GetProfileUseCase {
     return await _profileRepository.getProfile();
   }
 }
+ 

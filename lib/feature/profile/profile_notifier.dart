@@ -3,6 +3,7 @@ import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:flutter/widgets.dart' show NetworkImage;
 import 'package:ddara/core/router/app_router.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
+import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -70,6 +71,8 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
       // (URL 이 매번 다르면 캐시에 없어 no-op) 상태 갱신 전에 비워야 재로드된다.
       await NetworkImage(url).evict();
       state = state.copyWith(isImageUploading: false, profileImageUrl: url);
+      // 공유 프로필(홈 AppBar 아바타 등)도 새 이미지로 갱신되도록 재조회를 유도한다.
+      ref.invalidate(currentProfileProvider);
     } catch (_) {
       state = state.copyWith(isImageUploading: false);
       rethrow;
