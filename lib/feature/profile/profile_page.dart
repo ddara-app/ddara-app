@@ -151,11 +151,14 @@ class ProfilePage extends ConsumerWidget {
       ProfileImageSource.camera => await picker.pickFromCamera(),
       ProfileImageSource.gallery => await picker.pickFromGallery(),
     };
+    if (picked == null) return; // 선택·촬영 취소
 
-    if (picked == null) return; // 취소·실패
+    // 프로필로 쓸 영역만 원형으로 잘라낸다. (아바타가 원형)
+    final cropped = await picker.cropToCircle(picked.path);
+    if (cropped == null) return; // 크롭 취소
     if (!context.mounted) return;
 
-    // TODO: 선택한 이미지(picked.path)를 압축·업로드하고 프로필 이미지를 갱신한다.
+    // TODO: 잘라낸 이미지(cropped.path)를 압축·업로드하고 프로필 이미지를 갱신한다.
     //  (프로필 이미지 업로드 API 확정 후 연결 — ImageCompressor 재사용)
     Toast.showToast(
       context,
