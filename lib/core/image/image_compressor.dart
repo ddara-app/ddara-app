@@ -32,4 +32,23 @@ class ImageCompressor {
 
     return result?.path;
   }
+
+  /// [path] 의 이미지를 [maxSize] 정사각 박스에 맞춰 축소하고 PNG 로 재인코딩한
+  /// 새 파일 경로를 반환한다. 실패 시 null.
+  ///
+  /// 원형 크롭 결과처럼 **투명도(알파)를 보존**해야 하는 이미지에 쓴다.
+  /// (PNG 는 무손실이라 quality 는 적용되지 않으며, 크기는 해상도 축소로 줄인다)
+  static Future<String?> compressPng(String path, {int maxSize = 512}) async {
+    final targetPath = '${path}_resized.png';
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      path,
+      targetPath,
+      minWidth: maxSize,
+      minHeight: maxSize,
+      format: CompressFormat.png,
+    );
+
+    return result?.path;
+  }
 }

@@ -1,5 +1,7 @@
 import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/exception/profile_exception.dart';
+import 'package:ddara/core/image/image_compressor.dart';
 import 'package:ddara/core/image/image_picker_service.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
@@ -156,15 +158,47 @@ class ProfilePage extends ConsumerWidget {
     // 프로필로 쓸 영역만 원형으로 잘라낸다. (아바타가 원형)
     final cropped = await picker.cropToCircle(picked.path);
     if (cropped == null) return; // 크롭 취소
+
+    // 업로드 용량을 줄이기 위해 아바타 크기로 축소한다. (원형 투명도 보존 위해 PNG)
+    final resizedPath =
+        await ImageCompressor.compressPng(cropped.path, maxSize: 512) ??
+        cropped.path;
     if (!context.mounted) return;
 
-    // TODO: 잘라낸 이미지(cropped.path)를 압축·업로드하고 프로필 이미지를 갱신한다.
-    //  (프로필 이미지 업로드 API 확정 후 연결 — ImageCompressor 재사용)
-    Toast.showToast(
-      context,
-      AppLocalizations.of(context).profileNotImplemented,
-      type: ToastType.error,
-    );
+    await _uploadProfileImage(context, ref, resizedPath);
+  }
+
+  /// 준비된 이미지 파일을 서버에 업로드(멀티파트)하고 프로필 이미지를 갱신한다.
+  ///
+  /// 성공 시 안내 토스트, 실패 시 원인별 토스트를 띄운다. (상태 갱신은 notifier)
+  Future<void> _uploadProfileImage(
+    BuildContext context,
+    WidgetRef ref,
+    String imagePath,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      await ref
+          .read(profileNotifierProvider.notifier)
+          .updateProfileImage(imagePath);
+      if (!context.mounted) return;
+      Toast.showToast(context, l10n.profileImageUpdated);
+    } on InvalidImageFileException {
+      if (!context.mounted) return;
+      Toast.showToast(
+        context,
+        l10n.profileImageInvalidFormat,
+        type: ToastType.error,
+      );
+    } catch (_) {
+      // UserNotFoundException·NetworkException 등.
+      if (!context.mounted) return;
+      Toast.showToast(
+        context,
+        l10n.profileImageUploadFailed,
+        type: ToastType.error,
+      );
+    }
   }
 
   /// 문의 메일 수신 주소.

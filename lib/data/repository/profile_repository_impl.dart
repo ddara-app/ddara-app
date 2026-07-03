@@ -41,6 +41,32 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<String> uploadProfileImage(String imagePath) async {
+    try {
+      final response = await _profileDataSource.uploadProfileImage(imagePath);
+      return response.profileImageUrl;
+    } on DioException catch (e) {
+      final code = e.response?.data is Map
+          ? ProfileErrorCode.fromValue(e.response?.data['code'])
+          : null;
+
+      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
+      switch (code) {
+        case ProfileErrorCode.invalidImageFile:
+          // 400 — jpg/png 가 아닌 형식
+          throw InvalidImageFileException();
+
+        case ProfileErrorCode.userNotFound:
+          // 404 — 사용자를 찾을 수 없음
+          throw UserNotFoundException();
+
+        default:
+          throw NetworkException();
+      }
+    }
+  }
+
+  @override
   Future<NotificationSettings> changeNotificationSettings(
     NotificationSettings settings,
   ) async {

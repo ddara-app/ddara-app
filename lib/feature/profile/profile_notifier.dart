@@ -1,5 +1,6 @@
 import 'package:ddara/core/exception/profile_exception.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:flutter/widgets.dart' show NetworkImage;
 import 'package:ddara/core/router/app_router.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
@@ -53,6 +54,26 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
   Future<String> _getAppVersion() async {
     final info = await PackageInfo.fromPlatform();
     return 'v${info.version}';
+  }
+
+  /// 프로필 이미지를 업로드하고, 성공 시 새 이미지 URL로 상태를 갱신한다.
+  ///
+  /// 실패(형식 오류·사용자 없음·네트워크 등)는 호출한 화면에서 안내하도록
+  /// 예외를 그대로 전파한다. 업로드 중 중복 호출은 무시한다.
+  Future<void> updateProfileImage(String imagePath) async {
+    if (state.isImageUploading) return;
+
+    state = state.copyWith(isImageUploading: true);
+    try {
+      final url = await ref.read(uploadProfileImageUseCaseProvider)(imagePath);
+      // 서버가 같은 URL 로 덮어쓰는 경우에도 새 이미지가 보이도록 캐시를 비운다.
+      // (URL 이 매번 다르면 캐시에 없어 no-op) 상태 갱신 전에 비워야 재로드된다.
+      await NetworkImage(url).evict();
+      state = state.copyWith(isImageUploading: false, profileImageUrl: url);
+    } catch (_) {
+      state = state.copyWith(isImageUploading: false);
+      rethrow;
+    }
   }
 
   /// 로그아웃. 토큰·소셜 정보를 비우고(UseCase) 인증 상태를 무효화한다.
