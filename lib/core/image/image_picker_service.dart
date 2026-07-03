@@ -1,3 +1,4 @@
+import 'package:ddara/core/designsystem/theme/app_colors.dart';
 import 'package:flutter/widgets.dart' show Color;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -52,6 +53,12 @@ class ImagePickerService {
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: title,
+            // 앱 다크 테마에 맞춘 툴바/배경/강조 색.
+            toolbarColor: AppColors.bgBase,
+            toolbarWidgetColor: AppColors.textPrimary,
+            backgroundColor: AppColors.bgBase,
+            activeControlsWidgetColor: AppColors.accentDefault,
+            statusBarLight: false,
             // 원형 마스크 + 정사각 비율 고정. (하단 컨트롤 숨겨 이동/확대만)
             cropStyle: CropStyle.circle,
             lockAspectRatio: true,
