@@ -1,9 +1,11 @@
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 
 /// 지난 따라찍기 사진들. (살짝 회전된 카드들을 가로로 나열)
 ///
@@ -44,6 +46,9 @@ class HistoryPhotos extends StatelessWidget {
             _OverlapCard(
               cardWidth: _cardWidth,
               visibleWidth: _visibleWidth,
+              // 카드 탭 → 해당 사이클의 사진 갤러리로 이동.
+              onTap: () =>
+                  context.push(RoutePath.follower, extra: cycles[i].cycleId),
               child: _PhotoCard(
                 // 카드마다 좌우로 번갈아 기울이고 모서리 둥글기도 교차시킨다.
                 angle: i.isEven ? -0.14 : 0.14,
@@ -75,11 +80,15 @@ class _OverlapCard extends StatelessWidget {
     required this.cardWidth,
     required this.visibleWidth,
     required this.child,
+    this.onTap,
   });
 
   final double cardWidth;
   final double visibleWidth;
   final Widget child;
+
+  /// 카드 탭 콜백. (null 이면 탭 비활성)
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +97,12 @@ class _OverlapCard extends StatelessWidget {
       widthFactor: visibleWidth / cardWidth,
       // 세로는 child 높이에 맞춘다. (가로 스크롤이라 세로 제약이 무한대일 수 있음)
       heightFactor: 1,
-      child: child,
+      child: GestureDetector(
+        onTap: onTap,
+        // 회전/여백으로 생긴 투명 영역이 아닌 카드 전체에서 탭을 받도록.
+        behavior: HitTestBehavior.opaque,
+        child: child,
+      ),
     );
   }
 }
