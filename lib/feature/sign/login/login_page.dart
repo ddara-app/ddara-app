@@ -109,6 +109,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 SocialLoginType.google,
                               ),
                       ),
+                      _SocialLoginButton(
+                        label: l10n.loginApple,
+                        iconPath: 'assets/images/ic_apple_logo_.svg',
+                        backgroundColor: const Color(0xFFFFFFFF),
+                        foregroundColor: const Color(0xFF000000),
+                        // 흰색 배경에 맞춰 단색 애플 로고를 검정으로 틴트.
+                        //iconColor: const Color(0xFF000000),
+                        // TODO: Apple 로그인 플로우 연결. (sign_in_with_apple +
+                        //  iOS Sign in with Apple capability + 백엔드 /api/auth/apple
+                        //  + SocialLoginType.apple) 현재는 미구현 안내만 표시.
+                        onPressed: isLoading
+                            ? null
+                            : () => Toast.showToast(
+                                context,
+                                l10n.loginAppleComingSoon,
+                              ),
+                      ),
                       AppTextButton(
                         label: l10n.loginViewPolicies,
                         onPressed: () => context.push(RoutePath.termsPolicy),
@@ -137,6 +154,7 @@ class _SocialLoginButton extends StatelessWidget {
     required this.backgroundColor,
     required this.foregroundColor,
     required this.onPressed,
+    this.iconColor,
   });
 
   /// 브랜드 아이콘 한 변 크기.
@@ -150,6 +168,9 @@ class _SocialLoginButton extends StatelessWidget {
   final Color foregroundColor;
   final VoidCallback? onPressed;
 
+  /// 아이콘 틴트 색. null 이면 SVG 원본 색을 쓴다. (단색 로고를 배경색에 맞출 때)
+  final Color? iconColor;
+
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
@@ -159,7 +180,14 @@ class _SocialLoginButton extends StatelessWidget {
       // 아이콘은 왼쪽 끝(버튼 패딩 16 안쪽)에 고정, 라벨은 버튼 정중앙.
       child: Row(
         children: [
-          SvgPicture.asset(iconPath, width: _iconSize, height: _iconSize),
+          SvgPicture.asset(
+            iconPath,
+            width: _iconSize,
+            height: _iconSize,
+            colorFilter: iconColor == null
+                ? null
+                : ColorFilter.mode(iconColor!, BlendMode.srcIn),
+          ),
           Expanded(
             child: Text(
               label,

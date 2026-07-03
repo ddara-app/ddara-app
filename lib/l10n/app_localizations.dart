@@ -160,6 +160,18 @@ abstract class AppLocalizations {
   /// **'Google 로그인'**
   String get loginGoogle;
 
+  /// 애플 로그인 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'Apple 로그인'**
+  String get loginApple;
+
+  /// 애플 로그인 미구현 안내 토스트
+  ///
+  /// In ko, this message translates to:
+  /// **'Apple 로그인은 곧 지원될 예정이에요.'**
+  String get loginAppleComingSoon;
+
   /// 로그인 화면 약관·정책 확인 링크
   ///
   /// In ko, this message translates to:

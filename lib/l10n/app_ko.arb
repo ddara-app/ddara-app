@@ -49,6 +49,14 @@
   "@loginGoogle": {
     "description": "구글 로그인 버튼"
   },
+  "loginApple": "Apple 로그인",
+  "@loginApple": {
+    "description": "애플 로그인 버튼"
+  },
+  "loginAppleComingSoon": "Apple 로그인은 곧 지원될 예정이에요.",
+  "@loginAppleComingSoon": {
+    "description": "애플 로그인 미구현 안내 토스트"
+  },
   "loginViewPolicies": "이용약관과 개인정보 처리방침 확인",
   "@loginViewPolicies": {
     "description": "로그인 화면 약관·정책 확인 링크"

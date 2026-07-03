@@ -42,6 +42,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginGoogle => 'Google 로그인';
 
   @override
+  String get loginApple => 'Apple 로그인';
+
+  @override
+  String get loginAppleComingSoon => 'Apple 로그인은 곧 지원될 예정이에요.';
+
+  @override
   String get loginViewPolicies => '이용약관과 개인정보 처리방침 확인';
 
   @override
