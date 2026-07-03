@@ -1,5 +1,6 @@
 import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/image/image_picker_service.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
@@ -76,7 +77,7 @@ class ProfilePage extends ConsumerWidget {
                 name: state.name,
                 imageUrl: state.profileImageUrl,
                 onImageSourceSelected: (source) =>
-                    _onImageSourceSelected(context, source),
+                    _onImageSourceSelected(context, ref, source),
               ),
               ProfileSection(
                 label: l10n.profileSectionBasicInfo,
@@ -136,9 +137,26 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  /// 프로필 사진 소스(카메라/갤러리) 선택 후 처리.
-  // TODO: 카메라 촬영/갤러리 선택으로 이미지를 받아 업로드하고, 프로필 이미지를 갱신한다.
-  void _onImageSourceSelected(BuildContext context, ProfileImageSource source) {
+  /// 프로필 사진 소스(카메라/갤러리)를 열어 이미지를 선택한다.
+  ///
+  /// image_picker 로 카메라 촬영/갤러리 선택을 수행한다. 사용자가 취소하면
+  /// 아무것도 하지 않는다.
+  Future<void> _onImageSourceSelected(
+    BuildContext context,
+    WidgetRef ref,
+    ProfileImageSource source,
+  ) async {
+    final picker = ref.read(imagePickerServiceProvider);
+    final picked = switch (source) {
+      ProfileImageSource.camera => await picker.pickFromCamera(),
+      ProfileImageSource.gallery => await picker.pickFromGallery(),
+    };
+
+    if (picked == null) return; // 취소·실패
+    if (!context.mounted) return;
+
+    // TODO: 선택한 이미지(picked.path)를 압축·업로드하고 프로필 이미지를 갱신한다.
+    //  (프로필 이미지 업로드 API 확정 후 연결 — ImageCompressor 재사용)
     Toast.showToast(
       context,
       AppLocalizations.of(context).profileNotImplemented,
