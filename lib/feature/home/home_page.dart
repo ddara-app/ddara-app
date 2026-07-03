@@ -7,6 +7,7 @@ import 'package:ddara/feature/home/empty_group_page.dart';
 import 'package:ddara/feature/home/group_list_page.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
+import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,6 +24,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(homeNotifierProvider);
+    // 서버 프로필의 이미지 URL. (조회 전·미등록이면 null → 기본 아바타)
+    final profileImageUrl = ref
+        .watch(currentProfileProvider)
+        .valueOrNull
+        ?.profileImageUrl;
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -42,8 +48,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               onPressed: () => context.push(RoutePath.notification),
             ),
             _NavIconButton(
-              // TODO: 사용자 프로필 이미지 URL 연동. (현재는 기본 아바타)
-              icon: const ProfileAvatar(size: 32),
+              icon: ProfileAvatar(size: 32, imageUrl: profileImageUrl),
               onPressed: () => context.push(RoutePath.profile),
             ),
           ],

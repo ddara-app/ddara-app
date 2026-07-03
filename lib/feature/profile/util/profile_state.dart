@@ -51,6 +51,9 @@ class ProfileState {
   /// 프로필 정보 로딩 여부.
   final bool isLoading;
 
+  /// 프로필 이미지 업로드 진행 여부. (중복 탭 방지 + 진행 표시)
+  final bool isImageUploading;
+
   /// 프로필 정보 로딩 실패 메시지. (없으면 빈 문자열)
   final String errorMessage;
 
@@ -67,6 +70,7 @@ class ProfileState {
     this.appVersion = '',
     this.linkedAccount = '',
     this.isLoading = false,
+    this.isImageUploading = false,
     this.errorMessage = '',
     this.logoutStatus = LogoutStatus.idle,
     this.withdrawStatus = WithdrawStatus.idle,
@@ -79,6 +83,7 @@ class ProfileState {
     String? appVersion,
     String? linkedAccount,
     bool? isLoading,
+    bool? isImageUploading,
     String? errorMessage,
     LogoutStatus? logoutStatus,
     WithdrawStatus? withdrawStatus,
@@ -90,6 +95,7 @@ class ProfileState {
       appVersion: appVersion ?? this.appVersion,
       linkedAccount: linkedAccount ?? this.linkedAccount,
       isLoading: isLoading ?? this.isLoading,
+      isImageUploading: isImageUploading ?? this.isImageUploading,
       errorMessage: errorMessage ?? this.errorMessage,
       logoutStatus: logoutStatus ?? this.logoutStatus,
       withdrawStatus: withdrawStatus ?? this.withdrawStatus,
