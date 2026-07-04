@@ -7,6 +7,7 @@ import 'package:ddara/domain/usecase/cycle/get_cycle_gallery_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/starter_upload_use_case.dart';
 import 'package:ddara/domain/usecase/group/create_group_use_case.dart';
 import 'package:ddara/domain/usecase/group/get_group_list_use_case.dart';
+import 'package:ddara/domain/usecase/notification/get_notifications_use_case.dart';
 import 'package:ddara/domain/usecase/profile/change_notification_settings_use_case.dart';
 import 'package:ddara/domain/usecase/profile/delete_account_use_case.dart';
 import 'package:ddara/domain/usecase/profile/get_notification_settings_use_case.dart';
@@ -113,3 +114,9 @@ final changeNotificationSettingsUseCaseProvider =
         ref.read(profileRepositoryProvider),
       );
     });
+
+final getNotificationsUseCaseProvider = Provider<GetNotificationsUseCase>((
+  ref,
+) {
+  return GetNotificationsUseCase(ref.read(notificationRepositoryProvider));
+});
