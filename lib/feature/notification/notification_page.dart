@@ -1,48 +1,43 @@
 import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
+import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/feature/notification/provider/notifier_provider.dart';
+import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:ddara/feature/notification/widget/notification_empty.dart';
-import 'package:ddara/feature/notification/widget/notification_item.dart';
+import 'package:ddara/feature/notification/widget/notification_tile.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// 알림 목록 화면.
 ///
-/// 상단 바(뒤로가기 + 가운데 '알림') 아래로 알림 항목([NotificationItem])을 쌓는다.
-class NotificationPage extends StatelessWidget {
+/// 상단 바(뒤로가기 + 가운데 '알림') 아래로 알림 항목([NotificationTile])을 쌓는다.
+class NotificationPage extends ConsumerWidget {
   const NotificationPage({super.key});
 
-  // TODO: 알림 조회 API 응답으로 대체. (백엔드 스펙 대기 — 임시 더미)
-  static const List<NotificationDisplay> _dummy = [
-    (
-      category: '모임 합류',
-      message: '지원님이 ‘마라탕 맛있게 먹기’ 모임에 합류했어요',
-      timeAgo: '5분 전',
-      imageUrl: null,
-      isRead: false,
-    ),
-    (
-      category: '따라찍기 시작',
-      message: '‘마라탕 맛있게 먹기’ 모임에서 새로운 따라찍기가 시작됐어요',
-      timeAgo: '1시간 전',
-      imageUrl: null,
-      isRead: true,
-    ),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(notificationNotifierProvider);
+
     return CupertinoPageScaffold(
       navigationBar: AppBar(title: '알림', onBack: () => context.pop()),
-      child: SafeArea(child: _body()),
+      child: SafeArea(child: _body(state)),
     );
   }
 
-  Widget _body() {
-    // 실데이터 연동 시 _dummy → API 응답으로 교체. (빈 상태 확인은 const [] 로 대체)
-    const notifications = _dummy;
+  Widget _body(NotificationState state) {
+    // 첫 조회 중: 로딩 인디케이터.
+    if (state.isLoading) {
+      return const Center(child: CupertinoActivityIndicator());
+    }
+
+    // 조회 실패: 에러 메시지.
+    if (state.errorMessage.isNotEmpty) {
+      return Center(child: AppText.body(state.errorMessage));
+    }
 
     // 알림이 없으면 빈 상태 화면을 중앙에 보여준다.
-    if (notifications.isEmpty) {
+    if (state.isEmpty) {
       return const Center(child: NotificationEmpty());
     }
 
@@ -60,8 +55,8 @@ class NotificationPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppSpacing.s3,
         children: [
-          for (final notification in notifications)
-            NotificationItem(data: notification),
+          for (final notification in state.items)
+            NotificationTile(item: notification),
         ],
       ),
     );
