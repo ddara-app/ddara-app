@@ -156,9 +156,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   /// 상태에 맞춰 처리한다. 초기화 실패는 앱 흐름을 막지 않는다.
   Future<void> _initMessaging() async {
     try {
-      await NotificationService.instance.init(
-        onMessageOpened: _handleMessageRoute,
-      );
+      await NotificationService.instance.init(onTap: _handleNotificationTap);
       await NotificationService.instance.checkInitialMessage();
       // provider 를 read 해 토큰 동기화 리스너/구독을 살려 둔다.
       ref.read(fcmTokenSyncProvider);
@@ -167,10 +165,24 @@ class _MyAppState extends ConsumerState<MyApp> {
     }
   }
 
-  /// 알림 탭으로 앱에 진입했을 때의 라우팅.
-  void _handleMessageRoute(RemoteMessage message) {
-    // TODO(fcm): message.data(예: screen/groupId 등)로 화면 라우팅 처리.
-    debugPrint('[FCM] 알림 탭 라우팅: ${message.data}');
+  /// 알림 탭 시 payload(data)의 type·id 로 해당 화면으로 이동한다.
+  ///
+  /// - MEMBER_JOIN → 그룹 상세(groupId)
+  /// - NEW_CYCLE·CYCLE_COMPLETED·DEADLINE → 사이클 갤러리(cycleId)
+  void _handleNotificationTap(Map<String, dynamic> data) {
+    final router = ref.read(routerProvider);
+    switch (data['type']) {
+      case 'MEMBER_JOIN':
+        final groupId = int.tryParse('${data['groupId']}');
+        if (groupId != null) router.push(RoutePath.group, extra: groupId);
+      case 'NEW_CYCLE':
+      case 'CYCLE_COMPLETED':
+      case 'DEADLINE':
+        final cycleId = int.tryParse('${data['cycleId']}');
+        if (cycleId != null) router.push(RoutePath.follower, extra: cycleId);
+      default:
+        debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
+    }
   }
 
   /// 콜드 스타트 시 스플래시를 네트워크에 묶지 않기 위해, 로컬 토큰으로 낙관적
