@@ -24,6 +24,8 @@ class ProfileAvatar extends StatelessWidget {
     // (감싸면 배경이 중복된다)
     if (!hasImage) return _DefaultIcon(size: size);
 
+    // 테두리를 두면 자식이 그만큼 안쪽으로 밀려 상하좌우에 배경색이 비치므로
+    // (border-deflation) 테두리 없이 이미지가 원 전체를 채우게 한다.
     return Container(
       width: size,
       height: size,
@@ -31,9 +33,6 @@ class ProfileAvatar extends StatelessWidget {
       decoration: const BoxDecoration(
         color: AppColors.bgSurfaceAlt,
         shape: BoxShape.circle,
-        border: Border.fromBorderSide(
-          BorderSide(color: AppColors.borderDefault),
-        ),
       ),
       child: Image.network(
         url,
