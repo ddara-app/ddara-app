@@ -51,6 +51,9 @@ class CyclePhotoGallery extends ConsumerWidget {
   ) {
     final cycle = gallery.cycle;
 
+    // 마감된(done) 회차는 사진이 있는 카드만 보여준다. (미업로드 빈 카드는 숨김)
+    final isDoneCycle = cycle.status.toLowerCase() == 'done';
+
     // 본인이 스타터인지 여부. (내 멤버가 스타터 플래그를 가졌는지)
     final iAmStarter = gallery.members.any(
       (m) => m.userId == myUserId && m.isStarter,
@@ -60,13 +63,23 @@ class CyclePhotoGallery extends ConsumerWidget {
     final canSeeAll = iAmStarter || gallery.viewerUploaded;
 
     // 스타터는 헤더에 노출되므로 그리드에서는 제외한다.
-    final members = gallery.members.where((m) => !m.isStarter).toList();
+    final nonStarters = gallery.members.where((m) => !m.isStarter).toList();
 
-    // 내가 스타터가 아니면 본인 카드를 항상 맨 앞에 둔다.
-    if (!iAmStarter) {
-      final myIndex = members.indexWhere((m) => m.userId == myUserId);
-      if (myIndex > 0) {
-        members.insert(0, members.removeAt(myIndex));
+    final List<CycleGalleryMember> members;
+    if (isDoneCycle) {
+      // 마감 회차: 사진이 있는 멤버를 앞에, 없는 멤버를 뒤에 둔다. (모두 표시)
+      members = [
+        ...nonStarters.where((m) => m.imageUrl != null),
+        ...nonStarters.where((m) => m.imageUrl == null),
+      ];
+    } else {
+      members = nonStarters;
+      // 진행 중: 내가 스타터가 아니면 본인 카드를 항상 맨 앞에 둔다.
+      if (!iAmStarter) {
+        final myIndex = members.indexWhere((m) => m.userId == myUserId);
+        if (myIndex > 0) {
+          members.insert(0, members.removeAt(myIndex));
+        }
       }
     }
 
@@ -115,7 +128,8 @@ class CyclePhotoGallery extends ConsumerWidget {
                     ? null
                     : NetworkImage(member.imageUrl!),
                 // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
-                onTakePhoto: isMe
+                // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
+                onTakePhoto: isMe && !isDoneCycle
                     ? () => context.push(
                         RoutePath.followerCamera,
                         // 대상 사이클 id 와 가이드용 스타터 사진 URL 을 넘긴다.
@@ -127,7 +141,8 @@ class CyclePhotoGallery extends ConsumerWidget {
                     : null,
                 // 모든 사진을 볼 수 없는 상태면 사진이 있는 멤버를 블러+자물쇠로 가린다.
                 // (실제 블러/자물쇠는 image 가 있을 때만 그려진다)
-                isLocked: !canSeeAll,
+                // 단, 마감(done) 회차는 항상 공개하므로 잠금하지 않는다.
+                isLocked: !isDoneCycle && !canSeeAll,
               );
             },
           ),
