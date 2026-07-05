@@ -3,6 +3,7 @@ import 'package:ddara/data/datasource/cycle/cycle_datasource.dart';
 import 'package:ddara/data/datasource/fcm/fcm_datasource.dart';
 import 'package:ddara/data/datasource/notification/notification_datasource.dart';
 import 'package:ddara/data/datasource/profile/profile_datasource.dart';
+import 'package:ddara/data/datasource/upload/upload_datasource.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/dio_provider.dart';
@@ -26,6 +27,10 @@ final profileDataSourceProvider = Provider<ProfileDataSource>((ref) {
 
 final cycleDataSourceProvider = Provider<CycleDataSource>((ref) {
   return CycleDataSource(ref.read(dioProvider));
+});
+
+final uploadDataSourceProvider = Provider<UploadDataSource>((ref) {
+  return UploadDataSource(ref.read(dioProvider));
 });
 
 final fcmDataSourceProvider = Provider<FcmDataSource>((ref) {

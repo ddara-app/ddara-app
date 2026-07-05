@@ -475,7 +475,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupMembersTitle.
   ///
   /// In ko, this message translates to:
-  /// **'사람들'**
+  /// **'친구들'**
   String get groupMembersTitle;
 
   /// No description provided for @groupMembersAdd.
@@ -855,6 +855,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'갤러리에서 선택'**
   String get profileImageSourceGallery;
+
+  /// No description provided for @profileImageUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 사진이 변경되었어요.'**
+  String get profileImageUpdated;
+
+  /// No description provided for @profileImageUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 사진 변경에 실패했어요.'**
+  String get profileImageUploadFailed;
+
+  /// No description provided for @profileImageInvalidFormat.
+  ///
+  /// In ko, this message translates to:
+  /// **'jpg 또는 png 이미지만 사용할 수 있어요.'**
+  String get profileImageInvalidFormat;
 
   /// No description provided for @notificationSettingsTitle.
   ///

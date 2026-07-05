@@ -1,5 +1,7 @@
 import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/exception/profile_exception.dart';
+import 'package:ddara/core/image/image_picker_service.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
@@ -76,7 +78,7 @@ class ProfilePage extends ConsumerWidget {
                 name: state.name,
                 imageUrl: state.profileImageUrl,
                 onImageSourceSelected: (source) =>
-                    _onImageSourceSelected(context, source),
+                    _onImageSourceSelected(context, ref, source),
               ),
               ProfileSection(
                 label: l10n.profileSectionBasicInfo,
@@ -136,14 +138,62 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  /// 프로필 사진 소스(카메라/갤러리) 선택 후 처리.
-  // TODO: 카메라 촬영/갤러리 선택으로 이미지를 받아 업로드하고, 프로필 이미지를 갱신한다.
-  void _onImageSourceSelected(BuildContext context, ProfileImageSource source) {
-    Toast.showToast(
-      context,
-      AppLocalizations.of(context).profileNotImplemented,
-      type: ToastType.error,
-    );
+  /// 프로필 사진 소스(카메라/갤러리)를 열어 이미지를 선택한다.
+  ///
+  /// image_picker 로 카메라 촬영/갤러리 선택을 수행한다. 사용자가 취소하면
+  /// 아무것도 하지 않는다.
+  Future<void> _onImageSourceSelected(
+    BuildContext context,
+    WidgetRef ref,
+    ProfileImageSource source,
+  ) async {
+    final picker = ref.read(imagePickerServiceProvider);
+    final picked = switch (source) {
+      ProfileImageSource.camera => await picker.pickFromCamera(),
+      ProfileImageSource.gallery => await picker.pickFromGallery(),
+    };
+    if (picked == null) return; // 선택·촬영 취소
+
+    // 프로필로 쓸 영역만 원형으로 잘라낸다. (아바타가 원형)
+    final cropped = await picker.cropToCircle(picked.path);
+    if (cropped == null) return; // 크롭 취소
+    if (!context.mounted) return;
+
+    // 리사이징·압축은 업로드 단계(UploadDataSource.compress)에서 처리한다.
+    await _uploadProfileImage(context, ref, cropped.path);
+  }
+
+  /// 준비된 이미지 파일을 서버에 업로드(멀티파트)하고 프로필 이미지를 갱신한다.
+  ///
+  /// 성공 시 안내 토스트, 실패 시 원인별 토스트를 띄운다. (상태 갱신은 notifier)
+  Future<void> _uploadProfileImage(
+    BuildContext context,
+    WidgetRef ref,
+    String imagePath,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      await ref
+          .read(profileNotifierProvider.notifier)
+          .updateProfileImage(imagePath);
+      if (!context.mounted) return;
+      Toast.showToast(context, l10n.profileImageUpdated);
+    } on InvalidImageFileException {
+      if (!context.mounted) return;
+      Toast.showToast(
+        context,
+        l10n.profileImageInvalidFormat,
+        type: ToastType.error,
+      );
+    } catch (_) {
+      // UserNotFoundException·NetworkException 등.
+      if (!context.mounted) return;
+      Toast.showToast(
+        context,
+        l10n.profileImageUploadFailed,
+        type: ToastType.error,
+      );
+    }
   }
 
   /// 문의 메일 수신 주소.

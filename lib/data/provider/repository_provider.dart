@@ -28,11 +28,17 @@ final groupRepositoryProvider = Provider<GroupRepository>((ref) {
 });
 
 final cycleRepositoryProvider = Provider<CycleRepository>((ref) {
-  return CycleRepositoryImpl(ref.read(cycleDataSourceProvider));
+  return CycleRepositoryImpl(
+    ref.read(cycleDataSourceProvider),
+    ref.read(uploadDataSourceProvider),
+  );
 });
 
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
-  return ProfileRepositoryImpl(ref.read(profileDataSourceProvider));
+  return ProfileRepositoryImpl(
+    ref.read(profileDataSourceProvider),
+    ref.read(uploadDataSourceProvider),
+  );
 });
 
 final fcmRepositoryProvider = Provider<FcmRepository>((ref) {

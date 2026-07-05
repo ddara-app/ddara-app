@@ -12,6 +12,7 @@ import 'package:ddara/domain/usecase/profile/change_notification_settings_use_ca
 import 'package:ddara/domain/usecase/profile/delete_account_use_case.dart';
 import 'package:ddara/domain/usecase/profile/get_notification_settings_use_case.dart';
 import 'package:ddara/domain/usecase/profile/get_profile_use_case.dart';
+import 'package:ddara/domain/usecase/profile/upload_profile_image_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/provider/repository_provider.dart';
@@ -90,6 +91,12 @@ final followerUploadUseCase = Provider<FollowerUploadUseCase>((ref) {
 
 final getProfileUseCaseProvider = Provider<GetProfileUseCase>((ref) {
   return GetProfileUseCase(ref.read(profileRepositoryProvider));
+});
+
+final uploadProfileImageUseCaseProvider = Provider<UploadProfileImageUseCase>((
+  ref,
+) {
+  return UploadProfileImageUseCase(ref.read(profileRepositoryProvider));
 });
 
 final deleteAccountUseCaseProvider = Provider<DeleteAccountUseCase>((ref) {

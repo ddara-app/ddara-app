@@ -11,25 +11,27 @@ import 'package:ddara/domain/repository/cycle_repository.dart';
 import 'package:dio/dio.dart';
 
 import '../datasource/cycle/cycle_datasource.dart';
+import '../datasource/upload/upload_datasource.dart';
 import 'mapper/cycle_mapper.dart';
 import 'mapper/group_mapper.dart';
 
 class CycleRepositoryImpl implements CycleRepository {
-  CycleRepositoryImpl(this._cycleDataSource);
+  CycleRepositoryImpl(this._cycleDataSource, this._uploadDataSource);
 
   final CycleDataSource _cycleDataSource;
+  final UploadDataSource _uploadDataSource;
 
   static const String _contentType = 'image/jpeg';
 
   Future<PresignResponse> uploadImage(String path) async {
-    final bytes = await _cycleDataSource.compress(path);
+    final bytes = await _uploadDataSource.compress(path);
 
     // 1) presigned URL 발급 → 2) S3 직접 업로드.
     // (둘 다 사이클 생성 전 단계이므로 상태코드로 구분하지 않고 업로드 실패로 묶는다)
     final PresignResponse presign;
     try {
-      presign = await _cycleDataSource.presign('shot', _contentType);
-      await _cycleDataSource.uploadToS3(
+      presign = await _uploadDataSource.presign('shot', _contentType);
+      await _uploadDataSource.uploadToS3(
         presign.uploadUrl,
         bytes,
         _contentType,

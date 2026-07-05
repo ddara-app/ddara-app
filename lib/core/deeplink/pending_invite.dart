@@ -1,6 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../feature/group/detail/provider/notifier_provider.dart';
+import '../../feature/group/gallery/provider/notifier_provider.dart';
+import '../../feature/home/provider/notifier_provider.dart';
+import '../../feature/profile/provider/notifier_provider.dart';
 import '../permission/provider/permission_provider.dart';
 import '../router/app_router.dart';
 import '../router/route_path.dart';
@@ -25,6 +29,11 @@ Future<void> routeAfterAuth(WidgetRef ref, GoRouter router) async {
   // 인증 성공으로 진입한 지점이므로 로그인 상태를 확정한다. (markLoggedOut 과 대칭)
   // 같은 세션에서 로그아웃 후 재로그인해도 isLoggedIn 이 true 로 되돌아온다.
   ref.read(authStateProvider.notifier).markLoggedIn();
+
+  // 새 세션(다른 계정일 수 있음) 시작. 이전 세션의 사용자 데이터 캐시를 비워
+  // 새 계정 기준으로 다시 조회되게 한다. (홈 그룹 목록·홈 AppBar 프로필 등이
+  // 이전 계정 값으로 남는 것을 막는 단일 지점)
+  _resetSessionCaches(ref);
 
   // 1. 카메라 권한 게이트. (홈 진입 게이트와 동일 정책)
   final acknowledged = ref.read(cameraNoticeAcknowledgedProvider);
@@ -52,4 +61,27 @@ Future<void> routeAfterAuth(WidgetRef ref, GoRouter router) async {
 
   // 3. 기본 홈.
   router.go(RoutePath.home);
+}
+
+/// 로그인 성공(새 세션 시작) 시 이전 세션에 종속된 사용자 데이터 캐시를 비운다.
+///
+/// 계정 전환 시 이전 계정 데이터가 새는 것을 막는다. 위젯 dispose 타이밍에
+/// 의존하지 않도록, 로그인 진입점(routeAfterAuth)에서 확정적으로 리셋한다.
+/// 서버에서 받아온 **계정별 데이터**를 보유하는 provider 를 새로 만들면 여기에
+/// 함께 추가한다. (로그인/입력 폼 등 순수 화면 상태는 대상 아님)
+///
+/// family provider 는 base 를 invalidate 하면 모든 인스턴스가 초기화된다.
+void _resetSessionCaches(WidgetRef ref) {
+  // 홈 그룹 목록.
+  ref.invalidate(homeNotifierProvider);
+  // 홈 AppBar 아바타 등이 공유하는 프로필.
+  ref.invalidate(currentProfileProvider);
+  // 프로필 화면(이름·프로필 사진·가입일·연동 계정).
+  ref.invalidate(profileNotifierProvider);
+  // 알림 설정.
+  ref.invalidate(notificationSettingsNotifierProvider);
+  // 모임 상세(그룹별).
+  ref.invalidate(groupPageNotifierProvider);
+  // 사이클 사진 갤러리(사이클별).
+  ref.invalidate(cyclePhotoGalleryNotifierProvider);
 }

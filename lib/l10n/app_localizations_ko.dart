@@ -208,7 +208,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupDetailLoadError => '모임 정보를 불러오지 못했어요.';
 
   @override
-  String get groupMembersTitle => '사람들';
+  String get groupMembersTitle => '친구들';
 
   @override
   String get groupMembersAdd => '추가하기';
@@ -429,6 +429,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get profileImageSourceGallery => '갤러리에서 선택';
+
+  @override
+  String get profileImageUpdated => '프로필 사진이 변경되었어요.';
+
+  @override
+  String get profileImageUploadFailed => '프로필 사진 변경에 실패했어요.';
+
+  @override
+  String get profileImageInvalidFormat => 'jpg 또는 png 이미지만 사용할 수 있어요.';
 
   @override
   String get notificationSettingsTitle => '알림 설정';
