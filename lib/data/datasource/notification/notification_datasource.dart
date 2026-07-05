@@ -20,4 +20,9 @@ class NotificationDataSource {
     );
     return NotificationListResponse.fromJson(response.data);
   }
+
+  /// 알림 한 건을 읽음 처리한다. (응답 body 없음)
+  Future<void> markAsRead(int notificationId) async {
+    await _dio.patch('$_baseUrl/$notificationId/read');
+  }
 }
