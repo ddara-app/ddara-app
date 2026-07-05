@@ -1,6 +1,7 @@
 import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/notification/provider/notifier_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:ddara/feature/notification/widget/notification_empty.dart';
@@ -21,11 +22,11 @@ class NotificationPage extends ConsumerWidget {
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(title: '알림', onBack: () => context.pop()),
-      child: SafeArea(child: _body(state)),
+      child: SafeArea(child: _body(context, state)),
     );
   }
 
-  Widget _body(NotificationState state) {
+  Widget _body(BuildContext context, NotificationState state) {
     // 첫 조회 중: 로딩 인디케이터.
     if (state.isLoading) {
       return const Center(child: CupertinoActivityIndicator());
@@ -56,7 +57,15 @@ class NotificationPage extends ConsumerWidget {
         spacing: AppSpacing.s3,
         children: [
           for (final notification in state.items)
-            NotificationTile(item: notification),
+            NotificationTile(
+              item: notification,
+              // payload 에 groupId 가 있을 때만 해당 모임 화면으로 이동한다.
+              onTap: switch (notification.payload.groupId) {
+                final int groupId => () =>
+                    context.push(RoutePath.group, extra: groupId),
+                null => null,
+              },
+            ),
         ],
       ),
     );
