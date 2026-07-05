@@ -16,6 +16,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     ref.read(authRemoteDataSourceProvider),
     ref.read(kakaoAuthProvider),
     ref.read(googleAuthProvider),
+    ref.read(appleAuthProvider),
   );
 });
 

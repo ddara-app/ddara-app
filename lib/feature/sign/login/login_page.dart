@@ -116,14 +116,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         foregroundColor: const Color(0xFF000000),
                         // 흰색 배경에 맞춰 단색 애플 로고를 검정으로 틴트.
                         //iconColor: const Color(0xFF000000),
-                        // TODO: Apple 로그인 플로우 연결. (sign_in_with_apple +
-                        //  iOS Sign in with Apple capability + 백엔드 /api/auth/apple
-                        //  + SocialLoginType.apple) 현재는 미구현 안내만 표시.
                         onPressed: isLoading
                             ? null
-                            : () => Toast.showToast(
+                            : () => notifier.socialLogin(
                                 context,
-                                l10n.loginAppleComingSoon,
+                                SocialLoginType.apple,
                               ),
                       ),
                       AppTextButton(

@@ -16,6 +16,7 @@ class LoginNotifier extends Notifier<LoginState> {
   Future<void> socialLogin(BuildContext context, SocialLoginType social) async {
     final googleAuthService = ref.read(googleAuthProvider);
     final kakaoAuthService = ref.read(kakaoAuthProvider);
+    final appleAuthService = ref.read(appleAuthProvider);
 
     switch (social) {
       case SocialLoginType.google:
@@ -28,6 +29,14 @@ class LoginNotifier extends Notifier<LoginState> {
           (token) => _login(token, social),
           (message) => state = LoginFail(message),
         );
+      case SocialLoginType.apple:
+        try {
+          final idToken = await appleAuthService.signInWithApple();
+          // idToken 이 null 이면 사용자가 취소한 것 → 아무 처리도 하지 않는다.
+          if (idToken != null) await _login(idToken, social);
+        } catch (e) {
+          state = LoginFail('$e');
+        }
     }
   }
 

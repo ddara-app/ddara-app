@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ddara/core/auth/apple_auth_service.dart';
 import 'package:ddara/core/auth/google_auth_service.dart';
 import 'package:ddara/core/auth/kakao_auth_service.dart';
 import 'package:ddara/core/exception/sign_up_exception.dart';
@@ -17,11 +18,13 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _authRemoteDataSource;
   final KakaoAuthService _kakaoAuthService;
   final GoogleAuthService _googleAuthService;
+  final AppleAuthService _appleAuthService;
 
   AuthRepositoryImpl(
     this._authRemoteDataSource,
     this._kakaoAuthService,
     this._googleAuthService,
+    this._appleAuthService,
   );
 
   /// 동시에 여러 곳에서 복구를 요청해도 한 번만 수행하기 위한 단일 비행 잠금.
@@ -185,6 +188,9 @@ class AuthRepositoryImpl implements AuthRepository {
         final valid = await _kakaoAuthService.availabilityToken();
         if (!valid) return null;
         return await _kakaoAuthService.getKakaoAccessToken();
+      case SocialLoginType.apple:
+        // Firebase 세션이 살아있으면 ID Token 을 갱신해 반환한다.
+        return await _appleAuthService.getAppleIdToken();
     }
   }
 

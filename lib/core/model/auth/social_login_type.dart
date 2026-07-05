@@ -1,6 +1,7 @@
 enum SocialLoginType {
   google('GOOGLE', '구글'),
-  kakao('KAKAO', '카카오');
+  kakao('KAKAO', '카카오'),
+  apple('APPLE', '애플');
 
   const SocialLoginType(this.value, this.label);
 

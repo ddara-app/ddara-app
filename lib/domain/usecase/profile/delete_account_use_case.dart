@@ -1,3 +1,4 @@
+import 'package:ddara/core/auth/apple_auth_service.dart';
 import 'package:ddara/core/auth/google_auth_service.dart';
 import 'package:ddara/core/auth/kakao_auth_service.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
@@ -9,12 +10,14 @@ class DeleteAccountUseCase {
   final AuthRepository _authRepository;
   final KakaoAuthService _kakaoAuthService;
   final GoogleAuthService _googleAuthService;
+  final AppleAuthService _appleAuthService;
 
   DeleteAccountUseCase(
     this._profileRepository,
     this._authRepository,
     this._kakaoAuthService,
     this._googleAuthService,
+    this._appleAuthService,
   );
 
   /// 회원 탈퇴. 서버 탈퇴 후 소셜 SDK·로컬 인증 정보를 정리한다.
@@ -41,6 +44,8 @@ class DeleteAccountUseCase {
         await _kakaoAuthService.logout();
       case SocialLoginType.google:
         await _googleAuthService.signOut();
+      case SocialLoginType.apple:
+        await _appleAuthService.signOut();
       case null:
         // 소셜 종류 정보가 없으면 SDK 로그아웃은 생략.
         break;

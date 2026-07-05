@@ -1,3 +1,4 @@
+import 'package:ddara/core/auth/apple_auth_service.dart';
 import 'package:ddara/core/auth/google_auth_service.dart';
 import 'package:ddara/core/auth/kakao_auth_service.dart';
 import 'package:ddara/core/exception/login_exception.dart';
@@ -15,6 +16,8 @@ class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 class MockKakaoAuthService extends Mock implements KakaoAuthService {}
 
 class MockGoogleAuthService extends Mock implements GoogleAuthService {}
+
+class MockAppleAuthService extends Mock implements AppleAuthService {}
 
 DioException _dioError(int status) {
   final req = RequestOptions(path: '/api/auth/refresh');
@@ -41,6 +44,7 @@ void main() {
   late MockAuthRemoteDataSource ds;
   late MockKakaoAuthService kakao;
   late MockGoogleAuthService google;
+  late MockAppleAuthService apple;
   late AuthRepositoryImpl repo;
 
   setUpAll(() {
@@ -51,7 +55,8 @@ void main() {
     ds = MockAuthRemoteDataSource();
     kakao = MockKakaoAuthService();
     google = MockGoogleAuthService();
-    repo = AuthRepositoryImpl(ds, kakao, google);
+    apple = MockAppleAuthService();
+    repo = AuthRepositoryImpl(ds, kakao, google, apple);
 
     // 저장 계열은 기본적으로 통과시킨다.
     when(() => ds.saveAccessToken(any())).thenAnswer((_) async {});

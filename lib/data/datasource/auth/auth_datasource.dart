@@ -45,6 +45,7 @@ class AuthRemoteDataSource {
       final response = switch (social) {
         SocialLoginType.google => await _googleLogin(token),
         SocialLoginType.kakao => await _kakaoLogin(token),
+        SocialLoginType.apple => await _appleLogin(token),
       };
 
       return LoginResponse.fromJson(response.data);
@@ -70,6 +71,13 @@ class AuthRemoteDataSource {
 
   Future<Response> _kakaoLogin(String token) async {
     return await _dio.post('/api/auth/kakao', data: {'accessToken': token});
+  }
+
+  /// 애플 로그인. [token] 은 Firebase ID Token 이며, 백엔드는 Firebase Admin SDK
+  /// 로 검증한다. 이름은 토큰의 `name` 클레임(최초 로그인 시 displayName 저장분)에
+  /// 담겨 오므로 별도 필드로 보내지 않는다.
+  Future<Response> _appleLogin(String token) async {
+    return await _dio.post('/api/auth/apple', data: {'idToken': token});
   }
 
   Future<void> saveAccessToken(String? token) async {
