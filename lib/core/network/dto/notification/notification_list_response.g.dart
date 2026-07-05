@@ -12,15 +12,11 @@ _NotificationListResponse _$NotificationListResponseFromJson(
   items: (json['items'] as List<dynamic>)
       .map((e) => NotificationItemResponse.fromJson(e as Map<String, dynamic>))
       .toList(),
-  unreadCount: (json['unreadCount'] as num).toInt(),
 );
 
 Map<String, dynamic> _$NotificationListResponseToJson(
   _NotificationListResponse instance,
-) => <String, dynamic>{
-  'items': instance.items,
-  'unreadCount': instance.unreadCount,
-};
+) => <String, dynamic>{'items': instance.items};
 
 _NotificationItemResponse _$NotificationItemResponseFromJson(
   Map<String, dynamic> json,

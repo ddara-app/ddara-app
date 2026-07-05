@@ -7,7 +7,6 @@ import 'package:ddara/feature/home/empty_group_page.dart';
 import 'package:ddara/feature/home/group_list_page.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
-import 'package:ddara/feature/notification/provider/notifier_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,10 +23,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(homeNotifierProvider);
-    // 읽지 않은 알림이 하나라도 있으면 배지가 있는 벨 아이콘을 보여준다.
-    final hasUnread = ref.watch(
-      notificationNotifierProvider.select((it) => it.unreadCount > 0),
-    );
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -40,10 +35,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           children: [
             _NavIconButton(
               icon: SvgPicture.asset(
-                // 읽지 않은 알림이 있으면 배지 벨, 없으면 기본 벨.
-                hasUnread
-                    ? 'assets/images/ic_notification_bell.svg'
-                    : 'assets/images/ic_bell.svg',
+                'assets/images/ic_bell.svg',
                 width: 26,
                 height: 26,
               ),

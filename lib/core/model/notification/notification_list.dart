@@ -7,7 +7,5 @@ part 'notification_list.freezed.dart';
 abstract class NotificationList with _$NotificationList {
   const factory NotificationList({
     required List<NotificationItem> items,
-    // 읽지 않은 알림 개수.
-    required int unreadCount,
   }) = _NotificationList;
 }

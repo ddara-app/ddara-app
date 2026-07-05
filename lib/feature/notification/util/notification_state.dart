@@ -5,9 +5,6 @@ class NotificationState {
   /// 조회된 알림 목록.
   final List<NotificationItem> items;
 
-  /// 읽지 않은 알림 개수.
-  final int unreadCount;
-
   /// 현재 필터 카테고리.
   final NotificationCategory category;
 
@@ -19,7 +16,6 @@ class NotificationState {
 
   const NotificationState({
     this.items = const [],
-    this.unreadCount = 0,
     this.category = NotificationCategory.all,
     this.isLoading = false,
     this.errorMessage = '',
@@ -30,14 +26,12 @@ class NotificationState {
 
   NotificationState copyWith({
     List<NotificationItem>? items,
-    int? unreadCount,
     NotificationCategory? category,
     bool? isLoading,
     String? errorMessage,
   }) {
     return NotificationState(
       items: items ?? this.items,
-      unreadCount: unreadCount ?? this.unreadCount,
       category: category ?? this.category,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,

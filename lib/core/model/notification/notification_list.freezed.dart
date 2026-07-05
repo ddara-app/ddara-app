@@ -14,8 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotificationList {
 
- List<NotificationItem> get items;// 읽지 않은 알림 개수.
- int get unreadCount;
+ List<NotificationItem> get items;
 /// Create a copy of NotificationList
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +25,16 @@ $NotificationListCopyWith<NotificationList> get copyWith => _$NotificationListCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationList&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationList&&const DeepCollectionEquality().equals(other.items, items));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),unreadCount);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items));
 
 @override
 String toString() {
-  return 'NotificationList(items: $items, unreadCount: $unreadCount)';
+  return 'NotificationList(items: $items)';
 }
 
 
@@ -46,7 +45,7 @@ abstract mixin class $NotificationListCopyWith<$Res>  {
   factory $NotificationListCopyWith(NotificationList value, $Res Function(NotificationList) _then) = _$NotificationListCopyWithImpl;
 @useResult
 $Res call({
- List<NotificationItem> items, int unreadCount
+ List<NotificationItem> items
 });
 
 
@@ -63,11 +62,10 @@ class _$NotificationListCopyWithImpl<$Res>
 
 /// Create a copy of NotificationList
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? unreadCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,}) {
   return _then(_self.copyWith(
 items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<NotificationItem>,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
-as int,
+as List<NotificationItem>,
   ));
 }
 
@@ -152,10 +150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NotificationItem> items,  int unreadCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NotificationItem> items)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationList() when $default != null:
-return $default(_that.items,_that.unreadCount);case _:
+return $default(_that.items);case _:
   return orElse();
 
 }
@@ -173,10 +171,10 @@ return $default(_that.items,_that.unreadCount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NotificationItem> items,  int unreadCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NotificationItem> items)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationList():
-return $default(_that.items,_that.unreadCount);case _:
+return $default(_that.items);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +191,10 @@ return $default(_that.items,_that.unreadCount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NotificationItem> items,  int unreadCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NotificationItem> items)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationList() when $default != null:
-return $default(_that.items,_that.unreadCount);case _:
+return $default(_that.items);case _:
   return null;
 
 }
@@ -208,7 +206,7 @@ return $default(_that.items,_that.unreadCount);case _:
 
 
 class _NotificationList implements NotificationList {
-  const _NotificationList({required final  List<NotificationItem> items, required this.unreadCount}): _items = items;
+  const _NotificationList({required final  List<NotificationItem> items}): _items = items;
   
 
  final  List<NotificationItem> _items;
@@ -218,8 +216,6 @@ class _NotificationList implements NotificationList {
   return EqualUnmodifiableListView(_items);
 }
 
-// 읽지 않은 알림 개수.
-@override final  int unreadCount;
 
 /// Create a copy of NotificationList
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +227,16 @@ _$NotificationListCopyWith<_NotificationList> get copyWith => __$NotificationLis
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationList&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationList&&const DeepCollectionEquality().equals(other._items, _items));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),unreadCount);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items));
 
 @override
 String toString() {
-  return 'NotificationList(items: $items, unreadCount: $unreadCount)';
+  return 'NotificationList(items: $items)';
 }
 
 
@@ -251,7 +247,7 @@ abstract mixin class _$NotificationListCopyWith<$Res> implements $NotificationLi
   factory _$NotificationListCopyWith(_NotificationList value, $Res Function(_NotificationList) _then) = __$NotificationListCopyWithImpl;
 @override @useResult
 $Res call({
- List<NotificationItem> items, int unreadCount
+ List<NotificationItem> items
 });
 
 
@@ -268,11 +264,10 @@ class __$NotificationListCopyWithImpl<$Res>
 
 /// Create a copy of NotificationList
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? unreadCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,}) {
   return _then(_NotificationList(
 items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<NotificationItem>,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
-as int,
+as List<NotificationItem>,
   ));
 }
 

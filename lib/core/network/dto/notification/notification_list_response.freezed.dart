@@ -15,8 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotificationListResponse {
 
- List<NotificationItemResponse> get items;// 읽지 않은 알림 개수.
- int get unreadCount;
+ List<NotificationItemResponse> get items;
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +28,16 @@ $NotificationListResponseCopyWith<NotificationListResponse> get copyWith => _$No
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationListResponse&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationListResponse&&const DeepCollectionEquality().equals(other.items, items));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),unreadCount);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items));
 
 @override
 String toString() {
-  return 'NotificationListResponse(items: $items, unreadCount: $unreadCount)';
+  return 'NotificationListResponse(items: $items)';
 }
 
 
@@ -49,7 +48,7 @@ abstract mixin class $NotificationListResponseCopyWith<$Res>  {
   factory $NotificationListResponseCopyWith(NotificationListResponse value, $Res Function(NotificationListResponse) _then) = _$NotificationListResponseCopyWithImpl;
 @useResult
 $Res call({
- List<NotificationItemResponse> items, int unreadCount
+ List<NotificationItemResponse> items
 });
 
 
@@ -66,11 +65,10 @@ class _$NotificationListResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? unreadCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,}) {
   return _then(_self.copyWith(
 items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<NotificationItemResponse>,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
-as int,
+as List<NotificationItemResponse>,
   ));
 }
 
@@ -155,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NotificationItemResponse> items,  int unreadCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NotificationItemResponse> items)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationListResponse() when $default != null:
-return $default(_that.items,_that.unreadCount);case _:
+return $default(_that.items);case _:
   return orElse();
 
 }
@@ -176,10 +174,10 @@ return $default(_that.items,_that.unreadCount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NotificationItemResponse> items,  int unreadCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NotificationItemResponse> items)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationListResponse():
-return $default(_that.items,_that.unreadCount);case _:
+return $default(_that.items);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +194,10 @@ return $default(_that.items,_that.unreadCount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NotificationItemResponse> items,  int unreadCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NotificationItemResponse> items)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationListResponse() when $default != null:
-return $default(_that.items,_that.unreadCount);case _:
+return $default(_that.items);case _:
   return null;
 
 }
@@ -211,7 +209,7 @@ return $default(_that.items,_that.unreadCount);case _:
 @JsonSerializable()
 
 class _NotificationListResponse implements NotificationListResponse {
-  const _NotificationListResponse({required final  List<NotificationItemResponse> items, required this.unreadCount}): _items = items;
+  const _NotificationListResponse({required final  List<NotificationItemResponse> items}): _items = items;
   factory _NotificationListResponse.fromJson(Map<String, dynamic> json) => _$NotificationListResponseFromJson(json);
 
  final  List<NotificationItemResponse> _items;
@@ -221,8 +219,6 @@ class _NotificationListResponse implements NotificationListResponse {
   return EqualUnmodifiableListView(_items);
 }
 
-// 읽지 않은 알림 개수.
-@override final  int unreadCount;
 
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +233,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationListResponse&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationListResponse&&const DeepCollectionEquality().equals(other._items, _items));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),unreadCount);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items));
 
 @override
 String toString() {
-  return 'NotificationListResponse(items: $items, unreadCount: $unreadCount)';
+  return 'NotificationListResponse(items: $items)';
 }
 
 
@@ -257,7 +253,7 @@ abstract mixin class _$NotificationListResponseCopyWith<$Res> implements $Notifi
   factory _$NotificationListResponseCopyWith(_NotificationListResponse value, $Res Function(_NotificationListResponse) _then) = __$NotificationListResponseCopyWithImpl;
 @override @useResult
 $Res call({
- List<NotificationItemResponse> items, int unreadCount
+ List<NotificationItemResponse> items
 });
 
 
@@ -274,11 +270,10 @@ class __$NotificationListResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? unreadCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,}) {
   return _then(_NotificationListResponse(
 items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<NotificationItemResponse>,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
-as int,
+as List<NotificationItemResponse>,
   ));
 }
 

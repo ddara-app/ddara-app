@@ -33,7 +33,6 @@ class NotificationNotifier extends AutoDisposeNotifier<NotificationState> {
       state = state.copyWith(
         isLoading: false,
         items: result.items,
-        unreadCount: result.unreadCount,
         category: category,
         errorMessage: '',
       );

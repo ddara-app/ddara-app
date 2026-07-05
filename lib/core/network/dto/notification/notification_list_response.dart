@@ -7,8 +7,6 @@ part 'notification_list_response.g.dart';
 abstract class NotificationListResponse with _$NotificationListResponse {
   const factory NotificationListResponse({
     required List<NotificationItemResponse> items,
-    // 읽지 않은 알림 개수.
-    required int unreadCount,
   }) = _NotificationListResponse;
 
   factory NotificationListResponse.fromJson(Map<String, dynamic> json) =>

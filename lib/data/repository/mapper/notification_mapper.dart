@@ -8,7 +8,6 @@ extension NotificationListMapper on NotificationListResponse {
   NotificationList toDomain() {
     return NotificationList(
       items: items.map((item) => item.toDomain()).toList(),
-      unreadCount: unreadCount,
     );
   }
 }
