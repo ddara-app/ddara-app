@@ -50,13 +50,13 @@ class HistoryPhotos extends StatelessWidget {
               onTap: () =>
                   context.push(RoutePath.follower, extra: cycles[i].cycleId),
               child: _PhotoCard(
-                // 카드마다 좌우로 번갈아 기울이고 모서리 둥글기도 교차시킨다.
+                // 카드마다 좌우로 번갈아 기울인다. (모서리 둥글기는 모두 동일)
                 angle: i.isEven ? -0.14 : 0.14,
                 title: cycles[i].topic,
                 date: _dateLabel(l10n, cycles[i].date),
                 participantCount: cycles[i].participantCount,
                 thumbnailUrl: cycles[i].thumbnailUrl,
-                radius: i.isEven ? AppRadius.lg : AppRadius.sm,
+                radius: AppRadius.lg,
               ),
             ),
         ],
