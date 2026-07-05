@@ -190,33 +190,34 @@ class GroupPage extends ConsumerWidget {
     return SingleChildScrollView(
       // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
       physics: const ClampingScrollPhysics(),
-      // 상하 s6, 좌우 s4 여백.
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s4,
-        vertical: AppSpacing.s6,
-      ),
+      // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용)
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s6),
       child: Column(
         // 상단부터 쌓되 가로는 중앙 정렬.
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppSpacing.s8,
         children: [
-          GroupHeader(
-            // 진행 중인 사이클을 그대로 전달. null 이면 헤더가 빈 상태를 보여준다.
-            progress: groupDetail.currentCycle,
-            // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
-            canStart: groupDetail.members.length >= _minMembersToStart,
-            navigateToStart: () =>
-                context.push(RoutePath.starter, extra: groupId),
-            // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
-            onTakePhoto: () {
-              final cycleId = groupDetail.currentCycle?.cycleId;
-              if (cycleId == null) return;
-              context.push(
-                RoutePath.follower,
-                extra: cycleId,
-              );
-            },
+          // 좌우 여백은 일단 헤더에만 적용한다.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+            child: GroupHeader(
+              // 진행 중인 사이클을 그대로 전달. null 이면 헤더가 빈 상태를 보여준다.
+              progress: groupDetail.currentCycle,
+              // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
+              canStart: groupDetail.members.length >= _minMembersToStart,
+              navigateToStart: () =>
+                  context.push(RoutePath.starter, extra: groupId),
+              // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
+              onTakePhoto: () {
+                final cycleId = groupDetail.currentCycle?.cycleId;
+                if (cycleId == null) return;
+                context.push(
+                  RoutePath.follower,
+                  extra: cycleId,
+                );
+              },
+            ),
           ),
           GroupSection(
             title: AppText.headlineLarge(l10n.groupMembersTitle),
