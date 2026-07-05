@@ -6,6 +6,4 @@ abstract interface class NotificationRepository {
     required NotificationCategory category,
     required int size,
   });
-
-  Future<void> markAsRead(int notificationId);
 }

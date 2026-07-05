@@ -9,9 +9,6 @@ import 'package:flutter/widgets.dart';
 /// 알림 아바타 원 지름.
 const double _avatarSize = 40;
 
-/// 읽지 않음 표시 점의 지름.
-const double _unreadDotSize = 8;
-
 /// 알림 목록의 항목 한 개.
 ///
 /// 좌측 원형 아바타 + 우측(분류 라벨·경과 시간 한 줄 / 본문) 으로 구성된 카드.
@@ -61,24 +58,9 @@ class NotificationTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // 읽지 않은 알림이면 시간 텍스트의 우측 상단 모서리에 점을 띄운다.
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        AppText.caption(
-                          item.displayTimeAgo,
-                          color: AppColors.textTertiary,
-                        ),
-                        if (!item.isRead)
-                          // 카드 상단 padding(s4) 기준 indicator 와 상단 간격이 s3 가
-                          // 되도록 (s4 - s3)=s1 만큼 위로 올린다. 우측도 카드 우측
-                          // padding(s6) 기준 간격이 s3 가 되도록 s3 만큼 내민다.
-                          const Positioned(
-                            top: -AppSpacing.s1,
-                            right: -AppSpacing.s3,
-                            child: _UnreadDot(),
-                          ),
-                      ],
+                    AppText.caption(
+                      item.displayTimeAgo,
+                      color: AppColors.textTertiary,
                     ),
                   ],
                 ),
@@ -87,23 +69,6 @@ class NotificationTile extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// 읽지 않은 알림임을 나타내는 빨간 점.
-class _UnreadDot extends StatelessWidget {
-  const _UnreadDot();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: _unreadDotSize,
-      height: _unreadDotSize,
-      decoration: const BoxDecoration(
-        color: AppColors.statusDanger,
-        shape: BoxShape.circle,
       ),
     );
   }

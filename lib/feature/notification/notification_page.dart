@@ -22,11 +22,11 @@ class NotificationPage extends ConsumerWidget {
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(title: '알림', onBack: () => context.pop()),
-      child: SafeArea(child: _body(context, ref, state)),
+      child: SafeArea(child: _body(context, state)),
     );
   }
 
-  Widget _body(BuildContext context, WidgetRef ref, NotificationState state) {
+  Widget _body(BuildContext context, NotificationState state) {
     // 첫 조회 중: 로딩 인디케이터.
     if (state.isLoading) {
       return const Center(child: CupertinoActivityIndicator());
@@ -59,16 +59,11 @@ class NotificationPage extends ConsumerWidget {
           for (final notification in state.items)
             NotificationTile(
               item: notification,
-              onTap: () {
-                // 클릭 시 읽음 처리하고, payload 에 groupId 가 있으면 모임 화면으로 이동한다.
-                ref
-                    .read(notificationNotifierProvider.notifier)
-                    .markAsRead(notification.id);
-
-                final groupId = notification.payload.groupId;
-                if (groupId != null) {
-                  context.push(RoutePath.group, extra: groupId);
-                }
+              // payload 에 groupId 가 있으면 해당 모임 화면으로 이동한다.
+              onTap: switch (notification.payload.groupId) {
+                final int groupId => () =>
+                    context.push(RoutePath.group, extra: groupId),
+                null => null,
               },
             ),
         ],
