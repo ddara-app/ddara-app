@@ -51,8 +51,7 @@ class Camera extends ConsumerStatefulWidget {
   ConsumerState<Camera> createState() => _CameraState();
 }
 
-class _CameraState extends ConsumerState<Camera>
-    with WidgetsBindingObserver {
+class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   CameraController? _controller;
   Future<void>? _initFuture;
   bool _flashOn = false;
@@ -66,6 +65,14 @@ class _CameraState extends ConsumerState<Camera>
 
   // 투명도 탭 기본 선택('40')과 맞춘다.
   double _guideOpacity = 0.4;
+
+  // 핀치 줌 상태. min/max 는 카메라를 열 때 조회한다. (미지원 시 1.0 → 줌 없음)
+  double _minZoom = 1.0;
+  double _maxZoom = 1.0;
+  double _currentZoom = 1.0;
+
+  // 핀치 시작 시점의 줌 배율. (제스처 도중 기준값)
+  double _baseZoom = 1.0;
 
   @override
   void initState() {
@@ -116,6 +123,17 @@ class _CameraState extends ConsumerState<Camera>
       await controller.dispose();
       return;
     }
+
+    // 핀치 줌 범위 조회. (미지원/실패 시 1.0 고정 → 줌 동작 없음)
+    try {
+      _minZoom = await controller.getMinZoomLevel();
+      _maxZoom = await controller.getMaxZoomLevel();
+    } catch (_) {
+      _minZoom = 1.0;
+      _maxZoom = 1.0;
+    }
+    _currentZoom = _minZoom;
+
     setState(() => _controller = controller);
   }
 
@@ -169,6 +187,27 @@ class _CameraState extends ConsumerState<Camera>
 
     _cameraIndex = next;
     await _openCamera(_cameras[next]);
+  }
+
+  /// 핀치 시작: 현재 줌 배율을 기준값으로 잡는다.
+  void _onScaleStart(ScaleStartDetails details) {
+    _baseZoom = _currentZoom;
+  }
+
+  /// 핀치 진행: 배율(scale)을 기준값에 곱해 줌 범위 안으로 적용한다.
+  Future<void> _onScaleUpdate(ScaleUpdateDetails details) async {
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) return;
+    // 두 손가락 핀치가 아니면(단일 터치 이동 등) 무시한다.
+    if (details.pointerCount < 2) return;
+
+    final zoom = (_baseZoom * details.scale)
+        .clamp(_minZoom, _maxZoom)
+        .toDouble();
+    if (zoom == _currentZoom) return;
+
+    _currentZoom = zoom;
+    await controller.setZoomLevel(zoom);
   }
 
   void _onViewModeChanged(GuideViewMode mode) {
@@ -233,7 +272,8 @@ class _CameraState extends ConsumerState<Camera>
             const SizedBox(height: AppSpacing.s5),
             AppButton(
               label: '설정으로 이동',
-              onPressed: () => ref.read(permissionServiceProvider).openSettings(),
+              onPressed: () =>
+                  ref.read(permissionServiceProvider).openSettings(),
             ),
           ],
         ),
@@ -249,56 +289,62 @@ class _CameraState extends ConsumerState<Camera>
           onOpacityChanged: _onOpacityChanged,
         ),
         Expanded(
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Preview(
-                  controller: _controller,
-                  initFuture: _initFuture,
-                ),
-              ),
-              if (widget.showViewMode && widget.guideImage != null)
-                switch (_guideMode) {
-                  // 코너 미니뷰: 좌상단에 작게.
-                  GuideViewMode.cornerMini => Positioned(
-                    left: AppSpacing.s4,
-                    top: AppSpacing.s4,
-                    child: CornerMiniView(image: widget.guideImage!),
+          // 프리뷰 영역 어디서든 핀치로 줌인/아웃. (버튼 탭은 제스처 아레나에서
+          // 탭이 우선되어 그대로 동작한다)
+          child: GestureDetector(
+            onScaleStart: _onScaleStart,
+            onScaleUpdate: _onScaleUpdate,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Preview(
+                    controller: _controller,
+                    initFuture: _initFuture,
                   ),
-                  // 고스트 확대: Preview 영역 비율을 유지한 채 살짝 작게(85%) 가운데.
-                  GuideViewMode.ghostZoom => Positioned.fill(
-                    child: FractionallySizedBox(
-                      widthFactor: 0.85,
-                      heightFactor: 0.85,
-                      child: GhostGuideView(
-                        image: widget.guideImage!,
-                        opacity: _guideOpacity,
+                ),
+                if (widget.showViewMode && widget.guideImage != null)
+                  switch (_guideMode) {
+                    // 코너 미니뷰: 좌상단에 작게.
+                    GuideViewMode.cornerMini => Positioned(
+                      left: AppSpacing.s4,
+                      top: AppSpacing.s4,
+                      child: CornerMiniView(image: widget.guideImage!),
+                    ),
+                    // 고스트 확대: Preview 영역 비율을 유지한 채 살짝 작게(85%) 가운데.
+                    GuideViewMode.ghostZoom => Positioned.fill(
+                      child: FractionallySizedBox(
+                        widthFactor: 0.85,
+                        heightFactor: 0.85,
+                        child: GhostGuideView(
+                          image: widget.guideImage!,
+                          opacity: _guideOpacity,
+                        ),
                       ),
                     ),
+                  },
+                // 프리뷰 우측 하단: 플래시 · 카메라 전환 (배경 없이 흰색 아이콘).
+                Positioned(
+                  right: AppSpacing.s4,
+                  bottom: AppSpacing.s4,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: AppSpacing.s2,
+                    children: [
+                      _PreviewControlButton(
+                        icon: _flashOn
+                            ? CupertinoIcons.bolt_fill
+                            : CupertinoIcons.bolt_slash_fill,
+                        onPressed: _toggleFlash,
+                      ),
+                      _PreviewControlButton(
+                        icon: CupertinoIcons.arrow_2_circlepath,
+                        onPressed: _switchCamera,
+                      ),
+                    ],
                   ),
-                },
-              // 프리뷰 우측 하단: 플래시 · 카메라 전환 (배경 없이 흰색 아이콘).
-              Positioned(
-                right: AppSpacing.s4,
-                bottom: AppSpacing.s4,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: AppSpacing.s2,
-                  children: [
-                    _PreviewControlButton(
-                      icon: _flashOn
-                          ? CupertinoIcons.bolt_fill
-                          : CupertinoIcons.bolt_slash_fill,
-                      onPressed: _toggleFlash,
-                    ),
-                    _PreviewControlButton(
-                      icon: CupertinoIcons.arrow_2_circlepath,
-                      onPressed: _switchCamera,
-                    ),
-                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         CameraBottom(
