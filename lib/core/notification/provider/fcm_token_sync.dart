@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:ddara/core/notification/notification_service.dart';
 import 'package:ddara/core/router/app_router.dart';
@@ -58,12 +57,7 @@ class FcmTokenSync {
       // 세션 내 동일 토큰 중복 전송 방지. (서버는 upsert 전제)
       if (fcmToken == _lastSyncedToken) return;
 
-      await _ref
-          .read(fcmRepositoryProvider)
-          .registerToken(
-            token: fcmToken,
-            platform: Platform.isIOS ? 'ios' : 'android',
-          );
+      await _ref.read(fcmRepositoryProvider).registerToken(fcmToken);
       _lastSyncedToken = fcmToken;
     } catch (error) {
       // 등록 실패는 앱 흐름을 막지 않는다. (다음 로그인/재발급 때 재시도)
