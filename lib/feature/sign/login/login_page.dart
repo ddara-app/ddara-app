@@ -114,8 +114,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         iconPath: 'assets/images/ic_apple_logo_.svg',
                         backgroundColor: const Color(0xFFFFFFFF),
                         foregroundColor: const Color(0xFF000000),
-                        // 흰색 배경에 맞춰 단색 애플 로고를 검정으로 틴트.
-                        //iconColor: const Color(0xFF000000),
                         onPressed: isLoading
                             ? null
                             : () => notifier.socialLogin(
@@ -151,7 +149,6 @@ class _SocialLoginButton extends StatelessWidget {
     required this.backgroundColor,
     required this.foregroundColor,
     required this.onPressed,
-    this.iconColor,
   });
 
   /// 브랜드 아이콘 한 변 크기.
@@ -164,9 +161,6 @@ class _SocialLoginButton extends StatelessWidget {
   final Color backgroundColor;
   final Color foregroundColor;
   final VoidCallback? onPressed;
-
-  /// 아이콘 틴트 색. null 이면 SVG 원본 색을 쓴다. (단색 로고를 배경색에 맞출 때)
-  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -181,9 +175,6 @@ class _SocialLoginButton extends StatelessWidget {
             iconPath,
             width: _iconSize,
             height: _iconSize,
-            colorFilter: iconColor == null
-                ? null
-                : ColorFilter.mode(iconColor!, BlendMode.srcIn),
           ),
           Expanded(
             child: Text(
