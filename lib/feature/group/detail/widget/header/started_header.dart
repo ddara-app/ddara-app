@@ -83,9 +83,7 @@ class _StartedHeaderState extends State<StartedHeader> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         AppText.caption(
-                          AppLocalizations.of(context).startedHeaderRemaining(
-                            _remainingText(widget.progress.deadlineAt),
-                          ),
+                          _statusText(),
                           textAlign: TextAlign.center,
                           color: AppColors.textPrimary,
                         ),
@@ -182,6 +180,18 @@ class _StartedHeaderState extends State<StartedHeader> {
       url,
       fit: BoxFit.cover,
       errorBuilder: (_, _, _) => const EmptyThumbnail(),
+    );
+  }
+
+  /// 헤더 상단 상태 문구.
+  /// 마감(done)된 회차는 '마감'만, 진행 중이면 '진행 중 · N 남음'을 보여준다.
+  String _statusText() {
+    final l10n = AppLocalizations.of(context);
+    if (widget.progress.status.toLowerCase() == 'done') {
+      return l10n.remainingDeadline; // '마감'
+    }
+    return l10n.startedHeaderRemaining(
+      _remainingText(widget.progress.deadlineAt),
     );
   }
 
