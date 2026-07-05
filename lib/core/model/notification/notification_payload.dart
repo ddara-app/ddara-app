@@ -13,5 +13,7 @@ abstract class NotificationPayload with _$NotificationPayload {
     required String? actorNickname,
     // NEW_CYCLE 등 사이클 관련 알림에만 존재.
     required int? cycleId,
+    // 알림 아바타에 쓸 이미지 URL. 없으면 null → 기본 아바타.
+    required String? imageUrl,
   }) = _NotificationPayload;
 }

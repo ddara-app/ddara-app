@@ -3,6 +3,14 @@ import 'package:ddara/core/model/notification/notification_type.dart';
 
 /// 도메인 알림 모델에서 화면 표시용 문자열을 뽑아내는 확장.
 extension NotificationDisplay on NotificationItem {
+  /// 썸네일을 박스(배경·라운드) 없이 이미지 그대로 보여줄지 여부.
+  ///
+  /// MEMBER_JOIN·DEADLINE 은 payload 이미지가 앱 로고라, 사진용 박스 없이
+  /// 로고만 그대로 노출한다.
+  bool get showsBareThumbnail =>
+      type == NotificationType.memberJoin ||
+      type == NotificationType.deadline;
+
   /// 알림 분류 라벨. (예: '모임 합류')
   String get displayLabel {
     switch (type) {
@@ -10,6 +18,10 @@ extension NotificationDisplay on NotificationItem {
         return '모임 합류';
       case NotificationType.newCycle:
         return '따라찍기 시작';
+      case NotificationType.cycleCompleted:
+        return '따라찍기 종료';
+      case NotificationType.deadline:
+        return '마감 임박';
       case NotificationType.unknown:
         return '알림';
     }
@@ -24,6 +36,10 @@ extension NotificationDisplay on NotificationItem {
         return '$actor님이 ‘$groupName’ 모임에 합류했어요';
       case NotificationType.newCycle:
         return '‘$groupName’ 모임에서 새로운 따라찍기가 시작됐어요';
+      case NotificationType.cycleCompleted:
+        return '‘$groupName’ 모임의 따라찍기가 종료됐어요!';
+      case NotificationType.deadline:
+        return '‘$groupName’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?';
       case NotificationType.unknown:
         return '새로운 알림이 있어요';
     }

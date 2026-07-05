@@ -11,9 +11,16 @@ class GetNotificationsUseCase {
     NotificationCategory category = NotificationCategory.all,
     int size = 20,
   }) async {
-    return await _notificationRepository.getNotifications(
+    final test =  await _notificationRepository.getNotifications(
       category: category,
       size: size,
     );
+
+    print('===================== items(${test.items.length}) =====================');
+    for (var i = 0; i < test.items.length; i++) {
+      print('[$i] ${test.items[i]}');
+    }
+    print('====================================================');
+    return test;
   }
 }
