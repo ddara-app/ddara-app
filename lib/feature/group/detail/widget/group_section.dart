@@ -8,6 +8,7 @@ class GroupSection extends StatelessWidget {
     required this.title,
     required this.body,
     this.spacing = AppSpacing.s5,
+    this.titlePadding = const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
   });
 
   /// 섹션 제목 영역. (예: 헤드라인, 또는 헤드라인 + 더보기 버튼 Row)
@@ -19,13 +20,16 @@ class GroupSection extends StatelessWidget {
   /// [title] 과 [body] 사이 세로 간격.
   final double spacing;
 
+  /// [title] 좌우 여백. body 는 가장자리까지 채우되 제목만 안쪽으로 들여쓴다.
+  final EdgeInsetsGeometry titlePadding;
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: spacing,
-      children: [title, body],
+      children: [Padding(padding: titlePadding, child: title), body],
     );
   }
 }
