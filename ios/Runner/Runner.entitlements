@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- 개발용 APNs 환경. 배포(App Store/TestFlight) 서명 시 CI 가 production 으로
+	     조정하거나, Xcode 자동 서명이 빌드 구성에 맞춰 전환한다. -->
+	<key>aps-environment</key>
+	<string>development</string>
+</dict>
+</plist>

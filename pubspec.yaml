@@ -73,6 +73,8 @@ dependencies:
   image_picker_android: ^0.8.13+19
   image_picker_platform_interface: ^2.11.1
   image_cropper: ^12.2.1
+  firebase_messaging: ^16.4.1
+  flutter_local_notifications: ^22.0.1
 
 dev_dependencies:
   flutter_test:
