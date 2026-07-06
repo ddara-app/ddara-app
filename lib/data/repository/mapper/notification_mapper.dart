@@ -17,13 +17,13 @@ extension NotificationItemMapper on NotificationItemResponse {
     return NotificationItem(
       id: id,
       type: NotificationType.fromValue(type),
-      // 종류마다 다른 payload 를 평탄한 도메인 모델로 펼친다. (없는 필드는 null)
+      // 종류마다 다른 payload 를 도메인 모델로 옮긴다. (없는 필드는 null)
       payload: NotificationPayload(
-        groupId: payload['groupId'] as int?,
-        groupName: payload['groupName'] as String?,
-        actorNickname: payload['actorNickname'] as String?,
-        cycleId: payload['cycleId'] as int?,
-        imageUrl: payload['imageUrl'] as String?,
+        groupId: payload.groupId,
+        groupName: payload.groupName,
+        actorNickname: payload.actorNickname,
+        cycleId: payload.cycleId,
+        imageUrl: payload.imageUrl,
       ),
       readAt: readAt,
       createdAt: createdAt,

@@ -1,6 +1,7 @@
 import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/notification/provider/notifier_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
@@ -59,15 +60,28 @@ class NotificationPage extends ConsumerWidget {
           for (final notification in state.items)
             NotificationTile(
               item: notification,
-              // payload 에 groupId 가 있으면 해당 모임 화면으로 이동한다.
-              onTap: switch (notification.payload.groupId) {
-                final int groupId => () =>
-                    context.push(RoutePath.group, extra: groupId),
-                null => null,
-              },
+              onTap: _onTap(context, notification),
             ),
         ],
       ),
     );
+  }
+
+  /// 알림 탭 시 이동할 화면.
+  ///
+  /// cycleId 가 있으면(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE) 해당 사이클 갤러리로,
+  /// 없고 groupId 만 있으면(MEMBER_JOIN) 해당 모임 화면으로 이동한다.
+  VoidCallback? _onTap(BuildContext context, NotificationItem item) {
+    final cycleId = item.payload.cycleId;
+    if (cycleId != null) {
+      return () => context.push(RoutePath.follower, extra: cycleId);
+    }
+
+    final groupId = item.payload.groupId;
+    if (groupId != null) {
+      return () => context.push(RoutePath.group, extra: groupId);
+    }
+
+    return null;
   }
 }
