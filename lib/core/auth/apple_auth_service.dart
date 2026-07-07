@@ -76,7 +76,7 @@ class AppleAuthService {
       } on FirebaseAuthException catch (e) {
         // 진단 정보 + Firebase 에러 코드/메시지를 로그와 UI(Toast) 양쪽에 남긴다.
         debugPrint('[apple] FirebaseAuthException code=${e.code} msg=${e.message}');
-        throw AppleAuthDiagnosticException('$diag fb=${e.code}');
+        throw AppleAuthDiagnosticException('$diag fb=${e.code} msg=${e.message}');
       }
 
       // 최초 로그인 때만 이름을 받는다 → displayName 에 저장.
