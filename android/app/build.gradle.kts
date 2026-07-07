@@ -44,11 +44,30 @@ android {
             localProperties["KAKAO_NATIVE_APP_KEY"]?.toString() ?: ""
     }
 
+    signingConfigs {
+        // 업로드 키스토어 서명 값은 local.properties 에서 읽는다(gitignore 대상, 커밋 금지).
+        // 필요한 키: RELEASE_STORE_FILE / RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD
+        // CI 에서는 키스토어(.jks) 복원 후 이 4개 값을 local.properties 에 주입(KAKAO 키와 동일 패턴).
+        create("release") {
+            val storeFilePath = localProperties["RELEASE_STORE_FILE"]?.toString()
+            if (storeFilePath != null) {
+                // file(...) 는 app 모듈 기준 상대경로. 예) android/app/upload-keystore.jks → "upload-keystore.jks"
+                storeFile = file(storeFilePath)
+                storePassword = localProperties["RELEASE_STORE_PASSWORD"]?.toString()
+                keyAlias = localProperties["RELEASE_KEY_ALIAS"]?.toString()
+                keyPassword = localProperties["RELEASE_KEY_PASSWORD"]?.toString()
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // 키스토어 값이 있으면 업로드 키로 서명, 없으면(로컬 개발/무서명 빌드) debug 로 폴백.
+            signingConfig = if (localProperties["RELEASE_STORE_FILE"] != null) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
