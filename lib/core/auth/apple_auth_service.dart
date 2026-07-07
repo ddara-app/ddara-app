@@ -56,6 +56,7 @@ class AppleAuthService {
       final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         rawNonce: rawNonce,
+        accessToken: appleCredential.authorizationCode,
       );
 
       // --- 임시 디버그: 애플 토큰 클레임 분석 (원인 확진용) ---
