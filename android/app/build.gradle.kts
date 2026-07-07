@@ -30,8 +30,9 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.swyp.ddara"
+        // 스토어 식별자(Application ID). iOS 번들 ID 와 통일 (com.ddara.team3).
+        // namespace(코드 패키지)는 com.swyp.ddara 로 유지 — applicationId 와 독립이라 무방.
+        applicationId = "com.ddara.team3"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
