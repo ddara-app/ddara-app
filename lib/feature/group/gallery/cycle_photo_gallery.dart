@@ -4,6 +4,7 @@ import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/widget/photo_viewer.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
@@ -101,6 +102,13 @@ class CyclePhotoGallery extends ConsumerWidget {
           StartedHeader(
             imageUri: cycle.starterImageUrl ?? '',
             progress: _toGroupCycle(gallery),
+            // 스타터 대표 사진 탭 → 그라데이션 없이 원본을 크게 보여준다.
+            onImageTap: (cycle.starterImageUrl ?? '').isEmpty
+                ? null
+                : () => showPhotoViewer(
+                    context,
+                    image: NetworkImage(cycle.starterImageUrl!),
+                  ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
           const SizedBox(height: AppSpacing.s6),
@@ -121,12 +129,27 @@ class CyclePhotoGallery extends ConsumerWidget {
             itemBuilder: (context, index) {
               final member = members[index];
               final isMe = member.userId == myUserId;
+              final imageUrl = member.imageUrl;
+              // 잠긴(블러) 사진은 크게 볼 수 없다.
+              final locked = !isDoneCycle && !canSeeAll;
+              final ImageProvider? image = imageUrl == null
+                  ? null
+                  : NetworkImage(imageUrl);
+              // 사진이 있고 잠기지 않았을 때만 탭해서 크게 볼 수 있다.
+              final canView = image != null && !locked;
+              final heroTag = canView ? 'gallery-photo-${member.userId}' : null;
               return MemberPhotoCard(
                 // 본인 카드는 이름 대신 '본인' 으로 표시한다.
                 name: isMe ? '나' : member.nickname,
-                image: member.imageUrl == null
-                    ? null
-                    : NetworkImage(member.imageUrl!),
+                image: image,
+                heroTag: heroTag,
+                onTap: canView
+                    ? () => showPhotoViewer(
+                        context,
+                        image: image,
+                        heroTag: heroTag,
+                      )
+                    : null,
                 // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
                 // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
                 onTakePhoto: isMe && !isDoneCycle
@@ -142,7 +165,7 @@ class CyclePhotoGallery extends ConsumerWidget {
                 // 모든 사진을 볼 수 없는 상태면 사진이 있는 멤버를 블러+자물쇠로 가린다.
                 // (실제 블러/자물쇠는 image 가 있을 때만 그려진다)
                 // 단, 마감(done) 회차는 항상 공개하므로 잠금하지 않는다.
-                isLocked: !isDoneCycle && !canSeeAll,
+                isLocked: locked,
               );
             },
           ),
