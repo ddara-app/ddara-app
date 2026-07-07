@@ -19,6 +19,7 @@ class BottomScrim extends StatelessWidget {
     super.key,
     this.heightFactor = 0.4,
     this.color = AppColors.bgBase,
+    this.maxAlpha = 1.0,
   });
 
   /// 스크림이 덮는 높이 비율. (부모 높이의 0~1)
@@ -26,6 +27,9 @@ class BottomScrim extends StatelessWidget {
 
   /// 그라데이션 색. 아래로 갈수록 이 색으로 짙어진다.
   final Color color;
+
+  /// 그라데이션이 도달하는 최대 불투명도. (0~1, 기본 1.0 = 불투명)
+  final double maxAlpha;
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +48,8 @@ class BottomScrim extends StatelessWidget {
                   stops: const [0.0, 0.6, 1.0],
                   colors: [
                     color.withValues(alpha: 0),
-                    color.withValues(alpha: 0.85),
-                    color,
+                    color.withValues(alpha: 0.85 * maxAlpha),
+                    color.withValues(alpha: maxAlpha),
                   ],
                 ),
               ),
