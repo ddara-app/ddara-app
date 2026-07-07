@@ -39,10 +39,30 @@ extension NotificationDisplay on NotificationItem {
       case NotificationType.cycleCompleted:
         return '‘$groupName’ 모임의 따라찍기가 종료됐어요!';
       case NotificationType.deadline:
+        final remaining = deadlineRemainingText;
+        if (remaining != null) {
+          return '‘$groupName’ 모임의 따라찍기 마감까지 $remaining 남았어요. 아직 안찍었죠?';
+        }
         return '‘$groupName’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?';
       case NotificationType.unknown:
         return '새로운 알림이 있어요';
     }
+  }
+
+  /// 마감 임박 알림에서 '생성 시점 기준 마감까지 남은 시간' 문구. (예: '30분', '2시간')
+  ///
+  /// deadlineAt·createdAt 의 차이로 계산한다. 마감 임박 알림이 아니거나,
+  /// deadlineAt 이 없거나, 이미 마감이 지난 경우 null.
+  String? get deadlineRemainingText {
+    if (type != NotificationType.deadline) return null;
+    final deadlineAt = payload.deadlineAt;
+    if (deadlineAt == null) return null;
+
+    final remaining = deadlineAt.difference(createdAt);
+    if (remaining.inMinutes < 1) return null;
+    if (remaining.inMinutes < 60) return '${remaining.inMinutes}분';
+    if (remaining.inHours < 24) return '${remaining.inHours}시간';
+    return '${remaining.inDays}일';
   }
 
   /// 생성 시각을 '방금 전'·'5분 전' 같은 상대 시간 문자열로 변환한다.

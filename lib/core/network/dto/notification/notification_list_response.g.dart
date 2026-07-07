@@ -12,11 +12,15 @@ _NotificationListResponse _$NotificationListResponseFromJson(
   items: (json['items'] as List<dynamic>)
       .map((e) => NotificationItemResponse.fromJson(e as Map<String, dynamic>))
       .toList(),
+  unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$NotificationListResponseToJson(
   _NotificationListResponse instance,
-) => <String, dynamic>{'items': instance.items};
+) => <String, dynamic>{
+  'items': instance.items,
+  'unreadCount': instance.unreadCount,
+};
 
 _NotificationItemResponse _$NotificationItemResponseFromJson(
   Map<String, dynamic> json,
@@ -49,6 +53,10 @@ _NotificationPayloadResponse _$NotificationPayloadResponseFromJson(
   groupName: json['groupName'] as String?,
   actorNickname: json['actorNickname'] as String?,
   cycleId: (json['cycleId'] as num?)?.toInt(),
+  deadlineAt: json['deadlineAt'] == null
+      ? null
+      : DateTime.parse(json['deadlineAt'] as String),
+  remainingMinutes: (json['remainingMinutes'] as num?)?.toInt(),
   imageUrl: json['imageUrl'] as String?,
 );
 
@@ -59,5 +67,7 @@ Map<String, dynamic> _$NotificationPayloadResponseToJson(
   'groupName': instance.groupName,
   'actorNickname': instance.actorNickname,
   'cycleId': instance.cycleId,
+  'deadlineAt': instance.deadlineAt?.toIso8601String(),
+  'remainingMinutes': instance.remainingMinutes,
   'imageUrl': instance.imageUrl,
 };

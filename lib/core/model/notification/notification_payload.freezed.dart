@@ -16,7 +16,8 @@ mixin _$NotificationPayload {
 
  int? get groupId; String? get groupName;// MEMBER_JOIN 등 참여자 정보가 있는 알림에만 존재.
  String? get actorNickname;// NEW_CYCLE 등 사이클 관련 알림에만 존재.
- int? get cycleId;// 알림 아바타에 쓸 이미지 URL. 없으면 null → 기본 아바타.
+ int? get cycleId;// 사이클 마감 시각. DEADLINE 알림에서 남은 시간 계산에 사용. 없으면 null.
+ DateTime? get deadlineAt;// 알림 아바타에 쓸 이미지 URL. 없으면 null → 기본 아바타.
  String? get imageUrl;
 /// Create a copy of NotificationPayload
 /// with the given fields replaced by the non-null parameter values.
@@ -28,16 +29,16 @@ $NotificationPayloadCopyWith<NotificationPayload> get copyWith => _$Notification
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationPayload&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationPayload&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,imageUrl);
+int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,deadlineAt,imageUrl);
 
 @override
 String toString() {
-  return 'NotificationPayload(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, imageUrl: $imageUrl)';
+  return 'NotificationPayload(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, deadlineAt: $deadlineAt, imageUrl: $imageUrl)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $NotificationPayloadCopyWith<$Res>  {
   factory $NotificationPayloadCopyWith(NotificationPayload value, $Res Function(NotificationPayload) _then) = _$NotificationPayloadCopyWithImpl;
 @useResult
 $Res call({
- int? groupId, String? groupName, String? actorNickname, int? cycleId, String? imageUrl
+ int? groupId, String? groupName, String? actorNickname, int? cycleId, DateTime? deadlineAt, String? imageUrl
 });
 
 
@@ -65,13 +66,14 @@ class _$NotificationPayloadCopyWithImpl<$Res>
 
 /// Create a copy of NotificationPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? imageUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? deadlineAt = freezed,Object? imageUrl = freezed,}) {
   return _then(_self.copyWith(
 groupId: freezed == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
 as String?,actorNickname: freezed == actorNickname ? _self.actorNickname : actorNickname // ignore: cast_nullable_to_non_nullable
 as String?,cycleId: freezed == cycleId ? _self.cycleId : cycleId // ignore: cast_nullable_to_non_nullable
-as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as int?,deadlineAt: freezed == deadlineAt ? _self.deadlineAt : deadlineAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -157,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationPayload() when $default != null:
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.imageUrl);case _:
   return orElse();
 
 }
@@ -178,10 +180,10 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  String? imageUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  String? imageUrl)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationPayload():
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.imageUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +200,10 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  String? imageUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  String? imageUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationPayload() when $default != null:
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.imageUrl);case _:
   return null;
 
 }
@@ -213,7 +215,7 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 
 
 class _NotificationPayload implements NotificationPayload {
-  const _NotificationPayload({required this.groupId, required this.groupName, required this.actorNickname, required this.cycleId, required this.imageUrl});
+  const _NotificationPayload({required this.groupId, required this.groupName, required this.actorNickname, required this.cycleId, required this.deadlineAt, required this.imageUrl});
   
 
 @override final  int? groupId;
@@ -222,6 +224,8 @@ class _NotificationPayload implements NotificationPayload {
 @override final  String? actorNickname;
 // NEW_CYCLE 등 사이클 관련 알림에만 존재.
 @override final  int? cycleId;
+// 사이클 마감 시각. DEADLINE 알림에서 남은 시간 계산에 사용. 없으면 null.
+@override final  DateTime? deadlineAt;
 // 알림 아바타에 쓸 이미지 URL. 없으면 null → 기본 아바타.
 @override final  String? imageUrl;
 
@@ -235,16 +239,16 @@ _$NotificationPayloadCopyWith<_NotificationPayload> get copyWith => __$Notificat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationPayload&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationPayload&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,imageUrl);
+int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,deadlineAt,imageUrl);
 
 @override
 String toString() {
-  return 'NotificationPayload(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, imageUrl: $imageUrl)';
+  return 'NotificationPayload(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, deadlineAt: $deadlineAt, imageUrl: $imageUrl)';
 }
 
 
@@ -255,7 +259,7 @@ abstract mixin class _$NotificationPayloadCopyWith<$Res> implements $Notificatio
   factory _$NotificationPayloadCopyWith(_NotificationPayload value, $Res Function(_NotificationPayload) _then) = __$NotificationPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- int? groupId, String? groupName, String? actorNickname, int? cycleId, String? imageUrl
+ int? groupId, String? groupName, String? actorNickname, int? cycleId, DateTime? deadlineAt, String? imageUrl
 });
 
 
@@ -272,13 +276,14 @@ class __$NotificationPayloadCopyWithImpl<$Res>
 
 /// Create a copy of NotificationPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? imageUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? deadlineAt = freezed,Object? imageUrl = freezed,}) {
   return _then(_NotificationPayload(
 groupId: freezed == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
 as String?,actorNickname: freezed == actorNickname ? _self.actorNickname : actorNickname // ignore: cast_nullable_to_non_nullable
 as String?,cycleId: freezed == cycleId ? _self.cycleId : cycleId // ignore: cast_nullable_to_non_nullable
-as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as int?,deadlineAt: freezed == deadlineAt ? _self.deadlineAt : deadlineAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
