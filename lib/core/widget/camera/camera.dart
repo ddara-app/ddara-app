@@ -124,6 +124,14 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
       return;
     }
 
+    // 기본 플래시 모드가 auto 라서 어두운 환경에서 촬영 시 자동 발광한다.
+    // 토치는 사용자가 직접 토글하므로, 열 때 명시적으로 꺼 자동 발광을 막는다.
+    try {
+      await controller.setFlashMode(FlashMode.off);
+    } catch (_) {
+      // 일부 기기에서 미지원일 수 있으나, 무시해도 프리뷰에는 영향이 없다.
+    }
+
     // 핀치 줌 범위 조회. (미지원/실패 시 1.0 고정 → 줌 동작 없음)
     try {
       _minZoom = await controller.getMinZoomLevel();
