@@ -4,6 +4,7 @@ import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
+import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -63,17 +64,21 @@ class _StartedHeaderState extends State<StartedHeader> {
         height: 478,
         child: Stack(
           children: [
-            // 배경: 스타터 대표 이미지. (탭하면 크게 보기)
+            // 배경: 스타터 대표 이미지. (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기)
             Positioned.fill(
               child: widget.onImageTap == null
-                  ? _backgroundImage()
+                  ? _blurredBackground()
                   : GestureDetector(
                       onTap: widget.onImageTap,
-                      child: _backgroundImage(),
+                      child: _blurredBackground(),
                     ),
             ),
             // 하단 진행 정보의 가독성을 위한 스크림.
-            const BottomScrim(heightFactor: 0.45, color: Colors.black),
+            const BottomScrim(
+              heightFactor: 0.45,
+              color: AppColors.bgBase,
+              maxAlpha: 0.5,
+            ),
             // 콘텐츠: 상단 남은 시간 + 하단 진행 정보.
             Padding(
               padding: const EdgeInsets.only(
@@ -178,6 +183,14 @@ class _StartedHeaderState extends State<StartedHeader> {
           _buildToggleButton(),
         ],
       ),
+    );
+  }
+
+  /// 하단 스크림 구간(heightFactor 0.45)에 맞춰 아래로 갈수록 흐려지는 배경.
+  Widget _blurredBackground() {
+    return ProgressiveBlurImage(
+      sharpUntil: 0.55,
+      builder: (_) => _backgroundImage(),
     );
   }
 
