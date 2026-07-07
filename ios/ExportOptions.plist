@@ -31,7 +31,7 @@
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.ddara.team3</key>
-		<string>ddara-team3</string>
+		<string>ddara-team3-ad-hoc</string>
 	</dict>
 
 	<key>compileBitcode</key>
