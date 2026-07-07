@@ -214,7 +214,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupDetailLoadError => '모임 정보를 불러오지 못했어요.';
 
   @override
-  String get groupMembersTitle => '사람들';
+  String get groupMembersTitle => '친구들';
 
   @override
   String get groupMembersAdd => '추가하기';

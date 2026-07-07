@@ -73,6 +73,8 @@ dependencies:
   image_picker_android: ^0.8.13+19
   image_picker_platform_interface: ^2.11.1
   image_cropper: ^12.2.1
+  firebase_messaging: ^16.4.1
+  flutter_local_notifications: ^22.0.1
   sign_in_with_apple: ^8.1.0
   firebase_auth: ^6.5.4
   crypto: ^3.0.7
@@ -175,10 +177,10 @@ flutter_launcher_icons:
 # 배경색은 디자인 시스템 bg.base (AppColors.bgBase = #16171b) 와 동일하게 맞춘다.
 flutter_native_splash:
   color: "#16171b"
-  # 로고 이미지가 준비되면 아래 주석을 해제하고 경로를 지정한다.
-  # image: assets/images/splash_logo.png
+  # Android OS 스플래시 아이콘. (iOS 는 아이콘 없이 배경색만 유지)
+  image: assets/images/android_ddara.png
 
-  # Android 12+ 는 별도 스플래시 API 를 사용하므로 색을 따로 지정한다.
+  # Android 12+ 는 별도 스플래시 API 를 사용하므로 색·이미지를 따로 지정한다.
   android_12:
     color: "#16171b"
-    # image: assets/images/splash_logo.png
+    image: assets/images/android_ddara.png

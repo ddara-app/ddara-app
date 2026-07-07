@@ -18,6 +18,8 @@ class MemberPhotoCard extends StatelessWidget {
     this.image,
     required this.name,
     this.onTakePhoto,
+    this.onTap,
+    this.heroTag,
     this.isLocked = false,
   });
 
@@ -31,6 +33,13 @@ class MemberPhotoCard extends StatelessWidget {
   /// null 이면 본인 카드가 아니므로 갤러리 아이콘을 표시한다.
   final VoidCallback? onTakePhoto;
 
+  /// 카드(사진)를 탭했을 때의 콜백. 크게 보기 등에 사용한다.
+  /// 보통 사진이 있고 잠기지 않은 카드에만 연결한다. null 이면 탭에 반응하지 않는다.
+  final VoidCallback? onTap;
+
+  /// 크게 보기 전환에 쓸 Hero 태그. null 이면 Hero 전환을 하지 않는다.
+  final Object? heroTag;
+
   /// 본인이 아직 업로드하지 않아 타인 사진이 잠긴 상태. (블러 + 자물쇠)
   final bool isLocked;
 
@@ -40,8 +49,18 @@ class MemberPhotoCard extends StatelessWidget {
     final onTakePhoto = this.onTakePhoto;
     // 잠금은 보여줄 사진이 있을 때만 의미가 있다.
     final locked = isLocked && image != null;
+    final heroTag = this.heroTag;
 
-    return ClipRRect(
+    // 배경 이미지(잠기지 않은 경우 Hero 로 감싸 크게 보기와 이어지게 한다).
+    Widget? background;
+    if (image != null && !locked) {
+      background = Image(image: image, fit: BoxFit.cover);
+      if (heroTag != null) {
+        background = Hero(tag: heroTag, child: background);
+      }
+    }
+
+    final card = ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: SizedBox(
         width: double.infinity,
@@ -60,7 +79,7 @@ class MemberPhotoCard extends StatelessWidget {
                             ),
                             child: Image(image: image, fit: BoxFit.cover),
                           )
-                        : Image(image: image, fit: BoxFit.cover)),
+                        : background!),
             ),
             // 잠금: 가운데 자물쇠.
             if (locked)
@@ -105,6 +124,14 @@ class MemberPhotoCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+
+    // 탭 콜백이 있으면 카드 전체를 눌러 크게 보기로 연결한다.
+    if (onTap == null) return card;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: card,
     );
   }
 }

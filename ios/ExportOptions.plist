@@ -2,7 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   flutter build ipa --export-options-plist=ios/ExportOptions.plist 에서 사용.
-  Apple Distribution 이 막혀 Apple Development(개발용) 서명으로 빌드한다.
+  QA(Firebase App Distribution)용 Ad Hoc 서명. Ad Hoc 은 Apple Distribution 인증서로
+  서명하며, 등록된(UDID) 기기에서만 설치된다. (App Store 배포용은 별도 ExportOptions-appstore.plist)
 
   teamID 는 레포에 하드코딩하지 않고 __IOS_TEAM_ID__ 플레이스홀더로 둔다.
   CI(빌드 전)에서 GitHub Secret 으로 치환:
@@ -10,11 +11,13 @@
   (로컬 Mac 빌드 시에는 직접 Team ID 로 치환 후 빌드)
 
   provisioningProfiles 값은 프로파일 "이름"(UUID 아님). 비밀 아님 → 그대로 둠.
+  (Ad Hoc 프로파일 이름이 아래와 다르면 이 값 + build-debug.yml 의
+   PROVISIONING_PROFILE_SPECIFIER 를 같은 이름으로 맞출 것)
 -->
 <plist version="1.0">
 <dict>
 	<key>method</key>
-	<string>development</string>
+	<string>ad-hoc</string>
 
 	<key>teamID</key>
 	<string>__IOS_TEAM_ID__</string>
@@ -23,12 +26,12 @@
 	<string>manual</string>
 
 	<key>signingCertificate</key>
-	<string>Apple Development</string>
+	<string>Apple Distribution</string>
 
 	<key>provisioningProfiles</key>
 	<dict>
-		<key>com.swyp.ddara</key>
-		<string>ddara-team3</string>
+		<key>com.ddara.team3</key>
+		<string>ddara-team3-ad-hoc</string>
 	</dict>
 
 	<key>compileBitcode</key>

@@ -51,20 +51,18 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyALUB0aXXwM1aFqixjMibUbGU4i1DsBu-I',
-    appId: '1:158116621773:android:deb3777f7ab30d3d48e884',
+    appId: '1:158116621773:android:426bf28c2c5077b048e884',
     messagingSenderId: '158116621773',
     projectId: 'ddara-b5370',
     storageBucket: 'ddara-b5370.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDbnqyeEaAt9Dcf3xjkn0wZVnci2uNb51k',
-    appId: '1:158116621773:ios:2e95b92b7ea6441e48e884',
+    appId: '1:158116621773:ios:59ba673536eb90d548e884',
     messagingSenderId: '158116621773',
     projectId: 'ddara-b5370',
     storageBucket: 'ddara-b5370.firebasestorage.app',
-    androidClientId:
-        '158116621773-0iluth9aadce9fgd22133qs9r3t5hr7v.apps.googleusercontent.com',
-    iosBundleId: 'com.swyp.ddara',
+    androidClientId: '158116621773-0iluth9aadce9fgd22133qs9r3t5hr7v.apps.googleusercontent.com',
+    iosBundleId: 'com.ddara.team3',
   );
 }

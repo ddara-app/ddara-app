@@ -4,6 +4,7 @@ import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
+import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,6 +19,7 @@ class StartedHeader extends StatefulWidget {
     super.key,
     required this.imageUri,
     required this.progress,
+    this.onImageTap,
   });
 
   /// 대표로 보여줄 이미지 URI.
@@ -25,6 +27,9 @@ class StartedHeader extends StatefulWidget {
 
   /// 진행 중인 따라찍기(사이클) 정보.
   final GroupCycle progress;
+
+  /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
+  final VoidCallback? onImageTap;
 
   @override
   State<StartedHeader> createState() => _StartedHeaderState();
@@ -59,10 +64,21 @@ class _StartedHeaderState extends State<StartedHeader> {
         height: 478,
         child: Stack(
           children: [
-            // 배경: 스타터 대표 이미지.
-            Positioned.fill(child: _backgroundImage()),
+            // 배경: 스타터 대표 이미지. (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기)
+            Positioned.fill(
+              child: widget.onImageTap == null
+                  ? _blurredBackground()
+                  : GestureDetector(
+                      onTap: widget.onImageTap,
+                      child: _blurredBackground(),
+                    ),
+            ),
             // 하단 진행 정보의 가독성을 위한 스크림.
-            const BottomScrim(heightFactor: 0.45, color: Colors.black),
+            const BottomScrim(
+              heightFactor: 0.45,
+              color: AppColors.bgBase,
+              maxAlpha: 0.5,
+            ),
             // 콘텐츠: 상단 남은 시간 + 하단 진행 정보.
             Padding(
               padding: const EdgeInsets.only(
@@ -83,9 +99,7 @@ class _StartedHeaderState extends State<StartedHeader> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         AppText.caption(
-                          AppLocalizations.of(context).startedHeaderRemaining(
-                            _remainingText(widget.progress.deadlineAt),
-                          ),
+                          _statusText(),
                           textAlign: TextAlign.center,
                           color: AppColors.textPrimary,
                         ),
@@ -172,6 +186,14 @@ class _StartedHeaderState extends State<StartedHeader> {
     );
   }
 
+  /// 하단 스크림 구간(heightFactor 0.45)에 맞춰 아래로 갈수록 흐려지는 배경.
+  Widget _blurredBackground() {
+    return ProgressiveBlurImage(
+      sharpUntil: 0.55,
+      builder: (_) => _backgroundImage(),
+    );
+  }
+
   /// 헤더 배경으로 쓸 이미지. URI 가 없거나 로드 실패 시 자리표시로 대체한다.
   Widget _backgroundImage() {
     final url = widget.imageUri;
@@ -182,6 +204,18 @@ class _StartedHeaderState extends State<StartedHeader> {
       url,
       fit: BoxFit.cover,
       errorBuilder: (_, _, _) => const EmptyThumbnail(),
+    );
+  }
+
+  /// 헤더 상단 상태 문구.
+  /// 마감(done)된 회차는 '마감'만, 진행 중이면 '진행 중 · N 남음'을 보여준다.
+  String _statusText() {
+    final l10n = AppLocalizations.of(context);
+    if (widget.progress.status.toLowerCase() == 'done') {
+      return l10n.remainingDeadline; // '마감'
+    }
+    return l10n.startedHeaderRemaining(
+      _remainingText(widget.progress.deadlineAt),
     );
   }
 

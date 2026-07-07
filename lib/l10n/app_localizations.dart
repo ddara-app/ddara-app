@@ -487,7 +487,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupMembersTitle.
   ///
   /// In ko, this message translates to:
-  /// **'사람들'**
+  /// **'친구들'**
   String get groupMembersTitle;
 
   /// No description provided for @groupMembersAdd.

@@ -6,5 +6,10 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- APNs 환경. QA(Ad Hoc)·App Store 배포 빌드는 모두 Distribution 서명 =
+	     production APNs 를 사용하므로 production 으로 고정한다.
+	     (로컬 flutter run 개발 빌드로 푸시를 테스트할 때만 sandbox 가 필요) -->
+	<key>aps-environment</key>
+	<string>production</string>
 </dict>
 </plist>

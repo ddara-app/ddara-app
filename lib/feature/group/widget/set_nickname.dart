@@ -73,9 +73,13 @@ class _SetNicknameState extends State<SetNickname> {
 /// (빈 값은 입력 전으로 보고 에러를 내지 않는다)
 String? validateNickname(String nickname) {
   if (nickname.isEmpty) return null;
-  // 한글(자모 포함)·영어만 허용. 기호·숫자·공백 등이 섞이면 에러.
-  if (!RegExp(r'^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]+$').hasMatch(nickname)) {
+  // 한글(자모 포함)·영어·공백만 허용. 기호·숫자 등이 섞이면 에러.
+  if (!RegExp(r'^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]+$').hasMatch(nickname)) {
     return '한글과 영어로만 지을 수 있어요';
+  }
+  // 앞뒤 공백은 허용하지 않음. (내부 공백만 허용)
+  if (nickname != nickname.trim()) {
+    return '앞뒤 공백은 사용할 수 없어요';
   }
   if (nickname.length < 2 || nickname.length > 10) {
     return '2~10자로 입력해주세요';

@@ -183,7 +183,7 @@
   "groupDetailEmptyTitle": "아직 따라찍기가 없어요",
 
   "groupDetailLoadError": "모임 정보를 불러오지 못했어요.",
-  "groupMembersTitle": "사람들",
+  "groupMembersTitle": "친구들",
   "groupMembersAdd": "추가하기",
   "memberReportNickname": "닉네임 신고",
   "memberReportMailSubject": "[따라] 닉네임 신고",
