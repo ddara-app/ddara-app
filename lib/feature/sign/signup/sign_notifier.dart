@@ -18,7 +18,8 @@ class SignNotifier extends FamilyNotifier<SignUpPageState, SocialLoginType> {
     // 처리 중 재진입(중복 제출) 방지.
     if (state.isLoading) return;
 
-    state = state.copyWith(isLoading: true);
+    // 새 제출 시작 시 이전 에러를 지운다. (성공/실패 결과는 아래에서 채운다)
+    state = state.copyWith(isLoading: true, errorMessage: "");
 
     try {
       await ref.read(signUpUseCaseProvider)(state.social, state.termsAgreed);
@@ -31,7 +32,8 @@ class SignNotifier extends FamilyNotifier<SignUpPageState, SocialLoginType> {
     } on UnauthorizedTokenException {
       state = state.copyWith(errorMessage: "소셜 토큰이 만료 또는 무효 상태입니다.");
     } finally {
-      state = state.copyWith(isLoading: false, errorMessage: "");
+      // 로딩만 내린다. errorMessage 를 여기서 지우면 catch 가 채운 메시지가 사라진다.
+      state = state.copyWith(isLoading: false);
     }
   }
 }
