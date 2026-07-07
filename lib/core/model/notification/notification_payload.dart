@@ -13,6 +13,8 @@ abstract class NotificationPayload with _$NotificationPayload {
     required String? actorNickname,
     // NEW_CYCLE 등 사이클 관련 알림에만 존재.
     required int? cycleId,
+    // 사이클 마감 시각. DEADLINE 알림에서 남은 시간 계산에 사용. 없으면 null.
+    required DateTime? deadlineAt,
     // 알림 아바타에 쓸 이미지 URL. 없으면 null → 기본 아바타.
     required String? imageUrl,
   }) = _NotificationPayload;

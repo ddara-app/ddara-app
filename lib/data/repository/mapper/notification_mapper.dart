@@ -23,6 +23,7 @@ extension NotificationItemMapper on NotificationItemResponse {
         groupName: payload.groupName,
         actorNickname: payload.actorNickname,
         cycleId: payload.cycleId,
+        deadlineAt: payload.deadlineAt,
         imageUrl: payload.imageUrl,
       ),
       readAt: readAt,

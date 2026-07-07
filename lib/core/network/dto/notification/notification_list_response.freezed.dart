@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotificationListResponse {
 
- List<NotificationItemResponse> get items;
+ List<NotificationItemResponse> get items;// 아직 읽지 않은 알림 개수. (배지 표시 등에 사용)
+ int get unreadCount;
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $NotificationListResponseCopyWith<NotificationListResponse> get copyWith => _$No
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationListResponse&&const DeepCollectionEquality().equals(other.items, items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationListResponse&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),unreadCount);
 
 @override
 String toString() {
-  return 'NotificationListResponse(items: $items)';
+  return 'NotificationListResponse(items: $items, unreadCount: $unreadCount)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $NotificationListResponseCopyWith<$Res>  {
   factory $NotificationListResponseCopyWith(NotificationListResponse value, $Res Function(NotificationListResponse) _then) = _$NotificationListResponseCopyWithImpl;
 @useResult
 $Res call({
- List<NotificationItemResponse> items
+ List<NotificationItemResponse> items, int unreadCount
 });
 
 
@@ -65,10 +66,11 @@ class _$NotificationListResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? items = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? unreadCount = null,}) {
   return _then(_self.copyWith(
 items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<NotificationItemResponse>,
+as List<NotificationItemResponse>,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -153,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NotificationItemResponse> items)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NotificationItemResponse> items,  int unreadCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationListResponse() when $default != null:
-return $default(_that.items);case _:
+return $default(_that.items,_that.unreadCount);case _:
   return orElse();
 
 }
@@ -174,10 +176,10 @@ return $default(_that.items);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NotificationItemResponse> items)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NotificationItemResponse> items,  int unreadCount)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationListResponse():
-return $default(_that.items);case _:
+return $default(_that.items,_that.unreadCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -194,10 +196,10 @@ return $default(_that.items);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NotificationItemResponse> items)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NotificationItemResponse> items,  int unreadCount)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationListResponse() when $default != null:
-return $default(_that.items);case _:
+return $default(_that.items,_that.unreadCount);case _:
   return null;
 
 }
@@ -209,7 +211,7 @@ return $default(_that.items);case _:
 @JsonSerializable()
 
 class _NotificationListResponse implements NotificationListResponse {
-  const _NotificationListResponse({required final  List<NotificationItemResponse> items}): _items = items;
+  const _NotificationListResponse({required final  List<NotificationItemResponse> items, this.unreadCount = 0}): _items = items;
   factory _NotificationListResponse.fromJson(Map<String, dynamic> json) => _$NotificationListResponseFromJson(json);
 
  final  List<NotificationItemResponse> _items;
@@ -219,6 +221,8 @@ class _NotificationListResponse implements NotificationListResponse {
   return EqualUnmodifiableListView(_items);
 }
 
+// 아직 읽지 않은 알림 개수. (배지 표시 등에 사용)
+@override@JsonKey() final  int unreadCount;
 
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationListResponse&&const DeepCollectionEquality().equals(other._items, _items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationListResponse&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),unreadCount);
 
 @override
 String toString() {
-  return 'NotificationListResponse(items: $items)';
+  return 'NotificationListResponse(items: $items, unreadCount: $unreadCount)';
 }
 
 
@@ -253,7 +257,7 @@ abstract mixin class _$NotificationListResponseCopyWith<$Res> implements $Notifi
   factory _$NotificationListResponseCopyWith(_NotificationListResponse value, $Res Function(_NotificationListResponse) _then) = __$NotificationListResponseCopyWithImpl;
 @override @useResult
 $Res call({
- List<NotificationItemResponse> items
+ List<NotificationItemResponse> items, int unreadCount
 });
 
 
@@ -270,10 +274,11 @@ class __$NotificationListResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? items = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? unreadCount = null,}) {
   return _then(_NotificationListResponse(
 items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<NotificationItemResponse>,
+as List<NotificationItemResponse>,unreadCount: null == unreadCount ? _self.unreadCount : unreadCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -586,7 +591,9 @@ mixin _$NotificationPayloadResponse {
 // 관련 모임 id/이름.
  int? get groupId; String? get groupName;// 참여자 정보가 있는 알림(MEMBER_JOIN 등)에만 존재.
  String? get actorNickname;// 사이클 관련 알림(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE 등)에만 존재.
- int? get cycleId;// 알림 썸네일 이미지 URL.
+ int? get cycleId;// 사이클 마감 시각. (NEW_CYCLE·DEADLINE 등에 존재)
+ DateTime? get deadlineAt;// 서버가 계산한 마감까지 남은 분. (DEADLINE 에 존재)
+ int? get remainingMinutes;// 알림 썸네일 이미지 URL.
  String? get imageUrl;
 /// Create a copy of NotificationPayloadResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -600,16 +607,16 @@ $NotificationPayloadResponseCopyWith<NotificationPayloadResponse> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationPayloadResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationPayloadResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt)&&(identical(other.remainingMinutes, remainingMinutes) || other.remainingMinutes == remainingMinutes)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,imageUrl);
+int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,deadlineAt,remainingMinutes,imageUrl);
 
 @override
 String toString() {
-  return 'NotificationPayloadResponse(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, imageUrl: $imageUrl)';
+  return 'NotificationPayloadResponse(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, deadlineAt: $deadlineAt, remainingMinutes: $remainingMinutes, imageUrl: $imageUrl)';
 }
 
 
@@ -620,7 +627,7 @@ abstract mixin class $NotificationPayloadResponseCopyWith<$Res>  {
   factory $NotificationPayloadResponseCopyWith(NotificationPayloadResponse value, $Res Function(NotificationPayloadResponse) _then) = _$NotificationPayloadResponseCopyWithImpl;
 @useResult
 $Res call({
- int? groupId, String? groupName, String? actorNickname, int? cycleId, String? imageUrl
+ int? groupId, String? groupName, String? actorNickname, int? cycleId, DateTime? deadlineAt, int? remainingMinutes, String? imageUrl
 });
 
 
@@ -637,12 +644,14 @@ class _$NotificationPayloadResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationPayloadResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? imageUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? deadlineAt = freezed,Object? remainingMinutes = freezed,Object? imageUrl = freezed,}) {
   return _then(_self.copyWith(
 groupId: freezed == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
 as String?,actorNickname: freezed == actorNickname ? _self.actorNickname : actorNickname // ignore: cast_nullable_to_non_nullable
 as String?,cycleId: freezed == cycleId ? _self.cycleId : cycleId // ignore: cast_nullable_to_non_nullable
+as int?,deadlineAt: freezed == deadlineAt ? _self.deadlineAt : deadlineAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,remainingMinutes: freezed == remainingMinutes ? _self.remainingMinutes : remainingMinutes // ignore: cast_nullable_to_non_nullable
 as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -729,10 +738,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationPayloadResponse() when $default != null:
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl);case _:
   return orElse();
 
 }
@@ -750,10 +759,10 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  String? imageUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationPayloadResponse():
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -770,10 +779,10 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  String? imageUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationPayloadResponse() when $default != null:
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl);case _:
   return null;
 
 }
@@ -785,7 +794,7 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 @JsonSerializable()
 
 class _NotificationPayloadResponse implements NotificationPayloadResponse {
-  const _NotificationPayloadResponse({required this.groupId, required this.groupName, required this.actorNickname, required this.cycleId, required this.imageUrl});
+  const _NotificationPayloadResponse({required this.groupId, required this.groupName, required this.actorNickname, required this.cycleId, this.deadlineAt, this.remainingMinutes, required this.imageUrl});
   factory _NotificationPayloadResponse.fromJson(Map<String, dynamic> json) => _$NotificationPayloadResponseFromJson(json);
 
 // 관련 모임 id/이름.
@@ -795,6 +804,10 @@ class _NotificationPayloadResponse implements NotificationPayloadResponse {
 @override final  String? actorNickname;
 // 사이클 관련 알림(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE 등)에만 존재.
 @override final  int? cycleId;
+// 사이클 마감 시각. (NEW_CYCLE·DEADLINE 등에 존재)
+@override final  DateTime? deadlineAt;
+// 서버가 계산한 마감까지 남은 분. (DEADLINE 에 존재)
+@override final  int? remainingMinutes;
 // 알림 썸네일 이미지 URL.
 @override final  String? imageUrl;
 
@@ -811,16 +824,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationPayloadResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationPayloadResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt)&&(identical(other.remainingMinutes, remainingMinutes) || other.remainingMinutes == remainingMinutes)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,imageUrl);
+int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,deadlineAt,remainingMinutes,imageUrl);
 
 @override
 String toString() {
-  return 'NotificationPayloadResponse(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, imageUrl: $imageUrl)';
+  return 'NotificationPayloadResponse(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, deadlineAt: $deadlineAt, remainingMinutes: $remainingMinutes, imageUrl: $imageUrl)';
 }
 
 
@@ -831,7 +844,7 @@ abstract mixin class _$NotificationPayloadResponseCopyWith<$Res> implements $Not
   factory _$NotificationPayloadResponseCopyWith(_NotificationPayloadResponse value, $Res Function(_NotificationPayloadResponse) _then) = __$NotificationPayloadResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int? groupId, String? groupName, String? actorNickname, int? cycleId, String? imageUrl
+ int? groupId, String? groupName, String? actorNickname, int? cycleId, DateTime? deadlineAt, int? remainingMinutes, String? imageUrl
 });
 
 
@@ -848,12 +861,14 @@ class __$NotificationPayloadResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationPayloadResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? imageUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? deadlineAt = freezed,Object? remainingMinutes = freezed,Object? imageUrl = freezed,}) {
   return _then(_NotificationPayloadResponse(
 groupId: freezed == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
 as String?,actorNickname: freezed == actorNickname ? _self.actorNickname : actorNickname // ignore: cast_nullable_to_non_nullable
 as String?,cycleId: freezed == cycleId ? _self.cycleId : cycleId // ignore: cast_nullable_to_non_nullable
+as int?,deadlineAt: freezed == deadlineAt ? _self.deadlineAt : deadlineAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,remainingMinutes: freezed == remainingMinutes ? _self.remainingMinutes : remainingMinutes // ignore: cast_nullable_to_non_nullable
 as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

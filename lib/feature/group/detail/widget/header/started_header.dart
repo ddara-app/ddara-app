@@ -18,6 +18,7 @@ class StartedHeader extends StatefulWidget {
     super.key,
     required this.imageUri,
     required this.progress,
+    this.onImageTap,
   });
 
   /// 대표로 보여줄 이미지 URI.
@@ -25,6 +26,9 @@ class StartedHeader extends StatefulWidget {
 
   /// 진행 중인 따라찍기(사이클) 정보.
   final GroupCycle progress;
+
+  /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
+  final VoidCallback? onImageTap;
 
   @override
   State<StartedHeader> createState() => _StartedHeaderState();
@@ -59,8 +63,15 @@ class _StartedHeaderState extends State<StartedHeader> {
         height: 478,
         child: Stack(
           children: [
-            // 배경: 스타터 대표 이미지.
-            Positioned.fill(child: _backgroundImage()),
+            // 배경: 스타터 대표 이미지. (탭하면 크게 보기)
+            Positioned.fill(
+              child: widget.onImageTap == null
+                  ? _backgroundImage()
+                  : GestureDetector(
+                      onTap: widget.onImageTap,
+                      child: _backgroundImage(),
+                    ),
+            ),
             // 하단 진행 정보의 가독성을 위한 스크림.
             const BottomScrim(heightFactor: 0.45, color: Colors.black),
             // 콘텐츠: 상단 남은 시간 + 하단 진행 정보.
