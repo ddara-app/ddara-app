@@ -26,11 +26,11 @@ class SignNotifier extends FamilyNotifier<SignUpPageState, SocialLoginType> {
 
       state = state.copyWith(isSuccess: true);
     } on TypeMisMatchException {
-      state = state.copyWith(errorMessage: "잘못 된 형식이 있습니다.");
-    } on AgeLimitException {
-      state = state.copyWith(errorMessage: "나이가 너무 어립니다.");
+      state = state.copyWith(errorMessage: "입력값을 확인해 주세요.");
     } on UnauthorizedTokenException {
-      state = state.copyWith(errorMessage: "소셜 토큰이 만료 또는 무효 상태입니다.");
+      state = state.copyWith(errorMessage: "소셜 토큰이 만료되었거나 유효하지 않습니다.");
+    } on UnsupportedProviderException {
+      state = state.copyWith(errorMessage: "지원하지 않는 로그인 방식입니다.");
     } finally {
       // 로딩만 내린다. errorMessage 를 여기서 지우면 catch 가 채운 메시지가 사라진다.
       state = state.copyWith(isLoading: false);

@@ -54,15 +54,17 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (e) {
       switch (e.response?.statusCode) {
         case 400:
-          // termsAgreed: false, birthDate 형식 오류, 또는 nickname 누락/20자 초과
+          // INVALID_INPUT — 입력값 오류 (필수값 누락, 약관 미동의 등)
           throw TypeMisMatchException();
 
         case 401:
-          throw UnauthorizedException();
+          // INVALID_OAUTH_TOKEN — 소셜 토큰 만료/무효
+          throw UnauthorizedTokenException();
 
-        case 403:
-          // 만 14세 미만 → 프론트: 가입 차단 안내 화면. User 저장 안 됨
-          throw AgeLimitException();
+        case 500:
+          // UNSUPPORTED_OAUTH_PROVIDER — 지원하지 않는 소셜 제공자
+          throw UnsupportedProviderException();
+
         default:
           throw NetworkException();
       }
