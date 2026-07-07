@@ -2,9 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- 개발용 APNs 환경. 배포(App Store/TestFlight) 서명 시 CI 가 production 으로
-	     조정하거나, Xcode 자동 서명이 빌드 구성에 맞춰 전환한다. -->
+	<!-- APNs 환경. QA(Ad Hoc)·App Store 배포 빌드는 모두 Distribution 서명 =
+	     production APNs 를 사용하므로 production 으로 고정한다.
+	     (로컬 flutter run 개발 빌드로 푸시를 테스트할 때만 sandbox 가 필요) -->
 	<key>aps-environment</key>
-	<string>development</string>
+	<string>production</string>
 </dict>
 </plist>
