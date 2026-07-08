@@ -1,14 +1,17 @@
 # Debug 빌드 → Firebase App Distribution 배포 (QA용)
 #
-# 산출물: Android 디버그 APK / iOS Development 서명 IPA → 그룹 qa 에 OTA 배포.
+# 산출물: Android 릴리스 APK(업로드 키 서명 · R8 minify) / iOS Development(Ad Hoc) 서명 IPA
+#         → 그룹 qa 에 OTA 배포.
 # 가이드: .github/setup-debug-cicd.md, .github/research-debug.md
 #
 # 시크릿 인코딩 규약 (등록 시 이 규약대로 넣어야 함):
 #   [base64]  GOOGLE_SERVICES_JSON, GOOGLE_SERVICE_INFO_PLIST,
-#             IOS_CERTIFICATE_P12, IOS_PROVISIONING_PROFILE, FIREBASE_SERVICE_ACCOUNT
+#             IOS_CERTIFICATE_P12, IOS_PROVISIONING_PROFILE, FIREBASE_SERVICE_ACCOUNT,
+#             ANDROID_KEYSTORE_BASE64  ← Android 릴리스 서명(업로드 키스토어 .jks)
 #   [원문]     ENV_FILE, IOS_SECRETS_XCCONFIG
 #   [평문]     KAKAO_NATIVE_APP_KEY, IOS_TEAM_ID, IOS_CERTIFICATE_PASSWORD,
-#             IOS_KEYCHAIN_PASSWORD, FIREBASE_APP_ID_IOS, FIREBASE_APP_ID_ANDROID
+#             IOS_KEYCHAIN_PASSWORD, FIREBASE_APP_ID_IOS, FIREBASE_APP_ID_ANDROID,
+#             ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS
 
 name: build-debug
 
@@ -34,10 +37,10 @@ env:
 jobs:
   # ─────────────────────────────── Android ───────────────────────────────
   android:
-    name: Android Debug APK
+    name: Android Release APK
     if: ${{ github.event_name == 'push' || inputs.platform == 'all' || inputs.platform == 'android' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -63,12 +66,41 @@ jobs:
           # build.gradle 이 KAKAO 키를 참조하는 경우 대비 (manifestPlaceholders)
           echo "KAKAO_NATIVE_APP_KEY=$KAKAO_NATIVE_APP_KEY" >> android/local.properties
 
+      - name: 릴리스 키스토어 복원
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          # 키스토어 값이 있으면 업로드 키로 서명. 없으면 build.gradle.kts 가 debug 로 폴백하는데,
+          # 그 경우 배포본 SHA 가 미등록이라 카카오/구글 로그인이 실패하므로 경고를 남긴다.
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::warning::ANDROID_KEYSTORE_BASE64 미설정 — 릴리스가 debug 키로 서명됩니다(로그인 실패 위험)."
+            exit 0
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          # RELEASE_* 값을 local.properties 에 주입 (build.gradle.kts 가 여기서 읽음 — KAKAO 키와 동일 패턴).
+          # storeFile 은 app 모듈 기준 상대경로.
+          {
+            echo "RELEASE_STORE_FILE=upload-keystore.jks"
+            echo "RELEASE_STORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD"
+            echo "RELEASE_KEY_PASSWORD=$ANDROID_KEY_PASSWORD"
+            echo "RELEASE_KEY_ALIAS=$ANDROID_KEY_ALIAS"
+          } >> android/local.properties
+
       - name: 의존성 설치
         run: flutter pub get
 
-      - name: APK 빌드 (debug)
-        # 빌드 번호를 run_number 로 주입해 실행마다 자동 증가. (pubspec 은 변경 안 함)
-        run: flutter build apk --debug --build-number=${{ github.run_number }}
+      - name: APK 빌드 (release)
+        # 릴리스 서명(업로드 키) + R8 minify 적용. 빌드 번호를 run_number 로 주입해
+        # 실행마다 자동 증가. (pubspec 은 변경 안 함)
+        run: flutter build apk --release --build-number=${{ github.run_number }}
+
+      - name: AAB 빌드 (release)
+        # Play 업로드용 App Bundle. APK 와 동일한 업로드 키 서명·R8 설정으로 빌드.
+        # (APK 와 AAB 를 모두 만든 뒤 배포/업로드해 산출물 일관성을 맞춘다)
+        run: flutter build appbundle --release --build-number=${{ github.run_number }}
 
       - name: Firebase 서비스 계정 복원 (base64 → JSON 파일)
         env:
@@ -86,7 +118,7 @@ jobs:
         run: |
           npm install -g firebase-tools
           # 업로드가 유일한 필수 단계. tee 를 거쳐도 firebase 종료코드를 PIPESTATUS 로 직접 확인.
-          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-debug.apk \
+          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
             --app "${{ secrets.FIREBASE_APP_ID_ANDROID }}" \
             --groups qa 2>&1 | tee distribute.log
           status=${PIPESTATUS[0]}
@@ -111,6 +143,15 @@ jobs:
           path: testing_uri.txt
           if-no-files-found: ignore
           retention-days: 1
+
+      - name: AAB 아티팩트 업로드 (다운로드용)
+        # Actions 실행 페이지 하단 Artifacts 에서 app-release.aab 다운로드 가능.
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30
 
   # ───────────────────────────────── iOS ─────────────────────────────────
   ios:
