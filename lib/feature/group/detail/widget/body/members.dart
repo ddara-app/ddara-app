@@ -75,7 +75,11 @@ class _MemberAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _CircleLabel(
       label: name,
-      child: _ReportableAvatar(imageUrl: imageUrl, onReport: onReport),
+      child: _ReportableAvatar(
+        name: name,
+        imageUrl: imageUrl,
+        onReport: onReport,
+      ),
     );
   }
 }
@@ -84,7 +88,14 @@ class _MemberAvatar extends StatelessWidget {
 ///
 /// 아바타에 앵커된 작은 메뉴로, 바깥을 탭하면 닫힌다.
 class _ReportableAvatar extends StatefulWidget {
-  const _ReportableAvatar({required this.imageUrl, required this.onReport});
+  const _ReportableAvatar({
+    required this.name,
+    required this.imageUrl,
+    required this.onReport,
+  });
+
+  /// 아바타 아래 라벨로 보여줄 멤버 이름. (오버레이에서 블러 없이 유지)
+  final String name;
 
   final String? imageUrl;
 
@@ -148,6 +159,15 @@ class _ReportableAvatarState extends State<_ReportableAvatar> {
           child: IgnorePointer(
             child: ProfileAvatar(size: _circleSize, imageUrl: widget.imageUrl),
           ),
+        ),
+        // 아바타 아래 이름 라벨 사본도 스크림 위로 띄워 블러 없이 유지한다.
+        // (원본 라벨 위치 — 아바타 아래 s2 여백, 가로 중앙 — 에 정확히 겹친다)
+        CompositedTransformFollower(
+          link: _link,
+          targetAnchor: Alignment.bottomCenter,
+          followerAnchor: Alignment.topCenter,
+          offset: const Offset(0, AppSpacing.s2),
+          child: IgnorePointer(child: AppText.caption(widget.name)),
         ),
         // 아바타 위쪽(좌측 정렬)에 앵커. (아바타 위로 s2 만큼 띄움)
         CompositedTransformFollower(
