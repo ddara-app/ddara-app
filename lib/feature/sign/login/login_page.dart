@@ -109,6 +109,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 SocialLoginType.google,
                               ),
                       ),
+                      _SocialLoginButton(
+                        label: l10n.loginApple,
+                        iconPath: 'assets/images/ic_apple_logo_.svg',
+                        backgroundColor: const Color(0xFFFFFFFF),
+                        foregroundColor: const Color(0xFF000000),
+                        onPressed: isLoading
+                            ? null
+                            : () => notifier.socialLogin(
+                                context,
+                                SocialLoginType.apple,
+                              ),
+                      ),
                       AppTextButton(
                         label: l10n.loginViewPolicies,
                         onPressed: () => context.push(RoutePath.termsPolicy),
@@ -159,7 +171,11 @@ class _SocialLoginButton extends StatelessWidget {
       // 아이콘은 왼쪽 끝(버튼 패딩 16 안쪽)에 고정, 라벨은 버튼 정중앙.
       child: Row(
         children: [
-          SvgPicture.asset(iconPath, width: _iconSize, height: _iconSize),
+          SvgPicture.asset(
+            iconPath,
+            width: _iconSize,
+            height: _iconSize,
+          ),
           Expanded(
             child: Text(
               label,

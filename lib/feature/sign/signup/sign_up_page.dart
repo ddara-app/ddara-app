@@ -30,9 +30,10 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
         return;
       }
 
+      // errorMessage 가 새로 바뀐 경우에만 토스트. (finally 의 isLoading 갱신처럼
+      // 같은 메시지로 상태가 재통지될 때 토스트가 중복되는 것을 막는다)
       final errorMessage = next.errorMessage;
-
-      if (errorMessage.isNotEmpty) {
+      if (errorMessage.isNotEmpty && prev?.errorMessage != errorMessage) {
         Toast.showToast(context, errorMessage, type: ToastType.error);
       }
     });

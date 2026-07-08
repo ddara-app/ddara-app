@@ -35,7 +35,8 @@ android {
         applicationId = "com.ddara.team3"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // firebase_auth 6.x 는 minSdk 23 이상을 요구한다. (Flutter 기본값이 더 높으면 그 값을 유지)
+        minSdk = maxOf(flutter.minSdkVersion, 23)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

@@ -32,6 +32,7 @@ final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
     ref.read(authRepositoryProvider),
     ref.read(kakaoAuthProvider),
     ref.read(googleAuthProvider),
+    ref.read(appleAuthProvider),
   );
 });
 
@@ -40,6 +41,7 @@ final signUpUseCaseProvider = Provider<SignUpUseCase>((ref) {
     ref.read(authRepositoryProvider),
     ref.read(kakaoAuthProvider),
     ref.read(googleAuthProvider),
+    ref.read(appleAuthProvider),
   );
 });
 
@@ -105,6 +107,7 @@ final deleteAccountUseCaseProvider = Provider<DeleteAccountUseCase>((ref) {
     ref.read(authRepositoryProvider),
     ref.read(kakaoAuthProvider),
     ref.read(googleAuthProvider),
+    ref.read(appleAuthProvider),
   );
 });
 

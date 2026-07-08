@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ddara/core/auth/apple_auth_service.dart';
 import 'package:ddara/core/auth/google_auth_service.dart';
 import 'package:ddara/core/auth/kakao_auth_service.dart';
 import 'package:ddara/core/exception/sign_up_exception.dart';
@@ -17,11 +18,13 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _authRemoteDataSource;
   final KakaoAuthService _kakaoAuthService;
   final GoogleAuthService _googleAuthService;
+  final AppleAuthService _appleAuthService;
 
   AuthRepositoryImpl(
     this._authRemoteDataSource,
     this._kakaoAuthService,
     this._googleAuthService,
+    this._appleAuthService,
   );
 
   /// 동시에 여러 곳에서 복구를 요청해도 한 번만 수행하기 위한 단일 비행 잠금.
@@ -51,15 +54,17 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (e) {
       switch (e.response?.statusCode) {
         case 400:
-          // termsAgreed: false, birthDate 형식 오류, 또는 nickname 누락/20자 초과
+          // INVALID_INPUT — 입력값 오류 (필수값 누락, 약관 미동의 등)
           throw TypeMisMatchException();
 
         case 401:
-          throw UnauthorizedException();
+          // INVALID_OAUTH_TOKEN — 소셜 토큰 만료/무효
+          throw UnauthorizedTokenException();
 
-        case 403:
-          // 만 14세 미만 → 프론트: 가입 차단 안내 화면. User 저장 안 됨
-          throw AgeLimitException();
+        case 500:
+          // UNSUPPORTED_OAUTH_PROVIDER — 지원하지 않는 소셜 제공자
+          throw UnsupportedProviderException();
+
         default:
           throw NetworkException();
       }
@@ -185,6 +190,9 @@ class AuthRepositoryImpl implements AuthRepository {
         final valid = await _kakaoAuthService.availabilityToken();
         if (!valid) return null;
         return await _kakaoAuthService.getKakaoAccessToken();
+      case SocialLoginType.apple:
+        // Firebase 세션이 살아있으면 ID Token 을 갱신해 반환한다.
+        return await _appleAuthService.getAppleIdToken();
     }
   }
 
