@@ -68,6 +68,13 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // R8 코드 축소/난독화 + 리소스 축소. keep 규칙은 proguard-rules.pro 참고.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
