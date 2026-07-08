@@ -38,6 +38,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     );
   }
 
+  void _goPrevious() {
+    _controller.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   Future<void> _start() async {
     // 온보딩 완료 플래그 저장 → 다음 실행부터는 노출되지 않는다.
     await ref.read(onboardingControllerProvider).complete();
@@ -54,53 +61,62 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     final l10n = AppLocalizations.of(context);
     final isLastPage = _index == _pageCount - 1;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // 로고·텍스트·인디케이터를 한 덩어리로 화면 중앙에 모은다.
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // 페이지가 바뀌어도 고정되는 로고
-                  const LogoLarge(),
-                  const SizedBox(height: AppSpacing.s6),
-                  // 제목·설명만 좌우로 스와이프되는 영역 (고정 높이)
-                  SizedBox(
-                    height: 120,
-                    child: PageView.builder(
-                      controller: _controller,
-                      // 스와이프 비활성화 → 버튼으로만 페이지 이동.
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _pageCount,
-                      onPageChanged: (index) => setState(() => _index = index),
-                      itemBuilder: (_, index) {
-                        switch (index) {
-                          case 0:
-                            return const OnboardingFirstPage();
-                          case 1:
-                            return const OnboardingSecondPage();
-                          default:
-                            return const OnboardingThirdPage();
-                        }
-                      },
+    return PopScope(
+      // 첫 스텝에선 시스템 뒤로가기로 앱을 종료하고, 그 외에는 가로채 이전 스텝으로 되돌린다.
+      canPop: _index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _goPrevious();
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              // 로고·텍스트·인디케이터를 한 덩어리로 화면 중앙에 모은다.
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // 페이지가 바뀌어도 고정되는 로고
+                    const LogoLarge(),
+                    const SizedBox(height: AppSpacing.s6),
+                    // 제목·설명만 좌우로 스와이프되는 영역 (고정 높이)
+                    SizedBox(
+                      height: 120,
+                      child: PageView.builder(
+                        controller: _controller,
+                        // 스와이프 비활성화 → 버튼으로만 페이지 이동.
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _pageCount,
+                        onPageChanged: (index) =>
+                            setState(() => _index = index),
+                        itemBuilder: (_, index) {
+                          switch (index) {
+                            case 0:
+                              return const OnboardingFirstPage();
+                            case 1:
+                              return const OnboardingSecondPage();
+                            default:
+                              return const OnboardingThirdPage();
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.s6),
-                  // 페이지가 바뀌어도 고정되며, 활성 점만 애니메이션으로 전환되는 인디케이터
-                  PageIndicator(currentIndex: _index),
-                ],
+                    const SizedBox(height: AppSpacing.s6),
+                    // 페이지가 바뀌어도 고정되며, 활성 점만 애니메이션으로 전환되는 인디케이터
+                    PageIndicator(currentIndex: _index),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: AppButton(
-                label: isLastPage ? l10n.onboardingStart : l10n.onboardingNext,
-                onPressed: isLastPage ? _start : _goNext,
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: AppButton(
+                  label: isLastPage ? l10n.onboardingStart : l10n.onboardingNext,
+                  onPressed: isLastPage ? _start : _goNext,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
