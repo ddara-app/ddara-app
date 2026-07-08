@@ -76,12 +76,12 @@ class GroupPage extends ConsumerWidget {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        context.go(RoutePath.home);
+        _goHome(context, ref);
       },
       child: CupertinoPageScaffold(
         navigationBar: AppBar(
           title: state.groupDetail?.name ?? '',
-          onBack: () => context.go(RoutePath.home),
+          onBack: () => _goHome(context, ref),
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
             minimumSize: Size.zero,
@@ -95,6 +95,13 @@ class GroupPage extends ConsumerWidget {
         child: SafeArea(child: _body(context, state)),
       ),
     );
+  }
+
+  /// 홈으로 돌아간다. 나가기 직전 홈 목록을 무효화해, 복귀 시 최신 상태로
+  /// 재조회되도록 한다. (스타터 시작 사진 등 이 화면에서 생긴 변경을 홈 카드에 반영)
+  void _goHome(BuildContext context, WidgetRef ref) {
+    ref.invalidate(homeNotifierProvider);
+    context.go(RoutePath.home);
   }
 
   /// 우측 메뉴 버튼을 눌렀을 때 뜨는 모임 메뉴(액션 시트).
