@@ -6,6 +6,7 @@ import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
 import 'package:ddara/core/widget/camera/header/camera_header.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
 import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
+import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
 import 'package:flutter/cupertino.dart';
@@ -90,8 +91,16 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   }
 
   Future<void> _initCamera() async {
-    // 권한을 한 번 더 확인하고, 허용된 경우에만 카메라를 켠다.
-    final granted = await ref.read(permissionServiceProvider).isCameraGranted();
+    final permission = ref.read(permissionServiceProvider);
+
+    // 권한을 확인하고, 없으면 이 시점에 '카메라' 권한만 요청한다.
+    // (미결정 상태면 OS 프롬프트가 뜨고, 이미 영구 거부면 프롬프트 없이 거부로
+    //  돌아와 아래 안내 화면으로 처리한다)
+    var granted = await permission.isCameraGranted();
+    if (!granted) {
+      final result = await permission.requestCamera();
+      granted = result == PermissionResult.granted;
+    }
     if (!granted) {
       if (mounted) setState(() => _permissionDenied = true);
       return;

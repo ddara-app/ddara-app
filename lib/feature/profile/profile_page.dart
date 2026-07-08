@@ -2,8 +2,11 @@ import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
 import 'package:ddara/core/image/image_picker_service.dart';
+import 'package:ddara/core/permission/permission_service.dart';
+import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
+import 'package:ddara/core/widget/permission_dialog.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
 import 'package:ddara/feature/profile/widget/profile_header.dart';
@@ -12,6 +15,7 @@ import 'package:ddara/feature/profile/widget/profile_section.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -147,6 +151,15 @@ class ProfilePage extends ConsumerWidget {
     WidgetRef ref,
     ProfileImageSource source,
   ) async {
+    // 갤러리는 Android 에서 시스템 포토 피커가 아닌 권한 기반 갤러리로 폴백될 수
+    // 있어, 진입 전 '사진' 권한을 확인·요청한다.
+    // (iOS 는 PHPicker 라 권한 없이도 동작하므로 그대로 둔다)
+    if (source == ProfileImageSource.gallery &&
+        defaultTargetPlatform == TargetPlatform.android) {
+      final ok = await _ensureAndroidPhotosPermission(context, ref);
+      if (!ok || !context.mounted) return;
+    }
+
     final picker = ref.read(imagePickerServiceProvider);
     final picked = switch (source) {
       ProfileImageSource.camera => await picker.pickFromCamera(),
@@ -161,6 +174,30 @@ class ProfilePage extends ConsumerWidget {
 
     // 리사이징·압축은 업로드 단계(UploadDataSource.compress)에서 처리한다.
     await _uploadProfileImage(context, ref, cropped.path);
+  }
+
+  /// Android 갤러리 접근 전 '사진' 권한을 확인하고, 없으면 요청한다.
+  ///
+  /// 허용(부분 접근 포함)되면 true, 거부면 false 를 반환한다. 영구 거부라
+  /// 프롬프트가 더 뜨지 않는 경우엔 설정 이동 안내를 띄운다.
+  Future<bool> _ensureAndroidPhotosPermission(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final permission = ref.read(permissionServiceProvider);
+    if (await permission.isPhotosGranted()) return true;
+
+    final result = await permission.requestPhotos();
+    if (result == PermissionResult.granted) return true;
+
+    if (result == PermissionResult.permanentlyDenied && context.mounted) {
+      await showPermissionDialog(
+        context,
+        permission: permission,
+        permissionName: '사진',
+      );
+    }
+    return false;
   }
 
   /// 준비된 이미지 파일을 서버에 업로드(멀티파트)하고 프로필 이미지를 갱신한다.

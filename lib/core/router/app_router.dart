@@ -139,6 +139,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             .read(permissionServiceProvider)
             .isCameraGranted();
         if (!granted) return RoutePath.permission;
+
+        // 이미 허용돼 홈으로 통과시키는 경우에도 안내를 본 것으로 확정한다.
+        // 이렇게 해야 이후 홈 재진입(그룹→홈 등)에서 게이트가 권한을 다시
+        // 조회하지 않아, 권한 상태가 not-granted 로 읽히는 순간 권한 페이지로
+        // 튕기는 문제를 막는다. (routeAfterAuth 의 허용 처리와 동일 정책)
+        // await 이후라 동기 빌드 구간이 아니므로 여기서 state 변경은 안전하다.
+        ref.read(cameraNoticeAcknowledgedProvider.notifier).state = true;
       }
 
       return null;
