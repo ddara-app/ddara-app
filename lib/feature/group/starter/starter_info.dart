@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ddara/core/designsystem/component/app_text_field.dart';
 import 'package:ddara/core/designsystem/component/button/app_button.dart';
+import 'package:ddara/core/designsystem/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
@@ -57,10 +58,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
       final cycleId = next.uploadedCycleId;
       if (prev?.uploadedCycleId == null && cycleId != null) {
         // 게시 후에는 스타터로 돌아가지 않도록 화면을 교체한다.
-        context.pushReplacement(
-          RoutePath.follower,
-          extra: cycleId,
-        );
+        context.pushReplacement(RoutePath.follower, extra: cycleId);
       }
     });
 
@@ -73,110 +71,119 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
       starterNotifierProvider.select((s) => s.isLoading),
     );
 
-    final concept = ref.watch(
-      starterNotifierProvider.select((s) => s.concept),
-    );
+    final concept = ref.watch(starterNotifierProvider.select((s) => s.concept));
     // 컨셉 설명은 20자 이내. 초과하면 에러 문구를 보여준다.
-    final conceptError = concept.length > 20 ? l10n.starterConceptLengthError : null;
+    final conceptError = concept.length > 20
+        ? l10n.starterConceptLengthError
+        : null;
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s5,
-          vertical: AppSpacing.s6,
-        ),
-        // 키보드가 올라와 높이가 줄면 내용을 스크롤시켜 오버플로를 막는다.
-        // 공간이 충분하면 Spacer 가 버튼을 하단에 고정한다.
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: AppSpacing.s5,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 465,
-                        padding: const EdgeInsets.all(AppSpacing.s4),
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          color: AppColors.bgSurface,
-                          borderRadius: BorderRadius.circular(AppRadius.lg),
-                          // 사진이 있으면 카드를 가득 채워 보여준다.
-                          image: hasPhoto
-                              ? DecorationImage(
-                                  image: FileImage(File(photoPath)),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
-                        ),
-                        // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
-                        child: hasPhoto
-                            ? null
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  TakePhotoButton(
-                                    size: TakePhotoButtonSize.large,
-                                    onPressed: notifier.goToCamera,
-                                  ),
-                                ],
-                              ),
-                      ),
-                      AppTextField(
-                        label: l10n.starterConceptLabel,
-                        placeholder: l10n.starterConceptPlaceholder,
-                        controller: _conceptController,
-                        highlightWhenFilled: true,
-                        errorText: conceptError,
-                        onChanged: notifier.conceptChanged,
-                      ),
-                      const Spacer(),
-                      Row(
-                        spacing: AppSpacing.s3,
+    return Stack(
+      children: [
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.s5,
+              vertical: AppSpacing.s6,
+            ),
+            // 키보드가 올라와 높이가 줄면 내용을 스크롤시켜 오버플로를 막는다.
+            // 공간이 충분하면 Spacer 가 버튼을 하단에 고정한다.
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: AppSpacing.s5,
                         children: [
-                          Expanded(
-                            child: AppButton.outline(
-                              label: l10n.photoRetake,
-                              onPressed: notifier.goToCamera,
-                            ),
-                          ),
-                          Expanded(
-                            child: AppButton(
-                              label: l10n.photoUpload,
-                              // 사진이 없거나 컨셉이 비어 있거나(공백 포함) 20자를
-                              // 넘거나, 업로드 중이면 비활성화.
-                              onPressed:
-                                  hasPhoto &&
-                                      concept.trim().isNotEmpty &&
-                                      conceptError == null &&
-                                      !isLoading
-                                  ? () async {
-                                      // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
-                                      final ok = await AppDialog.show(
-                                        context,
-                                        title: l10n.photoPostWarningTitle,
-                                        confirmLabel: l10n.commonConfirm,
-                                      );
-                                      if (!ok) return;
-                                      await notifier.upload(widget.groupId);
-                                    }
+                          Container(
+                            width: double.infinity,
+                            height: 465,
+                            padding: const EdgeInsets.all(AppSpacing.s4),
+                            clipBehavior: Clip.antiAlias,
+                            decoration: BoxDecoration(
+                              color: AppColors.bgSurface,
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
+                              // 사진이 있으면 카드를 가득 채워 보여준다.
+                              image: hasPhoto
+                                  ? DecorationImage(
+                                      image: FileImage(File(photoPath)),
+                                      fit: BoxFit.cover,
+                                    )
                                   : null,
                             ),
+                            // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
+                            child: hasPhoto
+                                ? null
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      TakePhotoButton(
+                                        size: TakePhotoButtonSize.large,
+                                        onPressed: notifier.goToCamera,
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                          AppTextField(
+                            label: l10n.starterConceptLabel,
+                            placeholder: l10n.starterConceptPlaceholder,
+                            controller: _conceptController,
+                            highlightWhenFilled: true,
+                            errorText: conceptError,
+                            onChanged: notifier.conceptChanged,
+                          ),
+                          const Spacer(),
+                          Row(
+                            spacing: AppSpacing.s3,
+                            children: [
+                              Expanded(
+                                child: AppButton.outline(
+                                  label: l10n.photoRetake,
+                                  onPressed: notifier.goToCamera,
+                                ),
+                              ),
+                              Expanded(
+                                child: AppButton(
+                                  label: l10n.photoUpload,
+                                  // 사진이 없거나 컨셉이 비어 있거나(공백 포함) 20자를
+                                  // 넘거나, 업로드 중이면 비활성화.
+                                  onPressed:
+                                      hasPhoto &&
+                                          concept.trim().isNotEmpty &&
+                                          conceptError == null &&
+                                          !isLoading
+                                      ? () async {
+                                          // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
+                                          final ok = await AppDialog.show(
+                                            context,
+                                            title: l10n.photoPostWarningTitle,
+                                            confirmLabel: l10n.commonConfirm,
+                                          );
+                                          if (!ok) return;
+                                          await notifier.upload(widget.groupId);
+                                        }
+                                      : null,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            );
-          },
+                );
+              },
+            ),
+          ),
         ),
-      ),
+
+        // 업로드 처리 중 로딩 오버레이 (입력 차단 + 인디케이터)
+        if (isLoading) const AppLoadingOverlay(),
+      ],
     );
   }
 }
