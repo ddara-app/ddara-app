@@ -92,7 +92,7 @@ class GroupPage extends ConsumerWidget {
             ),
           ),
         ),
-        child: SafeArea(child: _body(context, state)),
+        child: SafeArea(child: _body(context, ref, state)),
       ),
     );
   }
@@ -102,6 +102,18 @@ class GroupPage extends ConsumerWidget {
   void _goHome(BuildContext context, WidgetRef ref) {
     ref.invalidate(homeNotifierProvider);
     context.go(RoutePath.home);
+  }
+
+  /// 하위 화면(스타터·갤러리)으로 이동했다가 돌아오면 모임 상세를 무효화해
+  /// 재조회한다. (하위 화면에서 생긴 변경을 복귀 시 반영 — 홈 복귀 갱신과 동일 패턴)
+  Future<void> _pushThenRefresh(
+    BuildContext context,
+    WidgetRef ref,
+    String path,
+    Object extra,
+  ) async {
+    await context.push(path, extra: extra);
+    ref.invalidate(groupPageNotifierProvider(groupId));
   }
 
   /// 우측 메뉴 버튼을 눌렀을 때 뜨는 모임 메뉴(액션 시트).
@@ -144,7 +156,10 @@ class GroupPage extends ConsumerWidget {
     final groupName =
         ref.read(groupPageNotifierProvider(groupId)).groupDetail?.name ?? '';
 
-    final nickName = await EditNicknameSheet.show(context, groupName: groupName);
+    final nickName = await EditNicknameSheet.show(
+      context,
+      groupName: groupName,
+    );
     if (nickName == null || !context.mounted) return;
 
     await ref
@@ -175,7 +190,7 @@ class GroupPage extends ConsumerWidget {
     context.go(RoutePath.home);
   }
 
-  Widget _body(BuildContext context, GroupPageState state) {
+  Widget _body(BuildContext context, WidgetRef ref, GroupPageState state) {
     final l10n = AppLocalizations.of(context);
     if (state.isLoading) {
       return const Center(child: CupertinoActivityIndicator());
@@ -214,15 +229,12 @@ class GroupPage extends ConsumerWidget {
               // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
               canStart: groupDetail.members.length >= _minMembersToStart,
               navigateToStart: () =>
-                  context.push(RoutePath.starter, extra: groupId),
+                  _pushThenRefresh(context, ref, RoutePath.starter, groupId),
               // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
               onTakePhoto: () {
                 final cycleId = groupDetail.currentCycle?.cycleId;
                 if (cycleId == null) return;
-                context.push(
-                  RoutePath.follower,
-                  extra: cycleId,
-                );
+                _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
               },
             ),
           ),
@@ -272,7 +284,16 @@ class GroupPage extends ConsumerWidget {
                     height: 225 + AppSpacing.s4 * 2,
                     child: Center(child: AppText.body(l10n.groupHistoryEmpty)),
                   )
-                : HistoryPhotos(cycles: cycles),
+                : HistoryPhotos(
+                    cycles: cycles,
+                    // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
+                    onCycleTap: (cycleId) => _pushThenRefresh(
+                      context,
+                      ref,
+                      RoutePath.follower,
+                      cycleId,
+                    ),
+                  ),
           ),
         ],
       ),

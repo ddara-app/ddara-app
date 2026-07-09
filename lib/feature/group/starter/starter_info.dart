@@ -7,6 +7,8 @@ import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
+    as group_detail;
 import 'package:ddara/feature/group/starter/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/widget/take_photo_button.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -57,6 +59,9 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
 
       final cycleId = next.uploadedCycleId;
       if (prev?.uploadedCycleId == null && cycleId != null) {
+        // 새 사이클이 생겼으므로 스택 아래 모임 상세를 무효화해, 갤러리에서
+        // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.
+        ref.invalidate(group_detail.groupPageNotifierProvider(widget.groupId));
         // 게시 후에는 스타터로 돌아가지 않도록 화면을 교체한다.
         context.pushReplacement(RoutePath.follower, extra: cycleId);
       }

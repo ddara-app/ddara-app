@@ -1,20 +1,25 @@
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
-import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
 
 /// 지난 따라찍기 사진들. (살짝 회전된 카드들을 가로로 나열)
 ///
 /// 카드 합 너비가 화면보다 넓을 수 있어 가로 스크롤로 감싼다.
 class HistoryPhotos extends StatelessWidget {
-  const HistoryPhotos({super.key, required this.cycles});
+  const HistoryPhotos({
+    super.key,
+    required this.cycles,
+    required this.onCycleTap,
+  });
 
   /// 표시할 지난 사이클 목록.
   final List<HistoryCycle> cycles;
+
+  /// 카드 탭 콜백. (해당 사이클 갤러리로의 이동은 호출부가 담당)
+  final ValueChanged<int> onCycleTap;
 
   /// 카드 한 장의 실제 너비.
   static const double _cardWidth = 180;
@@ -46,9 +51,8 @@ class HistoryPhotos extends StatelessWidget {
             _OverlapCard(
               cardWidth: _cardWidth,
               visibleWidth: _visibleWidth,
-              // 카드 탭 → 해당 사이클의 사진 갤러리로 이동.
-              onTap: () =>
-                  context.push(RoutePath.follower, extra: cycles[i].cycleId),
+              // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (호출부 콜백)
+              onTap: () => onCycleTap(cycles[i].cycleId),
               child: _PhotoCard(
                 // 카드마다 좌우로 번갈아 기울인다. (모서리 둥글기는 모두 동일)
                 angle: i.isEven ? -0.14 : 0.14,
@@ -167,9 +171,9 @@ class _PhotoCard extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topRight,
                 child: AppText.caption(
-                  AppLocalizations.of(context).historyParticipantCount(
-                    participantCount,
-                  ),
+                  AppLocalizations.of(
+                    context,
+                  ).historyParticipantCount(participantCount),
                   color: AppColors.textPrimary,
                 ),
               ),

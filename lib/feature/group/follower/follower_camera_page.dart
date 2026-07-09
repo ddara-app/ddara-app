@@ -2,6 +2,8 @@ import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
+    as group_detail;
 import 'package:ddara/feature/group/follower/follower_camera.dart';
 import 'package:ddara/feature/group/follower/follower_photo_check.dart';
 import 'package:ddara/feature/group/follower/provider/notifier_provider.dart';
@@ -54,6 +56,9 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
         // 스택 아래의 갤러리를 새로고침한 뒤 촬영 화면을 닫아 그 갤러리로 돌아간다.
         // (pushReplacement 로 갤러리를 새로 쌓으면 중복·미갱신 문제가 생긴다)
         ref.invalidate(cyclePhotoGalleryNotifierProvider(cycleId));
+        // 스택 아래에 모임 상세가 있으면 새 사진(참여 현황)이 반영되도록 함께
+        // 무효화한다. (groupId 를 모르는 화면이라 family 전체를 무효화)
+        ref.invalidate(group_detail.groupPageNotifierProvider);
         context.pop();
       }
     });
