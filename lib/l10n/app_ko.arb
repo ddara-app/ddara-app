@@ -374,5 +374,127 @@
   "notificationMemberJoinCaption": "내가 보낸 초대를 친구가 받았을 때",
   "notificationPermissionDialogTitle": "알림 권한 필요",
   "notificationPermissionDialogBody": "알림을 받으려면 설정에서 알림 권한을 허용해 주세요.",
-  "notificationOpenSettings": "설정으로 이동"
+  "notificationOpenSettings": "설정으로 이동",
+
+  "notificationTitle": "알림",
+  "notificationEmptyTitle": "새로운 알림이 없어요",
+  "notificationEmptyDescription": "알림을 받으면 여기에 표시돼요",
+  "notificationLabelMemberJoin": "모임 합류",
+  "notificationLabelNewCycle": "따라찍기 시작",
+  "notificationLabelCycleCompleted": "따라찍기 종료",
+  "notificationLabelDeadline": "마감 임박",
+  "notificationLabelDefault": "알림",
+  "notificationMessageMemberJoin": "{actor}님이 ‘{groupName}’ 모임에 합류했어요",
+  "@notificationMessageMemberJoin": {
+    "placeholders": {
+      "actor": { "type": "String" },
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageNewCycle": "‘{groupName}’ 모임에서 새로운 따라찍기가 시작됐어요",
+  "@notificationMessageNewCycle": {
+    "placeholders": {
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageCycleCompleted": "‘{groupName}’ 모임의 따라찍기가 종료됐어요!",
+  "@notificationMessageCycleCompleted": {
+    "placeholders": {
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageDeadlineRemaining": "‘{groupName}’ 모임의 따라찍기 마감까지 {remaining} 남았어요. 아직 안찍었죠?",
+  "@notificationMessageDeadlineRemaining": {
+    "placeholders": {
+      "groupName": { "type": "String" },
+      "remaining": { "type": "String" }
+    }
+  },
+  "notificationMessageDeadline": "‘{groupName}’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?",
+  "@notificationMessageDeadline": {
+    "placeholders": {
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageDefault": "새로운 알림이 있어요",
+  "remainingDays": "{days}일",
+  "@remainingDays": {
+    "description": "남은 시간(일 단위)",
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "timeAgoJustNow": "방금 전",
+  "timeAgoMinutes": "{minutes}분 전",
+  "@timeAgoMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "timeAgoHours": "{hours}시간 전",
+  "@timeAgoHours": {
+    "placeholders": { "hours": { "type": "int" } }
+  },
+  "timeAgoDays": "{days}일 전",
+  "@timeAgoDays": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "timeAgoWeeks": "{weeks}주 전",
+  "@timeAgoWeeks": {
+    "placeholders": { "weeks": { "type": "int" } }
+  },
+  "timeAgoMonths": "{months}개월 전",
+  "@timeAgoMonths": {
+    "placeholders": { "months": { "type": "int" } }
+  },
+  "timeAgoYears": "{years}년 전",
+  "@timeAgoYears": {
+    "placeholders": { "years": { "type": "int" } }
+  },
+
+  "permissionPageTitle": "권한 안내",
+  "permissionHeaderTitle": "ddara 권한 안내",
+  "permissionHeaderDescription": "꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요",
+  "permissionSectionRequired": "필수 접근 권한",
+  "permissionSectionOptional": "선택 접근 권한",
+  "permissionCamera": "카메라",
+  "permissionCameraDescription": "따라찍기 사진을 촬영할 때 사용해요",
+  "permissionNotification": "알림",
+  "permissionNotificationDescription": "마감·투표·초대 소식이 있을 때 알려드려요",
+  "permissionStorage": "저장공간",
+  "permissionStorageDescription": "앨범에서 사진을 올릴 때 사용해요",
+  "permissionPhotos": "사진",
+  "requiredPermissionTitle": "필수 권한을 허용해 주세요",
+  "requiredPermissionDescription": "필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.",
+  "permissionDialogTitle": "{permissionName} 권한이 필요해요",
+  "@permissionDialogTitle": {
+    "placeholders": { "permissionName": { "type": "String" } }
+  },
+  "permissionDialogContent": "설정 > 권한에서 직접 허용해 주세요.",
+  "permissionGoToSettings": "설정으로 이동",
+
+  "cameraPermissionTitle": "카메라 권한이 필요해요",
+  "cameraPermissionDescription": "촬영하려면 설정에서 카메라 권한을 허용해주세요.",
+  "cameraModeCornerMini": "코너 미니뷰",
+  "cameraModeGhostZoom": "고스트 확대",
+  "cameraOpacityLabel": "원본사진 투명도",
+
+  "inviteShareTitle": "함께할 친구를 초대해요",
+  "inviteMemberShortageTitle": "아직 멤버가 부족해요",
+  "inviteMemberShortageDescription": "3명부터 시작 가능해요",
+  "inviteShareKakao": "카카오톡",
+  "inviteShareCopyCode": "초대코드",
+  "inviteShareMore": "더보기",
+  "inviteShareLater": "다음에 할게요",
+  "inviteShareFailed": "공유하지 못했어요. 잠시 후 다시 시도하거나 초대코드를 복사해 전달해주세요.",
+  "inviteCodeCopied": "초대 코드를 복사했어요",
+
+  "termsPolicyTitle": "약관 및 정책",
+  "policyTermsOfService": "서비스 이용 약관",
+  "policyPrivacy": "개인정보 처리방침",
+  "policyCommunityGuideline": "운영정책(커뮤니티 가이드)",
+  "policyYouthProtection": "청소년 보호정책",
+  "policyLoadFailed": "문서를 불러오지 못했어요.",
+
+  "nicknameErrorCharset": "한글과 영어로만 지을 수 있어요",
+  "nicknameErrorWhitespace": "앞뒤 공백은 사용할 수 없어요",
+  "nicknameErrorLength": "2~10자로 입력해주세요"
 }

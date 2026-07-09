@@ -38,7 +38,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
     final l10n = AppLocalizations.of(context);
     final notifier = ref.read(createGroupNotifierProvider.notifier);
 
-    final nicknameError = validateNickname(state.nickname);
+    final nicknameError = validateNickname(l10n, state.nickname);
 
     // 스텝별 다음 진행 가능 조건.
     final canSubmit = switch (_step) {

@@ -9,6 +9,7 @@ import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -266,6 +267,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     // 권한이 거부된 경우: 카메라 대신 안내 + 설정 이동 버튼을 보여준다.
     if (_permissionDenied) {
+      final l10n = AppLocalizations.of(context);
       return Padding(
         padding: const EdgeInsets.all(AppSpacing.s5),
         child: Column(
@@ -277,18 +279,18 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
               color: AppColors.textSecondary,
             ),
             const SizedBox(height: AppSpacing.s4),
-            const AppText.headlineMedium(
-              '카메라 권한이 필요해요',
+            AppText.headlineMedium(
+              l10n.cameraPermissionTitle,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.s2),
-            const AppText.body(
-              '촬영하려면 설정에서 카메라 권한을 허용해주세요.',
+            AppText.body(
+              l10n.cameraPermissionDescription,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.s5),
             AppButton(
-              label: '설정으로 이동',
+              label: l10n.permissionGoToSettings,
               onPressed: () =>
                   ref.read(permissionServiceProvider).openSettings(),
             ),

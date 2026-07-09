@@ -6,6 +6,7 @@ import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/permission_dialog.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/feature/permission/permission_request_recovery.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -57,7 +58,7 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
         await showPermissionDialog(
           context,
           permission: permission,
-          permissionName: '카메라',
+          permissionName: AppLocalizations.of(context).permissionCamera,
         );
         return;
       }
@@ -67,7 +68,7 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
         final goSettings = await showPermissionDialog(
           context,
           permission: permission,
-          permissionName: '카메라',
+          permissionName: AppLocalizations.of(context).permissionCamera,
         );
         if (goSettings == true) return;
       }
@@ -79,6 +80,7 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return CupertinoPageScaffold(
       child: SafeArea(
         child: Padding(
@@ -91,10 +93,9 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
                   children: [
                     Image.asset('assets/images/permission.png'),
                     const SizedBox(height: AppSpacing.s3),
-                    const TitleDescription(
-                      title: '필수 권한을 허용해 주세요',
-                      description:
-                          '필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.',
+                    TitleDescription(
+                      title: l10n.requiredPermissionTitle,
+                      description: l10n.requiredPermissionDescription,
                       centered: true,
                     ),
                   ],
@@ -102,7 +103,10 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
               ),
 
               // 하단 확인 버튼 (요청 중에는 비활성화)
-              AppButton(label: '확인', onPressed: _busy ? null : _onConfirm),
+              AppButton(
+                label: l10n.commonConfirm,
+                onPressed: _busy ? null : _onConfirm,
+              ),
             ],
           ),
         ),

@@ -3,6 +3,7 @@ import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/feature/notification/util/notification_display.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 
 /// 알림 좌측 썸네일 한 변 크기.
@@ -23,6 +24,7 @@ class NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppSurface(
       onTap: onTap,
       // 누르는 동안 살짝 밝게. (앱 전반의 Cupertino 페이드와 일관)
@@ -54,18 +56,21 @@ class NotificationTile extends StatelessWidget {
                   children: [
                     Expanded(
                       child: AppText.caption(
-                        item.displayLabel,
+                        item.displayLabel(l10n),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     AppText.caption(
-                      item.displayTimeAgo,
+                      item.displayTimeAgo(l10n),
                       color: AppColors.textTertiary,
                     ),
                   ],
                 ),
-                AppText.body(item.displayMessage, color: AppColors.textPrimary),
+                AppText.body(
+                  item.displayMessage(l10n),
+                  color: AppColors.textPrimary,
+                ),
               ],
             ),
           ),

@@ -6,7 +6,11 @@ import 'package:flutter/cupertino.dart';
 /// 카메라 프리뷰 영역.
 /// 컨트롤러가 아직 준비되지 않았으면 로딩 인디케이터를 보여준다.
 class Preview extends StatelessWidget {
-  const Preview({super.key, required this.controller, required this.initFuture});
+  const Preview({
+    super.key,
+    required this.controller,
+    required this.initFuture,
+  });
 
   /// 상위에서 관리하는 카메라 컨트롤러. 초기화 전이면 null.
   final CameraController? controller;

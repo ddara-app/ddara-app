@@ -4,6 +4,7 @@ import 'package:ddara/core/share/kakao_share_service.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -65,7 +66,7 @@ class InviteShareSheet extends StatelessWidget {
   void _showShareError(BuildContext context) {
     Toast.showToast(
       context,
-      '공유하지 못했어요. 잠시 후 다시 시도하거나 초대코드를 복사해 전달해주세요.',
+      AppLocalizations.of(context).inviteShareFailed,
       type: ToastType.error,
     );
   }
@@ -73,7 +74,7 @@ class InviteShareSheet extends StatelessWidget {
   void _onCopyCode(BuildContext context) {
     Clipboard.setData(ClipboardData(text: inviteCode));
     // 시트가 닫혀도 토스트는 루트 오버레이에 남으므로 pop 전에 띄운다.
-    Toast.showToast(context, '초대 코드를 복사했어요');
+    Toast.showToast(context, AppLocalizations.of(context).inviteCodeCopied);
     Navigator.of(context).pop();
   }
 
@@ -88,6 +89,7 @@ class InviteShareSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.bgSurface,
@@ -118,14 +120,14 @@ class InviteShareSheet extends StatelessWidget {
                 ),
               ),
               if (memberShortage)
-                const TitleDescription(
-                  title: '아직 멤버가 부족해요',
-                  description: '3명부터 시작 가능해요',
+                TitleDescription(
+                  title: l10n.inviteMemberShortageTitle,
+                  description: l10n.inviteMemberShortageDescription,
                   centered: true,
                 )
               else
-                const AppText.headlineMedium(
-                  '함께할 친구를 초대해요',
+                AppText.headlineMedium(
+                  l10n.inviteShareTitle,
                   textAlign: TextAlign.center,
                 ),
               const SizedBox(height: AppSpacing.s2),
@@ -141,7 +143,7 @@ class InviteShareSheet extends StatelessWidget {
                         height: 24,
                       ),
                       backgroundColor: const Color(0xFFFEE500), // 카카오 옐로
-                      label: '카카오톡',
+                      label: l10n.inviteShareKakao,
                       onTap: () => _onKakaoShare(context),
                     ),
                     _CircleAction(
@@ -150,7 +152,7 @@ class InviteShareSheet extends StatelessWidget {
                         size: 24,
                         color: AppColors.textPrimary,
                       ),
-                      label: '초대코드',
+                      label: l10n.inviteShareCopyCode,
                       onTap: () => _onCopyCode(context),
                     ),
                     _CircleAction(
@@ -159,14 +161,14 @@ class InviteShareSheet extends StatelessWidget {
                         size: 24,
                         color: AppColors.textPrimary,
                       ),
-                      label: '더보기',
+                      label: l10n.inviteShareMore,
                       onTap: () => _onMore(context),
                     ),
                   ],
                 ),
               ),
               AppTextButton.body(
-                label: '다음에 할게요',
+                label: l10n.inviteShareLater,
                 onPressed: () => _onLater(context),
               ),
             ],

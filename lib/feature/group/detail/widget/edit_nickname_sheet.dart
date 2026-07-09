@@ -36,7 +36,7 @@ class _EditNicknameSheetState extends State<EditNicknameSheet> {
   void _onChanged(String value) {
     setState(() {
       _nickname = value;
-      _errorText = validateNickname(value);
+      _errorText = validateNickname(AppLocalizations.of(context), value);
     });
   }
 
@@ -47,7 +47,7 @@ class _EditNicknameSheetState extends State<EditNicknameSheet> {
       );
       return;
     }
-    final error = validateNickname(_nickname);
+    final error = validateNickname(AppLocalizations.of(context), _nickname);
     if (error != null) {
       setState(() => _errorText = error);
       return;

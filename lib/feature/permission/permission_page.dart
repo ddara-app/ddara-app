@@ -9,6 +9,7 @@ import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/feature/permission/permission_request_recovery.dart';
 import 'package:ddara/feature/permission/widget/permission_item.dart';
 import 'package:ddara/feature/permission/widget/section_label.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -49,10 +50,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
         permission.requestNotification,
         permission.notificationStatus,
       );
-      await awaitPermission(
-        permission.requestPhotos,
-        permission.photosStatus,
-      );
+      await awaitPermission(permission.requestPhotos, permission.photosStatus);
 
       if (!mounted) return;
 
@@ -70,7 +68,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
         final goSettings = await showPermissionDialog(
           context,
           permission: permission,
-          permissionName: '카메라',
+          permissionName: AppLocalizations.of(context).permissionCamera,
         );
         if (goSettings == true) return;
         if (!mounted) return;
@@ -109,10 +107,14 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final permission = ref.read(permissionServiceProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: const AppBar(title: '권한 안내', showBackButton: false),
+      navigationBar: AppBar(
+        title: l10n.permissionPageTitle,
+        showBackButton: false,
+      ),
       child: SafeArea(
         child: Container(
           width: double.infinity,
@@ -131,42 +133,42 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
             spacing: 12,
             children: [
               // 헤더
-              const TitleDescription(
-                title: 'ddara 권한 안내',
-                description: '꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요',
+              TitleDescription(
+                title: l10n.permissionHeaderTitle,
+                description: l10n.permissionHeaderDescription,
               ),
 
               // 필수 접근 권한
-              const SectionLabel('필수 접근 권한'),
+              SectionLabel(l10n.permissionSectionRequired),
               PermissionItem(
                 icon: CupertinoIcons.camera,
-                title: '카메라',
-                description: '따라찍기 사진을 촬영할 때 사용해요',
+                title: l10n.permissionCamera,
+                description: l10n.permissionCameraDescription,
                 onTap: () => _request(
-                  '카메라',
+                  l10n.permissionCamera,
                   permission.requestCamera,
                   permission.cameraStatus,
                 ),
               ),
 
               // 선택 접근 권한
-              const SectionLabel('선택 접근 권한'),
+              SectionLabel(l10n.permissionSectionOptional),
               PermissionItem(
                 icon: CupertinoIcons.bell,
-                title: '알림',
-                description: '마감·투표·초대 소식이 있을 때 알려드려요',
+                title: l10n.permissionNotification,
+                description: l10n.permissionNotificationDescription,
                 onTap: () => _request(
-                  '알림',
+                  l10n.permissionNotification,
                   permission.requestNotification,
                   permission.notificationStatus,
                 ),
               ),
               PermissionItem(
                 icon: CupertinoIcons.photo,
-                title: '저장공간',
-                description: '앨범에서 사진을 올릴 때 사용해요',
+                title: l10n.permissionStorage,
+                description: l10n.permissionStorageDescription,
                 onTap: () => _request(
-                  '저장공간',
+                  l10n.permissionStorage,
                   permission.requestPhotos,
                   permission.photosStatus,
                 ),
@@ -175,7 +177,10 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
               const Spacer(),
 
               // 하단 확인 버튼 (요청 중에는 비활성화)
-              AppButton(label: '확인', onPressed: _busy ? null : _onConfirm),
+              AppButton(
+                label: l10n.commonConfirm,
+                onPressed: _busy ? null : _onConfirm,
+              ),
             ],
           ),
         ),

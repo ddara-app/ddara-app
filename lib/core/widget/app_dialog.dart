@@ -1,6 +1,7 @@
 import 'package:ddara/core/designsystem/component/button/app_button.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 앱 공통 확인 다이얼로그.
@@ -21,7 +22,7 @@ class AppDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.confirmLabel,
-    this.cancelLabel = '취소',
+    this.cancelLabel,
     this.confirmColor,
     this.confirmLabelColor,
   });
@@ -32,8 +33,8 @@ class AppDialog extends StatelessWidget {
   /// 확인(주요 동작) 버튼 라벨.
   final String confirmLabel;
 
-  /// 취소 버튼 라벨.
-  final String cancelLabel;
+  /// 취소 버튼 라벨. null 이면 기본값('취소', l10n [AppLocalizations.commonCancel]).
+  final String? cancelLabel;
 
   /// 확인 버튼 채움색 override. null 이면 기본 강조색.
   /// (예: 삭제·나가기 등 파괴적 동작은 [AppColors.statusDanger] 를 넘긴다)
@@ -47,7 +48,7 @@ class AppDialog extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String confirmLabel,
-    String cancelLabel = '취소',
+    String? cancelLabel,
     Color? confirmColor,
     Color? confirmLabelColor,
   }) async {
@@ -104,7 +105,9 @@ class AppDialog extends StatelessWidget {
                     children: [
                       Expanded(
                         child: AppButton.outline(
-                          label: cancelLabel,
+                          label:
+                              cancelLabel ??
+                              AppLocalizations.of(context).commonCancel,
                           onPressed: () => Navigator.of(context).pop(false),
                         ),
                       ),

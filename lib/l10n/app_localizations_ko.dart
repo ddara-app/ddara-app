@@ -490,4 +490,221 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get notificationOpenSettings => '설정으로 이동';
+
+  @override
+  String get notificationTitle => '알림';
+
+  @override
+  String get notificationEmptyTitle => '새로운 알림이 없어요';
+
+  @override
+  String get notificationEmptyDescription => '알림을 받으면 여기에 표시돼요';
+
+  @override
+  String get notificationLabelMemberJoin => '모임 합류';
+
+  @override
+  String get notificationLabelNewCycle => '따라찍기 시작';
+
+  @override
+  String get notificationLabelCycleCompleted => '따라찍기 종료';
+
+  @override
+  String get notificationLabelDeadline => '마감 임박';
+
+  @override
+  String get notificationLabelDefault => '알림';
+
+  @override
+  String notificationMessageMemberJoin(String actor, String groupName) {
+    return '$actor님이 ‘$groupName’ 모임에 합류했어요';
+  }
+
+  @override
+  String notificationMessageNewCycle(String groupName) {
+    return '‘$groupName’ 모임에서 새로운 따라찍기가 시작됐어요';
+  }
+
+  @override
+  String notificationMessageCycleCompleted(String groupName) {
+    return '‘$groupName’ 모임의 따라찍기가 종료됐어요!';
+  }
+
+  @override
+  String notificationMessageDeadlineRemaining(
+    String groupName,
+    String remaining,
+  ) {
+    return '‘$groupName’ 모임의 따라찍기 마감까지 $remaining 남았어요. 아직 안찍었죠?';
+  }
+
+  @override
+  String notificationMessageDeadline(String groupName) {
+    return '‘$groupName’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?';
+  }
+
+  @override
+  String get notificationMessageDefault => '새로운 알림이 있어요';
+
+  @override
+  String remainingDays(int days) {
+    return '$days일';
+  }
+
+  @override
+  String get timeAgoJustNow => '방금 전';
+
+  @override
+  String timeAgoMinutes(int minutes) {
+    return '$minutes분 전';
+  }
+
+  @override
+  String timeAgoHours(int hours) {
+    return '$hours시간 전';
+  }
+
+  @override
+  String timeAgoDays(int days) {
+    return '$days일 전';
+  }
+
+  @override
+  String timeAgoWeeks(int weeks) {
+    return '$weeks주 전';
+  }
+
+  @override
+  String timeAgoMonths(int months) {
+    return '$months개월 전';
+  }
+
+  @override
+  String timeAgoYears(int years) {
+    return '$years년 전';
+  }
+
+  @override
+  String get permissionPageTitle => '권한 안내';
+
+  @override
+  String get permissionHeaderTitle => 'ddara 권한 안내';
+
+  @override
+  String get permissionHeaderDescription =>
+      '꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요';
+
+  @override
+  String get permissionSectionRequired => '필수 접근 권한';
+
+  @override
+  String get permissionSectionOptional => '선택 접근 권한';
+
+  @override
+  String get permissionCamera => '카메라';
+
+  @override
+  String get permissionCameraDescription => '따라찍기 사진을 촬영할 때 사용해요';
+
+  @override
+  String get permissionNotification => '알림';
+
+  @override
+  String get permissionNotificationDescription => '마감·투표·초대 소식이 있을 때 알려드려요';
+
+  @override
+  String get permissionStorage => '저장공간';
+
+  @override
+  String get permissionStorageDescription => '앨범에서 사진을 올릴 때 사용해요';
+
+  @override
+  String get permissionPhotos => '사진';
+
+  @override
+  String get requiredPermissionTitle => '필수 권한을 허용해 주세요';
+
+  @override
+  String get requiredPermissionDescription =>
+      '필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.';
+
+  @override
+  String permissionDialogTitle(String permissionName) {
+    return '$permissionName 권한이 필요해요';
+  }
+
+  @override
+  String get permissionDialogContent => '설정 > 권한에서 직접 허용해 주세요.';
+
+  @override
+  String get permissionGoToSettings => '설정으로 이동';
+
+  @override
+  String get cameraPermissionTitle => '카메라 권한이 필요해요';
+
+  @override
+  String get cameraPermissionDescription => '촬영하려면 설정에서 카메라 권한을 허용해주세요.';
+
+  @override
+  String get cameraModeCornerMini => '코너 미니뷰';
+
+  @override
+  String get cameraModeGhostZoom => '고스트 확대';
+
+  @override
+  String get cameraOpacityLabel => '원본사진 투명도';
+
+  @override
+  String get inviteShareTitle => '함께할 친구를 초대해요';
+
+  @override
+  String get inviteMemberShortageTitle => '아직 멤버가 부족해요';
+
+  @override
+  String get inviteMemberShortageDescription => '3명부터 시작 가능해요';
+
+  @override
+  String get inviteShareKakao => '카카오톡';
+
+  @override
+  String get inviteShareCopyCode => '초대코드';
+
+  @override
+  String get inviteShareMore => '더보기';
+
+  @override
+  String get inviteShareLater => '다음에 할게요';
+
+  @override
+  String get inviteShareFailed => '공유하지 못했어요. 잠시 후 다시 시도하거나 초대코드를 복사해 전달해주세요.';
+
+  @override
+  String get inviteCodeCopied => '초대 코드를 복사했어요';
+
+  @override
+  String get termsPolicyTitle => '약관 및 정책';
+
+  @override
+  String get policyTermsOfService => '서비스 이용 약관';
+
+  @override
+  String get policyPrivacy => '개인정보 처리방침';
+
+  @override
+  String get policyCommunityGuideline => '운영정책(커뮤니티 가이드)';
+
+  @override
+  String get policyYouthProtection => '청소년 보호정책';
+
+  @override
+  String get policyLoadFailed => '문서를 불러오지 못했어요.';
+
+  @override
+  String get nicknameErrorCharset => '한글과 영어로만 지을 수 있어요';
+
+  @override
+  String get nicknameErrorWhitespace => '앞뒤 공백은 사용할 수 없어요';
+
+  @override
+  String get nicknameErrorLength => '2~10자로 입력해주세요';
 }

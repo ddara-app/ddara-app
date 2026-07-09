@@ -1,5 +1,6 @@
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 카메라 상단 영역. '원본사진 투명도' 라벨 + 선택 탭을 둔다. (고스트 확대 모드에서만 노출)
@@ -40,7 +41,7 @@ class CameraHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: AppSpacing.s3,
               children: [
-                const AppText.label('원본사진 투명도'),
+                AppText.label(AppLocalizations.of(context).cameraOpacityLabel),
                 _OpacityTabs(onChanged: onOpacityChanged),
               ],
             ),

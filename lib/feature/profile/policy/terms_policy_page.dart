@@ -3,37 +3,42 @@ import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/profile/policy/policy_viewer_page.dart';
 import 'package:ddara/feature/profile/widget/profile_section.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-
-/// 약관 및 정책 목록에서 보여줄 문서 1건.
-const _policies = <PolicyViewerArgs>[
-  PolicyViewerArgs(
-    title: '서비스 이용 약관',
-    assetPath: 'assets/policy/terms_of_service.md',
-  ),
-  PolicyViewerArgs(
-    title: '개인정보 처리방침',
-    assetPath: 'assets/policy/privacy_policy.md',
-  ),
-  PolicyViewerArgs(
-    title: '운영정책(커뮤니티 가이드)',
-    assetPath: 'assets/policy/community_guideline.md',
-  ),
-  PolicyViewerArgs(
-    title: '청소년 보호정책',
-    assetPath: 'assets/policy/youth_protection_policy.md',
-  ),
-];
 
 /// 약관 및 정책 화면.
 class TermsPolicyPage extends StatelessWidget {
   const TermsPolicyPage({super.key});
 
+  /// 약관 및 정책 목록에서 보여줄 문서들. (제목은 l10n 이라 build 시점에 구성)
+  List<PolicyViewerArgs> _policies(AppLocalizations l10n) => [
+    PolicyViewerArgs(
+      title: l10n.policyTermsOfService,
+      assetPath: 'assets/policy/terms_of_service.md',
+    ),
+    PolicyViewerArgs(
+      title: l10n.policyPrivacy,
+      assetPath: 'assets/policy/privacy_policy.md',
+    ),
+    PolicyViewerArgs(
+      title: l10n.policyCommunityGuideline,
+      assetPath: 'assets/policy/community_guideline.md',
+    ),
+    PolicyViewerArgs(
+      title: l10n.policyYouthProtection,
+      assetPath: 'assets/policy/youth_protection_policy.md',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return CupertinoPageScaffold(
-      navigationBar: AppBar(title: '약관 및 정책', onBack: () => context.pop()),
+      navigationBar: AppBar(
+        title: l10n.termsPolicyTitle,
+        onBack: () => context.pop(),
+      ),
       child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(
@@ -48,16 +53,14 @@ class TermsPolicyPage extends StatelessWidget {
             spacing: AppSpacing.s5,
             children: [
               ProfileSection(
-                label: '약관 및 정책',
+                label: l10n.termsPolicyTitle,
                 children: [
-                  for (final policy in _policies)
+                  for (final policy in _policies(l10n))
                     ProfileRow(
                       label: policy.title,
                       trailing: const ProfileChevron(),
-                      onTap: () => context.push(
-                        RoutePath.policyViewer,
-                        extra: policy,
-                      ),
+                      onTap: () =>
+                          context.push(RoutePath.policyViewer, extra: policy),
                     ),
                 ],
               ),

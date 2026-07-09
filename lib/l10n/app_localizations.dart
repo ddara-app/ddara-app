@@ -975,6 +975,381 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'설정으로 이동'**
   String get notificationOpenSettings;
+
+  /// No description provided for @notificationTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get notificationTitle;
+
+  /// No description provided for @notificationEmptyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로운 알림이 없어요'**
+  String get notificationEmptyTitle;
+
+  /// No description provided for @notificationEmptyDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림을 받으면 여기에 표시돼요'**
+  String get notificationEmptyDescription;
+
+  /// No description provided for @notificationLabelMemberJoin.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 합류'**
+  String get notificationLabelMemberJoin;
+
+  /// No description provided for @notificationLabelNewCycle.
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기 시작'**
+  String get notificationLabelNewCycle;
+
+  /// No description provided for @notificationLabelCycleCompleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기 종료'**
+  String get notificationLabelCycleCompleted;
+
+  /// No description provided for @notificationLabelDeadline.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감 임박'**
+  String get notificationLabelDeadline;
+
+  /// No description provided for @notificationLabelDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get notificationLabelDefault;
+
+  /// No description provided for @notificationMessageMemberJoin.
+  ///
+  /// In ko, this message translates to:
+  /// **'{actor}님이 ‘{groupName}’ 모임에 합류했어요'**
+  String notificationMessageMemberJoin(String actor, String groupName);
+
+  /// No description provided for @notificationMessageNewCycle.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’ 모임에서 새로운 따라찍기가 시작됐어요'**
+  String notificationMessageNewCycle(String groupName);
+
+  /// No description provided for @notificationMessageCycleCompleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’ 모임의 따라찍기가 종료됐어요!'**
+  String notificationMessageCycleCompleted(String groupName);
+
+  /// No description provided for @notificationMessageDeadlineRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’ 모임의 따라찍기 마감까지 {remaining} 남았어요. 아직 안찍었죠?'**
+  String notificationMessageDeadlineRemaining(
+    String groupName,
+    String remaining,
+  );
+
+  /// No description provided for @notificationMessageDeadline.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?'**
+  String notificationMessageDeadline(String groupName);
+
+  /// No description provided for @notificationMessageDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로운 알림이 있어요'**
+  String get notificationMessageDefault;
+
+  /// 남은 시간(일 단위)
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일'**
+  String remainingDays(int days);
+
+  /// No description provided for @timeAgoJustNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'방금 전'**
+  String get timeAgoJustNow;
+
+  /// No description provided for @timeAgoMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{minutes}분 전'**
+  String timeAgoMinutes(int minutes);
+
+  /// No description provided for @timeAgoHours.
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 전'**
+  String timeAgoHours(int hours);
+
+  /// No description provided for @timeAgoDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일 전'**
+  String timeAgoDays(int days);
+
+  /// No description provided for @timeAgoWeeks.
+  ///
+  /// In ko, this message translates to:
+  /// **'{weeks}주 전'**
+  String timeAgoWeeks(int weeks);
+
+  /// No description provided for @timeAgoMonths.
+  ///
+  /// In ko, this message translates to:
+  /// **'{months}개월 전'**
+  String timeAgoMonths(int months);
+
+  /// No description provided for @timeAgoYears.
+  ///
+  /// In ko, this message translates to:
+  /// **'{years}년 전'**
+  String timeAgoYears(int years);
+
+  /// No description provided for @permissionPageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'권한 안내'**
+  String get permissionPageTitle;
+
+  /// No description provided for @permissionHeaderTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'ddara 권한 안내'**
+  String get permissionHeaderTitle;
+
+  /// No description provided for @permissionHeaderDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요'**
+  String get permissionHeaderDescription;
+
+  /// No description provided for @permissionSectionRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'필수 접근 권한'**
+  String get permissionSectionRequired;
+
+  /// No description provided for @permissionSectionOptional.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 접근 권한'**
+  String get permissionSectionOptional;
+
+  /// No description provided for @permissionCamera.
+  ///
+  /// In ko, this message translates to:
+  /// **'카메라'**
+  String get permissionCamera;
+
+  /// No description provided for @permissionCameraDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기 사진을 촬영할 때 사용해요'**
+  String get permissionCameraDescription;
+
+  /// No description provided for @permissionNotification.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get permissionNotification;
+
+  /// No description provided for @permissionNotificationDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감·투표·초대 소식이 있을 때 알려드려요'**
+  String get permissionNotificationDescription;
+
+  /// No description provided for @permissionStorage.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장공간'**
+  String get permissionStorage;
+
+  /// No description provided for @permissionStorageDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'앨범에서 사진을 올릴 때 사용해요'**
+  String get permissionStorageDescription;
+
+  /// No description provided for @permissionPhotos.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진'**
+  String get permissionPhotos;
+
+  /// No description provided for @requiredPermissionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'필수 권한을 허용해 주세요'**
+  String get requiredPermissionTitle;
+
+  /// No description provided for @requiredPermissionDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.'**
+  String get requiredPermissionDescription;
+
+  /// No description provided for @permissionDialogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{permissionName} 권한이 필요해요'**
+  String permissionDialogTitle(String permissionName);
+
+  /// No description provided for @permissionDialogContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 > 권한에서 직접 허용해 주세요.'**
+  String get permissionDialogContent;
+
+  /// No description provided for @permissionGoToSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정으로 이동'**
+  String get permissionGoToSettings;
+
+  /// No description provided for @cameraPermissionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카메라 권한이 필요해요'**
+  String get cameraPermissionTitle;
+
+  /// No description provided for @cameraPermissionDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'촬영하려면 설정에서 카메라 권한을 허용해주세요.'**
+  String get cameraPermissionDescription;
+
+  /// No description provided for @cameraModeCornerMini.
+  ///
+  /// In ko, this message translates to:
+  /// **'코너 미니뷰'**
+  String get cameraModeCornerMini;
+
+  /// No description provided for @cameraModeGhostZoom.
+  ///
+  /// In ko, this message translates to:
+  /// **'고스트 확대'**
+  String get cameraModeGhostZoom;
+
+  /// No description provided for @cameraOpacityLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'원본사진 투명도'**
+  String get cameraOpacityLabel;
+
+  /// No description provided for @inviteShareTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'함께할 친구를 초대해요'**
+  String get inviteShareTitle;
+
+  /// No description provided for @inviteMemberShortageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 멤버가 부족해요'**
+  String get inviteMemberShortageTitle;
+
+  /// No description provided for @inviteMemberShortageDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'3명부터 시작 가능해요'**
+  String get inviteMemberShortageDescription;
+
+  /// No description provided for @inviteShareKakao.
+  ///
+  /// In ko, this message translates to:
+  /// **'카카오톡'**
+  String get inviteShareKakao;
+
+  /// No description provided for @inviteShareCopyCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'초대코드'**
+  String get inviteShareCopyCode;
+
+  /// No description provided for @inviteShareMore.
+  ///
+  /// In ko, this message translates to:
+  /// **'더보기'**
+  String get inviteShareMore;
+
+  /// No description provided for @inviteShareLater.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음에 할게요'**
+  String get inviteShareLater;
+
+  /// No description provided for @inviteShareFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'공유하지 못했어요. 잠시 후 다시 시도하거나 초대코드를 복사해 전달해주세요.'**
+  String get inviteShareFailed;
+
+  /// No description provided for @inviteCodeCopied.
+  ///
+  /// In ko, this message translates to:
+  /// **'초대 코드를 복사했어요'**
+  String get inviteCodeCopied;
+
+  /// No description provided for @termsPolicyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'약관 및 정책'**
+  String get termsPolicyTitle;
+
+  /// No description provided for @policyTermsOfService.
+  ///
+  /// In ko, this message translates to:
+  /// **'서비스 이용 약관'**
+  String get policyTermsOfService;
+
+  /// No description provided for @policyPrivacy.
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보 처리방침'**
+  String get policyPrivacy;
+
+  /// No description provided for @policyCommunityGuideline.
+  ///
+  /// In ko, this message translates to:
+  /// **'운영정책(커뮤니티 가이드)'**
+  String get policyCommunityGuideline;
+
+  /// No description provided for @policyYouthProtection.
+  ///
+  /// In ko, this message translates to:
+  /// **'청소년 보호정책'**
+  String get policyYouthProtection;
+
+  /// No description provided for @policyLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'문서를 불러오지 못했어요.'**
+  String get policyLoadFailed;
+
+  /// No description provided for @nicknameErrorCharset.
+  ///
+  /// In ko, this message translates to:
+  /// **'한글과 영어로만 지을 수 있어요'**
+  String get nicknameErrorCharset;
+
+  /// No description provided for @nicknameErrorWhitespace.
+  ///
+  /// In ko, this message translates to:
+  /// **'앞뒤 공백은 사용할 수 없어요'**
+  String get nicknameErrorWhitespace;
+
+  /// No description provided for @nicknameErrorLength.
+  ///
+  /// In ko, this message translates to:
+  /// **'2~10자로 입력해주세요'**
+  String get nicknameErrorLength;
 }
 
 class _AppLocalizationsDelegate

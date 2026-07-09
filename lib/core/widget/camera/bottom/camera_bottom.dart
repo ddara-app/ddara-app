@@ -1,4 +1,5 @@
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 프리뷰 보조 모드. (원본 사진을 어떻게 겹쳐 보여줄지)
@@ -55,12 +56,12 @@ class _CameraBottomState extends State<CameraBottom> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _ModeButton(
-              label: '코너 미니뷰',
+              label: AppLocalizations.of(context).cameraModeCornerMini,
               selected: cornerSelected,
               onPressed: () => _select(GuideViewMode.cornerMini),
             ),
             _ModeButton(
-              label: '고스트 확대',
+              label: AppLocalizations.of(context).cameraModeGhostZoom,
               selected: !cornerSelected,
               onPressed: () => _select(GuideViewMode.ghostZoom),
             ),

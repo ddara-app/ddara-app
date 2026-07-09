@@ -81,7 +81,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
 
     // 닉네임 필드 에러: 클라이언트 검증 우선, 없으면 서버의 닉네임 중복 에러.
     final nicknameError =
-        validateNickname(state.nickname) ??
+        validateNickname(l10n, state.nickname) ??
         (state.errorCode == GroupJoinErrorCode.duplicateGroupNickname
             ? GroupJoinErrorCode.duplicateGroupNickname.message
             : null);

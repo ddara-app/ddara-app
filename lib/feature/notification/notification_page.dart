@@ -7,6 +7,7 @@ import 'package:ddara/feature/notification/provider/notifier_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:ddara/feature/notification/widget/notification_empty.dart';
 import 'package:ddara/feature/notification/widget/notification_tile.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,7 +23,10 @@ class NotificationPage extends ConsumerWidget {
     final state = ref.watch(notificationNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: AppBar(title: '알림', onBack: () => context.pop()),
+      navigationBar: AppBar(
+        title: AppLocalizations.of(context).notificationTitle,
+        onBack: () => context.pop(),
+      ),
       child: SafeArea(child: _body(context, state)),
     );
   }

@@ -202,7 +202,7 @@ class ProfilePage extends ConsumerWidget {
       await showPermissionDialog(
         context,
         permission: permission,
-        permissionName: '사진',
+        permissionName: AppLocalizations.of(context).permissionPhotos,
       );
     }
     return false;

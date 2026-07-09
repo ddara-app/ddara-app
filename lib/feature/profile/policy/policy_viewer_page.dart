@@ -1,6 +1,7 @@
 import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -38,7 +39,11 @@ class PolicyViewerPage extends StatelessWidget {
               return const Center(child: CupertinoActivityIndicator());
             }
             if (snapshot.hasError || snapshot.data == null) {
-              return Center(child: AppText.body('문서를 불러오지 못했어요.'));
+              return Center(
+                child: AppText.body(
+                  AppLocalizations.of(context).policyLoadFailed,
+                ),
+              );
             }
             return Markdown(
               // 상단 바 제목과 중복되는 첫 H1 은 제거한다.

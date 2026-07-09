@@ -38,10 +38,7 @@ class NotificationNotifier extends AutoDisposeNotifier<NotificationState> {
       );
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '알림을 불러오지 못했어요.',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: '알림을 불러오지 못했어요.');
     }
   }
 }
