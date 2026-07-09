@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:ddara/core/auth/apple_credential_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// Sign in with Apple → Firebase 로그인을 담당한다.
@@ -77,27 +76,7 @@ class AppleAuthService {
         rawNonce: rawNonce,
         accessToken: appleCredential.authorizationCode,
       );
-
-      // --- 임시 디버그: 애플 토큰 클레임 분석 (원인 확진용) ---
-      final identityToken = appleCredential.identityToken;
-      final claims = _decodeJwtClaims(identityToken);
-      // 애플이 되돌려준 nonce 클레임은 우리가 보낸 hashedNonce 와 같아야 정상.
-      final diag =
-          'idTok=${identityToken != null} '
-          'aud=${claims['aud']} '
-          'iss=${claims['iss']} '
-          'nonceOK=${claims['nonce'] == hashedNonce}';
-      debugPrint('[apple] claims → $diag');
-      // --- 임시 디버그 끝 ---
-
-      final UserCredential userCredential;
-      try {
-        userCredential = await _auth.signInWithCredential(oauthCredential);
-      } on FirebaseAuthException catch (e) {
-        // 진단 정보 + Firebase 에러 코드/메시지를 로그와 UI(Toast) 양쪽에 남긴다.
-        debugPrint('[apple] FirebaseAuthException code=${e.code} msg=${e.message}');
-        throw AppleAuthDiagnosticException('$diag fb=${e.code} msg=${e.message}');
-      }
+      final userCredential = await _auth.signInWithCredential(oauthCredential);
 
       // 최초 로그인 때만 이름을 받는다 → displayName 에 저장.
       // 이번 credential 에 이름이 없으면(2회차 이후 로그인) Keychain 백업에서
@@ -114,28 +93,6 @@ class AppleAuthService {
       // 사용자가 취소한 경우는 오류가 아니라 취소로 처리.
       if (e.code == AuthorizationErrorCode.canceled) return null;
       rethrow;
-    }
-  }
-
-  /// 임시 디버그용: 서버로 넘길 Firebase ID Token 의 `name` 클레임을 반환한다.
-  /// displayName 저장·토큰 갱신 후 이름이 실제로 토큰에 실렸는지 확인하는 용도.
-  /// (확인 후 제거 예정)
-  String? debugNameClaimOf(String idToken) {
-    return _decodeJwtClaims(idToken)['name']?.toString();
-  }
-
-  /// 임시 디버그용: JWT payload 를 검증 없이 디코드해 클레임 맵을 반환한다.
-  /// (형식 오류 시 빈 맵)
-  Map<String, dynamic> _decodeJwtClaims(String? jwt) {
-    if (jwt == null) return const {};
-    try {
-      final parts = jwt.split('.');
-      if (parts.length != 3) return const {};
-      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
-      final decoded = jsonDecode(payload);
-      return decoded is Map<String, dynamic> ? decoded : const {};
-    } catch (_) {
-      return const {};
     }
   }
 
@@ -231,15 +188,4 @@ class AppleAuthService {
     final bytes = utf8.encode(input);
     return sha256.convert(bytes).toString();
   }
-}
-
-/// 임시 디버그용 예외. 애플 로그인 진단 정보를 담아 UI(Toast)로 노출한다.
-/// (원인 확인 후 제거 예정)
-class AppleAuthDiagnosticException implements Exception {
-  AppleAuthDiagnosticException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
 }
