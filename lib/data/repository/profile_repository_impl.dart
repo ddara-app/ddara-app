@@ -45,8 +45,26 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<void> deleteAccount() async {
-    await _profileDataSource.deleteAccount();
+  Future<void> deleteAccount({String? appleAuthorizationCode}) async {
+    try {
+      await _profileDataSource.deleteAccount(
+        appleAuthorizationCode: appleAuthorizationCode,
+      );
+    } on DioException catch (e) {
+      final code = e.response?.data is Map
+          ? ProfileErrorCode.fromValue(e.response?.data['code'])
+          : null;
+
+      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
+      switch (code) {
+        case ProfileErrorCode.userNotFound:
+          // 404 — 사용자를 찾을 수 없음 (이미 탈퇴한 계정 포함)
+          throw UserNotFoundException();
+
+        default:
+          throw NetworkException();
+      }
+    }
   }
 
   @override

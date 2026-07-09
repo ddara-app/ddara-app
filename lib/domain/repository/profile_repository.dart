@@ -4,7 +4,9 @@ import 'package:ddara/core/model/profile/profile.dart';
 abstract interface class ProfileRepository {
   Future<Profile> getProfile();
 
-  Future<void> deleteAccount();
+  /// 회원 탈퇴. 애플 계정(iOS)은 연동 해제(revoke)용 [appleAuthorizationCode]
+  /// 를 함께 보낸다. (그 외 소셜은 null)
+  Future<void> deleteAccount({String? appleAuthorizationCode});
 
   /// 프로필 이미지를 업로드하고 새 이미지 URL을 반환한다.
   ///
