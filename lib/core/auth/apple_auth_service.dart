@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:ddara/core/auth/apple_credential_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// Sign in with Apple → Firebase 로그인을 담당한다.
@@ -32,6 +32,9 @@ class AppleAuthService {
 
   FirebaseAuth get _auth => FirebaseAuth.instance;
 
+  /// 최초 1회만 내려오는 애플 이름/이메일의 Keychain 백업 저장소.
+  final AppleCredentialStorage _credentialStorage = AppleCredentialStorage();
+
   /// 애플 로그인 후 백엔드로 보낼 Firebase ID Token 을 반환한다.
   /// 사용자가 취소하면 null 을 반환하고, 그 외 오류는 예외를 그대로 던진다.
   Future<String?> signInWithApple() {
@@ -53,58 +56,43 @@ class AppleAuthService {
         nonce: hashedNonce,
       );
 
+      // 애플은 이름/이메일을 최초 authorization 1회만 준다. 이후 단계(Firebase
+      // 교환·회원가입)가 실패하거나 앱이 종료돼도 잃지 않도록, credential 을
+      // 받은 즉시 Keychain 에 백업한다. (null 이면 기존 백업을 보존)
+      final userIdentifier = appleCredential.userIdentifier;
+      if (userIdentifier != null) {
+        await _credentialStorage.saveName(
+          userIdentifier,
+          _composeName(appleCredential.givenName, appleCredential.familyName),
+        );
+        await _credentialStorage.saveEmail(
+          userIdentifier,
+          appleCredential.email,
+        );
+      }
+
       final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         rawNonce: rawNonce,
         accessToken: appleCredential.authorizationCode,
       );
-
-      // --- 임시 디버그: 애플 토큰 클레임 분석 (원인 확진용) ---
-      final identityToken = appleCredential.identityToken;
-      final claims = _decodeJwtClaims(identityToken);
-      // 애플이 되돌려준 nonce 클레임은 우리가 보낸 hashedNonce 와 같아야 정상.
-      final diag =
-          'idTok=${identityToken != null} '
-          'aud=${claims['aud']} '
-          'iss=${claims['iss']} '
-          'nonceOK=${claims['nonce'] == hashedNonce}';
-      debugPrint('[apple] claims → $diag');
-      // --- 임시 디버그 끝 ---
-
-      final UserCredential userCredential;
-      try {
-        userCredential = await _auth.signInWithCredential(oauthCredential);
-      } on FirebaseAuthException catch (e) {
-        // 진단 정보 + Firebase 에러 코드/메시지를 로그와 UI(Toast) 양쪽에 남긴다.
-        debugPrint('[apple] FirebaseAuthException code=${e.code} msg=${e.message}');
-        throw AppleAuthDiagnosticException('$diag fb=${e.code} msg=${e.message}');
-      }
+      final userCredential = await _auth.signInWithCredential(oauthCredential);
 
       // 최초 로그인 때만 이름을 받는다 → displayName 에 저장.
-      final displayName = _composeName(
+      // 이번 credential 에 이름이 없으면(2회차 이후 로그인) Keychain 백업에서
+      // 복구한다 — 최초 로그인 후 회원가입 전에 앱이 종료된 경우를 구제.
+      var displayName = _composeName(
         appleCredential.givenName,
         appleCredential.familyName,
       );
+      if (displayName == null && userIdentifier != null) {
+        displayName = await _credentialStorage.readName(userIdentifier);
+      }
       return _idTokenAfterNameUpdate(userCredential.user, displayName);
     } on SignInWithAppleAuthorizationException catch (e) {
       // 사용자가 취소한 경우는 오류가 아니라 취소로 처리.
       if (e.code == AuthorizationErrorCode.canceled) return null;
       rethrow;
-    }
-  }
-
-  /// 임시 디버그용: JWT payload 를 검증 없이 디코드해 클레임 맵을 반환한다.
-  /// (형식 오류 시 빈 맵)
-  Map<String, dynamic> _decodeJwtClaims(String? jwt) {
-    if (jwt == null) return const {};
-    try {
-      final parts = jwt.split('.');
-      if (parts.length != 3) return const {};
-      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
-      final decoded = jsonDecode(payload);
-      return decoded is Map<String, dynamic> ? decoded : const {};
-    } catch (_) {
-      return const {};
     }
   }
 
@@ -153,6 +141,22 @@ class AppleAuthService {
     }
   }
 
+  /// 회원가입이 끝나 서버에 이름이 저장된 뒤, 더 이상 불필요한 Keychain 백업을
+  /// 삭제한다. 애플 계정 식별자는 Firebase 계정의 apple.com providerData 에서
+  /// 얻는다. (credential.userIdentifier 와 동일한 값)
+  Future<void> clearCredentialBackup() async {
+    try {
+      final providerData = _auth.currentUser?.providerData ?? const [];
+      for (final info in providerData) {
+        if (info.providerId == 'apple.com' && info.uid != null) {
+          await _credentialStorage.delete(info.uid!);
+        }
+      }
+    } catch (_) {
+      // 백업 삭제 실패는 로그인/가입 흐름에 영향을 주지 않는다.
+    }
+  }
+
   /// Firebase 세션 정리. (로그아웃·회원탈퇴 시 호출)
   Future<void> signOut() async {
     try {
@@ -184,15 +188,4 @@ class AppleAuthService {
     final bytes = utf8.encode(input);
     return sha256.convert(bytes).toString();
   }
-}
-
-/// 임시 디버그용 예외. 애플 로그인 진단 정보를 담아 UI(Toast)로 노출한다.
-/// (원인 확인 후 제거 예정)
-class AppleAuthDiagnosticException implements Exception {
-  AppleAuthDiagnosticException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ddara/core/designsystem/component/button/app_text_button.dart';
 import 'package:ddara/core/designsystem/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/deeplink/pending_invite.dart';
@@ -109,18 +111,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 SocialLoginType.google,
                               ),
                       ),
-                      _SocialLoginButton(
-                        label: l10n.loginApple,
-                        iconPath: 'assets/images/ic_apple_logo_.svg',
-                        backgroundColor: const Color(0xFFFFFFFF),
-                        foregroundColor: const Color(0xFF000000),
-                        onPressed: isLoading
-                            ? null
-                            : () => notifier.socialLogin(
-                                context,
-                                SocialLoginType.apple,
-                              ),
-                      ),
+                      // 애플 로그인은 iOS 에서만 노출한다. (안드로이드는 미지원)
+                      if (Platform.isIOS)
+                        _SocialLoginButton(
+                          label: l10n.loginApple,
+                          iconPath: 'assets/images/ic_apple_logo_.svg',
+                          backgroundColor: const Color(0xFFFFFFFF),
+                          foregroundColor: const Color(0xFF000000),
+                          onPressed: isLoading
+                              ? null
+                              : () => notifier.socialLogin(
+                                  context,
+                                  SocialLoginType.apple,
+                                ),
+                        ),
                       AppTextButton(
                         label: l10n.loginViewPolicies,
                         onPressed: () => context.push(RoutePath.termsPolicy),
