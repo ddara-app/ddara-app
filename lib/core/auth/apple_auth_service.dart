@@ -157,6 +157,27 @@ class AppleAuthService {
     }
   }
 
+  /// 회원탈퇴용 애플 재인증. 애플 연동 해제(token revoke)에 쓸
+  /// authorizationCode 를 반환한다. 사용자가 취소하면 null.
+  ///
+  /// iOS 전용 — 안드로이드는 네이티브 재인증 수단이 없어 null 을 반환한다.
+  /// 애플 authorizationCode 는 유효시간이 짧으므로(약 5분, 1회용) 받은 즉시
+  /// 서버로 보내야 한다.
+  Future<String?> getAuthorizationCodeForRevoke() async {
+    if (!Platform.isIOS) return null;
+    try {
+      // 이름·이메일이 필요 없으므로 scope 없이 인증만 받는다.
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [],
+      );
+      return credential.authorizationCode;
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // 사용자가 취소한 경우는 오류가 아니라 취소로 처리.
+      if (e.code == AuthorizationErrorCode.canceled) return null;
+      rethrow;
+    }
+  }
+
   /// Firebase 세션 정리. (로그아웃·회원탈퇴 시 호출)
   Future<void> signOut() async {
     try {

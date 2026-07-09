@@ -107,7 +107,13 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
 
     try {
       // 서버 회원 탈퇴 + 소셜·로컬 인증 정보 정리는 UseCase가 담당한다.
-      await ref.read(deleteAccountUseCaseProvider)();
+      // (애플 계정은 연동 해제용 재인증을 먼저 거치며, 취소하면 false)
+      final done = await ref.read(deleteAccountUseCaseProvider)();
+      if (!done) {
+        // 재인증 취소 — 아무 변경도 없으므로 실패 안내 없이 원상태로 복귀.
+        state = state.copyWith(withdrawStatus: WithdrawStatus.idle);
+        return;
+      }
 
       // 로컬 인증 정보가 비워졌으므로, 인증 상태를 비로그인으로 즉시 확정한다.
       // (재계산을 기다리는 사이 redirect 가 stale 값을 읽어 홈으로 바운스되는 것을 막는다)

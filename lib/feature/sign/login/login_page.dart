@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:ddara/core/deeplink/pending_invite.dart';
 import 'package:ddara/core/designsystem/component/button/app_text_button.dart';
 import 'package:ddara/core/designsystem/component/loading/app_loading_overlay.dart';
-import 'package:ddara/core/deeplink/pending_invite.dart';
 import 'package:ddara/core/designsystem/component/logo.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
@@ -175,11 +175,7 @@ class _SocialLoginButton extends StatelessWidget {
       // 아이콘은 왼쪽 끝(버튼 패딩 16 안쪽)에 고정, 라벨은 버튼 정중앙.
       child: Row(
         children: [
-          SvgPicture.asset(
-            iconPath,
-            width: _iconSize,
-            height: _iconSize,
-          ),
+          SvgPicture.asset(iconPath, width: _iconSize, height: _iconSize),
           Expanded(
             child: Text(
               label,
