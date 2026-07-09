@@ -66,44 +66,28 @@ class GoogleAuthService {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      if (googleUser != null) {
-        _currentUser = googleUser;
+      // null 이면 사용자가 취소했거나 실패한 것 → 아무 처리도 하지 않는다.
+      if (googleUser == null) return false;
 
-        if (context.mounted) {
-          print('✅ 구글 로그인 성공: ${googleUser.displayName} (${googleUser.email})');
+      _currentUser = googleUser;
 
-          final auth = await googleUser.authentication;
-
-          print('✅ Access Token: ${auth.accessToken}');
-          login(auth.accessToken!);
-        }
-
-        return true;
-      } else {
-        print('❌ googleUser가 null입니다 (사용자가 취소했거나 실패)');
-      }
-
-      return false;
-    } catch (e, stackTrace) {
-      print('❌ 구글 로그인 에러: $e');
-      print('❌ 스택 트레이스: $stackTrace');
       if (context.mounted) {
-        _showErrorMessage(context, '구글 로그인 실패: $e');
+        final auth = await googleUser.authentication;
+        login(auth.accessToken!);
       }
+
+      return true;
+    } catch (_) {
       return false;
     }
-  }
-
-  void _showErrorMessage(BuildContext context, String message) {
-    print('❌ 에러 메시지: $message');
   }
 
   Future<void> signOut() async {
     try {
       await _googleSignIn.signOut();
       _currentUser = null;
-    } catch (e) {
-      print('로그아웃 실패: $e');
+    } catch (_) {
+      // 이미 세션이 없는 경우 등은 로그아웃된 것으로 간주.
     }
   }
 }

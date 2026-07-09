@@ -11,9 +11,7 @@ class KakaoAuthService {
       try {
         OAuthToken token = await UserApi.instance.loginWithKakaoTalk();
         login(token.accessToken);
-        print('카카오톡으로 로그인 성공');
       } catch (error) {
-        print('카카오톡으로 로그인 실패 $error');
         errorFunc('$error');
 
         // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
@@ -25,18 +23,16 @@ class KakaoAuthService {
         try {
           OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
           login(token.accessToken);
-          print('카카오계정으로 로그인 성공');
-        } catch (error) {
-          print('카카오계정으로 로그인 실패 $error');
+        } catch (_) {
+          // 로그인 실패 — 위에서 errorFunc 로 이미 안내했으므로 추가 처리 없음.
         }
       }
     } else {
       try {
         OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
         login(token.accessToken);
-        print('카카오계정으로 로그인 성공');
-      } catch (error) {
-        print('카카오계정으로 로그인 실패 $error');
+      } catch (_) {
+        // 로그인 실패 — 사용자가 취소한 경우 포함. 상태 변화 없이 종료한다.
       }
     }
   }
@@ -78,10 +74,8 @@ class KakaoAuthService {
   Future<void> logout() async {
     try {
       await UserApi.instance.logout();
-      print('카카오 로그아웃 성공');
-    } catch (error) {
+    } catch (_) {
       // 이미 토큰이 없는 경우 등은 로그아웃된 것으로 간주.
-      print('카카오 로그아웃 실패 $error');
     }
   }
 }
