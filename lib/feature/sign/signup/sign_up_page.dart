@@ -47,7 +47,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             // (닉네임·생일은 입력받지 않고, 닉네임은 소셜 프로필 이름으로 대체)
             TermsPage(
               initialAgreed: state.termsAgreed,
-              onNextButtonClicked: notifier.signUp,
+              onNextButtonClicked: () => notifier.signUp(context),
               onAgreementChanged: notifier.termsAgreedChanged,
             ),
 

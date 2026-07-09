@@ -117,6 +117,13 @@ class AppleAuthService {
     }
   }
 
+  /// 임시 디버그용: 서버로 넘길 Firebase ID Token 의 `name` 클레임을 반환한다.
+  /// displayName 저장·토큰 갱신 후 이름이 실제로 토큰에 실렸는지 확인하는 용도.
+  /// (확인 후 제거 예정)
+  String? debugNameClaimOf(String idToken) {
+    return _decodeJwtClaims(idToken)['name']?.toString();
+  }
+
   /// 임시 디버그용: JWT payload 를 검증 없이 디코드해 클레임 맵을 반환한다.
   /// (형식 오류 시 빈 맵)
   Map<String, dynamic> _decodeJwtClaims(String? jwt) {
