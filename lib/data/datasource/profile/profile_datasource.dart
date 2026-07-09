@@ -27,6 +27,11 @@ class ProfileDataSource {
     return ProfileImageResponse.fromJson(response.data);
   }
 
+  /// 프로필 이미지를 기본 이미지로 되돌린다. (`imageUrl: null` 전송이 계약)
+  Future<void> resetProfileImage() async {
+    await _dio.patch('$_baseUrl/profile-image', data: {'imageUrl': null});
+  }
+
   /// 회원 탈퇴. 애플 계정(iOS)은 서버가 애플 연동 해제(token revoke)를
   /// 수행하도록 재인증으로 받은 authorizationCode 를 body 로 함께 보낸다.
   /// 그 외 소셜은 body 없이 보낸다. (응답 body 없음)

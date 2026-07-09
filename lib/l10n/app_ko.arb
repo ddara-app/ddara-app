@@ -356,7 +356,9 @@
   "profileImageSourceTitle": "프로필 사진 변경",
   "profileImageSourceCamera": "사진 촬영",
   "profileImageSourceGallery": "갤러리에서 선택",
+  "profileImageSourceReset": "기본 이미지로 변경",
   "profileImageUpdated": "프로필 사진이 변경되었어요.",
+  "profileImageReset": "기본 이미지로 변경되었어요.",
   "profileImageUploadFailed": "프로필 사진 변경에 실패했어요.",
   "profileImageInvalidFormat": "jpg 또는 png 이미지만 사용할 수 있어요.",
 

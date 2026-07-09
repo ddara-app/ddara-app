@@ -437,7 +437,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profileImageSourceGallery => '갤러리에서 선택';
 
   @override
+  String get profileImageSourceReset => '기본 이미지로 변경';
+
+  @override
   String get profileImageUpdated => '프로필 사진이 변경되었어요.';
+
+  @override
+  String get profileImageReset => '기본 이미지로 변경되었어요.';
 
   @override
   String get profileImageUploadFailed => '프로필 사진 변경에 실패했어요.';

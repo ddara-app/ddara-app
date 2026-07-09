@@ -79,6 +79,28 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
     }
   }
 
+  /// 프로필 이미지를 기본 이미지로 되돌리고, 성공 시 상태에서 URL 을 비운다.
+  ///
+  /// 실패(사용자 없음·네트워크 등)는 호출한 화면에서 안내하도록 예외를 그대로
+  /// 전파한다. 업로드/초기화 중 중복 호출은 무시한다.
+  Future<void> resetProfileImage() async {
+    if (state.isImageUploading) return;
+
+    state = state.copyWith(isImageUploading: true);
+    try {
+      await ref.read(resetProfileImageUseCaseProvider)();
+      state = state.copyWith(
+        isImageUploading: false,
+        clearProfileImageUrl: true,
+      );
+      // 공유 프로필(홈 AppBar 아바타 등)도 기본 이미지로 갱신되도록 재조회를 유도한다.
+      ref.invalidate(currentProfileProvider);
+    } catch (_) {
+      state = state.copyWith(isImageUploading: false);
+      rethrow;
+    }
+  }
+
   /// 로그아웃. 토큰·소셜 정보를 비우고(UseCase) 인증 상태를 무효화한다.
   Future<void> logout() async {
     if (state.logoutStatus == LogoutStatus.loading) return;

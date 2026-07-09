@@ -10,6 +10,9 @@ enum ProfileImageSource {
 
   /// 갤러리(사진 앱)에서 선택.
   gallery,
+
+  /// 기본 이미지로 되돌리기.
+  reset,
 }
 
 /// 프로필 사진 변경용 BottomSheet.
@@ -22,13 +25,19 @@ enum ProfileImageSource {
 /// if (source == ProfileImageSource.camera) { ... }
 /// ```
 class ProfileImageSourceSheet extends StatelessWidget {
-  const ProfileImageSourceSheet._();
+  const ProfileImageSourceSheet._({required this.showReset});
+
+  /// '기본 이미지로 변경' 항목 노출 여부. (등록된 이미지가 있을 때만 의미 있음)
+  final bool showReset;
 
   /// 시트를 띄우고 사용자가 고른 [ProfileImageSource] 를 반환한다.
-  static Future<ProfileImageSource?> show(BuildContext context) {
+  static Future<ProfileImageSource?> show(
+    BuildContext context, {
+    bool showReset = false,
+  }) {
     return showCupertinoModalPopup<ProfileImageSource>(
       context: context,
-      builder: (_) => const ProfileImageSourceSheet._(),
+      builder: (_) => ProfileImageSourceSheet._(showReset: showReset),
     );
   }
 
@@ -79,6 +88,14 @@ class ProfileImageSourceSheet extends StatelessWidget {
                 onTap: () =>
                     Navigator.of(context).pop(ProfileImageSource.gallery),
               ),
+              // 등록된 이미지가 있을 때만 기본 이미지로 되돌리기를 제시한다.
+              if (showReset)
+                _SourceTile(
+                  icon: CupertinoIcons.person_crop_circle,
+                  label: l10n.profileImageSourceReset,
+                  onTap: () =>
+                      Navigator.of(context).pop(ProfileImageSource.reset),
+                ),
             ],
           ),
         ),

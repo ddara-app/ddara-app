@@ -142,15 +142,21 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  /// 프로필 사진 소스(카메라/갤러리)를 열어 이미지를 선택한다.
+  /// 프로필 사진 소스(카메라/갤러리/기본 이미지)를 열어 이미지를 선택한다.
   ///
   /// image_picker 로 카메라 촬영/갤러리 선택을 수행한다. 사용자가 취소하면
-  /// 아무것도 하지 않는다.
+  /// 아무것도 하지 않는다. '기본 이미지로 변경'은 선택 즉시 서버에 반영한다.
   Future<void> _onImageSourceSelected(
     BuildContext context,
     WidgetRef ref,
     ProfileImageSource source,
   ) async {
+    // 기본 이미지로 되돌리기 — 촬영/선택 없이 바로 초기화를 요청한다.
+    if (source == ProfileImageSource.reset) {
+      await _resetProfileImage(context, ref);
+      return;
+    }
+
     // 갤러리는 Android 에서 시스템 포토 피커가 아닌 권한 기반 갤러리로 폴백될 수
     // 있어, 진입 전 '사진' 권한을 확인·요청한다.
     // (iOS 는 PHPicker 라 권한 없이도 동작하므로 그대로 둔다)
@@ -164,6 +170,8 @@ class ProfilePage extends ConsumerWidget {
     final picked = switch (source) {
       ProfileImageSource.camera => await picker.pickFromCamera(),
       ProfileImageSource.gallery => await picker.pickFromGallery(),
+      // 위에서 조기 반환하므로 도달하지 않는다.
+      ProfileImageSource.reset => null,
     };
     if (picked == null) return; // 선택·촬영 취소
 
@@ -222,6 +230,26 @@ class ProfilePage extends ConsumerWidget {
         l10n.profileImageInvalidFormat,
         type: ToastType.error,
       );
+    } catch (_) {
+      // UserNotFoundException·NetworkException 등.
+      if (!context.mounted) return;
+      Toast.showToast(
+        context,
+        l10n.profileImageUploadFailed,
+        type: ToastType.error,
+      );
+    }
+  }
+
+  /// 프로필 이미지를 기본 이미지로 되돌린다.
+  ///
+  /// 성공 시 안내 토스트, 실패 시 실패 토스트를 띄운다. (상태 갱신은 notifier)
+  Future<void> _resetProfileImage(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      await ref.read(profileNotifierProvider.notifier).resetProfileImage();
+      if (!context.mounted) return;
+      Toast.showToast(context, l10n.profileImageReset);
     } catch (_) {
       // UserNotFoundException·NetworkException 등.
       if (!context.mounted) return;

@@ -55,8 +55,12 @@ class ProfileHeader extends StatelessWidget {
   }
 
   /// 이미지 소스 선택 시트를 띄우고, 고른 값을 [onImageSourceSelected] 로 전달한다.
+  /// 등록된 이미지가 있을 때만 '기본 이미지로 변경' 항목을 함께 노출한다.
   Future<void> _pickImageSource(BuildContext context) async {
-    final source = await ProfileImageSourceSheet.show(context);
+    final source = await ProfileImageSourceSheet.show(
+      context,
+      showReset: imageUrl != null && imageUrl!.isNotEmpty,
+    );
     if (source == null) return;
     onImageSourceSelected?.call(source);
   }

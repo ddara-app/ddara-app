@@ -79,6 +79,8 @@ class ProfileState {
   ProfileState copyWith({
     String? name,
     String? profileImageUrl,
+    // 기본 이미지로 되돌릴 때 사용. (copyWith 의 null 은 '유지'라 별도 플래그)
+    bool clearProfileImageUrl = false,
     DateTime? joinedAt,
     String? appVersion,
     String? linkedAccount,
@@ -90,7 +92,9 @@ class ProfileState {
   }) {
     return ProfileState(
       name: name ?? this.name,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      profileImageUrl: clearProfileImageUrl
+          ? null
+          : (profileImageUrl ?? this.profileImageUrl),
       joinedAt: joinedAt ?? this.joinedAt,
       appVersion: appVersion ?? this.appVersion,
       linkedAccount: linkedAccount ?? this.linkedAccount,

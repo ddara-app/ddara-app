@@ -114,6 +114,27 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<void> resetProfileImage() async {
+    try {
+      await _profileDataSource.resetProfileImage();
+    } on DioException catch (e) {
+      final code = e.response?.data is Map
+          ? ProfileErrorCode.fromValue(e.response?.data['code'])
+          : null;
+
+      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
+      switch (code) {
+        case ProfileErrorCode.userNotFound:
+          // 404 — 사용자를 찾을 수 없음
+          throw UserNotFoundException();
+
+        default:
+          throw NetworkException();
+      }
+    }
+  }
+
+  @override
   Future<NotificationSettings> changeNotificationSettings(
     NotificationSettings settings,
   ) async {

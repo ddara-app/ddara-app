@@ -868,11 +868,23 @@ abstract class AppLocalizations {
   /// **'갤러리에서 선택'**
   String get profileImageSourceGallery;
 
+  /// No description provided for @profileImageSourceReset.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 이미지로 변경'**
+  String get profileImageSourceReset;
+
   /// No description provided for @profileImageUpdated.
   ///
   /// In ko, this message translates to:
   /// **'프로필 사진이 변경되었어요.'**
   String get profileImageUpdated;
+
+  /// No description provided for @profileImageReset.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 이미지로 변경되었어요.'**
+  String get profileImageReset;
 
   /// No description provided for @profileImageUploadFailed.
   ///

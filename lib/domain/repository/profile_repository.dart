@@ -13,6 +13,9 @@ abstract interface class ProfileRepository {
   /// [imagePath] 는 업로드할 로컬 이미지 파일 경로(jpg/png).
   Future<String> uploadProfileImage(String imagePath);
 
+  /// 프로필 이미지를 기본 이미지로 되돌린다.
+  Future<void> resetProfileImage();
+
   Future<NotificationSettings> getNotificationSettings();
 
   Future<NotificationSettings> changeNotificationSettings(NotificationSettings settings);
