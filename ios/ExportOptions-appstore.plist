@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  flutter build ipa --export-options-plist=ios/ExportOptions-appstore.plist 에서 사용.
+  App Store(TestFlight) 배포용. Apple Distribution 인증서 + App Store 프로파일로 서명.
+  (QA/Firebase App Distribution 용 Ad Hoc 은 별도 ExportOptions.plist)
+
+  teamID 는 레포에 하드코딩하지 않고 __IOS_TEAM_ID__ 플레이스홀더로 둔다.
+  CI(빌드 전)에서 GitHub Secret 으로 치환:
+    sed -i '' "s/__IOS_TEAM_ID__/$IOS_TEAM_ID/" ios/ExportOptions-appstore.plist
+  (로컬 Mac 빌드 시에는 직접 Team ID 로 치환 후 빌드)
+
+  provisioningProfiles 값은 App Store 프로파일 "이름"(UUID 아님). 비밀 아님 → 그대로 둠.
+  (프로파일 이름이 아래와 다르면 이 값 + release-ios.yml 의
+   PROVISIONING_PROFILE_SPECIFIER 를 같은 이름으로 맞출 것)
+-->
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>app-store-connect</string>
+
+	<key>teamID</key>
+	<string>__IOS_TEAM_ID__</string>
+
+	<key>signingStyle</key>
+	<string>manual</string>
+
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.ddara.team3</key>
+		<string>ddara-team3-distribution</string>
+	</dict>
+
+	<key>compileBitcode</key>
+	<false/>
+
+	<key>uploadSymbols</key>
+	<true/>
+</dict>
+</plist>
