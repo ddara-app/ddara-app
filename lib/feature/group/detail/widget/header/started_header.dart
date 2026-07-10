@@ -171,7 +171,7 @@ class _StartedHeaderState extends State<StartedHeader> {
                 ),
                 AppText.display(
                   widget.progress.topic,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.left,
                 ),
                 AppText.body(
                   l10n.startedHeaderStarter(widget.progress.starterNickname),

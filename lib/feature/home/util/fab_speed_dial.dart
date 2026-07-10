@@ -78,11 +78,20 @@ class SpeedDialFab extends StatefulWidget {
 
 class _SpeedDialFabState extends State<SpeedDialFab>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: _openDuration,
-    reverseDuration: _closeDuration,
-  );
+  // 필드 지연 초기화(late final = ...)로 두면 FAB 를 한 번도 안 연 채 dispose 될 때
+  // dispose 안에서 첫 초기화가 일어나고, 그 시점의 vsync(TickerMode 조회)가
+  // "Looking up a deactivated widget's ancestor" 크래시를 낸다 → initState 에서 즉시 생성.
+  late final AnimationController _c;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(
+      vsync: this,
+      duration: _openDuration,
+      reverseDuration: _closeDuration,
+    );
+  }
 
   /// 루트 Overlay 에 삽입된 백드롭+메뉴 엔트리. null 이면 닫힌 상태.
   OverlayEntry? _entry;
