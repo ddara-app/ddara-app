@@ -56,20 +56,26 @@ extension NotificationDisplay on NotificationItem {
 
   /// 마감 임박 알림에서 '생성 시점 기준 마감까지 남은 시간' 문구. (예: '30분', '2시간')
   ///
+  /// 서버가 내려준 remainingMinutes 를 우선 사용하고, 없으면
   /// deadlineAt·createdAt 의 차이로 계산한다. 마감 임박 알림이 아니거나,
-  /// deadlineAt 이 없거나, 이미 마감이 지난 경우 null.
+  /// 남은 시간을 알 수 없거나, 이미 마감이 지난 경우 null.
   String? deadlineRemainingText(AppLocalizations l10n) {
     if (type != NotificationType.deadline) return null;
+
+    final minutes = payload.remainingMinutes ?? _computedRemainingMinutes;
+    if (minutes == null || minutes < 1) return null;
+    if (minutes < 60) return l10n.remainingMinutes(minutes);
+    if (minutes < Duration.minutesPerDay) {
+      return l10n.remainingHours(minutes ~/ Duration.minutesPerHour);
+    }
+    return l10n.remainingDays(minutes ~/ Duration.minutesPerDay);
+  }
+
+  /// deadlineAt 이 있을 때 생성 시점 기준 남은 분. (remainingMinutes 폴백용)
+  int? get _computedRemainingMinutes {
     final deadlineAt = payload.deadlineAt;
     if (deadlineAt == null) return null;
-
-    final remaining = deadlineAt.difference(createdAt);
-    if (remaining.inMinutes < 1) return null;
-    if (remaining.inMinutes < 60) {
-      return l10n.remainingMinutes(remaining.inMinutes);
-    }
-    if (remaining.inHours < 24) return l10n.remainingHours(remaining.inHours);
-    return l10n.remainingDays(remaining.inDays);
+    return deadlineAt.difference(createdAt).inMinutes;
   }
 
   /// 생성 시각을 '방금 전'·'5분 전' 같은 상대 시간 문자열로 변환한다.
