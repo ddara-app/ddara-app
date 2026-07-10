@@ -1,6 +1,14 @@
 {
   "@@locale": "ko",
 
+  "commonConfirm": "확인",
+  "@commonConfirm": {
+    "description": "공용 다이얼로그 확인 버튼"
+  },
+  "commonNext": "다음",
+  "commonStart": "시작하기",
+  "commonCancel": "취소",
+
   "onboardingFirstTitle": "한 장 찍으면 인증샷이 시작",
   "@onboardingFirstTitle": {
     "description": "온보딩 1페이지 제목"
@@ -9,7 +17,6 @@
   "@onboardingFirstBody": {
     "description": "온보딩 1페이지 설명"
   },
-
   "onboardingSecondTitle": "나중에 보면 더 웃겨",
   "@onboardingSecondTitle": {
     "description": "온보딩 2페이지 제목"
@@ -18,7 +25,6 @@
   "@onboardingSecondBody": {
     "description": "온보딩 2페이지 설명"
   },
-
   "onboardingThirdTitle": "아는 친구끼리만, 초대로만",
   "@onboardingThirdTitle": {
     "description": "온보딩 3페이지 제목"
@@ -27,7 +33,6 @@
   "@onboardingThirdBody": {
     "description": "온보딩 3페이지 설명"
   },
-
   "onboardingNext": "다음",
   "@onboardingNext": {
     "description": "온보딩 하단 버튼 - 다음 페이지로"
@@ -53,10 +58,6 @@
   "@loginApple": {
     "description": "애플 로그인 버튼"
   },
-  "loginAppleComingSoon": "Apple 로그인은 곧 지원될 예정이에요.",
-  "@loginAppleComingSoon": {
-    "description": "애플 로그인 미구현 안내 토스트"
-  },
   "loginViewPolicies": "이용약관과 개인정보 처리방침 확인",
   "@loginViewPolicies": {
     "description": "로그인 화면 약관·정책 확인 링크"
@@ -75,18 +76,36 @@
   "termsPrivacyLabel": "[필수] 개인정보 처리방침",
   "termsAgeLabel": "[필수] 만 14세 이상 사용자 이용동의",
   "termsContinueButton": "동의하고 계속",
-
   "policyServiceTitle": "서비스 이용 약관",
   "policyPrivacyTitle": "개인정보 처리방침",
   "policyYouthTitle": "청소년 보호정책",
 
+  "permissionPageTitle": "권한 안내",
+  "permissionHeaderTitle": "ddara 권한 안내",
+  "permissionHeaderDescription": "꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요",
+  "permissionSectionRequired": "필수 접근 권한",
+  "permissionSectionOptional": "선택 접근 권한",
+  "permissionCamera": "카메라",
+  "permissionCameraDescription": "따라찍기 사진을 촬영할 때 사용해요",
+  "permissionNotification": "알림",
+  "permissionNotificationDescription": "마감·투표·초대 소식이 있을 때 알려드려요",
+  "permissionStorage": "저장공간",
+  "permissionStorageDescription": "앨범에서 사진을 올릴 때 사용해요",
+  "permissionPhotos": "사진",
+  "requiredPermissionTitle": "필수 권한을 허용해 주세요",
+  "requiredPermissionDescription": "필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.",
+  "permissionDialogTitle": "{permissionName} 권한이 필요해요",
+  "@permissionDialogTitle": {
+    "placeholders": { "permissionName": { "type": "String" } }
+  },
+  "permissionDialogContent": "설정 > 권한에서 직접 허용해 주세요.",
+  "permissionGoToSettings": "설정으로 이동",
+
   "emptyGroupTitle": "아직 참여한 모임이 없어요",
   "emptyGroupDescription": "첫 판을 시작해 친구들에게 보내보세요",
-
   "groupCreate": "모임 만들기",
   "groupJoin": "모임 참여하기",
   "groupEnter": "모임 들어가기",
-
   "groupCountLabel": "현재 모임 개수",
   "groupCountValue": "{count}/{maxCount}개",
   "@groupCountValue": {
@@ -97,7 +116,6 @@
     }
   },
   "groupCountCaption": "모임에 속해 있어요",
-
   "meetingStatusInProgress": "진행 중",
   "meetingStatusCompleted": "종료",
   "meetingMemberOwner": "{name}님",
@@ -134,28 +152,6 @@
     "description": "마감 시각이 지난 사이클"
   },
 
-  "commonConfirm": "확인",
-  "@commonConfirm": {
-    "description": "공용 다이얼로그 확인 버튼"
-  },
-
-  "photoRetake": "다시 찍기",
-  "@photoRetake": {
-    "description": "촬영 후 다시 찍기 버튼"
-  },
-  "photoUpload": "올리기",
-  "@photoUpload": {
-    "description": "촬영한 사진 올리기 버튼"
-  },
-  "photoPostWarningTitle": "게시되면 수정이 불가능합니다.",
-  "@photoPostWarningTitle": {
-    "description": "게시 전 되돌릴 수 없음을 알리는 확인 다이얼로그 제목"
-  },
-  "photoTakeAction": "촬영하러 가기",
-  "@photoTakeAction": {
-    "description": "촬영 화면으로 이동하는 알약 버튼"
-  },
-
   "groupCreateTitle": "모임 이름을 정해주세요",
   "groupCreateSubtitle": "내가 먼저 찍으면, 친구들이 따라 찍어요",
   "groupCreateNameLabel": "모임 이름",
@@ -163,26 +159,65 @@
   "groupCreateIntroLabel": "한 줄 소개 (선택)",
   "groupCreateIntroPlaceholder": "어떤 모임인지 알려주세요",
   "groupCreateSubmit": "만들기",
+  "groupCreateNameLengthError": "20자 이하로 입력해주세요",
 
   "groupJoinTitle": "모임 참여",
   "groupJoinHeadline": "받은 초대 코드를 입력해주세요",
   "groupJoinSubtitle": "링크로 받았다면, 링크만 눌러도 바로 들어올 수 있어요",
   "groupJoinCodeLabel": "초대 코드",
   "groupJoinCodePlaceholder": "예) ASKD23NSK12",
+  "inviteLandingTitle": "초대장이 도착했어요",
+  "joinConfirmInvalid": "잘못된 초대입니다",
+  "joinConfirmAlreadyJoined": "이미 참여 중인 방입니다",
+  "joinConfirmFull": "정원이 초과되었어요",
+  "joinConfirmSubtitle": "{date} 개설 · {count}명",
+  "@joinConfirmSubtitle": {
+    "description": "모임 참여 확인 화면의 개설일·인원 요약",
+    "placeholders": {
+      "date": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "joinConfirmMemberOwner": "{name}님이 함께하고 있어요",
+  "@joinConfirmMemberOwner": {
+    "description": "참여 확인 화면 - 모임장 1명만 있을 때",
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "joinConfirmMemberOthers": "{name}님 외 {others}명이 함께하고 있어요",
+  "@joinConfirmMemberOthers": {
+    "description": "참여 확인 화면 - 모임장 외 여러 명",
+    "placeholders": {
+      "name": { "type": "String" },
+      "others": { "type": "int" }
+    }
+  },
 
-  "starterTitle": "스타터 시작하기",
-  "starterConceptLabel": "컨셉 설명",
-  "starterConceptPlaceholder": "예) 마라탕 또 먹기",
-  "starterConceptLengthError": "20자 이내로 입력해 주세요",
-
-  "followerCameraTitle": "따라찍기",
-
-  "groupHeaderStart": "내가 먼저 시작하기",
-  "groupHeaderTakePhoto": "따라찍으러 가기",
-
-  "groupDetailEmptyTitle": "아직 따라찍기가 없어요",
+  "setNicknameTitle": "{groupName} 안에서\n어떻게 불러드릴까요?",
+  "@setNicknameTitle": {
+    "description": "모임 닉네임 입력 폼 제목",
+    "placeholders": {
+      "groupName": { "type": "String" }
+    }
+  },
+  "setNicknameDescription": "친구들에게 보이는 이름이에요",
+  "setNicknamePlaceholder": "닉네임 (2~10자)",
+  "setNicknameCaption": "*한글과 영어만 사용 가능해요\n**욕설·혐오·사칭 등 부적절한 닉네임은 변경될 수 있어요(자세한 기준 → 운영정책)",
+  "nicknameErrorCharset": "한글과 영어로만 지을 수 있어요",
+  "nicknameErrorWhitespace": "앞뒤 공백은 사용할 수 없어요",
+  "nicknameErrorLength": "2~10자로 입력해주세요",
+  "editNicknameEmptyError": "닉네임을 입력해주세요.",
+  "editNicknameSubmit": "수정",
 
   "groupDetailLoadError": "모임 정보를 불러오지 못했어요.",
+  "groupDetailEmptyTitle": "아직 따라찍기가 없어요",
+  "groupHeaderStart": "내가 먼저 시작하기",
+  "groupHeaderTakePhoto": "따라찍으러 가기",
+  "groupMenuEditNickname": "닉네임 수정",
+  "groupMenuExit": "모임 나가기",
+  "groupExitConfirmTitle": "모임에서 나갈까요?",
+  "groupExitConfirmAction": "나가기",
   "groupMembersTitle": "친구들",
   "groupMembersAdd": "추가하기",
   "memberReportNickname": "닉네임 신고",
@@ -201,13 +236,11 @@
       "email": { "type": "String" }
     }
   },
+  "recordCycleLabel": "따라찍기",
+  "recordPhotoLabel": "함께한 사진",
   "groupHistoryTitle": "지난 따라찍기",
   "groupHistoryMore": "더보기",
   "groupHistoryEmpty": "지난 따라찍기가 아직 없어요",
-
-  "recordCycleLabel": "따라찍기",
-  "recordPhotoLabel": "함께한 사진",
-
   "historyParticipantCount": "{count}명 참여",
   "@historyParticipantCount": {
     "description": "지난 따라찍기 카드의 참여 인원 수",
@@ -215,7 +248,14 @@
       "count": { "type": "int" }
     }
   },
-
+  "historyDate": "{month}월 {day}일",
+  "@historyDate": {
+    "description": "지난 따라찍기 카드의 날짜 라벨",
+    "placeholders": {
+      "month": { "type": "int" },
+      "day": { "type": "int" }
+    }
+  },
   "startedHeaderRemaining": "진행 중 · {time} 남음",
   "@startedHeaderRemaining": {
     "description": "진행 중인 따라찍기의 남은 시간 안내",
@@ -255,126 +295,51 @@
       "minutes": { "type": "int" }
     }
   },
-
-  "commonNext": "다음",
-  "commonStart": "시작하기",
-  "commonCancel": "취소",
-
-  "groupCreateNameLengthError": "20자 이하로 입력해주세요",
-
-  "setNicknameTitle": "{groupName} 안에서\n어떻게 불러드릴까요?",
-  "@setNicknameTitle": {
-    "description": "모임 닉네임 입력 폼 제목",
+  "remainingDays": "{days}일",
+  "@remainingDays": {
+    "description": "남은 시간(일 단위)",
     "placeholders": {
-      "groupName": { "type": "String" }
-    }
-  },
-  "setNicknameDescription": "친구들에게 보이는 이름이에요",
-  "setNicknamePlaceholder": "닉네임 (2~10자)",
-  "setNicknameCaption": "*한글과 영어만 사용 가능해요\n**욕설·혐오·사칭 등 부적절한 닉네임은 변경될 수 있어요(자세한 기준 → 운영정책)",
-
-  "groupMenuEditNickname": "닉네임 수정",
-  "groupMenuExit": "모임 나가기",
-  "groupExitConfirmTitle": "모임에서 나갈까요?",
-  "groupExitConfirmAction": "나가기",
-
-  "editNicknameEmptyError": "닉네임을 입력해주세요.",
-  "editNicknameSubmit": "수정",
-
-  "inviteLandingTitle": "초대장이 도착했어요",
-
-  "joinConfirmInvalid": "잘못된 초대입니다",
-  "joinConfirmAlreadyJoined": "이미 참여 중인 방입니다",
-  "joinConfirmFull": "정원이 초과되었어요",
-  "joinConfirmSubtitle": "{date} 개설 · {count}명",
-  "@joinConfirmSubtitle": {
-    "description": "모임 참여 확인 화면의 개설일·인원 요약",
-    "placeholders": {
-      "date": { "type": "String" },
-      "count": { "type": "int" }
-    }
-  },
-  "joinConfirmMemberOwner": "{name}님이 함께하고 있어요",
-  "@joinConfirmMemberOwner": {
-    "description": "참여 확인 화면 - 모임장 1명만 있을 때",
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
-  "joinConfirmMemberOthers": "{name}님 외 {others}명이 함께하고 있어요",
-  "@joinConfirmMemberOthers": {
-    "description": "참여 확인 화면 - 모임장 외 여러 명",
-    "placeholders": {
-      "name": { "type": "String" },
-      "others": { "type": "int" }
+      "days": { "type": "int" }
     }
   },
 
-  "historyDate": "{month}월 {day}일",
-  "@historyDate": {
-    "description": "지난 따라찍기 카드의 날짜 라벨",
-    "placeholders": {
-      "month": { "type": "int" },
-      "day": { "type": "int" }
-    }
-  },
+  "inviteShareTitle": "함께할 친구를 초대해요",
+  "inviteMemberShortageTitle": "아직 멤버가 부족해요",
+  "inviteMemberShortageDescription": "3명부터 시작 가능해요",
+  "inviteShareKakao": "카카오톡",
+  "inviteShareCopyCode": "초대코드",
+  "inviteShareMore": "더보기",
+  "inviteShareLater": "다음에 할게요",
+  "inviteShareFailed": "공유하지 못했어요. 잠시 후 다시 시도하거나 초대코드를 복사해 전달해주세요.",
+  "inviteCodeCopied": "초대 코드를 복사했어요",
 
-  "profileTitle": "프로필",
-  "profileSectionBasicInfo": "기본 정보",
-  "profileJoinedAt": "가입일",
-  "profileSectionNotification": "알림",
-  "profileSectionSupport": "지원",
-  "profileTermsPolicy": "약관 및 정책",
-  "profileContact": "문의하기",
-  "profileAppVersion": "앱 버전",
-  "profileSectionAccount": "계정",
-  "profileLinkedAccount": "연동 계정",
-  "profileLogout": "로그아웃",
-  "profileWithdraw": "회원 탈퇴",
-  "profileLogoutFailed": "로그아웃에 실패했어요.",
-  "profileWithdrawFailed": "회원 탈퇴에 실패했어요.",
-  "profileNotImplemented": "아직 구현되지 않았습니다.",
-  "profileLogoutConfirmTitle": "로그아웃 할까요?",
-  "profileWithdrawConfirmTitle": "정말 탈퇴할까요?",
-  "profileWithdrawConfirmAction": "탈퇴",
-  "profileContactMailSubject": "[따라] 문의하기",
-  "profileContactMailBody": "문의 내용을 작성해 주세요.\n\n------------------\n앱 버전: {appVersion}\n------------------",
-  "@profileContactMailBody": {
-    "description": "문의 메일 본문. (앱 버전 포함)",
-    "placeholders": {
-      "appVersion": { "type": "String" }
-    }
-  },
-  "profileContactMailFailed": "메일 앱을 열 수 없어요. ({email})",
-  "@profileContactMailFailed": {
-    "description": "문의 메일 앱 실행 실패 안내",
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  },
+  "starterTitle": "스타터 시작하기",
+  "starterConceptLabel": "컨셉 설명",
+  "starterConceptPlaceholder": "예) 마라탕 또 먹기",
+  "starterConceptLengthError": "20자 이내로 입력해 주세요",
 
-  "profileImageSourceTitle": "프로필 사진 변경",
-  "profileImageSourceCamera": "사진 촬영",
-  "profileImageSourceGallery": "갤러리에서 선택",
-  "profileImageSourceReset": "기본 이미지로 변경",
-  "profileImageUpdated": "프로필 사진이 변경되었어요.",
-  "profileImageReset": "기본 이미지로 변경되었어요.",
-  "profileImageUploadFailed": "프로필 사진 변경에 실패했어요.",
-  "profileImageInvalidFormat": "jpg 또는 png 이미지만 사용할 수 있어요.",
-
-  "notificationSettingsTitle": "알림 설정",
-  "notificationAllow": "알림 허용",
-  "notificationSectionActivity": "활동",
-  "notificationFollowShot": "따라찍기 차례",
-  "notificationFollowShotCaption": "새 따라찍기가 열리거나 내 차례일 때",
-  "notificationDeadlineVote": "마감·투표 알림",
-  "notificationDeadlineVoteCaption": "따라찍기 마감 · 베스트 투표",
-  "notificationSectionEtc": "기타",
-  "notificationMemberJoin": "친구 참여 알림",
-  "notificationMemberJoinCaption": "내가 보낸 초대를 친구가 받았을 때",
-  "notificationPermissionDialogTitle": "알림 권한 필요",
-  "notificationPermissionDialogBody": "알림을 받으려면 설정에서 알림 권한을 허용해 주세요.",
-  "notificationOpenSettings": "설정으로 이동",
+  "followerCameraTitle": "따라찍기",
+  "photoRetake": "다시 찍기",
+  "@photoRetake": {
+    "description": "촬영 후 다시 찍기 버튼"
+  },
+  "photoUpload": "올리기",
+  "@photoUpload": {
+    "description": "촬영한 사진 올리기 버튼"
+  },
+  "photoPostWarningTitle": "게시되면 수정이 불가능합니다.",
+  "@photoPostWarningTitle": {
+    "description": "게시 전 되돌릴 수 없음을 알리는 확인 다이얼로그 제목"
+  },
+  "photoTakeAction": "촬영하러 가기",
+  "@photoTakeAction": {
+    "description": "촬영 화면으로 이동하는 알약 버튼"
+  },
+  "cameraPermissionTitle": "카메라 권한이 필요해요",
+  "cameraPermissionDescription": "촬영하려면 설정에서 카메라 권한을 허용해주세요.",
+  "cameraModeCornerMini": "코너 미니뷰",
+  "cameraModeGhostZoom": "고스트 확대",
+  "cameraOpacityLabel": "원본사진 투명도",
 
   "notificationTitle": "알림",
   "notificationEmptyTitle": "새로운 알림이 없어요",
@@ -417,13 +382,6 @@
     }
   },
   "notificationMessageDefault": "새로운 알림이 있어요",
-  "remainingDays": "{days}일",
-  "@remainingDays": {
-    "description": "남은 시간(일 단위)",
-    "placeholders": {
-      "days": { "type": "int" }
-    }
-  },
   "timeAgoJustNow": "방금 전",
   "timeAgoMinutes": "{minutes}분 전",
   "@timeAgoMinutes": {
@@ -450,51 +408,65 @@
     "placeholders": { "years": { "type": "int" } }
   },
 
-  "permissionPageTitle": "권한 안내",
-  "permissionHeaderTitle": "ddara 권한 안내",
-  "permissionHeaderDescription": "꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요",
-  "permissionSectionRequired": "필수 접근 권한",
-  "permissionSectionOptional": "선택 접근 권한",
-  "permissionCamera": "카메라",
-  "permissionCameraDescription": "따라찍기 사진을 촬영할 때 사용해요",
-  "permissionNotification": "알림",
-  "permissionNotificationDescription": "마감·투표·초대 소식이 있을 때 알려드려요",
-  "permissionStorage": "저장공간",
-  "permissionStorageDescription": "앨범에서 사진을 올릴 때 사용해요",
-  "permissionPhotos": "사진",
-  "requiredPermissionTitle": "필수 권한을 허용해 주세요",
-  "requiredPermissionDescription": "필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.",
-  "permissionDialogTitle": "{permissionName} 권한이 필요해요",
-  "@permissionDialogTitle": {
-    "placeholders": { "permissionName": { "type": "String" } }
+  "notificationSettingsTitle": "알림 설정",
+  "notificationAllow": "알림 허용",
+  "notificationSectionActivity": "활동",
+  "notificationFollowShot": "따라찍기 차례",
+  "notificationFollowShotCaption": "새 따라찍기가 열리거나 내 차례일 때",
+  "notificationDeadlineVote": "마감·투표 알림",
+  "notificationDeadlineVoteCaption": "따라찍기 마감 · 베스트 투표",
+  "notificationSectionEtc": "기타",
+  "notificationMemberJoin": "친구 참여 알림",
+  "notificationMemberJoinCaption": "내가 보낸 초대를 친구가 받았을 때",
+  "notificationPermissionDialogTitle": "알림 권한 필요",
+  "notificationPermissionDialogBody": "알림을 받으려면 설정에서 알림 권한을 허용해 주세요.",
+  "notificationOpenSettings": "설정으로 이동",
+
+  "profileTitle": "프로필",
+  "profileSectionBasicInfo": "기본 정보",
+  "profileJoinedAt": "가입일",
+  "profileSectionNotification": "알림",
+  "profileSectionSupport": "지원",
+  "profileTermsPolicy": "약관 및 정책",
+  "profileContact": "문의하기",
+  "profileAppVersion": "앱 버전",
+  "profileSectionAccount": "계정",
+  "profileLinkedAccount": "연동 계정",
+  "profileLogout": "로그아웃",
+  "profileWithdraw": "회원 탈퇴",
+  "profileLogoutFailed": "로그아웃에 실패했어요.",
+  "profileWithdrawFailed": "회원 탈퇴에 실패했어요.",
+  "profileLogoutConfirmTitle": "로그아웃 할까요?",
+  "profileWithdrawConfirmTitle": "정말 탈퇴할까요?",
+  "profileWithdrawConfirmAction": "탈퇴",
+  "profileContactMailSubject": "[따라] 문의하기",
+  "profileContactMailBody": "문의 내용을 작성해 주세요.\n\n------------------\n앱 버전: {appVersion}\n------------------",
+  "@profileContactMailBody": {
+    "description": "문의 메일 본문. (앱 버전 포함)",
+    "placeholders": {
+      "appVersion": { "type": "String" }
+    }
   },
-  "permissionDialogContent": "설정 > 권한에서 직접 허용해 주세요.",
-  "permissionGoToSettings": "설정으로 이동",
-
-  "cameraPermissionTitle": "카메라 권한이 필요해요",
-  "cameraPermissionDescription": "촬영하려면 설정에서 카메라 권한을 허용해주세요.",
-  "cameraModeCornerMini": "코너 미니뷰",
-  "cameraModeGhostZoom": "고스트 확대",
-  "cameraOpacityLabel": "원본사진 투명도",
-
-  "inviteShareTitle": "함께할 친구를 초대해요",
-  "inviteMemberShortageTitle": "아직 멤버가 부족해요",
-  "inviteMemberShortageDescription": "3명부터 시작 가능해요",
-  "inviteShareKakao": "카카오톡",
-  "inviteShareCopyCode": "초대코드",
-  "inviteShareMore": "더보기",
-  "inviteShareLater": "다음에 할게요",
-  "inviteShareFailed": "공유하지 못했어요. 잠시 후 다시 시도하거나 초대코드를 복사해 전달해주세요.",
-  "inviteCodeCopied": "초대 코드를 복사했어요",
+  "profileContactMailFailed": "메일 앱을 열 수 없어요. ({email})",
+  "@profileContactMailFailed": {
+    "description": "문의 메일 앱 실행 실패 안내",
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "profileImageSourceTitle": "프로필 사진 변경",
+  "profileImageSourceCamera": "사진 촬영",
+  "profileImageSourceGallery": "갤러리에서 선택",
+  "profileImageSourceReset": "기본 이미지로 변경",
+  "profileImageUpdated": "프로필 사진이 변경되었어요.",
+  "profileImageReset": "기본 이미지로 변경되었어요.",
+  "profileImageUploadFailed": "프로필 사진 변경에 실패했어요.",
+  "profileImageInvalidFormat": "jpg 또는 png 이미지만 사용할 수 있어요.",
 
   "termsPolicyTitle": "약관 및 정책",
   "policyTermsOfService": "서비스 이용 약관",
   "policyPrivacy": "개인정보 처리방침",
   "policyCommunityGuideline": "운영정책(커뮤니티 가이드)",
   "policyYouthProtection": "청소년 보호정책",
-  "policyLoadFailed": "문서를 불러오지 못했어요.",
-
-  "nicknameErrorCharset": "한글과 영어로만 지을 수 있어요",
-  "nicknameErrorWhitespace": "앞뒤 공백은 사용할 수 없어요",
-  "nicknameErrorLength": "2~10자로 입력해주세요"
+  "policyLoadFailed": "문서를 불러오지 못했어요."
 }
