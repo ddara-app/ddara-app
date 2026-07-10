@@ -24,6 +24,7 @@ extension NotificationItemMapper on NotificationItemResponse {
         actorNickname: payload.actorNickname,
         cycleId: payload.cycleId,
         deadlineAt: payload.deadlineAt,
+        remainingMinutes: payload.remainingMinutes,
         imageUrl: payload.imageUrl,
       ),
       readAt: readAt,
