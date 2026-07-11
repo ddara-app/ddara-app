@@ -1,4 +1,4 @@
-/// 모임 닉네임 변경(`PATCH /groups/{groupId}/nickname`) 실패 시 서버가 내려주는 에러 코드.
+/// 모임 닉네임 변경(`PATCH /api/groups/{groupId}/members/me/nickname`) 실패 시 서버가 내려주는 에러 코드.
 ///
 /// 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기에 포함하지 않는다.
 enum GroupChangeNickNameErrorCode {

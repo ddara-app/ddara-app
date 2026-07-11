@@ -1,4 +1,4 @@
-/// 모임 참여(`POST /groups/join`) 실패 시 서버가 내려주는 에러 코드.
+/// 모임 참여(`POST /api/groups/join`) 실패 시 서버가 내려주는 에러 코드.
 enum GroupJoinErrorCode {
   invalidInput('INVALID_INPUT', '입력값이 올바르지 않아요'),
   invalidInviteCode('INVALID_INVITE_CODE', '유효하지 않은 초대 코드입니다.'),

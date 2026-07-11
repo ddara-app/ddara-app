@@ -1,4 +1,4 @@
-/// 모임 나가기(`DELETE /groups/{groupId}/members`) 실패 시 서버가 내려주는 에러 코드.
+/// 모임 나가기(`DELETE /api/groups/{groupId}/members/me`) 실패 시 서버가 내려주는 에러 코드.
 enum GroupExitErrorCode {
   notGroupMember('NOT_GROUP_MEMBER', '해당 모임의 멤버가 아니에요.'),
   groupNotFound('GROUP_NOT_FOUND', '존재하지 않는 모임이에요.'),
