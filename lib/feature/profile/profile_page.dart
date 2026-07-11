@@ -5,6 +5,7 @@ import 'package:ddara/core/image/image_picker_service.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
 import 'package:ddara/core/widget/permission_dialog.dart';
@@ -94,7 +95,7 @@ class ProfilePage extends ConsumerWidget {
                 children: [
                   ProfileRow(
                     label: l10n.profileJoinedAt,
-                    value: _formatDate(state.joinedAt),
+                    value: formatDate(state.joinedAt),
                   ),
                 ],
               ),
@@ -307,14 +308,6 @@ class ProfilePage extends ConsumerWidget {
         type: ToastType.error,
       );
     }
-  }
-
-  /// DateTime → 'yyyy.MM.dd'. (없으면 빈 문자열)
-  String _formatDate(DateTime? date) {
-    if (date == null) return '';
-    final month = date.month.toString().padLeft(2, '0');
-    final day = date.day.toString().padLeft(2, '0');
-    return '${date.year}.$month.$day';
   }
 
   /// 로그아웃 확인 다이얼로그를 띄우고, 확인 시에만 로그아웃을 진행한다.

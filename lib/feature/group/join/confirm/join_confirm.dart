@@ -1,6 +1,7 @@
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/invite_group.dart';
+import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/widget/profile_avatar.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
@@ -30,7 +31,7 @@ class JoinConfirm extends StatelessWidget {
     final subtitle = group == null
         ? ''
         : l10n.joinConfirmSubtitle(
-            _formatDate(group.createdAt.toLocal()),
+            formatDate(group.createdAt),
             group.memberCount,
           );
     final memberSummary = group == null
@@ -75,13 +76,6 @@ class JoinConfirm extends StatelessWidget {
       ),
     );
   }
-}
-
-/// DateTime → 'yyyy.MM.dd'.
-String _formatDate(DateTime date) {
-  final month = date.month.toString().padLeft(2, '0');
-  final day = date.day.toString().padLeft(2, '0');
-  return '${date.year}.$month.$day';
 }
 
 /// 멤버 아바타를 겹쳐 보여주는 묶음.
