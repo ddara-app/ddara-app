@@ -160,6 +160,7 @@
   "groupCreateIntroPlaceholder": "어떤 모임인지 알려주세요",
   "groupCreateSubmit": "만들기",
   "groupCreateNameLengthError": "20자 이하로 입력해주세요",
+  "groupCreateIntroLengthError": "100자 이하로 입력해주세요",
 
   "groupJoinTitle": "모임 참여",
   "groupJoinHeadline": "받은 초대 코드를 입력해주세요",
