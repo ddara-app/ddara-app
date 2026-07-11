@@ -2,6 +2,7 @@ import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/component/button/app_button.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/create/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/create/widget/set_group_name.dart';
@@ -42,7 +43,10 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
 
     // 스텝별 다음 진행 가능 조건.
     final canSubmit = switch (_step) {
-      0 => state.groupName.trim().isNotEmpty && state.groupName.length <= 20,
+      0 =>
+        state.groupName.trim().isNotEmpty &&
+            state.groupName.length <= 20 &&
+            state.description.length <= 100,
       _ => state.nickname.isNotEmpty && nicknameError == null,
     };
 
@@ -99,15 +103,19 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                 // 스텝 간 공유하는 하단 버튼.
                 AppButton(
                   label: _step == 0 ? l10n.commonNext : l10n.commonStart,
-                  onPressed: canSubmit
-                      ? () {
-                          if (_step == 0) {
-                            setState(() => _step = 1);
-                          } else {
-                            notifier.createGroup();
+                  // 생성 요청이 진행되는 동안 중복 탭을 차단한다.
+                  onPressed: tapGuard(
+                    state.isLoading,
+                    canSubmit
+                        ? () {
+                            if (_step == 0) {
+                              setState(() => _step = 1);
+                            } else {
+                              notifier.createGroup();
+                            }
                           }
-                        }
-                      : null,
+                        : null,
+                  ),
                 ),
               ],
             ),

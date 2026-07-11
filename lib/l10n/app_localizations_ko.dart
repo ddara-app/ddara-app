@@ -224,6 +224,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupCreateNameLengthError => '20자 이하로 입력해주세요';
 
   @override
+  String get groupCreateIntroLengthError => '100자 이하로 입력해주세요';
+
+  @override
   String get groupJoinTitle => '모임 참여';
 
   @override

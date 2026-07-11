@@ -24,18 +24,23 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
   @override
   void initState() {
     super.initState();
-    // 입력에 따라 에러 문구(_nameError)가 갱신되도록 rebuild.
-    _nameController.addListener(_onNameChanged);
+    // 입력에 따라 에러 문구가 갱신되도록 rebuild.
+    _nameController.addListener(_onTextChanged);
+    _introController.addListener(_onTextChanged);
   }
 
-  void _onNameChanged() => setState(() {});
+  void _onTextChanged() => setState(() {});
 
   /// 모임 이름 최대 길이.
   static const _nameMaxLength = 20;
 
+  /// 모임 소개 최대 길이.
+  static const _introMaxLength = 100;
+
   @override
   void dispose() {
-    _nameController.removeListener(_onNameChanged);
+    _nameController.removeListener(_onTextChanged);
+    _introController.removeListener(_onTextChanged);
     _nameController.dispose();
     _introController.dispose();
     super.dispose();
@@ -49,6 +54,11 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
     // 이름이 최대 길이를 초과하면 에러 문구, 아니면 null.
     final nameError = _nameController.text.length > _nameMaxLength
         ? l10n.groupCreateNameLengthError
+        : null;
+
+    // 소개가 최대 길이를 초과하면 에러 문구, 아니면 null.
+    final introError = _introController.text.length > _introMaxLength
+        ? l10n.groupCreateIntroLengthError
         : null;
 
     return Column(
@@ -76,6 +86,7 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
           placeholder: l10n.groupCreateIntroPlaceholder,
           controller: _introController,
           highlightWhenFilled: true,
+          errorText: introError,
           onChanged: notifier.descriptionOnChanged,
         ),
       ],

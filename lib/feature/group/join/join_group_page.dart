@@ -4,6 +4,7 @@ import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/exception/group_join_error_code.dart';
 import 'package:ddara/core/model/group/invite_group.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/join/confirm/join_confirm.dart';
 import 'package:ddara/feature/group/join/provider/notifier_provider.dart';
@@ -150,15 +151,19 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
                 // 스텝 간 공유하는 하단 버튼.
                 AppButton(
                   label: _step == 0 ? l10n.groupJoin : l10n.commonStart,
-                  onPressed: canSubmit
-                      ? () {
-                          if (_step == 0) {
-                            setState(() => _step = 1);
-                          } else {
-                            notifier.joinGroup(widget.inviteCode);
+                  // 참여 요청이 진행되는 동안 중복 탭을 차단한다.
+                  onPressed: tapGuard(
+                    state.isLoading,
+                    canSubmit
+                        ? () {
+                            if (_step == 0) {
+                              setState(() => _step = 1);
+                            } else {
+                              notifier.joinGroup(widget.inviteCode);
+                            }
                           }
-                        }
-                      : null,
+                        : null,
+                  ),
                 ),
               ],
             ),

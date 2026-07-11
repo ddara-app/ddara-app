@@ -1,4 +1,4 @@
-/// 스타터 사이클 생성(`POST /groups/{groupId}/cycles`) 실패 시 서버가 내려주는 에러 코드.
+/// 스타터 사이클 생성(`POST /api/groups/{groupId}/cycles`) 실패 시 서버가 내려주는 에러 코드.
 enum StarterUploadErrorCode {
   invalidInput('INVALID_INPUT', '컨셉 또는 이미지가 올바르지 않습니다.'),
   unauthorized('UNAUTHORIZED', '로그인이 필요합니다.'),

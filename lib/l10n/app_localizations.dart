@@ -496,6 +496,12 @@ abstract class AppLocalizations {
   /// **'20자 이하로 입력해주세요'**
   String get groupCreateNameLengthError;
 
+  /// No description provided for @groupCreateIntroLengthError.
+  ///
+  /// In ko, this message translates to:
+  /// **'100자 이하로 입력해주세요'**
+  String get groupCreateIntroLengthError;
+
   /// No description provided for @groupJoinTitle.
   ///
   /// In ko, this message translates to:

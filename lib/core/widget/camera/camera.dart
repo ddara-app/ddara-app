@@ -189,11 +189,22 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
     widget.onFlashPressed?.call(next);
   }
 
-  /// 전/후면 등 다음 카메라로 전환한다.
+  /// 전/후면 카메라를 전환한다.
+  ///
+  /// 목록 순환이 아니라 렌즈 방향(전/후) 기준으로 반대편을 찾는다.
+  /// iPhone 은 후면 렌즈가 여러 개(광각·초광각·망원)라 순환 방식으로는
+  /// 후면 렌즈끼리만 바뀌고 전면이 바로 나오지 않는다.
   Future<void> _switchCamera() async {
-    if (_cameras.length < 2) return;
+    final targetDirection =
+        _cameras[_cameraIndex].lensDirection == CameraLensDirection.back
+        ? CameraLensDirection.front
+        : CameraLensDirection.back;
+    final next = _cameras.indexWhere(
+      (c) => c.lensDirection == targetDirection,
+    );
+    // 반대편 카메라가 없는 기기(전면 없음 등)면 전환하지 않는다.
+    if (next < 0 || next == _cameraIndex) return;
 
-    final next = (_cameraIndex + 1) % _cameras.length;
     final previous = _controller;
 
     // 전환 중에는 프리뷰를 로딩 상태로 두고, 플래시는 초기화한다.

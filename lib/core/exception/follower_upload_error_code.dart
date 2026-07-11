@@ -1,4 +1,4 @@
-/// 팔로워 사진 업로드(`POST /cycles/{cycleId}/shots`) 실패 시 서버가 내려주는 에러 코드.
+/// 팔로워 사진 업로드(`POST /api/cycles/{cycleId}/shots`) 실패 시 서버가 내려주는 에러 코드.
 enum FollowerUploadErrorCode {
   notGroupMember('NOT_GROUP_MEMBER', '모임 멤버가 아닙니다.'),
   cycleNotFound('CYCLE_NOT_FOUND', '존재하지 않는 회차입니다.'),
