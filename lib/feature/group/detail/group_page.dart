@@ -155,12 +155,13 @@ class GroupPage extends ConsumerWidget {
   /// 닉네임 수정 바텀시트를 띄우고, 입력을 받으면 변경을 요청한다.
   /// (실패 시 notifier 가 errorMessage → 토스트로 처리, 성공 시 상세 재조회로 반영)
   Future<void> _editNickname(BuildContext context, WidgetRef ref) async {
-    final groupName =
-        ref.read(groupPageNotifierProvider(groupId)).groupDetail?.name ?? '';
+    final detail = ref.read(groupPageNotifierProvider(groupId)).groupDetail;
 
     final nickName = await EditNicknameSheet.show(
       context,
-      groupName: groupName,
+      groupName: detail?.name ?? '',
+      // 멤버가 이미 쓰는 닉네임은 시트에서 중복 에러로 미리 막는다.
+      takenNicknames: {...?detail?.members.map((m) => m.nickname)},
     );
     if (nickName == null || !context.mounted) return;
 
