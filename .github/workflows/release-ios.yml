@@ -1,0 +1,190 @@
+# iOS 릴리스 배포 → App Store Connect (TestFlight)
+#
+# 산출물: Apple Distribution + App Store 프로파일(ddara-team3-distribution) 서명 IPA
+#         → App Store Connect 업로드 (처리 후 TestFlight 반영, 심사 제출은 콘솔에서)
+# 가이드: lib/release-ios-research.md, lib/release-cicd-research.md
+#
+# ⚠️ 선행 조건 (자동화 이전에 반드시 1회 수동):
+#   1. App Store Connect 앱 레코드 생성 (Bundle ID com.ddara.team3)
+#   2. ASC API 키 시크릿 3종 등록: ASC_KEY_ID / ASC_ISSUER_ID / ASC_API_PRIVATE_KEY
+#
+# 시크릿 인코딩 규약:
+#   [base64]  GOOGLE_SERVICE_INFO_PLIST, IOS_CERTIFICATE_P12, IOS_STORE_PROVISIONING_PROFILE
+#   [원문]     ENV_FILE, IOS_SECRETS_XCCONFIG, ASC_API_PRIVATE_KEY (.p8 BEGIN/END 줄 포함)
+#   [평문]     KAKAO_NATIVE_APP_KEY, IOS_TEAM_ID, IOS_CERTIFICATE_PASSWORD,
+#             IOS_KEYCHAIN_PASSWORD, ASC_KEY_ID, ASC_ISSUER_ID
+#
+# 서명 자산 (debug/QA 워크플로와의 관계):
+#   - 인증서: IOS_CERTIFICATE_P12 는 Apple Distribution p12 → Ad Hoc(QA)·App Store 겸용 재사용
+#   - 프로파일: QA 는 IOS_PROVISIONING_PROFILE(ddara-team3-ad-hoc),
+#              릴리스는 IOS_STORE_PROVISIONING_PROFILE(ddara-team3-distribution) — 이름 분리됨
+#   - ExportOptions: QA 는 ios/ExportOptions.plist(ad-hoc),
+#                    릴리스는 ios/ExportOptions-appstore.plist(app-store-connect)
+
+name: release-ios
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+concurrency:
+  group: release-ios-${{ github.ref }}
+  # 릴리스는 도중 취소하지 않는다 (업로드 중 취소 시 build number 만 소모될 수 있음)
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.44.1'
+  # debug 워크플로(run_number)와 CFBundleVersion 공간이 겹치지 않도록 오프셋 분리.
+  # App Store 는 동일 버전 내 build number 재사용 불가 → 재실행 시 run_number 증가로 자연 회피.
+  BUILD_NUMBER_OFFSET: 10000
+
+jobs:
+  # ───────────────────────────────── iOS ─────────────────────────────────
+  ios:
+    name: iOS App Store IPA → TestFlight
+    runs-on: macos-latest
+    # 레포 Settings > Environments 에서 production 에 필수 리뷰어를 걸면 승인 게이트로 동작
+    environment: production
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 시크릿 파일 복원
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+          IOS_SECRETS_XCCONFIG: ${{ secrets.IOS_SECRETS_XCCONFIG }}
+        run: |
+          printf '%s' "$ENV_FILE" > .env
+          echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          printf '%s' "$IOS_SECRETS_XCCONFIG" > ios/Flutter/Secrets.xcconfig
+
+      - name: 서명 자산 설치 (Distribution 인증서 + App Store 프로파일)
+        env:
+          IOS_CERTIFICATE_P12: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          IOS_STORE_PROVISIONING_PROFILE: ${{ secrets.IOS_STORE_PROVISIONING_PROFILE }}
+          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          CERT=$RUNNER_TEMP/cert.p12
+          PROFILE=$RUNNER_TEMP/profile.mobileprovision
+          KEYCHAIN=$RUNNER_TEMP/build.keychain
+
+          echo "$IOS_CERTIFICATE_P12" | base64 --decode > "$CERT"
+          echo "$IOS_STORE_PROVISIONING_PROFILE" | base64 --decode > "$PROFILE"
+
+          # 임시 키체인 생성 + 인증서 import
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$CERT" -k "$KEYCHAIN" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+
+          # 프로비저닝 프로파일 배치
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE" "$HOME/Library/MobileDevice/Provisioning Profiles/"
+
+      - name: 수동 서명 설정 주입 (ExportOptions-appstore + Release.xcconfig)
+        env:
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          # export 단계용: ExportOptions-appstore.plist 의 Team ID 치환
+          sed -i '' "s/__IOS_TEAM_ID__/$IOS_TEAM_ID/" ios/ExportOptions-appstore.plist
+          # archive 단계용: 수동 서명 설정을 Release.xcconfig 에 주입 (pbxproj 미변경)
+          # App Store 프로파일 이름은 ExportOptions-appstore.plist 의 값과 반드시 일치해야 함.
+          {
+            echo "CODE_SIGN_STYLE = Manual"
+            echo "DEVELOPMENT_TEAM = $IOS_TEAM_ID"
+            echo "CODE_SIGN_IDENTITY = Apple Distribution"
+            echo "PROVISIONING_PROFILE_SPECIFIER = ddara-team3-distribution"
+          } >> ios/Flutter/Release.xcconfig
+
+      - name: 의존성 설치
+        run: flutter pub get
+
+      - name: IPA 빌드 (App Store 서명)
+        # Firebase SPM 바이너리(grpc.zip 등) 다운로드가 간헐적으로 끊겨 재시도.
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 35
+          max_attempts: 3
+          retry_wait_seconds: 20
+          # CFBundleVersion = 오프셋 + run_number (매 실행 자동 증가, pubspec 은 변경 안 함)
+          command: |
+            BUILD_NUMBER=$(( ${{ env.BUILD_NUMBER_OFFSET }} + ${{ github.run_number }} ))
+            echo "CFBundleVersion = $BUILD_NUMBER"
+            flutter build ipa --release --build-number="$BUILD_NUMBER" \
+              --export-options-plist=ios/ExportOptions-appstore.plist
+
+      - name: IPA 경로 탐색
+        run: echo "IPA_PATH=$(ls build/ios/ipa/*.ipa | head -n1)" >> "$GITHUB_ENV"
+
+      - name: App Store Connect 업로드 (ASC API 키)
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_API_PRIVATE_KEY: ${{ secrets.ASC_API_PRIVATE_KEY }}
+        run: |
+          # altool 은 ~/.appstoreconnect/private_keys/AuthKey_<KeyID>.p8 경로 규약으로 키를 찾는다
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          printf '%s' "$ASC_API_PRIVATE_KEY" > "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          xcrun altool --upload-app -f "$IPA_PATH" -t ios \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          # 업로드 후 ASC 처리(수 분~수십 분) → TestFlight 반영. 심사 제출은 콘솔에서 진행.
+
+      # Crashlytics 심볼화를 위해 dSYM 업로드. 업로드는 이미 끝난 뒤이므로 비차단 처리.
+      - name: Crashlytics dSYM 업로드
+        run: |
+          # Firebase 설치 방식(SPM/Pods)에 무관하게 upload-symbols 를 이름으로 탐색.
+          UPLOAD=$(find "$HOME/Library/Developer/Xcode/DerivedData" ios \
+            -type f -name upload-symbols 2>/dev/null | head -n1)
+          DSYMS=build/ios/archive/Runner.xcarchive/dSYMs
+          if [ -z "$UPLOAD" ]; then
+            echo "::warning::upload-symbols 를 찾지 못해 dSYM 업로드를 건너뜁니다."
+          elif [ ! -d "$DSYMS" ]; then
+            echo "::warning::dSYM 폴더($DSYMS)가 없어 업로드를 건너뜁니다."
+          else
+            echo "upload-symbols: $UPLOAD"
+            "$UPLOAD" -gsp ios/Runner/GoogleService-Info.plist -p ios "$DSYMS" \
+              || echo "::warning::dSYM 업로드 실패 (배포에는 영향 없음)."
+          fi
+
+  # ─────────────────────────── 배포 완료 알림 (Discord) ───────────────────────────
+  notify:
+    name: Discord 배포 알림
+    needs: [ ios ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 디스코드 알림 전송
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_CD_WEBHOOK_URL }}
+        run: |
+          payload=$(jq -n \
+            --arg run_url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            '{
+              username: "릴리스봇",
+              content: "🍎 iOS 릴리스 IPA 가 App Store Connect 에 업로드되었습니다.",
+              embeds: [
+                {
+                  title: "App Store Connect 업로드 완료",
+                  color: 3066993,
+                  fields: [
+                    { name: "상태", value: "ASC 처리 중 (수 분~수십 분 후 TestFlight 반영)" },
+                    { name: "다음 단계", value: "TestFlight 검증 → App Store 심사 제출 (콘솔)" },
+                    { name: "워크플로 실행", value: $run_url }
+                  ]
+                }
+              ]
+            }')
+          curl -sS --fail-with-body -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$payload"
