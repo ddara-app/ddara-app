@@ -1,0 +1,161 @@
+# Android 릴리스 배포 → Google Play (internal 트랙)
+#
+# 산출물: 업로드 키 서명 · R8 minify 적용 AAB → Google Play internal 트랙 자동 업로드.
+#         (production 승격은 Play 콘솔에서 수동으로 — 검증 후 승격하는 전략)
+# 가이드: lib/release-android-research.md, lib/release-cicd-research.md
+#
+# ⚠️ 선행 조건 (자동화 이전에 반드시 1회 수동):
+#   1. Play 콘솔에 앱(com.ddara.team3) 등록 + 최초 AAB 수동 업로드
+#      — Play Developer API 는 패키지가 이미 존재해야 업로드 허용 ("package not found" 방지)
+#   2. Play App Signing 활성화 + App Signing SHA 를 카카오/Firebase 에 추가 등록
+#   3. 서비스 계정 연결(Release Manager 권한) → PLAY_SERVICE_ACCOUNT_JSON 시크릿 등록
+#
+# 시크릿 인코딩 규약:
+#   [base64]  GOOGLE_SERVICES_JSON, ANDROID_KEYSTORE_BASE64
+#   [원문]     ENV_FILE, PLAY_SERVICE_ACCOUNT_JSON
+#   [평문]     KAKAO_NATIVE_APP_KEY, ANDROID_KEYSTORE_PASSWORD,
+#             ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS
+
+name: release-android
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+    inputs:
+      track:
+        description: 'Play 업로드 트랙'
+        type: choice
+        options: [ internal, production ]
+        default: internal
+
+concurrency:
+  group: release-android-${{ github.ref }}
+  # 릴리스는 도중 취소하지 않는다 (업로드 중 취소 시 build number 만 소모될 수 있음)
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.44.1'
+  # debug 워크플로(run_number)와 versionCode 공간이 겹치지 않도록 오프셋 분리.
+  # Play 는 한 번 쓴 versionCode 재사용 불가 → 실패 후 재실행 시 run_number 가 증가해 자연 회피.
+  BUILD_NUMBER_OFFSET: 10000
+
+jobs:
+  # ─────────────────────────────── Android ───────────────────────────────
+  android:
+    name: Android Release AAB → Play (internal)
+    runs-on: ubuntu-latest
+    # 레포 Settings > Environments 에서 production 에 필수 리뷰어를 걸면 승인 게이트로 동작
+    environment: production
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # 업로드 키스토어가 PKCS12 포맷 → HmacPBESHA256 지원하는 JDK 17+ 필수
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 시크릿 파일 복원
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          KAKAO_NATIVE_APP_KEY: ${{ secrets.KAKAO_NATIVE_APP_KEY }}
+        run: |
+          printf '%s' "$ENV_FILE" > .env
+          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+          echo "KAKAO_NATIVE_APP_KEY=$KAKAO_NATIVE_APP_KEY" >> android/local.properties
+
+      - name: 릴리스 키스토어 복원
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          # debug 워크플로와 달리 릴리스는 debug 키 폴백을 허용하지 않는다.
+          # (debug 서명 AAB 는 Play 가 거부 + 배포판 로그인 실패)
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 미설정 — 릴리스 빌드를 중단합니다."
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          # RELEASE_* 값을 local.properties 에 주입 (build.gradle.kts 가 여기서 읽음).
+          # storeFile 은 app 모듈 기준 상대경로.
+          {
+            echo "RELEASE_STORE_FILE=upload-keystore.jks"
+            echo "RELEASE_STORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD"
+            echo "RELEASE_KEY_PASSWORD=$ANDROID_KEY_PASSWORD"
+            echo "RELEASE_KEY_ALIAS=$ANDROID_KEY_ALIAS"
+          } >> android/local.properties
+
+      - name: 의존성 설치
+        run: flutter pub get
+
+      - name: AAB 빌드 (release)
+        # versionCode = 오프셋 + run_number (매 실행 자동 증가, pubspec 은 변경 안 함)
+        run: |
+          BUILD_NUMBER=$(( ${{ env.BUILD_NUMBER_OFFSET }} + ${{ github.run_number }} ))
+          echo "versionCode = $BUILD_NUMBER"
+          flutter build appbundle --release --build-number="$BUILD_NUMBER"
+
+      - name: Google Play 업로드
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.ddara.team3
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          # push 트리거는 internal 고정, 수동 실행 시에만 트랙 선택 가능
+          track: ${{ github.event_name == 'workflow_dispatch' && inputs.track || 'internal' }}
+          status: completed
+          # R8 매핑을 함께 올려 Play 콘솔 ANR/크래시 역난독화 지원
+          mappingFile: build/app/outputs/mapping/release/mapping.txt
+
+      - name: AAB 아티팩트 업로드 (백업/수동 업로드용)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30
+
+  # ─────────────────────────── 배포 완료 알림 (Discord) ───────────────────────────
+  notify:
+    name: Discord 배포 알림
+    needs: [ android ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 디스코드 알림 전송
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_CD_WEBHOOK_URL }}
+        run: |
+          TRACK="${{ github.event_name == 'workflow_dispatch' && inputs.track || 'internal' }}"
+          payload=$(jq -n \
+            --arg track "$TRACK" \
+            --arg run_url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            '{
+              username: "릴리스봇",
+              content: "🤖 Android 릴리스 AAB 가 Google Play 에 업로드되었습니다.",
+              embeds: [
+                {
+                  title: "Google Play 업로드 완료",
+                  color: 3066993,
+                  fields: [
+                    { name: "트랙", value: $track },
+                    { name: "다음 단계", value: "Play 콘솔에서 검증 후 production 승격" },
+                    { name: "워크플로 실행", value: $run_url }
+                  ]
+                }
+              ]
+            }')
+          curl -sS --fail-with-body -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$payload"
