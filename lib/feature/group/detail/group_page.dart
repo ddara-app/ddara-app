@@ -3,6 +3,7 @@ import 'package:ddara/core/designsystem/component/button/app_text_button.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
 import 'package:ddara/core/widget/invite_share_sheet.dart';
 import 'package:ddara/feature/group/detail/provider/notifier_provider.dart';
@@ -85,7 +86,8 @@ class GroupPage extends ConsumerWidget {
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
             minimumSize: Size.zero,
-            onPressed: () => _showMenu(context, ref),
+            // 상세 로딩·나가기·닉네임 변경이 진행되는 동안 메뉴 재진입을 차단한다.
+            onPressed: tapGuard(state.isLoading, () => _showMenu(context, ref)),
             child: const Icon(
               CupertinoIcons.ellipsis_vertical,
               color: AppColors.textPrimary,

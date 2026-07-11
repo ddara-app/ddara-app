@@ -39,13 +39,25 @@ class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
       state = state.copyWith(isLoading: false);
       state = state.copyWith(createGroupId: createGroup.groupId);
     } on InvalidGroupNameException {
-      state = state.copyWith(errorMessage: "name 누락 또는 길이 초과");
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: "name 누락 또는 길이 초과",
+      );
     } on UnauthorizedException {
-      state = state.copyWith(errorMessage: "토큰 없음·만료 (인터셉터 복구도 실패한 경우)");
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: "토큰 없음·만료 (인터셉터 복구도 실패한 경우)",
+      );
     } on GroupLimitExceededException {
-      state = state.copyWith(errorMessage: "모임 최대 개수(20개) 초과");
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: "모임 최대 개수(20개) 초과",
+      );
     } on NetworkException {
-      state = state.copyWith(errorMessage: "네트워크 연결이 불안정합니다.");
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: "네트워크 연결이 불안정합니다.",
+      );
     }
   }
 }

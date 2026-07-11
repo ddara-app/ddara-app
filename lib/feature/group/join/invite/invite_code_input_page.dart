@@ -4,6 +4,7 @@ import 'package:ddara/core/designsystem/component/button/app_button.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/exception/group_join_error_code.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/join/join_group_page.dart';
@@ -126,7 +127,8 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
               const Spacer(),
               AppButton(
                 label: l10n.groupJoin,
-                onPressed: () => notifier.joinGroup(),
+                // 조회 요청이 진행되는 동안 중복 탭을 차단한다.
+                onPressed: tapGuard(state.isLoading, () => notifier.joinGroup()),
               ),
             ],
           ),

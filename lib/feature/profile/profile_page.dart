@@ -5,6 +5,7 @@ import 'package:ddara/core/image/image_picker_service.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
 import 'package:ddara/core/widget/permission_dialog.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
@@ -81,8 +82,12 @@ class ProfilePage extends ConsumerWidget {
               ProfileHeader(
                 name: state.name,
                 imageUrl: state.profileImageUrl,
-                onImageSourceSelected: (source) =>
-                    _onImageSourceSelected(context, ref, source),
+                // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.
+                onImageSourceSelected: tapGuard(
+                  state.isImageUploading,
+                  (ProfileImageSource source) =>
+                      _onImageSourceSelected(context, ref, source),
+                ),
               ),
               ProfileSection(
                 label: l10n.profileSectionBasicInfo,
@@ -126,12 +131,19 @@ class ProfilePage extends ConsumerWidget {
                   ProfileRow(
                     label: l10n.profileLogout,
                     labelColor: AppColors.statusDanger,
-                    onTap: () => _confirmLogout(context, ref),
+                    // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
+                    onTap: tapGuard(
+                      _isAccountActionRunning(state),
+                      () => _confirmLogout(context, ref),
+                    ),
                   ),
                   ProfileRow(
                     label: l10n.profileWithdraw,
                     labelColor: AppColors.statusDanger,
-                    onTap: () => _confirmWithdraw(context, ref),
+                    onTap: tapGuard(
+                      _isAccountActionRunning(state),
+                      () => _confirmWithdraw(context, ref),
+                    ),
                   ),
                 ],
               ),
@@ -141,6 +153,11 @@ class ProfilePage extends ConsumerWidget {
       ),
     );
   }
+
+  /// 로그아웃 또는 회원 탈퇴 요청이 진행 중인지.
+  bool _isAccountActionRunning(ProfileState state) =>
+      state.logoutStatus == LogoutStatus.loading ||
+      state.withdrawStatus == WithdrawStatus.loading;
 
   /// 프로필 사진 소스(카메라/갤러리/기본 이미지)를 열어 이미지를 선택한다.
   ///

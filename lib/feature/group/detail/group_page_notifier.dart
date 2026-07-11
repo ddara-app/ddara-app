@@ -59,6 +59,8 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
   /// 요청 시작~완료까지 isLoading 을 true 로 둬 화면에 로딩을 표시한다.
   /// (성공 시엔 홈으로 이동하므로 로딩을 내리지 않는다.)
   Future<bool> exitGroup() async {
+    if (state.isLoading) return false;
+
     state = state.copyWith(isLoading: true);
     final exitGroupUseCase = ref.read(exitGroupUseCaseProvider);
 
@@ -82,6 +84,8 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
   /// 요청 시작~완료까지 isLoading 을 true 로 두고, 성공 시 변경된 닉네임이
   /// 멤버 목록에 반영되도록 상세를 다시 조회한다.
   Future<bool> changeNickName(String nickName) async {
+    if (state.isLoading) return false;
+
     state = state.copyWith(isLoading: true);
     final changeNicknameUseCase = ref.read(changeNicknameUseCaseProvider);
 
