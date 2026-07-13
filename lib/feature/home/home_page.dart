@@ -34,21 +34,23 @@ class _HomePageState extends ConsumerState<HomePage> {
       navigationBar: AppBar(
         // 좌측 로고를 직접 배치하므로 뒤로가기 버튼 비활성화.
         showBackButton: false,
-        padding: const EdgeInsetsDirectional.only(start: 20, end: 12),
         leading: const Align(alignment: Alignment.centerLeft, child: Logo()),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _NavIconButton(
-              icon: SvgPicture.asset(
+            AppBarIconButton(
+              child: SvgPicture.asset(
                 'assets/images/ic_bell.svg',
-                width: 26,
-                height: 26,
+                width: 24,
+                height: 24,
               ),
               onPressed: () => context.push(RoutePath.notification),
             ),
-            _NavIconButton(
-              icon: ProfileAvatar(size: 32, imageUrl: profileImageUrl),
+            AppBarIconButton(
+              size: 32,
+              // 아바타 자체가 시각적 버튼이라 내부 여백 없이 콘텐츠에 딱 맞춘다.
+              hugContent: true,
+              child: ProfileAvatar(size: 32, imageUrl: profileImageUrl),
               onPressed: () => context.push(RoutePath.profile),
             ),
           ],
@@ -71,23 +73,5 @@ class _HomePageState extends ConsumerState<HomePage> {
       return GroupListPage(groups: state.groups);
     }
     return const EmptyGroupPage();
-  }
-}
-
-/// 네비게이션 바 우측 아이콘 버튼. (알림 · 프로필 공통)
-class _NavIconButton extends StatelessWidget {
-  const _NavIconButton({required this.icon, required this.onPressed});
-
-  final Widget icon;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      minimumSize: Size.zero,
-      onPressed: onPressed,
-      child: icon,
-    );
   }
 }
