@@ -9,6 +9,22 @@ import 'package:flutter/cupertino.dart';
 /// 멤버 아바타·추가 버튼의 원 지름.
 const double _circleSize = 60;
 
+/// 이름 라벨을 그대로 보여줄 최대 글자 수. (6자까지는 줄이지 않는다)
+const int _maxNameLength = 6;
+
+/// 줄일 때 남기는 글자 수. (7자 이상이면 앞 5자 + 말줄임표)
+const int _truncatedNameLength = 5;
+
+/// [name] 이 [_maxNameLength] 자를 초과하면 앞 [_truncatedNameLength] 자
+/// + 말줄임표(…)로 줄인다.
+///
+/// 이모지 등 서로게이트 쌍이 잘리지 않도록 자소(grapheme) 단위로 센다.
+String _ellipsizeName(String name) {
+  final chars = name.characters;
+  if (chars.length <= _maxNameLength) return name;
+  return '${chars.take(_truncatedNameLength)}…';
+}
+
 /// 모임 멤버 한 명의 표시 데이터.
 ///
 /// TODO: 모임 조회 API 의 멤버 모델로 대체. (백엔드 스펙 대기 — 임시 record)
@@ -74,7 +90,7 @@ class _MemberAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _CircleLabel(
-      label: name,
+      label: _ellipsizeName(name),
       child: _ReportableAvatar(
         name: name,
         imageUrl: imageUrl,
@@ -167,7 +183,10 @@ class _ReportableAvatarState extends State<_ReportableAvatar> {
           targetAnchor: Alignment.bottomCenter,
           followerAnchor: Alignment.topCenter,
           offset: const Offset(0, AppSpacing.s2),
-          child: IgnorePointer(child: AppText.caption(widget.name)),
+          // 원본 라벨과 동일하게 줄인 이름을 써야 사본이 정확히 겹친다.
+          child: IgnorePointer(
+            child: AppText.caption(_ellipsizeName(widget.name)),
+          ),
         ),
         // 아바타 위쪽(좌측 정렬)에 앵커. (아바타 위로 s2 만큼 띄움)
         CompositedTransformFollower(
