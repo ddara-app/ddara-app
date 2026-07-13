@@ -2,6 +2,8 @@ import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
 import 'package:ddara/core/designsystem/component/button/app_text_button.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/app_dialog.dart';
@@ -218,111 +220,150 @@ class GroupPage extends ConsumerWidget {
       return const Center(child: CupertinoActivityIndicator());
     }
 
+    // 최상단에서 아래로 당기면 상세·히스토리를 다시 조회한다.
+    // 조회가 아무리 빨리 끝나도 인디케이터를 최소 1초는 상단에 고정했다가
+    // 풀어, 새로고침이 일어났음을 인지할 수 있게 한다.
+    Future<void> onRefresh() => Future.wait([
+      ref.read(groupPageNotifierProvider(groupId).notifier).refresh(),
+      Future<void>.delayed(const Duration(seconds: 1)),
+    ]);
+
+    // 당겨서 새로고침에 필요한 상단 overscroll(바운스)을 허용하고, 콘텐츠가
+    // 화면보다 짧아도 당길 수 있도록 AlwaysScrollable 을 부모로 둔다.
+    const physics = BouncingScrollPhysics(
+      parent: AlwaysScrollableScrollPhysics(),
+    );
+
     final groupDetail = state.groupDetail;
     if (groupDetail == null) {
-      return Center(
-        child: AppText.body(
-          state.errorMessage.isEmpty
-              ? l10n.groupDetailLoadError
-              : state.errorMessage,
-        ),
+      // 최초 조회 실패 화면에서도 당겨서 재시도할 수 있게 한다.
+      return CustomScrollView(
+        physics: physics,
+        slivers: [
+          CupertinoSliverRefreshControl(onRefresh: onRefresh),
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: AppText.body(
+                state.errorMessage.isEmpty
+                    ? l10n.groupDetailLoadError
+                    : state.errorMessage,
+              ),
+            ),
+          ),
+        ],
       );
     }
 
     final cycles = state.historyCycles?.cycles ?? const [];
 
-    return SingleChildScrollView(
-      // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
-      physics: const ClampingScrollPhysics(),
-      // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
-      // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
-      padding: EdgeInsets.only(
-        top: AppSpacing.s6,
-        bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-      ),
-      child: Column(
-        // 상단부터 쌓되 가로는 중앙 정렬.
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: AppSpacing.s8,
-        children: [
-          // 좌우 여백은 일단 헤더에만 적용한다.
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
-            child: GroupHeader(
-              // 진행 중인 사이클을 그대로 전달. null 이면 헤더가 빈 상태를 보여준다.
-              progress: groupDetail.currentCycle,
-              // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
-              canStart: groupDetail.members.length >= _minMembersToStart,
-              navigateToStart: () =>
-                  _pushThenRefresh(context, ref, RoutePath.starter, groupId),
-              // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
-              onTakePhoto: () {
-                final cycleId = groupDetail.currentCycle?.cycleId;
-                if (cycleId == null) return;
-                _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
-              },
-            ),
+    return CustomScrollView(
+      physics: physics,
+      slivers: [
+        CupertinoSliverRefreshControl(onRefresh: onRefresh),
+        SliverPadding(
+          // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
+          // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
+          padding: EdgeInsets.only(
+            top: AppSpacing.s6,
+            bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
           ),
-          GroupSection(
-            title: AppText.headlineLarge(l10n.groupMembersTitle),
-            body: Members(
-              members: groupDetail.members
-                  .map(
-                    (member) => (
-                      name: member.nickname,
-                      imageUrl: member.profileImageUrl,
-                    ),
-                  )
-                  .toList(),
-              onAddMember: () => InviteShareSheet.show(
-                context,
-                inviteCode: groupDetail.inviteCode,
-                imageUrl: _shareImageUrl,
+          sliver: SliverToBoxAdapter(
+            child: _content(context, ref, state, groupDetail, cycles),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _content(
+    BuildContext context,
+    WidgetRef ref,
+    GroupPageState state,
+    GroupDetail groupDetail,
+    List<HistoryCycle> cycles,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      // 상단부터 쌓되 가로는 중앙 정렬.
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpacing.s8,
+      children: [
+        // 좌우 여백은 일단 헤더에만 적용한다.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+          child: GroupHeader(
+            // 진행 중인 사이클을 그대로 전달. null 이면 헤더가 빈 상태를 보여준다.
+            progress: groupDetail.currentCycle,
+            // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
+            canStart: groupDetail.members.length >= _minMembersToStart,
+            navigateToStart: () =>
+                _pushThenRefresh(context, ref, RoutePath.starter, groupId),
+            // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
+            onTakePhoto: () {
+              final cycleId = groupDetail.currentCycle?.cycleId;
+              if (cycleId == null) return;
+              _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
+            },
+          ),
+        ),
+        GroupSection(
+          title: AppText.headlineLarge(l10n.groupMembersTitle),
+          body: Members(
+            members: groupDetail.members
+                .map(
+                  (member) =>
+                      (name: member.nickname, imageUrl: member.profileImageUrl),
+                )
+                .toList(),
+            onAddMember: () => InviteShareSheet.show(
+              context,
+              inviteCode: groupDetail.inviteCode,
+              imageUrl: _shareImageUrl,
+            ),
+            onReportMember: (member) => _reportMember(context, member.name),
+          ),
+        ),
+        GroupSection(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AppText.headlineLarge(l10n.groupHistoryTitle),
+              // 전체 보기 기능 구현 전까지 숨긴다. (레이아웃 유지 위해 자리는 남겨 둠)
+              Visibility(
+                visible: false,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: AppTextButton(
+                  label: l10n.groupHistoryMore,
+                  onPressed: () {
+                    // TODO: 지난 따라찍기 전체 보기 화면으로 이동.
+                  },
+                ),
               ),
-              onReportMember: (member) => _reportMember(context, member.name),
-            ),
+            ],
           ),
-          GroupSection(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                AppText.headlineLarge(l10n.groupHistoryTitle),
-                // 전체 보기 기능 구현 전까지 숨긴다. (레이아웃 유지 위해 자리는 남겨 둠)
-                Visibility(
-                  visible: false,
-                  maintainSize: true,
-                  maintainAnimation: true,
-                  maintainState: true,
-                  child: AppTextButton(
-                    label: l10n.groupHistoryMore,
-                    onPressed: () {
-                      // TODO: 지난 따라찍기 전체 보기 화면으로 이동.
-                    },
+          // 히스토리가 있으면 사진 카드들을, 없으면 같은 높이의 빈 상태 안내를 보여준다.
+          body: cycles.isEmpty
+              ? SizedBox(
+                  height: 225 + AppSpacing.s4 * 2,
+                  child: Center(child: AppText.body(l10n.groupHistoryEmpty)),
+                )
+              : HistoryPhotos(
+                  cycles: cycles,
+                  // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
+                  onCycleTap: (cycleId) => _pushThenRefresh(
+                    context,
+                    ref,
+                    RoutePath.follower,
+                    cycleId,
                   ),
                 ),
-              ],
-            ),
-            // 히스토리가 있으면 사진 카드들을, 없으면 같은 높이의 빈 상태 안내를 보여준다.
-            body: cycles.isEmpty
-                ? SizedBox(
-                    height: 225 + AppSpacing.s4 * 2,
-                    child: Center(child: AppText.body(l10n.groupHistoryEmpty)),
-                  )
-                : HistoryPhotos(
-                    cycles: cycles,
-                    // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
-                    onCycleTap: (cycleId) => _pushThenRefresh(
-                      context,
-                      ref,
-                      RoutePath.follower,
-                      cycleId,
-                    ),
-                  ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
