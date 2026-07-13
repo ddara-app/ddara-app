@@ -94,7 +94,7 @@ class GroupPage extends ConsumerWidget {
             ),
           ),
         ),
-        child: SafeArea(child: _body(context, ref, state)),
+        child: SafeArea(bottom: false, child: _body(context, ref, state)),
       ),
     );
   }
@@ -215,8 +215,12 @@ class GroupPage extends ConsumerWidget {
     return SingleChildScrollView(
       // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
       physics: const ClampingScrollPhysics(),
-      // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용)
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s6),
+      // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
+      // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
+      padding: EdgeInsets.only(
+        top: AppSpacing.s6,
+        bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+      ),
       child: Column(
         // 상단부터 쌓되 가로는 중앙 정렬.
         mainAxisAlignment: MainAxisAlignment.start,

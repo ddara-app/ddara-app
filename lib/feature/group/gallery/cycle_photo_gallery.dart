@@ -17,10 +17,7 @@ import 'package:go_router/go_router.dart';
 /// 스타터의 사진을 멤버들이 따라찍은 결과 사진을 모아 보여준다.
 /// (헤더 + 모임명 + 멤버 사진 그리드)
 class CyclePhotoGallery extends ConsumerWidget {
-  const CyclePhotoGallery({
-    super.key,
-    required this.cycleId,
-  });
+  const CyclePhotoGallery({super.key, required this.cycleId});
 
   final int cycleId;
 
@@ -31,8 +28,12 @@ class CyclePhotoGallery extends ConsumerWidget {
 
     return CupertinoPageScaffold(
       // 조회 전엔 제목이 없으므로 빈 문자열.
-      navigationBar: AppBar(title: state.groupName, onBack: () => context.pop()),
+      navigationBar: AppBar(
+        title: state.groupName,
+        onBack: () => context.pop(),
+      ),
       child: SafeArea(
+        bottom: false,
         child: switch (gallery) {
           // 조회 완료 전: 로딩 인디케이터 또는 에러 메시지.
           null =>
@@ -87,10 +88,11 @@ class CyclePhotoGallery extends ConsumerWidget {
     return SingleChildScrollView(
       // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
       physics: const ClampingScrollPhysics(),
-      // 상 s6, 하 s8, 좌우 s4 여백.
-      padding: const EdgeInsets.only(
+      // 상 s6, 하 s8 + Safe Area 인셋, 좌우 s4 여백. (마지막 카드가 홈
+      // 인디케이터와 겹치지 않도록)
+      padding: EdgeInsets.only(
         top: AppSpacing.s6,
-        bottom: AppSpacing.s8,
+        bottom: AppSpacing.s8 + MediaQuery.of(context).padding.bottom,
         left: AppSpacing.s4,
         right: AppSpacing.s4,
       ),

@@ -54,7 +54,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-      child: SafeArea(child: _body(state)),
+      child: SafeArea(bottom: false, child: _body(state)),
     );
   }
 

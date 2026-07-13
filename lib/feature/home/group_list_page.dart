@@ -40,12 +40,16 @@ class _GroupListPageState extends State<GroupListPage> {
         SingleChildScrollView(
           // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
           physics: const ClampingScrollPhysics(),
-          // 위아래 s6, 좌우 s4. (하단은 FAB 에 가리지 않도록 버튼 높이만큼 더 여유)
-          padding: const EdgeInsets.fromLTRB(
+          // 위아래 s6, 좌우 s4. (하단은 FAB 에 가리지 않도록 버튼 높이 +
+          // Safe Area 인셋만큼 더 여유)
+          padding: EdgeInsets.fromLTRB(
             AppSpacing.s4,
             AppSpacing.s6,
             AppSpacing.s4,
-            AppSpacing.s6 + _fabSize + AppSpacing.s4,
+            AppSpacing.s6 +
+                _fabSize +
+                AppSpacing.s4 +
+                MediaQuery.of(context).padding.bottom,
           ),
           child: Row(
             // 핵심: 두 열을 위 기준으로 정렬해야 고정 위젯이 만든 오프셋이 유지된다.

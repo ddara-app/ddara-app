@@ -32,6 +32,7 @@ class PolicyViewerPage extends StatelessWidget {
     return CupertinoPageScaffold(
       navigationBar: AppBar(title: args.title, onBack: () => context.pop()),
       child: SafeArea(
+        bottom: false,
         child: FutureBuilder<String>(
           future: rootBundle.loadString(args.assetPath),
           builder: (context, snapshot) {
@@ -49,11 +50,13 @@ class PolicyViewerPage extends StatelessWidget {
               // 상단 바 제목과 중복되는 첫 H1 은 제거한다.
               data: _stripLeadingTitle(snapshot.data!),
               selectable: true,
-              padding: const EdgeInsets.only(
+              padding: EdgeInsets.only(
                 top: AppSpacing.s3,
                 left: AppSpacing.s4,
                 right: AppSpacing.s4,
-                bottom: AppSpacing.s6,
+                // 하단 Safe Area 까지 스크롤 영역을 잇되, 마지막 줄이 홈
+                // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
+                bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
               ),
               styleSheet: _styleSheet,
             );

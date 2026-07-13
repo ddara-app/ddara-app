@@ -86,9 +86,7 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettings>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(notificationSettingsNotifierProvider);
-    final notifier = ref.read(
-      notificationSettingsNotifierProvider.notifier,
-    );
+    final notifier = ref.read(notificationSettingsNotifierProvider.notifier);
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -96,59 +94,71 @@ class _NotificationSettingsState extends ConsumerState<NotificationSettings>
         onBack: () => context.pop(),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            top: AppSpacing.s3,
-            left: AppSpacing.s4,
-            right: AppSpacing.s4,
-            bottom: AppSpacing.s6,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.s5,
-            children: [
-              _SettingCard(
-                children: [
-                  _ToggleRow(
-                    label: l10n.notificationAllow,
-                    value: state.notificationEnabled,
-                    onChanged: _onAllowChanged,
-                  ),
-                ],
+        bottom: false,
+        child: LayoutBuilder(
+          // 콘텐츠가 화면에 들어가면 스크롤 없음, 큰 글자 설정 등에서는
+          // 스크롤로 전환되도록 뷰포트 높이를 최소 높이로 강제한다.
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: AppSpacing.s3,
+                  left: AppSpacing.s4,
+                  right: AppSpacing.s4,
+                  // 하단 Safe Area 까지 배경을 잇되, 마지막 항목이 홈
+                  // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
+                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpacing.s5,
+                  children: [
+                    _SettingCard(
+                      children: [
+                        _ToggleRow(
+                          label: l10n.notificationAllow,
+                          value: state.notificationEnabled,
+                          onChanged: _onAllowChanged,
+                        ),
+                      ],
+                    ),
+                    // 알림을 끄면 세부 설정 섹션을 숨긴다.
+                    if (state.notificationEnabled) ...[
+                      _SettingCard(
+                        children: [
+                          AppText.caption(l10n.notificationSectionActivity),
+                          _ToggleRow(
+                            label: l10n.notificationFollowShot,
+                            caption: l10n.notificationFollowShotCaption,
+                            value: state.followShot,
+                            onChanged: notifier.changeFollowShot,
+                          ),
+                          _ToggleRow(
+                            label: l10n.notificationDeadlineVote,
+                            caption: l10n.notificationDeadlineVoteCaption,
+                            value: state.deadlineVote,
+                            onChanged: notifier.changeDeadlineVote,
+                          ),
+                        ],
+                      ),
+                      _SettingCard(
+                        children: [
+                          AppText.caption(l10n.notificationSectionEtc),
+                          _ToggleRow(
+                            label: l10n.notificationMemberJoin,
+                            caption: l10n.notificationMemberJoinCaption,
+                            value: state.memberJoin,
+                            onChanged: notifier.changeMemberJoin,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
               ),
-              // 알림을 끄면 세부 설정 섹션을 숨긴다.
-              if (state.notificationEnabled) ...[
-                _SettingCard(
-                  children: [
-                    AppText.caption(l10n.notificationSectionActivity),
-                    _ToggleRow(
-                      label: l10n.notificationFollowShot,
-                      caption: l10n.notificationFollowShotCaption,
-                      value: state.followShot,
-                      onChanged: notifier.changeFollowShot,
-                    ),
-                    _ToggleRow(
-                      label: l10n.notificationDeadlineVote,
-                      caption: l10n.notificationDeadlineVoteCaption,
-                      value: state.deadlineVote,
-                      onChanged: notifier.changeDeadlineVote,
-                    ),
-                  ],
-                ),
-                _SettingCard(
-                  children: [
-                    AppText.caption(l10n.notificationSectionEtc),
-                    _ToggleRow(
-                      label: l10n.notificationMemberJoin,
-                      caption: l10n.notificationMemberJoinCaption,
-                      value: state.memberJoin,
-                      onChanged: notifier.changeMemberJoin,
-                    ),
-                  ],
-                ),
-              ],
-            ],
+            ),
           ),
         ),
       ),

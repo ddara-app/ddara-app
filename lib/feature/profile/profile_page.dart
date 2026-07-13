@@ -41,7 +41,11 @@ class ProfilePage extends ConsumerWidget {
         case LogoutStatus.success:
           context.go(RoutePath.login);
         case LogoutStatus.fail:
-          Toast.showToast(context, l10n.profileLogoutFailed, type: ToastType.error);
+          Toast.showToast(
+            context,
+            l10n.profileLogoutFailed,
+            type: ToastType.error,
+          );
         case LogoutStatus.idle:
         case LogoutStatus.loading:
           break;
@@ -58,7 +62,11 @@ class ProfilePage extends ConsumerWidget {
         case WithdrawStatus.success:
           context.go(RoutePath.login);
         case WithdrawStatus.fail:
-          Toast.showToast(context, l10n.profileWithdrawFailed, type: ToastType.error);
+          Toast.showToast(
+            context,
+            l10n.profileWithdrawFailed,
+            type: ToastType.error,
+          );
         case WithdrawStatus.idle:
         case WithdrawStatus.loading:
           break;
@@ -66,89 +74,113 @@ class ProfilePage extends ConsumerWidget {
     });
 
     return CupertinoPageScaffold(
-      navigationBar: AppBar(title: l10n.profileTitle, onBack: () => context.pop()),
+      navigationBar: AppBar(
+        title: l10n.profileTitle,
+        onBack: () => context.pop(),
+      ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(
-            top: AppSpacing.s3,
-            left: AppSpacing.s4,
-            right: AppSpacing.s4,
-            bottom: AppSpacing.s6,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.s5,
-            children: [
-              ProfileHeader(
-                name: state.name,
-                imageUrl: state.profileImageUrl,
-                // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.
-                onImageSourceSelected: tapGuard(
-                  state.isImageUploading,
-                  (ProfileImageSource source) =>
-                      _onImageSourceSelected(context, ref, source),
+        bottom: false,
+        child: LayoutBuilder(
+          // 콘텐츠가 화면에 들어가면 스크롤 없음, 작은 기기·큰 글자에서는
+          // 스크롤로 전환되도록 뷰포트 높이를 최소 높이로 강제한다.
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                // 패딩이 스크롤 범위에 더해져 항상 스크롤되지 않도록
+                // (minHeight 초과) ConstrainedBox 안쪽에 둔다.
+                padding: EdgeInsets.only(
+                  top: AppSpacing.s3,
+                  left: AppSpacing.s4,
+                  right: AppSpacing.s4,
+                  // 하단 Safe Area 까지 배경을 잇되, 마지막 항목이 홈
+                  // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
+                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpacing.s5,
+                  children: [
+                    ProfileHeader(
+                      name: state.name,
+                      imageUrl: state.profileImageUrl,
+                      // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.
+                      onImageSourceSelected: tapGuard(
+                        state.isImageUploading,
+                        (ProfileImageSource source) =>
+                            _onImageSourceSelected(context, ref, source),
+                      ),
+                    ),
+                    ProfileSection(
+                      label: l10n.profileSectionBasicInfo,
+                      children: [
+                        ProfileRow(
+                          label: l10n.profileJoinedAt,
+                          value: formatDate(state.joinedAt),
+                        ),
+                      ],
+                    ),
+                    ProfileSection(
+                      label: l10n.profileSectionNotification,
+                      children: [
+                        ProfileRow(
+                          label: l10n.notificationSettingsTitle,
+                          trailing: const ProfileChevron(),
+                          onTap: () =>
+                              context.push(RoutePath.notificationSettings),
+                        ),
+                      ],
+                    ),
+                    ProfileSection(
+                      label: l10n.profileSectionSupport,
+                      children: [
+                        ProfileRow(
+                          label: l10n.profileTermsPolicy,
+                          trailing: const ProfileChevron(),
+                          onTap: () => context.push(RoutePath.termsPolicy),
+                        ),
+                        ProfileRow(
+                          label: l10n.profileContact,
+                          trailing: const ProfileChevron(),
+                          onTap: () => _contact(context, state.appVersion),
+                        ),
+                        ProfileRow(
+                          label: l10n.profileAppVersion,
+                          value: state.appVersion,
+                        ),
+                      ],
+                    ),
+                    ProfileSection(
+                      label: l10n.profileSectionAccount,
+                      children: [
+                        ProfileRow(
+                          label: l10n.profileLinkedAccount,
+                          value: state.linkedAccount,
+                        ),
+                        ProfileRow(
+                          label: l10n.profileLogout,
+                          labelColor: AppColors.statusDanger,
+                          // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
+                          onTap: tapGuard(
+                            _isAccountActionRunning(state),
+                            () => _confirmLogout(context, ref),
+                          ),
+                        ),
+                        ProfileRow(
+                          label: l10n.profileWithdraw,
+                          labelColor: AppColors.statusDanger,
+                          onTap: tapGuard(
+                            _isAccountActionRunning(state),
+                            () => _confirmWithdraw(context, ref),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              ProfileSection(
-                label: l10n.profileSectionBasicInfo,
-                children: [
-                  ProfileRow(
-                    label: l10n.profileJoinedAt,
-                    value: formatDate(state.joinedAt),
-                  ),
-                ],
-              ),
-              ProfileSection(
-                label: l10n.profileSectionNotification,
-                children: [
-                  ProfileRow(
-                    label: l10n.notificationSettingsTitle,
-                    trailing: const ProfileChevron(),
-                    onTap: () => context.push(RoutePath.notificationSettings),
-                  ),
-                ],
-              ),
-              ProfileSection(
-                label: l10n.profileSectionSupport,
-                children: [
-                  ProfileRow(
-                    label: l10n.profileTermsPolicy,
-                    trailing: const ProfileChevron(),
-                    onTap: () => context.push(RoutePath.termsPolicy),
-                  ),
-                  ProfileRow(
-                    label: l10n.profileContact,
-                    trailing: const ProfileChevron(),
-                    onTap: () => _contact(context, state.appVersion),
-                  ),
-                  ProfileRow(label: l10n.profileAppVersion, value: state.appVersion),
-                ],
-              ),
-              ProfileSection(
-                label: l10n.profileSectionAccount,
-                children: [
-                  ProfileRow(label: l10n.profileLinkedAccount, value: state.linkedAccount),
-                  ProfileRow(
-                    label: l10n.profileLogout,
-                    labelColor: AppColors.statusDanger,
-                    // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
-                    onTap: tapGuard(
-                      _isAccountActionRunning(state),
-                      () => _confirmLogout(context, ref),
-                    ),
-                  ),
-                  ProfileRow(
-                    label: l10n.profileWithdraw,
-                    labelColor: AppColors.statusDanger,
-                    onTap: tapGuard(
-                      _isAccountActionRunning(state),
-                      () => _confirmWithdraw(context, ref),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
