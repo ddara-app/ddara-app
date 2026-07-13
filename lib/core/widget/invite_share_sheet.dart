@@ -2,6 +2,7 @@ import 'package:ddara/core/designsystem/component/button/app_text_button.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/share/kakao_share_service.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
+import 'package:ddara/core/widget/draggable_sheet.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -90,88 +91,93 @@ class InviteShareSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.s5,
-            AppSpacing.s3,
-            AppSpacing.s5,
-            AppSpacing.s7,
+    // 아래로 드래그해도 닫히도록 감싼다. (드래그 핸들 UI 와 동작을 일치)
+    return DraggableSheet(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.bgSurface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadius.lg),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: AppSpacing.s3,
-            children: [
-              // 드래그 핸들
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: AppSpacing.s4),
-                decoration: const ShapeDecoration(
-                  color: AppColors.borderStrong,
-                  shape: StadiumBorder(),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.s5,
+              AppSpacing.s3,
+              AppSpacing.s5,
+              AppSpacing.s7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: AppSpacing.s3,
+              children: [
+                // 드래그 핸들
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: AppSpacing.s4),
+                  decoration: const ShapeDecoration(
+                    color: AppColors.borderStrong,
+                    shape: StadiumBorder(),
+                  ),
                 ),
-              ),
-              if (memberShortage)
-                TitleDescription(
-                  title: l10n.inviteMemberShortageTitle,
-                  description: l10n.inviteMemberShortageDescription,
-                  centered: true,
-                )
-              else
-                AppText.headlineMedium(
-                  l10n.inviteShareTitle,
-                  textAlign: TextAlign.center,
+                if (memberShortage)
+                  TitleDescription(
+                    title: l10n.inviteMemberShortageTitle,
+                    description: l10n.inviteMemberShortageDescription,
+                    centered: true,
+                  )
+                else
+                  AppText.headlineMedium(
+                    l10n.inviteShareTitle,
+                    textAlign: TextAlign.center,
+                  ),
+                const SizedBox(height: AppSpacing.s2),
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.s3),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _CircleAction(
+                        icon: SvgPicture.asset(
+                          'assets/images/ic_kakao.svg',
+                          width: 24,
+                          height: 24,
+                        ),
+                        backgroundColor: const Color(0xFFFEE500), // 카카오 옐로
+                        label: l10n.inviteShareKakao,
+                        onTap: () => _onKakaoShare(context),
+                      ),
+                      _CircleAction(
+                        icon: const Icon(
+                          CupertinoIcons.doc_on_clipboard,
+                          size: 24,
+                          color: AppColors.textPrimary,
+                        ),
+                        label: l10n.inviteShareCopyCode,
+                        onTap: () => _onCopyCode(context),
+                      ),
+                      _CircleAction(
+                        icon: const Icon(
+                          CupertinoIcons.ellipsis,
+                          size: 24,
+                          color: AppColors.textPrimary,
+                        ),
+                        label: l10n.inviteShareMore,
+                        onTap: () => _onMore(context),
+                      ),
+                    ],
+                  ),
                 ),
-              const SizedBox(height: AppSpacing.s2),
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.s3),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _CircleAction(
-                      icon: SvgPicture.asset(
-                        'assets/images/ic_kakao.svg',
-                        width: 24,
-                        height: 24,
-                      ),
-                      backgroundColor: const Color(0xFFFEE500), // 카카오 옐로
-                      label: l10n.inviteShareKakao,
-                      onTap: () => _onKakaoShare(context),
-                    ),
-                    _CircleAction(
-                      icon: const Icon(
-                        CupertinoIcons.doc_on_clipboard,
-                        size: 24,
-                        color: AppColors.textPrimary,
-                      ),
-                      label: l10n.inviteShareCopyCode,
-                      onTap: () => _onCopyCode(context),
-                    ),
-                    _CircleAction(
-                      icon: const Icon(
-                        CupertinoIcons.ellipsis,
-                        size: 24,
-                        color: AppColors.textPrimary,
-                      ),
-                      label: l10n.inviteShareMore,
-                      onTap: () => _onMore(context),
-                    ),
-                  ],
+                AppTextButton.body(
+                  label: l10n.inviteShareLater,
+                  onPressed: () => _onLater(context),
                 ),
-              ),
-              AppTextButton.body(
-                label: l10n.inviteShareLater,
-                onPressed: () => _onLater(context),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
