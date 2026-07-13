@@ -104,12 +104,17 @@ class CyclePhotoGallery extends ConsumerWidget {
           StartedHeader(
             imageUri: cycle.starterImageUrl ?? '',
             progress: _toGroupCycle(gallery),
-            // 스타터 대표 사진 탭 → 그라데이션 없이 원본을 크게 보여준다.
+            // 스타터 대표 사진 탭 → 헤더에서 보이던 프레임 그대로 크게 보여준다.
+            // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
             onImageTap: (cycle.starterImageUrl ?? '').isEmpty
                 ? null
                 : () => showPhotoViewer(
                     context,
                     image: NetworkImage(cycle.starterImageUrl!),
+                    aspectRatio:
+                        (MediaQuery.of(context).size.width -
+                            AppSpacing.s4 * 2) /
+                        478,
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -117,57 +122,69 @@ class CyclePhotoGallery extends ConsumerWidget {
           AppText.headlineLarge(gallery.groupName),
           // 제목↔그리드 간격 s4 는 Column spacing 으로 처리.
           // 멤버 사진 카드 2칸 그리드. (카드 높이는 225 고정)
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: AppSpacing.s3,
-              mainAxisSpacing: AppSpacing.s3,
-              mainAxisExtent: 225,
-            ),
-            itemCount: members.length,
-            itemBuilder: (context, index) {
-              final member = members[index];
-              final isMe = member.userId == myUserId;
-              final imageUrl = member.imageUrl;
-              // 잠긴(블러) 사진은 크게 볼 수 없다.
-              final locked = !isDoneCycle && !canSeeAll;
-              final ImageProvider? image = imageUrl == null
-                  ? null
-                  : NetworkImage(imageUrl);
-              // 사진이 있고 잠기지 않았을 때만 탭해서 크게 볼 수 있다.
-              final canView = image != null && !locked;
-              final heroTag = canView ? 'gallery-photo-${member.userId}' : null;
-              return MemberPhotoCard(
-                // 본인 카드는 이름 대신 '본인' 으로 표시한다.
-                name: isMe ? '나' : member.nickname,
-                image: image,
-                heroTag: heroTag,
-                onTap: canView
-                    ? () => showPhotoViewer(
-                        context,
-                        image: image,
-                        heroTag: heroTag,
-                      )
-                    : null,
-                // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
-                // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
-                onTakePhoto: isMe && !isDoneCycle
-                    ? () => context.push(
-                        RoutePath.followerCamera,
-                        // 대상 사이클 id 와 가이드용 스타터 사진 URL 을 넘긴다.
-                        extra: (
-                          cycleId: cycle.cycleId,
-                          guideImageUrl: cycle.starterImageUrl ?? '',
-                        ),
-                      )
-                    : null,
-                // 모든 사진을 볼 수 없는 상태면 사진이 있는 멤버를 블러+자물쇠로 가린다.
-                // (실제 블러/자물쇠는 image 가 있을 때만 그려진다)
-                // 단, 마감(done) 회차는 항상 공개하므로 잠금하지 않는다.
-                isLocked: locked,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // 카드 한 장의 실제 비율. 크게 보기에서 카드와 동일한 프레임으로
+              // 잘라 보여주는 데 쓴다. (2열 - 열 간격) / 고정 높이 225
+              final cardAspectRatio =
+                  ((constraints.maxWidth - AppSpacing.s3) / 2) / 225;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: AppSpacing.s3,
+                  mainAxisSpacing: AppSpacing.s3,
+                  mainAxisExtent: 225,
+                ),
+                itemCount: members.length,
+                itemBuilder: (context, index) {
+                  final member = members[index];
+                  final isMe = member.userId == myUserId;
+                  final imageUrl = member.imageUrl;
+                  // 잠긴(블러) 사진은 크게 볼 수 없다.
+                  final locked = !isDoneCycle && !canSeeAll;
+                  final ImageProvider? image = imageUrl == null
+                      ? null
+                      : NetworkImage(imageUrl);
+                  // 사진이 있고 잠기지 않았을 때만 탭해서 크게 볼 수 있다.
+                  final canView = image != null && !locked;
+                  final heroTag = canView
+                      ? 'gallery-photo-${member.userId}'
+                      : null;
+                  return MemberPhotoCard(
+                    // 본인 카드는 이름 대신 '본인' 으로 표시한다.
+                    name: isMe ? '나' : member.nickname,
+                    image: image,
+                    heroTag: heroTag,
+                    onTap: canView
+                        ? () => showPhotoViewer(
+                            context,
+                            image: image,
+                            heroTag: heroTag,
+                            // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
+                            aspectRatio: cardAspectRatio,
+                          )
+                        : null,
+                    // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
+                    // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
+                    onTakePhoto: isMe && !isDoneCycle
+                        ? () => context.push(
+                            RoutePath.followerCamera,
+                            // 대상 사이클 id 와 가이드용 스타터 사진 URL 을 넘긴다.
+                            extra: (
+                              cycleId: cycle.cycleId,
+                              guideImageUrl: cycle.starterImageUrl ?? '',
+                            ),
+                          )
+                        : null,
+                    // 모든 사진을 볼 수 없는 상태면 사진이 있는 멤버를 블러+자물쇠로 가린다.
+                    // (실제 블러/자물쇠는 image 가 있을 때만 그려진다)
+                    // 단, 마감(done) 회차는 항상 공개하므로 잠금하지 않는다.
+                    isLocked: locked,
+                  );
+                },
               );
             },
           ),
