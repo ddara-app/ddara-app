@@ -1195,6 +1195,12 @@ abstract class AppLocalizations {
   /// **'계정'**
   String get profileSectionAccount;
 
+  /// No description provided for @profileAccountManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 관리'**
+  String get profileAccountManage;
+
   /// No description provided for @profileLinkedAccount.
   ///
   /// In ko, this message translates to:
