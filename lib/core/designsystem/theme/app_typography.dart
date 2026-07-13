@@ -46,6 +46,16 @@ abstract final class AppTypography {
     letterSpacing: 16 * -0.01,
   );
 
+  /// Title/Large · 20 / Medium · 행간 140% · 자간 -4%(-0.8px)
+  /// 상단 바(AppBar) 제목.
+  static const TextStyle titleLarge = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 20,
+    fontWeight: FontWeight.w500,
+    height: 1.40,
+    letterSpacing: 20 * -0.04,
+  );
+
   /// Title · 16 / Bold · 행간 150% · 자간 -1%
   /// 한 줄 카드·항목 제목.
   /// ⚠ 스펙상 150% 이나 "단행용 100%" 의도 표기됨 → 확정 필요.

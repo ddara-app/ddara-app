@@ -7,10 +7,8 @@ import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/util/tap_guard.dart';
-import 'package:ddara/core/widget/app_dialog.dart';
 import 'package:ddara/core/widget/permission_dialog.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
-import 'package:ddara/feature/profile/util/profile_state.dart';
 import 'package:ddara/feature/profile/widget/profile_header.dart';
 import 'package:ddara/feature/profile/widget/profile_image_source_sheet.dart';
 import 'package:ddara/feature/profile/widget/profile_section.dart';
@@ -31,134 +29,104 @@ class ProfilePage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(profileNotifierProvider);
 
-    // 로그아웃 결과에 따라 분기: 성공 시 로그인 화면으로 이동, 실패 시 안내.
-    ref.listen(profileNotifierProvider.select((s) => s.logoutStatus), (
-      _,
-      status,
-    ) {
-      if (!context.mounted) return;
-      switch (status) {
-        case LogoutStatus.success:
-          context.go(RoutePath.login);
-        case LogoutStatus.fail:
-          Toast.showToast(context, l10n.profileLogoutFailed, type: ToastType.error);
-        case LogoutStatus.idle:
-        case LogoutStatus.loading:
-          break;
-      }
-    });
-
-    // 회원 탈퇴 결과에 따라 분기: 성공 시 로그인 화면으로 이동, 실패 시 안내.
-    ref.listen(profileNotifierProvider.select((s) => s.withdrawStatus), (
-      _,
-      status,
-    ) {
-      if (!context.mounted) return;
-      switch (status) {
-        case WithdrawStatus.success:
-          context.go(RoutePath.login);
-        case WithdrawStatus.fail:
-          Toast.showToast(context, l10n.profileWithdrawFailed, type: ToastType.error);
-        case WithdrawStatus.idle:
-        case WithdrawStatus.loading:
-          break;
-      }
-    });
-
     return CupertinoPageScaffold(
-      navigationBar: AppBar(title: l10n.profileTitle, onBack: () => context.pop()),
+      navigationBar: AppBar(
+        title: l10n.profileTitle,
+        onBack: () => context.pop(),
+      ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(
-            top: AppSpacing.s3,
-            left: AppSpacing.s4,
-            right: AppSpacing.s4,
-            bottom: AppSpacing.s6,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.s5,
-            children: [
-              ProfileHeader(
-                name: state.name,
-                imageUrl: state.profileImageUrl,
-                // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.
-                onImageSourceSelected: tapGuard(
-                  state.isImageUploading,
-                  (ProfileImageSource source) =>
-                      _onImageSourceSelected(context, ref, source),
+        bottom: false,
+        child: LayoutBuilder(
+          // 콘텐츠가 화면에 들어가면 스크롤 없음, 작은 기기·큰 글자에서는
+          // 스크롤로 전환되도록 뷰포트 높이를 최소 높이로 강제한다.
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                // 패딩이 스크롤 범위에 더해져 항상 스크롤되지 않도록
+                // (minHeight 초과) ConstrainedBox 안쪽에 둔다.
+                padding: EdgeInsets.only(
+                  top: AppSpacing.s3,
+                  left: AppSpacing.s4,
+                  right: AppSpacing.s4,
+                  // 하단 Safe Area 까지 배경을 잇되, 마지막 항목이 홈
+                  // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
+                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpacing.s5,
+                  children: [
+                    ProfileHeader(
+                      name: state.name,
+                      imageUrl: state.profileImageUrl,
+                      // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.
+                      onImageSourceSelected: tapGuard(
+                        state.isImageUploading,
+                        (ProfileImageSource source) =>
+                            _onImageSourceSelected(context, ref, source),
+                      ),
+                    ),
+                    ProfileSection(
+                      label: l10n.profileSectionBasicInfo,
+                      children: [
+                        ProfileRow(
+                          label: l10n.profileJoinedAt,
+                          value: formatDate(state.joinedAt),
+                        ),
+                      ],
+                    ),
+                    ProfileSection(
+                      label: l10n.profileSectionNotification,
+                      children: [
+                        ProfileRow(
+                          label: l10n.notificationSettingsTitle,
+                          trailing: const ProfileChevron(),
+                          onTap: () =>
+                              context.push(RoutePath.notificationSettings),
+                        ),
+                      ],
+                    ),
+                    ProfileSection(
+                      label: l10n.profileSectionSupport,
+                      children: [
+                        ProfileRow(
+                          label: l10n.profileTermsPolicy,
+                          trailing: const ProfileChevron(),
+                          onTap: () => context.push(RoutePath.termsPolicy),
+                        ),
+                        ProfileRow(
+                          label: l10n.profileContact,
+                          trailing: const ProfileChevron(),
+                          onTap: () => _contact(context, state.appVersion),
+                        ),
+                        ProfileRow(
+                          label: l10n.profileAppVersion,
+                          value: state.appVersion,
+                        ),
+                      ],
+                    ),
+                    ProfileSection(
+                      label: l10n.profileSectionAccount,
+                      children: [
+                        // 연동 계정·로그아웃·회원 탈퇴는 계정 관리 화면에 모아 둔다.
+                        ProfileRow(
+                          label: l10n.profileAccountManage,
+                          trailing: const ProfileChevron(),
+                          onTap: () => context.push(RoutePath.accountManage),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              ProfileSection(
-                label: l10n.profileSectionBasicInfo,
-                children: [
-                  ProfileRow(
-                    label: l10n.profileJoinedAt,
-                    value: formatDate(state.joinedAt),
-                  ),
-                ],
-              ),
-              ProfileSection(
-                label: l10n.profileSectionNotification,
-                children: [
-                  ProfileRow(
-                    label: l10n.notificationSettingsTitle,
-                    trailing: const ProfileChevron(),
-                    onTap: () => context.push(RoutePath.notificationSettings),
-                  ),
-                ],
-              ),
-              ProfileSection(
-                label: l10n.profileSectionSupport,
-                children: [
-                  ProfileRow(
-                    label: l10n.profileTermsPolicy,
-                    trailing: const ProfileChevron(),
-                    onTap: () => context.push(RoutePath.termsPolicy),
-                  ),
-                  ProfileRow(
-                    label: l10n.profileContact,
-                    trailing: const ProfileChevron(),
-                    onTap: () => _contact(context, state.appVersion),
-                  ),
-                  ProfileRow(label: l10n.profileAppVersion, value: state.appVersion),
-                ],
-              ),
-              ProfileSection(
-                label: l10n.profileSectionAccount,
-                children: [
-                  ProfileRow(label: l10n.profileLinkedAccount, value: state.linkedAccount),
-                  ProfileRow(
-                    label: l10n.profileLogout,
-                    labelColor: AppColors.statusDanger,
-                    // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
-                    onTap: tapGuard(
-                      _isAccountActionRunning(state),
-                      () => _confirmLogout(context, ref),
-                    ),
-                  ),
-                  ProfileRow(
-                    label: l10n.profileWithdraw,
-                    labelColor: AppColors.statusDanger,
-                    onTap: tapGuard(
-                      _isAccountActionRunning(state),
-                      () => _confirmWithdraw(context, ref),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
-
-  /// 로그아웃 또는 회원 탈퇴 요청이 진행 중인지.
-  bool _isAccountActionRunning(ProfileState state) =>
-      state.logoutStatus == LogoutStatus.loading ||
-      state.withdrawStatus == WithdrawStatus.loading;
 
   /// 프로필 사진 소스(카메라/갤러리/기본 이미지)를 열어 이미지를 선택한다.
   ///
@@ -308,29 +276,5 @@ class ProfilePage extends ConsumerWidget {
         type: ToastType.error,
       );
     }
-  }
-
-  /// 로그아웃 확인 다이얼로그를 띄우고, 확인 시에만 로그아웃을 진행한다.
-  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context);
-    final ok = await AppDialog.show(
-      context,
-      title: l10n.profileLogoutConfirmTitle,
-      confirmLabel: l10n.profileLogout,
-    );
-    if (ok) await ref.read(profileNotifierProvider.notifier).logout();
-  }
-
-  /// 회원 탈퇴 확인 다이얼로그를 띄우고, 확인 시에만 탈퇴를 진행한다.
-  Future<void> _confirmWithdraw(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context);
-    final ok = await AppDialog.show(
-      context,
-      title: l10n.profileWithdrawConfirmTitle,
-      confirmLabel: l10n.profileWithdrawConfirmAction,
-      confirmColor: AppColors.statusDanger,
-      confirmLabelColor: AppColors.textPrimary,
-    );
-    if (ok) await ref.read(profileNotifierProvider.notifier).withdraw();
   }
 }

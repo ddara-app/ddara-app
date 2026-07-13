@@ -27,7 +27,7 @@ class NotificationPage extends ConsumerWidget {
         title: AppLocalizations.of(context).notificationTitle,
         onBack: () => context.pop(),
       ),
-      child: SafeArea(child: _body(context, state)),
+      child: SafeArea(bottom: false, child: _body(context, state)),
     );
   }
 
@@ -50,12 +50,13 @@ class NotificationPage extends ConsumerWidget {
     return SingleChildScrollView(
       // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
       physics: const ClampingScrollPhysics(),
-      // 상단 s3, 좌우 s5, 하단 s6 여백.
-      padding: const EdgeInsets.fromLTRB(
+      // 상단 s3, 좌우 s5, 하단 s6 + Safe Area 인셋 여백. (마지막 알림이
+      // 홈 인디케이터와 겹치지 않도록)
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.s5,
         AppSpacing.s3,
         AppSpacing.s5,
-        AppSpacing.s6,
+        AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

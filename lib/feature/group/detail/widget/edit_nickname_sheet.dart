@@ -1,6 +1,7 @@
 import 'package:ddara/core/designsystem/component/button/app_button.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/exception/group_change_nickname_error_code.dart';
+import 'package:ddara/core/widget/draggable_sheet.dart';
 import 'package:ddara/feature/group/widget/set_nickname.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -81,35 +82,40 @@ class _EditNicknameSheetState extends State<EditNicknameSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-      ),
-      padding: EdgeInsets.only(
-        left: AppSpacing.s5,
-        right: AppSpacing.s5,
-        top: AppSpacing.s6,
-        // 키보드가 올라오면 그만큼 콘텐츠를 위로 밀어 올린다.
-        bottom: AppSpacing.s5 + MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SetNickname(
-              groupName: widget.groupName,
-              onChanged: _onChanged,
-              errorText: _errorText,
-            ),
-            const SizedBox(height: AppSpacing.s6),
-            AppButton(
-              label: AppLocalizations.of(context).editNicknameSubmit,
-              onPressed: _submit,
-            ),
-          ],
+    // 아래로 드래그해도 닫히도록 감싼다. (취소와 동일하게 null 반환)
+    return DraggableSheet(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.bgSurface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadius.xl),
+          ),
+        ),
+        padding: EdgeInsets.only(
+          left: AppSpacing.s5,
+          right: AppSpacing.s5,
+          top: AppSpacing.s6,
+          // 키보드가 올라오면 그만큼 콘텐츠를 위로 밀어 올린다.
+          bottom: AppSpacing.s5 + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SetNickname(
+                groupName: widget.groupName,
+                onChanged: _onChanged,
+                errorText: _errorText,
+              ),
+              const SizedBox(height: AppSpacing.s6),
+              AppButton(
+                label: AppLocalizations.of(context).editNicknameSubmit,
+                onPressed: _submit,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -37,52 +37,71 @@ class _GroupListPageState extends State<GroupListPage> {
       // 콘텐츠가 짧아도(빈 목록 등) 화면 전체 높이를 채워 FAB 가 항상 바닥에 붙도록.
       fit: StackFit.expand,
       children: [
-        SingleChildScrollView(
-          // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
-          physics: const ClampingScrollPhysics(),
-          // 위아래 s6, 좌우 s4. (하단은 FAB 에 가리지 않도록 버튼 높이만큼 더 여유)
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.s4,
-            AppSpacing.s6,
-            AppSpacing.s4,
-            AppSpacing.s6 + _fabSize + AppSpacing.s4,
-          ),
-          child: Row(
-            // 핵심: 두 열을 위 기준으로 정렬해야 고정 위젯이 만든 오프셋이 유지된다.
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 좌측 열: 짝수 인덱스 카드 (0, 2, 4 …)
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: AppSpacing.s4,
+        LayoutBuilder(
+          // 콘텐츠가 화면에 들어가면 스크롤 없음, 카드가 많아지면 스크롤로
+          // 전환되도록 뷰포트 높이를 최소 높이로 강제한다. (프로필과 동일 패턴)
+          builder: (context, constraints) => SingleChildScrollView(
+            // 카드가 적어 화면에 다 들어가도 당김(바운스)이 되도록 항상
+            // 스크롤 가능하게 둔다.
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                // 패딩이 스크롤 범위에 더해져 항상 스크롤되지 않도록
+                // (minHeight 초과) ConstrainedBox 안쪽에 둔다.
+                // 위아래 s6, 좌우 s4. (하단은 FAB 에 가리지 않도록 버튼 높이 +
+                // Safe Area 인셋만큼 더 여유)
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.s4,
+                  AppSpacing.s6,
+                  AppSpacing.s4,
+                  AppSpacing.s6 +
+                      _fabSize +
+                      AppSpacing.s4 +
+                      MediaQuery.of(context).padding.bottom,
+                ),
+                child: Row(
+                  // 핵심: 두 열을 위 기준으로 정렬해야 고정 위젯이 만든 오프셋이 유지된다.
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // 두 열 사이 간격.
+                  spacing: AppSpacing.s3,
                   children: [
-                    for (var i = 0; i < groups.length; i += 2)
-                      MeetingCard(
-                        group: groups[i],
-                        onTap: () => _openGroup(context, groups[i].groupId),
+                    // 좌측 열: 짝수 인덱스 카드 (0, 2, 4 …)
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: AppSpacing.s3,
+                        children: [
+                          for (var i = 0; i < groups.length; i += 2)
+                            MeetingCard(
+                              group: groups[i],
+                              onTap: () =>
+                                  _openGroup(context, groups[i].groupId),
+                            ),
+                        ],
                       ),
+                    ),
+                    // 우측 열: 맨 위 고정 위젯 + 홀수 인덱스 카드 (1, 3, 5 …)
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: AppSpacing.s3,
+                        children: [
+                          // 참여 중인 모임 개수를 주입. (지그재그 오프셋용 고정 위젯)
+                          HomeWidget(count: groups.length),
+                          for (var i = 1; i < groups.length; i += 2)
+                            MeetingCard(
+                              group: groups[i],
+                              onTap: () =>
+                                  _openGroup(context, groups[i].groupId),
+                            ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: AppSpacing.s4),
-              // 우측 열: 맨 위 고정 위젯 + 홀수 인덱스 카드 (1, 3, 5 …)
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: AppSpacing.s4,
-                  children: [
-                    // 참여 중인 모임 개수를 주입. (지그재그 오프셋용 고정 위젯)
-                    HomeWidget(count: groups.length),
-                    for (var i = 1; i < groups.length; i += 2)
-                      MeetingCard(
-                        group: groups[i],
-                        onTap: () => _openGroup(context, groups[i].groupId),
-                      ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         // 백드롭 + FAB + 펼침 모션을 모두 내장한 완결형 위젯.

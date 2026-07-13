@@ -35,10 +35,7 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
         errorMessage: '해당 모임의 멤버가 아니에요.',
       );
     } on GroupNotFoundException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '존재하지 않는 모임이에요.',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 모임이에요.');
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
       state = state.copyWith(
@@ -46,6 +43,15 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
         errorMessage: '모임 정보를 불러오지 못했어요.',
       );
     }
+  }
+
+  /// 당겨서 새로고침: 상세·히스토리를 다시 조회한다.
+  ///
+  /// 전체 화면 로딩(isLoading)으로 바꾸지 않는다 — 당김 인디케이터가 로딩
+  /// 표시를 대신하고, 본문이 스피너로 교체되면 당김 제스처가 끊기기 때문.
+  Future<void> refresh() async {
+    if (state.isLoading) return;
+    await _load(arg);
   }
 
   /// 에러 메시지를 소비한 뒤(토스트로 노출 후) 다시 비운다.
@@ -68,7 +74,10 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
       await exitGroupUseCase(arg);
       return true;
     } on NotGroupMemberException {
-      state = state.copyWith(isLoading: false, errorMessage: '해당 모임의 멤버가 아니에요.');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '해당 모임의 멤버가 아니에요.',
+      );
       return false;
     } on GroupNotFoundException {
       state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 모임이에요.');
@@ -107,7 +116,10 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
       );
       return false;
     } on NotGroupMemberException {
-      state = state.copyWith(isLoading: false, errorMessage: '해당 모임의 멤버가 아니에요.');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '해당 모임의 멤버가 아니에요.',
+      );
       return false;
     } on GroupNotFoundException {
       state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 모임이에요.');

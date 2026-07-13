@@ -627,6 +627,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profileSectionAccount => '계정';
 
   @override
+  String get profileAccountManage => '계정 관리';
+
+  @override
   String get profileLinkedAccount => '연동 계정';
 
   @override

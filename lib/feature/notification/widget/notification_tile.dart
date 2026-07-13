@@ -5,9 +5,14 @@ import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/feature/notification/util/notification_display.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// 알림 좌측 썸네일 한 변 크기.
 const double _thumbnailSize = 72;
+
+/// payload 에 이미지가 없을 때 보여줄 기본 썸네일.
+/// (72×72 라운드 배경 + 워드마크가 포함된 완성형 asset)
+const String _defaultThumbnailAsset = 'assets/images/notification_default.svg';
 
 /// 알림 목록의 항목 한 개.
 ///
@@ -29,13 +34,7 @@ class NotificationTile extends StatelessWidget {
       onTap: onTap,
       // 누르는 동안 살짝 밝게. (앱 전반의 Cupertino 페이드와 일관)
       pressedColor: AppColors.bgSurfaceAlt,
-      // 우측은 시간 텍스트가 모서리에 붙지 않도록 넓게 둔다.
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s4,
-        AppSpacing.s4,
-        AppSpacing.s6,
-        AppSpacing.s4,
-      ),
+      padding: const EdgeInsets.all(AppSpacing.s4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSpacing.s3,
@@ -100,12 +99,13 @@ class _NotificationThumbnail extends StatelessWidget {
         width: _thumbnailSize,
         height: _thumbnailSize,
         child: (url == null || url.isEmpty)
-            ? null
+            ? SvgPicture.asset(_defaultThumbnailAsset)
             : Image.network(
                 url,
                 fit: BoxFit.contain,
+                // 로드 실패 시에도 기본 썸네일로 대체한다.
                 errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox.shrink(),
+                    SvgPicture.asset(_defaultThumbnailAsset),
               ),
       );
     }
@@ -121,13 +121,13 @@ class _NotificationThumbnail extends StatelessWidget {
         ),
       ),
       child: (url == null || url.isEmpty)
-          ? null
+          ? SvgPicture.asset(_defaultThumbnailAsset)
           : Image.network(
               url,
               fit: BoxFit.cover,
-              // 로드 실패 시 배경(bg-base)만 남긴다.
+              // 로드 실패 시에도 기본 썸네일로 대체한다.
               errorBuilder: (context, error, stackTrace) =>
-                  const SizedBox.shrink(),
+                  SvgPicture.asset(_defaultThumbnailAsset),
             ),
     );
   }
