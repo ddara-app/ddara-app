@@ -8,4 +8,10 @@ class StorageKey {
 
   /// 온보딩(앱 설명) 화면을 한 번이라도 본 적 있는지 여부.
   static const onboardingSeen = 'onboarding_seen';
+
+  /// 이번 설치에서 앱을 실행한 적이 있는지 여부.
+  ///
+  /// SharedPreferences 는 앱 삭제 시 함께 지워지므로, 이 플래그가 없으면
+  /// 신규(재)설치의 첫 실행으로 판단한다. (iOS Keychain 잔존 토큰 정리에 사용)
+  static const firstRunDone = 'first_run_done';
 }

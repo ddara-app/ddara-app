@@ -17,6 +17,7 @@ import 'core/deeplink/deep_link_service.dart';
 import 'l10n/app_localizations.dart';
 import 'core/deeplink/pending_invite.dart';
 import 'core/designsystem/theme/app_theme.dart';
+import 'core/local/fresh_install_guard.dart';
 import 'core/local/provider/local_provider.dart';
 import 'core/network/dio_provider.dart';
 import 'core/notification/notification_service.dart';
@@ -42,6 +43,15 @@ Future<void> main() async {
     SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayStyle);
 
     container = await _createContainer();
+
+    // 재설치 후 첫 실행이면 iOS Keychain 에 잔존한 이전 설치의 토큰을 정리한다.
+    // 인증 상태(_confirmAuthState)가 잔존 토큰을 읽어 로그인 상태로 오인하기
+    // 전에 반드시 먼저 수행해야 한다.
+    await clearSecureStorageOnFreshInstall(
+      prefs: container.read(sharedPreferencesProvider),
+      storage: container.read(secureStorageProvider),
+    );
+
     await _confirmAuthState(container);
     await _captureColdStartInvite(container);
   } finally {
