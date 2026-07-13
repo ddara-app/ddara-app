@@ -11,6 +11,7 @@ import '../../feature/group/follower/follower_camera_page.dart';
 import '../../feature/group/gallery/cycle_photo_gallery.dart';
 import '../../feature/group/starter/starter_page.dart';
 import '../../feature/group/detail/group_page.dart';
+import '../../feature/group/history/history_list_page.dart';
 import '../../feature/group/join/join_group_page.dart';
 import '../../feature/group/join/invite/invite_code_input_page.dart';
 import '../../feature/group/join/landing/invite_landing_page.dart';
@@ -255,6 +256,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) {
           return CyclePhotoGallery(cycleId: state.extra! as int);
         },
+      ),
+      GoRoute(
+        path: RoutePath.historyList,
+        builder: (_, state) => HistoryListPage(groupId: state.extra! as int),
       ),
       GoRoute(
         path: RoutePath.starter,

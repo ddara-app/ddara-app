@@ -330,17 +330,14 @@ class GroupPage extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               AppText.headlineLarge(l10n.groupHistoryTitle),
-              // 전체 보기 기능 구현 전까지 숨긴다. (레이아웃 유지 위해 자리는 남겨 둠)
-              Visibility(
-                visible: false,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: AppTextButton(
-                  label: l10n.groupHistoryMore,
-                  onPressed: () {
-                    // TODO: 지난 따라찍기 전체 보기 화면으로 이동.
-                  },
+              AppTextButton(
+                label: l10n.groupHistoryMore,
+                // 지난 따라찍기 전체 목록으로 이동. (복귀 시 상세 갱신)
+                onPressed: () => _pushThenRefresh(
+                  context,
+                  ref,
+                  RoutePath.historyList,
+                  groupId,
                 ),
               ),
             ],
