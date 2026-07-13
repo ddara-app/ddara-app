@@ -72,17 +72,26 @@ class GroupPage extends ConsumerWidget {
       }
     });
 
-    // 진입 경로·스택과 무관하게 뒤로가기(AppBar·OS 모두)는 항상 홈으로 보낸다.
+    // 스택이 있으면 뒤로가기(AppBar·iOS 스와이프·Android 버튼)는 이전 화면으로
+    // 돌아간다. canPop=false 로 고정하면 iOS 스와이프 제스처 자체가 비활성화되므로
+    // 자연스러운 pop 을 허용하고, 홈 목록 무효화는 pop 콜백에서 일괄 처리한다.
     return PopScope(
-      canPop: false,
+      canPop: context.canPop(),
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) return;
+        if (didPop) {
+          // 이 화면에서 생긴 변경(스타터 시작 사진 등)이 복귀한 홈 카드에
+          // 반영되도록 재조회시킨다.
+          ref.invalidate(homeNotifierProvider);
+          return;
+        }
+        // 딥링크 진입 등으로 스택이 없으면(canPop=false) 시스템 뒤로가기
+        // (Android)를 가로채 홈으로 보낸다.
         _goHome(context, ref);
       },
       child: CupertinoPageScaffold(
         navigationBar: AppBar(
           title: state.groupDetail?.name ?? '',
-          onBack: () => _goHome(context, ref),
+          onBack: () => _back(context, ref),
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
             minimumSize: Size.zero,
@@ -97,6 +106,16 @@ class GroupPage extends ConsumerWidget {
         child: SafeArea(bottom: false, child: _body(context, ref, state)),
       ),
     );
+  }
+
+  /// AppBar 뒤로가기: 스택이 있으면 이전 화면으로 pop 하고, 없으면(딥링크
+  /// 진입 등) 홈으로 보낸다. (홈 무효화는 PopScope 의 pop 콜백에서 처리)
+  void _back(BuildContext context, WidgetRef ref) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      _goHome(context, ref);
+    }
   }
 
   /// 홈으로 돌아간다. 나가기 직전 홈 목록을 무효화해, 복귀 시 최신 상태로
