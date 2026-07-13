@@ -94,13 +94,12 @@ class GroupPage extends ConsumerWidget {
         navigationBar: AppBar(
           title: state.groupDetail?.name ?? '',
           onBack: () => _back(context, ref),
-          trailing: CupertinoButton(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
+          trailing: AppBarIconButton(
             // 상세 로딩·나가기·닉네임 변경이 진행되는 동안 메뉴 재진입을 차단한다.
             onPressed: tapGuard(state.isLoading, () => _showMenu(context, ref)),
             child: const Icon(
               CupertinoIcons.ellipsis_vertical,
+              size: 24,
               color: AppColors.textPrimary,
             ),
           ),
