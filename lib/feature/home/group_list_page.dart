@@ -63,12 +63,14 @@ class _GroupListPageState extends State<GroupListPage> {
                 child: Row(
                   // 핵심: 두 열을 위 기준으로 정렬해야 고정 위젯이 만든 오프셋이 유지된다.
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  // 두 열 사이 간격.
+                  spacing: AppSpacing.s3,
                   children: [
                     // 좌측 열: 짝수 인덱스 카드 (0, 2, 4 …)
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: AppSpacing.s4,
+                        spacing: AppSpacing.s3,
                         children: [
                           for (var i = 0; i < groups.length; i += 2)
                             MeetingCard(
@@ -79,12 +81,11 @@ class _GroupListPageState extends State<GroupListPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.s4),
                     // 우측 열: 맨 위 고정 위젯 + 홀수 인덱스 카드 (1, 3, 5 …)
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: AppSpacing.s4,
+                        spacing: AppSpacing.s3,
                         children: [
                           // 참여 중인 모임 개수를 주입. (지그재그 오프셋용 고정 위젯)
                           HomeWidget(count: groups.length),
