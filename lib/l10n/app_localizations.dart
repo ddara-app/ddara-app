@@ -904,6 +904,18 @@ abstract class AppLocalizations {
   /// **'촬영하러 가기'**
   String get photoTakeAction;
 
+  /// 사진 뷰어 댓글 입력 필드 플레이스홀더
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 남겨보세요...'**
+  String get photoViewerCommentHint;
+
+  /// 사진 뷰어 댓글이 하나도 없을 때 안내 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 댓글이 없습니다.'**
+  String get photoViewerCommentEmpty;
+
   /// No description provided for @cameraPermissionTitle.
   ///
   /// In ko, this message translates to:
