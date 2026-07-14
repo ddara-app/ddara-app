@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/widget/profile_avatar.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// 사진 뷰어 댓글 시트에 표시할 댓글 하나.
 class PhotoComment {
@@ -104,6 +107,9 @@ class _PhotoViewerState extends State<PhotoViewer>
   /// 메모리상에서만 뒤에 쌓는다. (API 연동 전 임시 동작)
   late final List<PhotoComment> _comments = [...widget.comments];
 
+  /// 댓글 목록 스크롤. (댓글 등록 시 맨 아래로 이동하는 데 쓴다)
+  final ScrollController _commentScrollController = ScrollController();
+
   /// 댓글 입력값.
   final TextEditingController _commentController = TextEditingController();
 
@@ -127,6 +133,7 @@ class _PhotoViewerState extends State<PhotoViewer>
   @override
   void dispose() {
     _sheetController.dispose();
+    _commentScrollController.dispose();
     _commentController.dispose();
     _commentFocusNode.dispose();
     super.dispose();
@@ -165,6 +172,15 @@ class _PhotoViewerState extends State<PhotoViewer>
       );
     });
     _commentController.clear();
+    // 새 댓글이 목록에 그려진 다음 프레임에 맨 아래로 스크롤한다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_commentScrollController.hasClients) return;
+      _commentScrollController.animateTo(
+        _commentScrollController.position.maxScrollExtent,
+        duration: _duration,
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   /// 드래그 종료 → 빠르게 내렸거나 절반 아래로 내려갔으면 닫고, 아니면 복귀.
@@ -209,15 +225,16 @@ class _PhotoViewerState extends State<PhotoViewer>
             child: GestureDetector(
               onTap: _openSheet,
               child: Container(
-                padding: const EdgeInsets.all(AppSpacing.s2),
+                // 아이콘 24 + 패딩 s3(12)×2 = 지름 48 원.
+                padding: const EdgeInsets.all(AppSpacing.s3),
                 decoration: const BoxDecoration(
                   color: AppColors.overlayScrim,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  CupertinoIcons.chat_bubble,
-                  size: 24,
-                  color: AppColors.textPrimary,
+                child: SvgPicture.asset(
+                  'assets/images/ic_comment.svg',
+                  width: 24,
+                  height: 24,
                 ),
               ),
             ),
@@ -227,7 +244,7 @@ class _PhotoViewerState extends State<PhotoViewer>
 
     final l10n = AppLocalizations.of(context);
     final sheetHeight = MediaQuery.sizeOf(context).height * 0.5;
-    // 키보드가 올라오면 시트도 그만큼 함께 올린다.
+    // 키보드가 올라오면 입력 필드만 그만큼 위로 띄운다. (시트는 제자리)
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
 
     // 키보드가 (뒤로가기·스와이프 등으로) 내려가면 입력 포커스도 해제한다.
@@ -276,13 +293,13 @@ class _PhotoViewerState extends State<PhotoViewer>
                 ),
               ),
             ),
-          // 댓글 바텀시트. (등장/퇴장·드래그는 진행도를 공유하는 SlideTransition,
-          // 키보드 추적은 Positioned 가 매 프레임 즉시 반영해 같은 속도로 움직인다)
+          // 댓글 바텀시트. (등장/퇴장·드래그는 진행도를 공유하는 SlideTransition)
+          // 키보드가 올라와도 시트는 제자리에 두고, 입력 필드만 띄운다.
           Positioned(
             left: 0,
             right: 0,
             height: sheetHeight,
-            bottom: keyboardInset,
+            bottom: 0,
             child: SlideTransition(
               position: _sheetOffset,
               child: Container(
@@ -352,6 +369,7 @@ class _PhotoViewerState extends State<PhotoViewer>
                               ),
                             )
                           : ListView(
+                              controller: _commentScrollController,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: AppSpacing.s4,
                                 vertical: AppSpacing.s2,
@@ -362,20 +380,30 @@ class _PhotoViewerState extends State<PhotoViewer>
                               ],
                             ),
                     ),
-                    // 하단 고정 댓글 입력 필드.
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: AppSpacing.s4,
-                        right: AppSpacing.s4,
-                        top: AppSpacing.s3,
-                        // 키보드가 없을 때만 홈 인디케이터 영역을 피한다.
-                        bottom:
-                            AppSpacing.s4 +
-                            (keyboardInset > 0
-                                ? 0
-                                : MediaQuery.paddingOf(context).bottom),
+                    // 하단 댓글 입력 필드. 키보드가 올라오면 시트는 그대로
+                    // 두고 입력 필드만 키보드 위로 띄운다. (페인트 전용 이동
+                    // 이라 매 프레임 재레이아웃 없음, 뒤 목록은 배경색으로
+                    // 가린다)
+                    Transform.translate(
+                      offset: Offset(0, -keyboardInset),
+                      child: Container(
+                        color: AppColors.bgSurface,
+                        padding: EdgeInsets.only(
+                          left: AppSpacing.s4,
+                          right: AppSpacing.s4,
+                          top: AppSpacing.s3,
+                          // 홈 인디케이터 영역 회피분. 키보드가 올라온 만큼
+                          // 줄여 패딩이 튀지 않고 연속적으로 변한다.
+                          bottom:
+                              AppSpacing.s4 +
+                              math.max(
+                                0,
+                                MediaQuery.paddingOf(context).bottom -
+                                    keyboardInset,
+                              ),
+                        ),
+                        child: _commentInput(l10n),
                       ),
-                      child: _commentInput(l10n),
                     ),
                   ],
                 ),
@@ -440,7 +468,7 @@ class _CommentItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: AppSpacing.s4,
         children: [
-          ProfileAvatar(size: 36, imageUrl: comment.profileImageUrl),
+          ProfileAvatar(size: 32, imageUrl: comment.profileImageUrl),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,8 +477,11 @@ class _CommentItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText.body(comment.nickname, color: AppColors.textAccent),
-                    AppText.body(
+                    AppText.caption(
+                      comment.nickname,
+                      color: AppColors.textAccent,
+                    ),
+                    AppText.caption(
                       comment.timeLabel,
                       color: AppColors.textDisabled,
                     ),
