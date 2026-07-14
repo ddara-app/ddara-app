@@ -129,7 +129,7 @@ class _ModeButton extends StatelessWidget {
         child: AnimatedDefaultTextStyle(
           duration: _duration,
           curve: Curves.easeInOut,
-          style: AppTypography.caption.copyWith(
+          style: AppTypography.label.copyWith(
             color: selected ? AppColors.accentDefault : AppColors.textTertiary,
           ),
           child: Text(label),

@@ -340,15 +340,19 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                       top: AppSpacing.s4,
                       child: CornerMiniView(image: widget.guideImage!),
                     ),
-                    // 고스트 확대: Preview 영역 비율을 유지한 채 살짝 작게(85%) 가운데.
+                    // 고스트 확대: 가운데 90% 창으로 프리뷰 크기 그대로 보여준다.
+                    // (창 밖 가장자리는 잘림 — 창·이미지 배치는 GhostGuideView 가 처리)
                     GuideViewMode.ghostZoom => Positioned.fill(
-                      child: FractionallySizedBox(
-                        widthFactor: 0.85,
-                        heightFactor: 0.85,
-                        child: GhostGuideView(
-                          image: widget.guideImage!,
-                          opacity: _guideOpacity,
-                        ),
+                      child: GhostGuideView(
+                        image: widget.guideImage!,
+                        opacity: _guideOpacity,
+                        // 원본 전체가 아니라 모임 상세 헤더에서 보이던 프레임만
+                        // 가이드로 쓴다. (헤더 프레임: 가로 = 화면 - 좌우 s4
+                        // 패딩, 세로 478 고정 — StartedHeader 참조)
+                        frameAspectRatio:
+                            (MediaQuery.sizeOf(context).width -
+                                AppSpacing.s4 * 2) /
+                            478,
                       ),
                     ),
                   },
