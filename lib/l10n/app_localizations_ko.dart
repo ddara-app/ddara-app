@@ -457,6 +457,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoTakeAction => '촬영하러 가기';
 
   @override
+  String get photoViewerCommentHint => '댓글을 남겨보세요...';
+
+  @override
+  String get photoViewerCommentEmpty => '아직 댓글이 없습니다.';
+
+  @override
   String get cameraPermissionTitle => '카메라 권한이 필요해요';
 
   @override

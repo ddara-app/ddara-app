@@ -336,6 +336,14 @@
   "@photoTakeAction": {
     "description": "촬영 화면으로 이동하는 알약 버튼"
   },
+  "photoViewerCommentHint": "댓글을 남겨보세요...",
+  "@photoViewerCommentHint": {
+    "description": "사진 뷰어 댓글 입력 필드 플레이스홀더"
+  },
+  "photoViewerCommentEmpty": "아직 댓글이 없습니다.",
+  "@photoViewerCommentEmpty": {
+    "description": "사진 뷰어 댓글이 하나도 없을 때 안내 문구"
+  },
   "cameraPermissionTitle": "카메라 권한이 필요해요",
   "cameraPermissionDescription": "촬영하려면 설정에서 카메라 권한을 허용해주세요.",
   "cameraModeCornerMini": "코너 미니뷰",

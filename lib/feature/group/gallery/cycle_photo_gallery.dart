@@ -53,6 +53,12 @@ class CyclePhotoGallery extends ConsumerWidget {
   ) {
     final cycle = gallery.cycle;
 
+    // 본인 닉네임. (사진 뷰어에서 내가 단 댓글의 작성자 표기에 쓴다)
+    final myNickname = gallery.members
+        .where((m) => m.userId == myUserId)
+        .map((m) => m.nickname)
+        .firstOrNull;
+
     // 마감된(done) 회차는 사진이 있는 카드만 보여준다. (미업로드 빈 카드는 숨김)
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
 
@@ -115,6 +121,10 @@ class CyclePhotoGallery extends ConsumerWidget {
                         (MediaQuery.of(context).size.width -
                             AppSpacing.s4 * 2) /
                         478,
+                    // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
+                    title: cycle.starterNickname,
+                    body: cycle.topic,
+                    myNickname: myNickname,
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -165,6 +175,10 @@ class CyclePhotoGallery extends ConsumerWidget {
                             heroTag: heroTag,
                             // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
                             aspectRatio: cardAspectRatio,
+                            // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
+                            title: member.nickname,
+                            body: cycle.topic,
+                            myNickname: myNickname,
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
