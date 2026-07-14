@@ -345,10 +345,13 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get recordCycleLabel => '따라찍기';
+  String get recordSectionTitle => '기록';
 
   @override
-  String get recordPhotoLabel => '함께한 사진';
+  String get recordMyCycleLabel => '나의 따라찍기';
+
+  @override
+  String get recordGroupCycleLabel => '모임 따라찍기';
 
   @override
   String get groupHistoryTitle => '지난 따라찍기';
@@ -358,6 +361,27 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get groupHistoryEmpty => '지난 따라찍기가 아직 없어요';
+
+  @override
+  String get groupHistoryFilterAll => '전체보기';
+
+  @override
+  String groupHistoryFilterYearMonth(int year, int month) {
+    return '$year년 $month월';
+  }
+
+  @override
+  String historyYearLabel(int year) {
+    return '$year년';
+  }
+
+  @override
+  String get historyFilterReset => '초기화';
+
+  @override
+  String historyMonthLabel(int month) {
+    return '$month월';
+  }
 
   @override
   String historyParticipantCount(int count) {
