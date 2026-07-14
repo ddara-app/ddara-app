@@ -1,9 +1,9 @@
-import 'package:ddara/core/designsystem/design_system.dart';
-import 'package:ddara/core/widget/profile_avatar.dart';
+import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/feature/profile/widget/profile_image_source_sheet.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../../../core/designsystem/component/text/app_text.dart';
+import '../../../core/design_system/component/text/app_text.dart';
 
 /// 프로필 화면 상단 헤더.
 ///

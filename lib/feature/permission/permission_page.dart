@@ -1,10 +1,10 @@
-import 'package:ddara/core/deeplink/pending_invite.dart';
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
+import 'package:ddara/core/router/pending_invite.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/core/widget/permission_dialog.dart';
+import 'package:ddara/core/widget/dialog/permission_dialog.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/feature/permission/permission_request_recovery.dart';
 import 'package:ddara/feature/permission/widget/permission_item.dart';

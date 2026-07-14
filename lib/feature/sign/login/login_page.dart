@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:ddara/core/deeplink/pending_invite.dart';
-import 'package:ddara/core/designsystem/component/button/app_text_button.dart';
-import 'package:ddara/core/designsystem/component/loading/app_loading_overlay.dart';
-import 'package:ddara/core/designsystem/component/logo.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/router/pending_invite.dart';
+import 'package:ddara/core/design_system/component/button/app_text_button.dart';
+import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
+import 'package:ddara/core/design_system/component/logo/logo.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/toast/toast.dart';

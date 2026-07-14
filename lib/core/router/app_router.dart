@@ -1,4 +1,4 @@
-import 'package:ddara/core/deeplink/pending_invite.dart';
+import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:flutter/widgets.dart';
@@ -6,15 +6,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/provider/repository_provider.dart';
-import '../../feature/group/create/group_create_page.dart';
+import '../../feature/group_create/group_create_page.dart';
 import '../../feature/group/follower/follower_camera_page.dart';
 import '../../feature/group/gallery/cycle_photo_gallery.dart';
 import '../../feature/group/starter/starter_page.dart';
 import '../../feature/group/detail/group_page.dart';
 import '../../feature/group/history/history_list_page.dart';
-import '../../feature/group/join/join_group_page.dart';
-import '../../feature/group/join/invite/invite_code_input_page.dart';
-import '../../feature/group/join/landing/invite_landing_page.dart';
+import '../../feature/group_join/join_group_page.dart';
+import '../../feature/group_join/invite/invite_code_input_page.dart';
+import '../../feature/group_join/landing/invite_landing_page.dart';
 import '../../feature/home/home_page.dart';
 import '../../feature/notification/notification_page.dart';
 import '../../feature/onboarding/onboarding_page.dart';

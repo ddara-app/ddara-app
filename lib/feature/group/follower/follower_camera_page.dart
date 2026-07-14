@@ -1,11 +1,11 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/component/loading/app_loading_overlay.dart';
-import 'package:ddara/core/widget/app_dialog.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
     as group_detail;
-import 'package:ddara/feature/group/follower/follower_camera.dart';
-import 'package:ddara/feature/group/follower/follower_photo_check.dart';
+import 'package:ddara/feature/group/follower/widget/follower_camera.dart';
+import 'package:ddara/feature/group/follower/widget/follower_photo_check.dart';
 import 'package:ddara/feature/group/follower/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';

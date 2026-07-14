@@ -1,4 +1,4 @@
-import 'package:ddara/core/designsystem/foundation/app_spacing.dart';
+import 'package:ddara/core/design_system/foundation/app_spacing.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 모임 상세의 한 섹션. 상단 [title](헤드라인·액션 행 등) 아래 [body](콘텐츠)를 쌓는다.

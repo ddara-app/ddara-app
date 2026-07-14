@@ -1,10 +1,10 @@
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/component/divider/app_divider.dart';
-import 'package:ddara/core/designsystem/component/surface/app_surface.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/divider/app_divider.dart';
+import 'package:ddara/core/design_system/component/surface/app_surface.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/core/widget/app_checkbox.dart';
+import 'package:ddara/core/design_system/component/checkbox/app_checkbox.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/feature/profile/policy/policy_viewer_page.dart';
 import 'package:ddara/l10n/app_localizations.dart';

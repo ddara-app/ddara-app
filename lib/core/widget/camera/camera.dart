@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
 import 'package:ddara/core/widget/camera/header/camera_header.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';

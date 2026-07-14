@@ -1,11 +1,11 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
-import 'package:ddara/core/widget/empty_thumbnail.dart';
+import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

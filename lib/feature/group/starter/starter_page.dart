@@ -1,7 +1,7 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/feature/group/starter/provider/notifier_provider.dart';
-import 'package:ddara/feature/group/starter/starter_camera.dart';
-import 'package:ddara/feature/group/starter/starter_info.dart';
+import 'package:ddara/feature/group/starter/widget/starter_camera.dart';
+import 'package:ddara/feature/group/starter/widget/starter_info.dart';
 import 'package:ddara/feature/group/starter/util/starter_state.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';

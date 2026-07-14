@@ -1,5 +1,5 @@
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/feature/group/history/widget/history_list_item.dart';
 import 'package:ddara/l10n/app_localizations.dart';

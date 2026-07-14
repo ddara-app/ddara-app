@@ -1,13 +1,13 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
-import 'package:ddara/core/image/image_picker_service.dart';
+import 'package:ddara/feature/profile/image_picker_service.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/util/tap_guard.dart';
-import 'package:ddara/core/widget/permission_dialog.dart';
+import 'package:ddara/core/widget/dialog/permission_dialog.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/widget/profile_header.dart';
 import 'package:ddara/feature/profile/widget/profile_image_source_sheet.dart';

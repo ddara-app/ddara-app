@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../../core/designsystem/component/text/app_text.dart';
+import '../../../core/design_system/component/text/app_text.dart';
 
 /// 권한 그룹 구분 라벨. (필수 / 선택)
 class SectionLabel extends StatelessWidget {

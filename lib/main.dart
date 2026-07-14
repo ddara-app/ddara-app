@@ -13,10 +13,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/deeplink/deep_link_service.dart';
+import 'core/invite/deep_link_service.dart';
 import 'l10n/app_localizations.dart';
-import 'core/deeplink/pending_invite.dart';
-import 'core/designsystem/theme/app_theme.dart';
+import 'core/router/pending_invite.dart';
+import 'core/design_system/theme/app_theme.dart';
 import 'core/local/fresh_install_guard.dart';
 import 'core/local/provider/local_provider.dart';
 import 'core/network/dio_provider.dart';

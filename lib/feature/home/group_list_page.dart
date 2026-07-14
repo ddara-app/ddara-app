@@ -1,8 +1,8 @@
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/feature/home/util/fab_speed_dial.dart';
-import 'package:ddara/feature/home/widget/group_list_widget.dart';
+import 'package:ddara/feature/home/widget/fab_speed_dial.dart';
+import 'package:ddara/feature/home/widget/home_dashboard.dart';
 import 'package:ddara/feature/home/widget/meeting_card.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +14,7 @@ const double _fabSize = 56;
 /// 참여한 모임이 하나 이상일 때 보여주는 모임 목록 화면.
 ///
 /// 화면을 세로로 반 나눠 좌/우 두 열에 카드를 번갈아(지그재그) 배치한다.
-/// 우측 열 맨 위에는 카드보다 작은 고정 위젯([HomeWidget])이 들어가, 그 높이
+/// 우측 열 맨 위에는 카드보다 작은 고정 위젯([HomeDashboard])이 들어가, 그 높이
 /// 차이만큼 우측 카드들이 위로 덜 내려오면서 자연스러운 지그재그가 만들어진다.
 ///
 /// 카드 높이가 균일하므로 Masonry 패키지 없이 `Row` + `Column` 2개로 충분하다.
@@ -88,7 +88,7 @@ class _GroupListPageState extends State<GroupListPage> {
                         spacing: AppSpacing.s3,
                         children: [
                           // 참여 중인 모임 개수를 주입. (지그재그 오프셋용 고정 위젯)
-                          HomeWidget(count: groups.length),
+                          HomeDashboard(count: groups.length),
                           for (var i = 1; i < groups.length; i += 2)
                             MeetingCard(
                               group: groups[i],

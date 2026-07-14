@@ -1,8 +1,8 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/component/logo.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/logo/logo.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/core/widget/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/feature/home/empty_group_page.dart';
 import 'package:ddara/feature/home/group_list_page.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';

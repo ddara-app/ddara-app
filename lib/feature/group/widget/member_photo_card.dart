@@ -1,7 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/feature/group/widget/take_photo_button.dart';
 import 'package:flutter/cupertino.dart';
 

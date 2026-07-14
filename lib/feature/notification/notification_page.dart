@@ -1,6 +1,6 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/notification/provider/notifier_provider.dart';

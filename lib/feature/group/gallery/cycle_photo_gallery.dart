@@ -1,10 +1,10 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/core/widget/photo_viewer.dart';
+import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';

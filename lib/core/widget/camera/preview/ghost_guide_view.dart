@@ -1,4 +1,4 @@
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 고스트 확대 모드에서 가이드(친구가 미리 찍은) 사진을 크게 반투명으로 겹쳐 보여주는 뷰.

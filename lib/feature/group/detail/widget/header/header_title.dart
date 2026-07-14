@@ -1,5 +1,5 @@
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 헤더의 제목 + 안내 문구 묶음. (큰 제목 아래 caption 을 s1 간격으로 둔다)

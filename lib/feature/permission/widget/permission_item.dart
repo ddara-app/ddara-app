@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../../core/designsystem/component/surface/app_surface.dart';
-import '../../../core/designsystem/component/text/app_text.dart';
-import '../../../core/designsystem/theme/app_colors.dart';
+import '../../../core/design_system/component/surface/app_surface.dart';
+import '../../../core/design_system/component/text/app_text.dart';
+import '../../../core/design_system/theme/app_colors.dart';
 
 /// 개별 권한 항목 카드. (아이콘 · 제목 · 설명)
 class PermissionItem extends StatelessWidget {

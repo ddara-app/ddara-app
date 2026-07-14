@@ -1,6 +1,6 @@
-import 'package:ddara/core/designsystem/component/surface/app_surface.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/surface/app_surface.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/feature/notification/util/notification_display.dart';
 import 'package:ddara/l10n/app_localizations.dart';

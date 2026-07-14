@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../designsystem/theme/app_colors.dart';
+import '../../design_system/theme/app_colors.dart';
 
 /// 카드·이미지 하단을 어둡게 덮는 그라데이션 스크림.
 ///

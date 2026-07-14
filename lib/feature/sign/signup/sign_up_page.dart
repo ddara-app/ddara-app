@@ -1,6 +1,6 @@
-import 'package:ddara/core/deeplink/pending_invite.dart';
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/component/loading/app_loading_overlay.dart';
+import 'package:ddara/core/router/pending_invite.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/sign/signup/provider/notifier_provider.dart';
