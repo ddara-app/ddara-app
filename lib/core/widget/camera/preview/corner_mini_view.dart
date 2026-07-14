@@ -12,8 +12,9 @@ class CornerMiniView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 96,
-      height: 128,
+      // 3:4 비율 고정.
+      width: 112,
+      height: 112 * 4 / 3,
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         image: DecorationImage(image: image, fit: BoxFit.cover),

@@ -343,8 +343,8 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                     // 고스트 확대: Preview 영역 비율을 유지한 채 살짝 작게(85%) 가운데.
                     GuideViewMode.ghostZoom => Positioned.fill(
                       child: FractionallySizedBox(
-                        widthFactor: 0.85,
-                        heightFactor: 0.85,
+                        widthFactor: 0.90,
+                        heightFactor: 0.90,
                         child: GhostGuideView(
                           image: widget.guideImage!,
                           opacity: _guideOpacity,
