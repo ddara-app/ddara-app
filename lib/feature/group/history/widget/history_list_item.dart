@@ -1,12 +1,15 @@
 import 'dart:math' as math;
 
+import 'package:ddara/core/designsystem/component/surface/app_surface.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
 import 'package:ddara/core/widget/profile_avatar.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 
 /// 목록에 함께 보여줄 참가자 아바타 최대 개수.
 const int _maxAvatars = 4;
@@ -31,30 +34,37 @@ class HistoryListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: AppSpacing.s3,
-      children: [
-        _thumbnail(),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: AppSpacing.s1,
-            children: [
-              AppText.titleLarge(cycle.topic),
-              AppText.caption(
-                _dateLabel(l10n, cycle.date),
-                color: AppColors.textSecondary,
-              ),
-              AppText.caption(
-                l10n.historyParticipantCount(cycle.participantCount),
-                color: AppColors.textSecondary,
-              ),
-              _participantAvatars(),
-            ],
+    return AppSurface(
+      // 페이지 배경 위 맨 아이템이라 평소엔 투명, 누르는 동안만 살짝 밝게.
+      color: const Color(0x00000000),
+      pressedColor: AppColors.bgSurface,
+      // 탭 → 해당 사이클의 사진 갤러리로 이동.
+      onTap: () => context.push(RoutePath.follower, extra: cycle.cycleId),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: AppSpacing.s3,
+        children: [
+          _thumbnail(),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpacing.s1,
+              children: [
+                AppText.titleLarge(cycle.topic),
+                AppText.caption(
+                  _dateLabel(l10n, cycle.date),
+                  color: AppColors.textSecondary,
+                ),
+                AppText.caption(
+                  l10n.historyParticipantCount(cycle.participantCount),
+                  color: AppColors.textSecondary,
+                ),
+                _participantAvatars(),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
