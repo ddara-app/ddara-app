@@ -237,11 +237,36 @@
       "email": { "type": "String" }
     }
   },
-  "recordCycleLabel": "따라찍기",
-  "recordPhotoLabel": "함께한 사진",
+  "recordSectionTitle": "기록",
+  "recordMyCycleLabel": "나의 따라찍기",
+  "recordGroupCycleLabel": "모임 따라찍기",
   "groupHistoryTitle": "지난 따라찍기",
   "groupHistoryMore": "더보기",
   "groupHistoryEmpty": "지난 따라찍기가 아직 없어요",
+  "groupHistoryFilterAll": "전체보기",
+  "groupHistoryFilterYearMonth": "{year}년 {month}월",
+  "@groupHistoryFilterYearMonth": {
+    "description": "년·월 라벨. (필터 버튼·월 섹션 제목 공용)",
+    "placeholders": {
+      "year": { "type": "int" },
+      "month": { "type": "int" }
+    }
+  },
+  "historyYearLabel": "{year}년",
+  "@historyYearLabel": {
+    "description": "년·월 선택 카드 헤더의 연도 라벨",
+    "placeholders": {
+      "year": { "type": "int" }
+    }
+  },
+  "historyFilterReset": "초기화",
+  "historyMonthLabel": "{month}월",
+  "@historyMonthLabel": {
+    "description": "년·월 선택 카드의 월 셀 라벨",
+    "placeholders": {
+      "month": { "type": "int" }
+    }
+  },
   "historyParticipantCount": "{count}명 참여",
   "@historyParticipantCount": {
     "description": "지난 따라찍기 카드의 참여 인원 수",

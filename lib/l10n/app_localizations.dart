@@ -712,17 +712,23 @@ abstract class AppLocalizations {
   /// **'메일 앱을 열 수 없어요. ({email})'**
   String memberReportMailFailed(String email);
 
-  /// No description provided for @recordCycleLabel.
+  /// No description provided for @recordSectionTitle.
   ///
   /// In ko, this message translates to:
-  /// **'따라찍기'**
-  String get recordCycleLabel;
+  /// **'기록'**
+  String get recordSectionTitle;
 
-  /// No description provided for @recordPhotoLabel.
+  /// No description provided for @recordMyCycleLabel.
   ///
   /// In ko, this message translates to:
-  /// **'함께한 사진'**
-  String get recordPhotoLabel;
+  /// **'나의 따라찍기'**
+  String get recordMyCycleLabel;
+
+  /// No description provided for @recordGroupCycleLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 따라찍기'**
+  String get recordGroupCycleLabel;
 
   /// No description provided for @groupHistoryTitle.
   ///
@@ -741,6 +747,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'지난 따라찍기가 아직 없어요'**
   String get groupHistoryEmpty;
+
+  /// No description provided for @groupHistoryFilterAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체보기'**
+  String get groupHistoryFilterAll;
+
+  /// 년·월 라벨. (필터 버튼·월 섹션 제목 공용)
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년 {month}월'**
+  String groupHistoryFilterYearMonth(int year, int month);
+
+  /// 년·월 선택 카드 헤더의 연도 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년'**
+  String historyYearLabel(int year);
+
+  /// No description provided for @historyFilterReset.
+  ///
+  /// In ko, this message translates to:
+  /// **'초기화'**
+  String get historyFilterReset;
+
+  /// 년·월 선택 카드의 월 셀 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월'**
+  String historyMonthLabel(int month);
 
   /// 지난 따라찍기 카드의 참여 인원 수
   ///

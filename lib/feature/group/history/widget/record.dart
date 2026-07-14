@@ -36,10 +36,16 @@ class Record extends StatelessWidget {
         spacing: AppSpacing.s3,
         children: [
           Expanded(
-            child: _StatItem(value: '$ddaraCount', label: l10n.recordCycleLabel),
+            child: _StatItem(
+              value: '$ddaraCount',
+              label: l10n.recordMyCycleLabel,
+            ),
           ),
           Expanded(
-            child: _StatItem(value: '$photoCount', label: l10n.recordPhotoLabel),
+            child: _StatItem(
+              value: '$photoCount',
+              label: l10n.recordGroupCycleLabel,
+            ),
           ),
         ],
       ),

@@ -47,6 +47,17 @@ class AppText extends StatelessWidget {
   }) : _style = AppTypography.headlineMedium,
        _defaultColor = AppColors.textPrimary;
 
+  /// Title/Large · 상단 바 제목·큰 항목 제목. (기본색 textPrimary)
+  const AppText.titleLarge(
+    this.text, {
+    super.key,
+    this.textAlign,
+    this.color,
+    this.maxLines,
+    this.overflow,
+  }) : _style = AppTypography.titleLarge,
+       _defaultColor = AppColors.textPrimary;
+
   /// Title · 한 줄 카드·항목 제목. (기본색 textPrimary)
   const AppText.title(
     this.text, {
