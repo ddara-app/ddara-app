@@ -139,6 +139,34 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Crashlytics dSYM 업로드
+        continue-on-error: true   # 실패해도 배포는 진행, 단 화면에 눈에 띄게 남음
+        run: |
+          DSYMS=build/ios/archive/Runner.xcarchive/dSYMs
+          test -d "$DSYMS" || { echo "::error::dSYM 폴더 없음: $DSYMS"; exit 1; }
+          
+          # 빌드가 resolve 한 firebase-ios-sdk 버전을 Package.resolved 에서 추출
+          RESOLVED=$(find ios -name Package.resolved 2>/dev/null | head -n1)
+          VERSION=$(jq -r '.pins[] | select(.identity=="firebase-ios-sdk") | .state.version' "$RESOLVED")
+          echo "firebase-ios-sdk: $VERSION"
+          
+          # 같은 태그의 upload-symbols 바이너리를 직접 다운로드 (DerivedData 탐색 불필요)
+          curl -fsSL -o /tmp/upload-symbols \
+          "https://github.com/firebase/firebase-ios-sdk/raw/${VERSION}/Crashlytics/upload-symbols"
+          chmod +x /tmp/upload-symbols
+          
+          /tmp/upload-symbols -gsp ios/Runner/GoogleService-Info.plist -p ios "$DSYMS"
+
+      - name: dSYM 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-dsyms
+          path: build/ios/archive/Runner.xcarchive/dSYMs
+          if-no-files-found: error
+          retention-days: 14
+
+
+
       - name: App Store Connect 업로드 (ASC API 키)
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
