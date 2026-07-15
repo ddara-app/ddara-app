@@ -358,6 +358,24 @@ abstract class AppLocalizations {
   /// **'설정으로 이동'**
   String get permissionGoToSettings;
 
+  /// 홈 상단 첫 번째 탭 (모임 목록)
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기 모임'**
+  String get homeTabGroups;
+
+  /// 홈 상단 두 번째 탭
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 업데이트'**
+  String get homeTabRecentUpdates;
+
+  /// 최근 업데이트 탭이 비어 있을 때 안내 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 표시할 업데이트가 없어요'**
+  String get homeRecentUpdatesEmpty;
+
   /// No description provided for @emptyGroupTitle.
   ///
   /// In ko, this message translates to:

@@ -145,6 +145,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get permissionGoToSettings => '설정으로 이동';
 
   @override
+  String get homeTabGroups => '따라찍기 모임';
+
+  @override
+  String get homeTabRecentUpdates => '최근 업데이트';
+
+  @override
+  String get homeRecentUpdatesEmpty => '아직 표시할 업데이트가 없어요';
+
+  @override
   String get emptyGroupTitle => '아직 참여한 모임이 없어요';
 
   @override

@@ -101,6 +101,19 @@
   "permissionDialogContent": "설정 > 권한에서 직접 허용해 주세요.",
   "permissionGoToSettings": "설정으로 이동",
 
+  "homeTabGroups": "따라찍기 모임",
+  "@homeTabGroups": {
+    "description": "홈 상단 첫 번째 탭 (모임 목록)"
+  },
+  "homeTabRecentUpdates": "최근 업데이트",
+  "@homeTabRecentUpdates": {
+    "description": "홈 상단 두 번째 탭"
+  },
+  "homeRecentUpdatesEmpty": "아직 표시할 업데이트가 없어요",
+  "@homeRecentUpdatesEmpty": {
+    "description": "최근 업데이트 탭이 비어 있을 때 안내 문구"
+  },
+
   "emptyGroupTitle": "아직 참여한 모임이 없어요",
   "emptyGroupDescription": "첫 판을 시작해 친구들에게 보내보세요",
   "groupCreate": "모임 만들기",
