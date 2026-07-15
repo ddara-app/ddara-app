@@ -123,7 +123,7 @@ class _GroupListPageState extends State<GroupListPage> {
                 onTap: () => context.push(RoutePath.groupCreate),
               ),
               SpeedDialAction(
-                label: l10n.groupEnter,
+                label: l10n.groupJoin,
                 onTap: () => context.push(RoutePath.inviteCodeInput),
               ),
             ],

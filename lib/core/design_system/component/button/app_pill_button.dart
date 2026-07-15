@@ -9,7 +9,7 @@ enum AppPillButtonVariant {
   /// 강조색으로 채워진 기본 버튼.
   primary,
 
-  /// 배경은 투명하고 테두리·글자색만 강조색인 보조 버튼.
+  /// 배경은 앱 배경색이고 테두리·글자색만 강조색인 보조 버튼.
   outline,
 }
 
@@ -47,10 +47,12 @@ class AppPillButton extends StatelessWidget {
     // 활성/비활성에 따른 강조색. (테두리·outline 글자에 사용)
     final accent = isEnabled ? AppColors.accentDefault : AppColors.textDisabled;
 
-    // primary: 채운 배경 + 대비 글자, outline: 투명 배경 + 테두리/글자 강조색.
-    final Color? background = isPrimary
+    // primary: 채운 배경 + 대비 글자,
+    // outline: 앱 배경색 배경 + 테두리/글자 강조색. (투명이면 백드롭 위에서
+    // 뒤 콘텐츠가 비쳐 보여 배경색으로 채운다)
+    final Color background = isPrimary
         ? (isEnabled ? AppColors.accentDefault : AppColors.bgSurfaceAlt)
-        : null;
+        : AppColors.bgBase;
     final Color contentColor = isPrimary
         ? (isEnabled ? AppColors.textOnAccent : AppColors.textDisabled)
         : accent;

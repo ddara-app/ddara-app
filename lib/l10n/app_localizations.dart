@@ -394,12 +394,6 @@ abstract class AppLocalizations {
   /// **'모임 참여하기'**
   String get groupJoin;
 
-  /// No description provided for @groupEnter.
-  ///
-  /// In ko, this message translates to:
-  /// **'모임 들어가기'**
-  String get groupEnter;
-
   /// No description provided for @groupCountLabel.
   ///
   /// In ko, this message translates to:

@@ -163,9 +163,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupJoin => '모임 참여하기';
 
   @override
-  String get groupEnter => '모임 들어가기';
-
-  @override
   String get groupCountLabel => '현재 모임 개수';
 
   @override

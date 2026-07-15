@@ -113,7 +113,6 @@
   "emptyGroupDescription": "첫 판을 시작해 친구들에게 보내보세요",
   "groupCreate": "모임 만들기",
   "groupJoin": "모임 참여하기",
-  "groupEnter": "모임 들어가기",
   "groupCountLabel": "현재 모임 개수",
   "groupCountValue": "{count}/{maxCount}개",
   "@groupCountValue": {
