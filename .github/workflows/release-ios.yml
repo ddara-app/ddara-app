@@ -2,6 +2,7 @@
 #
 # 산출물: Apple Distribution + App Store 프로파일(ddara-team3-distribution) 서명 IPA
 #         → App Store Connect 업로드 (처리 후 TestFlight 반영, 심사 제출은 콘솔에서)
+#         → 동일 IPA 를 액션 아티팩트(ios-release-ipa, 14일 보관)로도 다운로드 가능
 # 가이드: lib/release-ios-research.md, lib/release-cicd-research.md
 #
 # ⚠️ 선행 조건 (자동화 이전에 반드시 1회 수동):
@@ -128,6 +129,44 @@ jobs:
       - name: IPA 경로 탐색
         run: echo "IPA_PATH=$(ls build/ios/ipa/*.ipa | head -n1)" >> "$GITHUB_ENV"
 
+      # ASC 업로드와 별개로 IPA 를 직접 받을 수 있도록 아티팩트로 보존.
+      # (업로드 스텝보다 앞에 두어 ASC 업로드가 실패해도 다운로드 가능)
+      - name: IPA 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-ipa
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Crashlytics dSYM 업로드
+        continue-on-error: true   # 실패해도 배포는 진행, 단 화면에 눈에 띄게 남음
+        run: |
+          DSYMS=build/ios/archive/Runner.xcarchive/dSYMs
+          test -d "$DSYMS" || { echo "::error::dSYM 폴더 없음: $DSYMS"; exit 1; }
+          
+          # 빌드가 resolve 한 firebase-ios-sdk 버전을 Package.resolved 에서 추출
+          RESOLVED=$(find ios -name Package.resolved 2>/dev/null | head -n1)
+          VERSION=$(jq -r '.pins[] | select(.identity=="firebase-ios-sdk") | .state.version' "$RESOLVED")
+          echo "firebase-ios-sdk: $VERSION"
+          
+          # 같은 태그의 upload-symbols 바이너리를 직접 다운로드 (DerivedData 탐색 불필요)
+          curl -fsSL -o /tmp/upload-symbols \
+          "https://github.com/firebase/firebase-ios-sdk/raw/${VERSION}/Crashlytics/upload-symbols"
+          chmod +x /tmp/upload-symbols
+          
+          /tmp/upload-symbols -gsp ios/Runner/GoogleService-Info.plist -p ios "$DSYMS"
+
+      - name: dSYM 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-dsyms
+          path: build/ios/archive/Runner.xcarchive/dSYMs
+          if-no-files-found: error
+          retention-days: 14
+
+
+
       - name: App Store Connect 업로드 (ASC API 키)
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -140,23 +179,6 @@ jobs:
           xcrun altool --upload-app -f "$IPA_PATH" -t ios \
             --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
           # 업로드 후 ASC 처리(수 분~수십 분) → TestFlight 반영. 심사 제출은 콘솔에서 진행.
-
-      # Crashlytics 심볼화를 위해 dSYM 업로드. 업로드는 이미 끝난 뒤이므로 비차단 처리.
-      - name: Crashlytics dSYM 업로드
-        run: |
-          # Firebase 설치 방식(SPM/Pods)에 무관하게 upload-symbols 를 이름으로 탐색.
-          UPLOAD=$(find "$HOME/Library/Developer/Xcode/DerivedData" ios \
-            -type f -name upload-symbols 2>/dev/null | head -n1)
-          DSYMS=build/ios/archive/Runner.xcarchive/dSYMs
-          if [ -z "$UPLOAD" ]; then
-            echo "::warning::upload-symbols 를 찾지 못해 dSYM 업로드를 건너뜁니다."
-          elif [ ! -d "$DSYMS" ]; then
-            echo "::warning::dSYM 폴더($DSYMS)가 없어 업로드를 건너뜁니다."
-          else
-            echo "upload-symbols: $UPLOAD"
-            "$UPLOAD" -gsp ios/Runner/GoogleService-Info.plist -p ios "$DSYMS" \
-              || echo "::warning::dSYM 업로드 실패 (배포에는 영향 없음)."
-          fi
 
   # ─────────────────────────── 배포 완료 알림 (Discord) ───────────────────────────
   notify:

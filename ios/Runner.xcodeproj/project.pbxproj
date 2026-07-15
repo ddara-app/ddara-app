@@ -158,7 +158,6 @@
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
-				CC0000000000000000000001 /* Crashlytics Upload Symbols */,
 			);
 			buildRules = (
 			);
@@ -266,23 +265,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
-		};
-		CC0000000000000000000001 /* Crashlytics Upload Symbols */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
-				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
-			);
-			name = "Crashlytics Upload Symbols";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# PR/디버그(Debug) 빌드에서는 dSYM 업로드를 건너뛴다. (GOOGLE_APP_ID 불필요)\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n  echo \"Debug 빌드 → Crashlytics dSYM 업로드 건너뜀.\"\n  exit 0\nfi\n# Firebase 는 SPM(우선) 또는 CocoaPods 로 설치될 수 있어 양쪽 경로를 탐지한다.\nSPM_RUN=\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\nPODS_RUN=\"${PODS_ROOT}/FirebaseCrashlytics/run\"\nif [ -f \"$SPM_RUN\" ]; then\n  \"$SPM_RUN\"\nelif [ -f \"$PODS_RUN\" ]; then\n  \"$PODS_RUN\"\nelse\n  echo \"warning: Crashlytics run script 를 찾지 못해 dSYM 업로드를 건너뜁니다 (SPM/Pods 모두 없음).\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
