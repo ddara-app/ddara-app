@@ -49,6 +49,14 @@ class _GroupListPageState extends State<GroupListPage> {
     super.dispose();
   }
 
+  /// PageView 의 현재 페이지 값(스와이프 진행도 포함).
+  /// 첫 레이아웃 전(치수 미확정)에는 선택 인덱스로 대체한다.
+  double get _currentPage {
+    final hasPage =
+        _pageController.hasClients && _pageController.position.haveDimensions;
+    return hasPage ? _pageController.page! : _tabIndex.toDouble();
+  }
+
   void _onTabTap(int index) {
     if (index == _tabIndex) return;
     _pageController.animateToPage(
@@ -93,18 +101,33 @@ class _GroupListPageState extends State<GroupListPage> {
         ),
         // 백드롭 + FAB + 펼침 모션을 모두 내장한 완결형 위젯.
         // Stack 의 맨 위(마지막 자식)에 얹어 콘텐츠 위를 덮도록 한다.
-        SpeedDialFab(
-          actions: [
-            SpeedDialAction(
-              label: l10n.groupCreate,
-              filled: true,
-              onTap: () => context.push(RoutePath.groupCreate),
-            ),
-            SpeedDialAction(
-              label: l10n.groupEnter,
-              onTap: () => context.push(RoutePath.inviteCodeInput),
-            ),
-          ],
+        // FAB 는 따라찍기 모임 탭 전용이라, 최근 업데이트 탭으로 갈수록
+        // 스와이프 진행도에 맞춰 페이드 아웃되고 완전히 넘어가면 사라진다.
+        AnimatedBuilder(
+          animation: _pageController,
+          builder: (context, child) {
+            final visibility = (1 - _currentPage).clamp(0.0, 1.0);
+            // 완전히 사라졌으면 터치 영역까지 제거한다.
+            if (visibility == 0) return const SizedBox.shrink();
+            return IgnorePointer(
+              // 반쯤 사라진 상태에서 잘못 눌리지 않도록 일찍 막는다.
+              ignoring: visibility < 0.5,
+              child: Opacity(opacity: visibility, child: child),
+            );
+          },
+          child: SpeedDialFab(
+            actions: [
+              SpeedDialAction(
+                label: l10n.groupCreate,
+                filled: true,
+                onTap: () => context.push(RoutePath.groupCreate),
+              ),
+              SpeedDialAction(
+                label: l10n.groupEnter,
+                onTap: () => context.push(RoutePath.inviteCodeInput),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -121,11 +144,7 @@ class _GroupListPageState extends State<GroupListPage> {
       // PageController 가 스크롤마다 notify 하므로 진행도를 프레임 단위로 반영.
       animation: _pageController,
       builder: (context, _) {
-        // 첫 레이아웃 전(치수 미확정)에는 선택 인덱스로 대체한다.
-        final hasPage =
-            _pageController.hasClients &&
-            _pageController.position.haveDimensions;
-        final page = hasPage ? _pageController.page! : _tabIndex.toDouble();
+        final page = _currentPage;
         final t = page.clamp(0.0, 1.0);
 
         // 라벨별 실제 렌더링 폭. (인디케이터 위치·폭 보간의 기준)
