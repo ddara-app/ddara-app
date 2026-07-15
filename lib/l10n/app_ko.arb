@@ -109,11 +109,6 @@
   "@homeTabRecentUpdates": {
     "description": "홈 상단 두 번째 탭"
   },
-  "homeRecentUpdatesEmpty": "아직 표시할 업데이트가 없어요",
-  "@homeRecentUpdatesEmpty": {
-    "description": "최근 업데이트 탭이 비어 있을 때 안내 문구"
-  },
-
   "emptyGroupTitle": "아직 참여한 모임이 없어요",
   "emptyGroupDescription": "첫 판을 시작해 친구들에게 보내보세요",
   "groupCreate": "모임 만들기",
@@ -129,6 +124,15 @@
     }
   },
   "groupCountCaption": "모임에 속해 있어요",
+  "updateCountLabel": "친구들의 업데이트",
+  "updateCountValue": "{count}개",
+  "@updateCountValue": {
+    "description": "친구들의 업데이트 개수 표시 (최근 업데이트 탭 대시보드)",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "updateCountCaption": "어서 따라찍기를 시작해봐요",
   "meetingStatusInProgress": "진행 중",
   "meetingStatusCompleted": "종료",
   "meetingMemberOwner": "{name}님",

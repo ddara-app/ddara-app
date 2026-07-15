@@ -1,6 +1,5 @@
 import 'dart:ui' show lerpDouble;
 
-import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -19,6 +18,9 @@ const Duration _tabSwitchDuration = Duration(milliseconds: 300);
 
 /// 탭 인디케이터 두께.
 const double _indicatorHeight = 3;
+
+/// 홈 탭(페이지) 개수.
+const int _tabCount = 2;
 
 /// 참여한 모임이 하나 이상일 때 보여주는 홈 본문.
 ///
@@ -194,17 +196,78 @@ class _GroupListPageState extends State<GroupListPage> {
   }
 }
 
-/// 따라찍기 모임 탭: 모임 카드 목록.
+/// 따라찍기 모임 탭: 진행 중인 모임 카드 목록.
+class _GroupListView extends StatelessWidget {
+  const _GroupListView({required this.groups});
+
+  final List<Group> groups;
+
+  @override
+  Widget build(BuildContext context) {
+    return _CardGridView(
+      groups: groups,
+      dashboard: HomeDashboard.groupCount(
+        count: groups.length,
+        pageIndex: 0,
+        pageCount: _tabCount,
+      ),
+      cardBuilder: (context, group) => MeetingCard(
+        group: group,
+        onTap: () => _openGroup(context, group.groupId),
+      ),
+    );
+  }
+}
+
+/// 최근 업데이트 탭: 따라찍기 모임 탭과 같은 그리드 구조를 공유한다.
+///
+/// 업데이트 데이터가 아직 없어 지금은 대시보드만 있는 빈 그리드를 보여준다.
+class _RecentUpdatesView extends StatelessWidget {
+  const _RecentUpdatesView();
+
+  @override
+  Widget build(BuildContext context) {
+    return _CardGridView(
+      // TODO: 최근 업데이트 데이터가 정해지면 개수·카드 목록을 채운다.
+      groups: const [],
+      dashboard: const HomeDashboard.updateCount(
+        count: 0,
+        pageIndex: 1,
+        pageCount: _tabCount,
+      ),
+      cardBuilder: (context, group) => MeetingCard(
+        group: group,
+        onTap: () => _openGroup(context, group.groupId),
+      ),
+    );
+  }
+}
+
+void _openGroup(BuildContext context, int groupId) {
+  context.push(RoutePath.group, extra: groupId);
+}
+
+/// 두 탭이 공유하는 카드 그리드 본문.
 ///
 /// 화면을 세로로 반 나눠 좌/우 두 열에 카드를 번갈아(지그재그) 배치한다.
 /// 우측 열 맨 위에는 카드보다 작은 고정 위젯([HomeDashboard])이 들어가, 그 높이
 /// 차이만큼 우측 카드들이 위로 덜 내려오면서 자연스러운 지그재그가 만들어진다.
 ///
 /// 카드 높이가 균일하므로 Masonry 패키지 없이 `Row` + `Column` 2개로 충분하다.
-class _GroupListView extends StatelessWidget {
-  const _GroupListView({required this.groups});
+class _CardGridView extends StatelessWidget {
+  const _CardGridView({
+    required this.groups,
+    required this.dashboard,
+    required this.cardBuilder,
+  });
 
   final List<Group> groups;
+
+  /// 우측 열 맨 위에 고정되는 요약 위젯. (탭마다 담는 내용이 다르다)
+  final Widget dashboard;
+
+  /// 카드 생성자. (탭마다 카드에 담는 내용이 달라 주입받는다)
+  final Widget Function(BuildContext context, Group group) cardBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -244,10 +307,7 @@ class _GroupListView extends StatelessWidget {
                     spacing: AppSpacing.s3,
                     children: [
                       for (var i = 0; i < groups.length; i += 2)
-                        MeetingCard(
-                          group: groups[i],
-                          onTap: () => _openGroup(context, groups[i].groupId),
-                        ),
+                        cardBuilder(context, groups[i]),
                     ],
                   ),
                 ),
@@ -257,13 +317,10 @@ class _GroupListView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: AppSpacing.s3,
                     children: [
-                      // 참여 중인 모임 개수를 주입. (지그재그 오프셋용 고정 위젯)
-                      HomeDashboard(count: groups.length),
+                      // 지그재그 오프셋용 고정 위젯. (내용은 탭별로 주입)
+                      dashboard,
                       for (var i = 1; i < groups.length; i += 2)
-                        MeetingCard(
-                          group: groups[i],
-                          onTap: () => _openGroup(context, groups[i].groupId),
-                        ),
+                        cardBuilder(context, groups[i]),
                     ],
                   ),
                 ),
@@ -275,19 +332,4 @@ class _GroupListView extends StatelessWidget {
     );
   }
 
-  void _openGroup(BuildContext context, int groupId) {
-    context.push(RoutePath.group, extra: groupId);
-  }
-}
-
-/// 최근 업데이트 탭. 콘텐츠가 정해지기 전까지 빈 상태 안내만 보여준다.
-class _RecentUpdatesView extends StatelessWidget {
-  const _RecentUpdatesView();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: AppText.body(AppLocalizations.of(context).homeRecentUpdatesEmpty),
-    );
-  }
 }
