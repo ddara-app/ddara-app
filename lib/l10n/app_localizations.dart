@@ -358,6 +358,18 @@ abstract class AppLocalizations {
   /// **'설정으로 이동'**
   String get permissionGoToSettings;
 
+  /// 홈 상단 첫 번째 탭 (모임 목록)
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기 모임'**
+  String get homeTabGroups;
+
+  /// 홈 상단 두 번째 탭
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 업데이트'**
+  String get homeTabRecentUpdates;
+
   /// No description provided for @emptyGroupTitle.
   ///
   /// In ko, this message translates to:
@@ -382,12 +394,6 @@ abstract class AppLocalizations {
   /// **'모임 참여하기'**
   String get groupJoin;
 
-  /// No description provided for @groupEnter.
-  ///
-  /// In ko, this message translates to:
-  /// **'모임 들어가기'**
-  String get groupEnter;
-
   /// No description provided for @groupCountLabel.
   ///
   /// In ko, this message translates to:
@@ -405,6 +411,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'모임에 속해 있어요'**
   String get groupCountCaption;
+
+  /// No description provided for @updateCountLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'친구들의 업데이트'**
+  String get updateCountLabel;
+
+  /// 친구들의 업데이트 개수 표시 (최근 업데이트 탭 대시보드)
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String updateCountValue(int count);
+
+  /// No description provided for @updateCountCaption.
+  ///
+  /// In ko, this message translates to:
+  /// **'어서 따라찍기를 시작해봐요'**
+  String get updateCountCaption;
 
   /// No description provided for @meetingStatusInProgress.
   ///

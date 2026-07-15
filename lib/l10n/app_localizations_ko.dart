@@ -145,6 +145,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get permissionGoToSettings => '설정으로 이동';
 
   @override
+  String get homeTabGroups => '따라찍기 모임';
+
+  @override
+  String get homeTabRecentUpdates => '최근 업데이트';
+
+  @override
   String get emptyGroupTitle => '아직 참여한 모임이 없어요';
 
   @override
@@ -157,9 +163,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupJoin => '모임 참여하기';
 
   @override
-  String get groupEnter => '모임 들어가기';
-
-  @override
   String get groupCountLabel => '현재 모임 개수';
 
   @override
@@ -169,6 +172,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get groupCountCaption => '모임에 속해 있어요';
+
+  @override
+  String get updateCountLabel => '친구들의 업데이트';
+
+  @override
+  String updateCountValue(int count) {
+    return '$count개';
+  }
+
+  @override
+  String get updateCountCaption => '어서 따라찍기를 시작해봐요';
 
   @override
   String get meetingStatusInProgress => '진행 중';
