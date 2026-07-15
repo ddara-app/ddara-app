@@ -28,6 +28,7 @@ migrate_working_dir/
 **/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins-dependencies
+devtools_options.yaml
 .pub-cache/
 .pub/
 /build/
@@ -45,3 +46,7 @@ app.*.map.json
 /android/app/release
 
 .env
+
+# Firebase (민감 정보 — 커밋 제외)
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist

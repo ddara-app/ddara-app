@@ -1,0 +1,142 @@
+# PR 검증 → 정적 분석 + 테스트 + Android/iOS 디버그 빌드
+#
+# 어느 브랜치로 향하든 PR 에서 분석/테스트/빌드를 돌려, 머지 전에 깨진 코드가
+# 들어오는 것을 막는 게이트.
+#
+# 구조: verify(분석·테스트) 통과 시에만 android/ios 빌드를 돌려
+#       비싼 macOS 러너 낭비를 막는다.
+#
+# 시크릿: build-debug.yml 과 동일 규약.
+#   [base64]  GOOGLE_SERVICES_JSON, GOOGLE_SERVICE_INFO_PLIST
+#   [원문]     ENV_FILE, IOS_SECRETS_XCCONFIG
+#   [평문]     KAKAO_NATIVE_APP_KEY
+# ⚠ fork 에서 올라온 PR 은 시크릿이 주입되지 않아 빌드 단계가 실패한다.
+#   (같은 저장소 브랜치 간 PR 에서는 정상 동작)
+
+name: pr-check
+
+on:
+  # branches 필터 없음 → 어느 브랜치를 대상으로 하는 PR 이든 발동.
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# 같은 PR 에 새 커밋이 푸시되면 진행 중이던 검증을 취소.
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.1'
+
+jobs:
+  # ──────────────────── 분석 · 테스트 (빌드 전 게이트) ────────────────────
+  verify:
+    name: Analyze · Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 의존성 설치
+        run: flutter pub get
+
+      - name: .env 플레이스홀더 생성
+        # pubspec 에 .env 가 에셋으로 선언돼 있어, 없으면 분석에서
+        # asset_does_not_exist 경고(=실패)가 난다. 분석은 존재만 확인하므로
+        # 빈 파일로 충분(시크릿 불필요 → fork PR 도 안전).
+        run: touch .env
+
+      - name: 정적 분석
+        # info(린트) 는 보고만 하고, 경고/에러일 때만 실패시킨다.
+        run: flutter analyze --no-fatal-infos
+
+      - name: 테스트
+        # 테스트 파일이 없으면 flutter test 가 실패하므로 존재할 때만 실행.
+        run: |
+          if [ -n "$(find test -name '*_test.dart' 2>/dev/null)" ]; then
+            flutter test
+          else
+            echo "테스트 파일이 없어 건너뜀."
+          fi
+
+  # ─────────────────────────── Android 빌드 ───────────────────────────
+  android:
+    name: Android Build
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 의존성 설치
+        run: flutter pub get
+
+      - name: 시크릿 파일 복원 (빌드용)
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          KAKAO_NATIVE_APP_KEY: ${{ secrets.KAKAO_NATIVE_APP_KEY }}
+        run: |
+          printf '%s' "$ENV_FILE" > .env
+          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+          # build.gradle 이 KAKAO 키를 참조하는 경우 대비 (manifestPlaceholders)
+          echo "KAKAO_NATIVE_APP_KEY=$KAKAO_NATIVE_APP_KEY" >> android/local.properties
+
+      - name: Android APK 빌드 (debug)
+        run: flutter build apk --debug
+
+  # ───────────────────────── iOS 빌드 (서명 없음) ─────────────────────────
+  ios:
+    name: iOS Build
+    needs: verify
+    runs-on: macos-latest
+    # 재시도 예산(25분 × 2회 = 50분) + 셋업 여유를 덮도록 설정.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 시크릿 파일 복원
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+          IOS_SECRETS_XCCONFIG: ${{ secrets.IOS_SECRETS_XCCONFIG }}
+        run: |
+          printf '%s' "$ENV_FILE" > .env
+          echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          printf '%s' "$IOS_SECRETS_XCCONFIG" > ios/Flutter/Secrets.xcconfig
+
+      - name: 의존성 설치
+        run: flutter pub get
+
+      - name: iOS 빌드 (debug · 서명 없음)
+        # PR 게이트는 컴파일 검증만 → 서명 자산 불필요.
+        # Firebase SPM 바이너리 다운로드가 간헐적으로 끊겨 재시도.
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 25
+          max_attempts: 2
+          retry_wait_seconds: 20
+          command: flutter build ios --debug --no-codesign

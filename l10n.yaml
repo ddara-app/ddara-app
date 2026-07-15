@@ -1,0 +1,11 @@
+# Flutter gen-l10n 설정. (Android 의 strings.xml 에 대응)
+#
+# lib/l10n/*.arb 의 문자열을 빌드 시 AppLocalizations 클래스로 생성한다.
+# 새 문자열을 추가하려면 app_ko.arb 에 키를 넣고 `flutter gen-l10n` 을 실행한다.
+arb-dir: lib/l10n
+template-arb-file: app_ko.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n
+# AppLocalizations.of(context) 가 non-null 을 반환하도록 한다.
+nullable-getter: false

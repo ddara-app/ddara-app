@@ -1,0 +1,332 @@
+# Debug 빌드 → Firebase App Distribution 배포 (QA용)
+#
+# 산출물: Android 릴리스 APK(업로드 키 서명 · R8 minify) / iOS Development(Ad Hoc) 서명 IPA
+#         → 그룹 qa 에 OTA 배포.
+# 가이드: .github/setup-debug-cicd.md, .github/research-debug.md
+#
+# 시크릿 인코딩 규약 (등록 시 이 규약대로 넣어야 함):
+#   [base64]  GOOGLE_SERVICES_JSON, GOOGLE_SERVICE_INFO_PLIST,
+#             IOS_CERTIFICATE_P12, IOS_PROVISIONING_PROFILE, FIREBASE_SERVICE_ACCOUNT,
+#             ANDROID_KEYSTORE_BASE64  ← Android 릴리스 서명(업로드 키스토어 .jks)
+#   [원문]     ENV_FILE, IOS_SECRETS_XCCONFIG
+#   [평문]     KAKAO_NATIVE_APP_KEY, IOS_TEAM_ID, IOS_CERTIFICATE_PASSWORD,
+#             IOS_KEYCHAIN_PASSWORD, FIREBASE_APP_ID_IOS, FIREBASE_APP_ID_ANDROID,
+#             ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS
+
+name: build-debug
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: '빌드 대상'
+        type: choice
+        options: [ all, android, ios ]
+        default: all
+
+  push:
+    branches: [ dev ]
+
+concurrency:
+  group: build-debug-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.1'
+
+jobs:
+  # ─────────────────────────────── Android ───────────────────────────────
+  android:
+    name: Android Release APK
+    if: ${{ github.event_name == 'push' || inputs.platform == 'all' || inputs.platform == 'android' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 시크릿 파일 복원
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          KAKAO_NATIVE_APP_KEY: ${{ secrets.KAKAO_NATIVE_APP_KEY }}
+        run: |
+          printf '%s' "$ENV_FILE" > .env
+          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+          # build.gradle 이 KAKAO 키를 참조하는 경우 대비 (manifestPlaceholders)
+          echo "KAKAO_NATIVE_APP_KEY=$KAKAO_NATIVE_APP_KEY" >> android/local.properties
+
+      - name: 릴리스 키스토어 복원
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          # 키스토어 값이 있으면 업로드 키로 서명. 없으면 build.gradle.kts 가 debug 로 폴백하는데,
+          # 그 경우 배포본 SHA 가 미등록이라 카카오/구글 로그인이 실패하므로 경고를 남긴다.
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::warning::ANDROID_KEYSTORE_BASE64 미설정 — 릴리스가 debug 키로 서명됩니다(로그인 실패 위험)."
+            exit 0
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          # RELEASE_* 값을 local.properties 에 주입 (build.gradle.kts 가 여기서 읽음 — KAKAO 키와 동일 패턴).
+          # storeFile 은 app 모듈 기준 상대경로.
+          {
+            echo "RELEASE_STORE_FILE=upload-keystore.jks"
+            echo "RELEASE_STORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD"
+            echo "RELEASE_KEY_PASSWORD=$ANDROID_KEY_PASSWORD"
+            echo "RELEASE_KEY_ALIAS=$ANDROID_KEY_ALIAS"
+          } >> android/local.properties
+
+      - name: 의존성 설치
+        run: flutter pub get
+
+      - name: APK 빌드 (release)
+        # 릴리스 서명(업로드 키) + R8 minify 적용. 빌드 번호를 run_number 로 주입해
+        # 실행마다 자동 증가. (pubspec 은 변경 안 함)
+        run: flutter build apk --release --build-number=${{ github.run_number }}
+
+      - name: AAB 빌드 (release)
+        # Play 업로드용 App Bundle. APK 와 동일한 업로드 키 서명·R8 설정으로 빌드.
+        # (APK 와 AAB 를 모두 만든 뒤 배포/업로드해 산출물 일관성을 맞춘다)
+        run: flutter build appbundle --release --build-number=${{ github.run_number }}
+
+      - name: Firebase 서비스 계정 복원 (base64 → JSON 파일)
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" | base64 --decode > "$RUNNER_TEMP/firebase-sa.json"
+          echo "FIREBASE_SA=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
+
+      # iOS 와 동일하게 Firebase CLI 로 업로드 + 테스터 링크 추출.
+      # (wzieba 액션은 배포 링크를 output 으로 넘겨주지 않아 CLI 로 통일)
+      - name: Firebase App Distribution 업로드 (CLI)
+        id: distribute
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.FIREBASE_SA }}
+        run: |
+          npm install -g firebase-tools
+          # 업로드가 유일한 필수 단계. tee 를 거쳐도 firebase 종료코드를 PIPESTATUS 로 직접 확인.
+          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
+            --app "${{ secrets.FIREBASE_APP_ID_ANDROID }}" \
+            --groups qa 2>&1 | tee distribute.log
+          status=${PIPESTATUS[0]}
+          [ "$status" -eq 0 ] || { echo "::error::Firebase 배포 실패 (exit $status)"; exit "$status"; }
+
+          # 이하 링크 추출은 best-effort — 실패해도 배포 잡을 죽이지 않는다. (notify 에서 fallback)
+          echo "----- distribute URLs -----"
+          grep -E 'https?://' distribute.log || true
+          echo "---------------------------"
+
+          # 테스터 경험(다운로드) 링크만 도메인(appdistribution.firebase…)으로 추출.
+          TESTING_URI=$(grep -oE 'https://appdistribution\.firebase[^[:space:]"]*' distribute.log | head -n1 || true)
+          echo "추출된 testing_uri: ${TESTING_URI:-(없음)}"
+          # 링크를 파일로 저장해 아티팩트로 넘긴다.
+          # (잡 간 outputs 는 URL 내 시크릿 때문에 redact 되지만, 아티팩트 내용은 redact 안 됨)
+          printf '%s\n' "$TESTING_URI" > testing_uri.txt
+
+      - name: 테스터 링크 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: testing-uri-android
+          path: testing_uri.txt
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: AAB 아티팩트 업로드 (다운로드용)
+        # Actions 실행 페이지 하단 Artifacts 에서 app-release.aab 다운로드 가능.
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30
+
+  # ───────────────────────────────── iOS ─────────────────────────────────
+  ios:
+    name: iOS Development IPA
+    if: ${{ github.event_name == 'push' || inputs.platform == 'all' || inputs.platform == 'ios' }}
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: 시크릿 파일 복원
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+          IOS_SECRETS_XCCONFIG: ${{ secrets.IOS_SECRETS_XCCONFIG }}
+        run: |
+          printf '%s' "$ENV_FILE" > .env
+          echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          printf '%s' "$IOS_SECRETS_XCCONFIG" > ios/Flutter/Secrets.xcconfig
+
+      - name: 서명 자산 설치 (인증서 + 프로파일)
+        env:
+          IOS_CERTIFICATE_P12: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          IOS_PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          CERT=$RUNNER_TEMP/cert.p12
+          PROFILE=$RUNNER_TEMP/profile.mobileprovision
+          KEYCHAIN=$RUNNER_TEMP/build.keychain
+
+          echo "$IOS_CERTIFICATE_P12" | base64 --decode > "$CERT"
+          echo "$IOS_PROVISIONING_PROFILE" | base64 --decode > "$PROFILE"
+
+          # 임시 키체인 생성 + 인증서 import
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$CERT" -k "$KEYCHAIN" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+
+          # 프로비저닝 프로파일 배치
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE" "$HOME/Library/MobileDevice/Provisioning Profiles/"
+
+      - name: 수동 서명 설정 주입 (ExportOptions + Release.xcconfig)
+        env:
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          # export 단계용: ExportOptions.plist 의 Team ID 치환
+          sed -i '' "s/__IOS_TEAM_ID__/$IOS_TEAM_ID/" ios/ExportOptions.plist
+          # archive 단계용: 수동 서명 설정을 Release.xcconfig 에 주입 (pbxproj 미변경)
+          # Ad Hoc = Apple Distribution 인증서로 서명 → CODE_SIGN_IDENTITY 를 명시해
+          # pbxproj 기본값("iPhone Developer"=개발 인증서)으로 잡히는 것을 막는다.
+          {
+            echo "CODE_SIGN_STYLE = Manual"
+            echo "DEVELOPMENT_TEAM = $IOS_TEAM_ID"
+            echo "CODE_SIGN_IDENTITY = Apple Distribution"
+            echo "PROVISIONING_PROFILE_SPECIFIER = ddara-team3-ad-hoc"
+          } >> ios/Flutter/Release.xcconfig
+
+      - name: 의존성 설치
+        run: flutter pub get
+
+      - name: IPA 빌드 (development 서명)
+        # Firebase SPM 바이너리(grpc.zip 등) 다운로드가 간헐적으로 끊겨 재시도.
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 20
+          # 빌드 번호를 run_number 로 주입해 실행마다 자동 증가. (pubspec 은 변경 안 함)
+          command: flutter build ipa --build-number=${{ github.run_number }} --export-options-plist=ios/ExportOptions.plist
+
+      - name: IPA 경로 탐색
+        run: echo "IPA_PATH=$(ls build/ios/ipa/*.ipa | head -n1)" >> "$GITHUB_ENV"
+
+      - name: Firebase 서비스 계정 복원 (base64 → JSON 파일)
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" | base64 --decode > "$RUNNER_TEMP/firebase-sa.json"
+          echo "FIREBASE_SA=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
+
+      # wzieba 액션은 Docker(컨테이너) 라 Linux 전용 → macOS 러너에선 Firebase CLI 직접 사용.
+      - name: Firebase App Distribution 업로드 (CLI)
+        id: distribute
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.FIREBASE_SA }}
+        run: |
+          npm install -g firebase-tools
+          # 업로드가 유일한 필수 단계. tee 를 거쳐도 firebase 종료코드를 PIPESTATUS 로 직접 확인.
+          firebase appdistribution:distribute "$IPA_PATH" \
+            --app "${{ secrets.FIREBASE_APP_ID_IOS }}" \
+            --groups qa 2>&1 | tee distribute.log
+          status=${PIPESTATUS[0]}
+          [ "$status" -eq 0 ] || { echo "::error::Firebase 배포 실패 (exit $status)"; exit "$status"; }
+
+          # 이하 링크 추출은 best-effort — 실패해도 배포 잡을 죽이지 않는다. (notify 에서 fallback)
+          echo "----- distribute URLs -----"
+          grep -E 'https?://' distribute.log || true
+          echo "---------------------------"
+
+          # 테스터 경험(다운로드) 링크만 도메인(appdistribution.firebase…)으로 추출.
+          TESTING_URI=$(grep -oE 'https://appdistribution\.firebase[^[:space:]"]*' distribute.log | head -n1 || true)
+          echo "추출된 testing_uri: ${TESTING_URI:-(없음)}"
+          # 링크를 파일로 저장해 아티팩트로 넘긴다.
+          # (잡 간 outputs 는 URL 내 시크릿 때문에 redact 되지만, 아티팩트 내용은 redact 안 됨)
+          printf '%s\n' "$TESTING_URI" > testing_uri.txt
+
+      - name: 테스터 링크 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: testing-uri-ios
+          path: testing_uri.txt
+          if-no-files-found: ignore
+          retention-days: 1
+
+  # ─────────────────────────── 배포 완료 알림 (Discord) ───────────────────────────
+  notify:
+    name: Discord 배포 알림
+    # Android·iOS 배포가 모두 끝난 뒤 실행. (둘 다 성공해야 알림을 보낸다)
+    needs: [ android, ios ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 테스터 링크 아티팩트 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: 디스코드 알림 전송
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_DEBUG_CD_WEBHOOK_URL }}
+        run: |
+          # 각 잡이 아티팩트로 올린 링크 파일을 읽는다. (없거나 비면 빈 값)
+          ANDROID_URI=$(cat artifacts/testing-uri-android/testing_uri.txt 2>/dev/null || true)
+          IOS_URI=$(cat artifacts/testing-uri-ios/testing_uri.txt 2>/dev/null || true)
+
+          # 링크 추출이 실패해 비어 있을 때의 대체 문구. (임베드 field value 는 비면 안 됨)
+          FALLBACK="링크 확인 실패 — Firebase 콘솔에서 확인해주세요."
+          ANDROID_LINK="${ANDROID_URI:-$FALLBACK}"
+          IOS_LINK="${IOS_URI:-$FALLBACK}"
+
+          # URL 등이 안전하게 이스케이프되도록 jq 로 payload 를 구성한다.
+          payload=$(jq -n \
+            --arg android "$ANDROID_LINK" \
+            --arg ios "$IOS_LINK" \
+            '{
+              username: "QA봇",
+              content: "@everyone 새 배포가 완료되었습니다. 확인해주세요!!",
+              allowed_mentions: { parse: ["everyone"] },
+              embeds: [
+                {
+                  title: "앱 다운로드 (App Distribution)",
+                  color: 5814783,
+                  fields: [
+                    { name: "Android", value: $android },
+                    { name: "iOS", value: $ios }
+                  ]
+                },
+                {
+                  title: "앱 설치 방법",
+                  description: "https://app.notion.com/p/iOS-388a5ea4235480efba4cdab6f4f3310f",
+                  color: 5814783
+                }
+              ]
+            }')
+
+          curl -sS --fail-with-body -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$payload"

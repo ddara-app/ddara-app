@@ -31,15 +31,63 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
   flutter_dotenv: ^5.1.0
+  go_router: ^16.0.0
+  flutter_riverpod: ^2.5.1
+
+  kakao_flutter_sdk_user: ^1.9.5
+  google_sign_in: ^6.2.1
+  http: ^1.2.0
+
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.3.0
+  package_info_plus: ^8.0.0
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  permission_handler: ^12.0.0
+
+  dio: ^5.9.0
+
+  flutter_native_splash: ^2.4.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  firebase_core: ^4.11.0
+  firebase_crashlytics: ^5.2.4
+  flutter_svg: ^2.3.0
+  app_links: ^7.2.0
+  kakao_flutter_sdk_share: ^1.10.0
+  url_launcher: ^6.3.2
+  camera: ^0.12.0+1
+  flutter_image_compress: ^2.3.0
+  flutter_markdown: ^0.7.7+1
+
+  lottie: ^3.4.0
+  image_picker: ^1.2.3
+  image_picker_android: ^0.8.13+19
+  image_picker_platform_interface: ^2.11.1
+  image_cropper: ^12.2.1
+  firebase_messaging: ^16.4.1
+  flutter_local_notifications: ^22.0.1
+  sign_in_with_apple: ^8.1.0
+  firebase_auth: ^6.5.4
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  mocktail: ^1.0.4
+  freezed: ^3.0.0
+  build_runner: ^2.4.0
+  json_serializable: ^6.9.0
+  flutter_launcher_icons: ^0.14.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -54,13 +102,34 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
 
+  # ARB 기반 다국어 문자열을 빌드 시 AppLocalizations 로 생성한다. (l10n.yaml 설정)
+  generate: true
+
   assets:
     - assets/images/
+    - assets/policy/
     - .env
+    - assets/lottie/
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard/Pretendard-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Pretendard/Pretendard-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Pretendard/Pretendard-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/Pretendard/Pretendard-Bold.otf
+          weight: 700
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
+          weight: 600
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -92,3 +161,26 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# 런처(설치) 아이콘 설정.
+# 변경 후 `dart run flutter_launcher_icons` 로 android/ios 아이콘을 재생성한다.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/ddara.png"
+  # iOS 아이콘은 투명(alpha) 채널을 허용하지 않으므로 제거한다.
+  remove_alpha_ios: true
+  min_sdk_android: 21
+
+# 네이티브(시스템) 스플래시 설정.
+# 변경 후 `dart run flutter_native_splash:create` 로 네이티브 리소스를 재생성한다.
+# 배경색은 디자인 시스템 bg.base (AppColors.bgBase = #16171b) 와 동일하게 맞춘다.
+flutter_native_splash:
+  color: "#16171b"
+  # Android OS 스플래시 아이콘. (iOS 는 아이콘 없이 배경색만 유지)
+  image: assets/images/android_ddara.png
+
+  # Android 12+ 는 별도 스플래시 API 를 사용하므로 색·이미지를 따로 지정한다.
+  android_12:
+    color: "#16171b"
+    image: assets/images/android_ddara.png

@@ -1,0 +1,134 @@
+import 'package:ddara/core/designsystem/component/surface/app_surface.dart';
+import 'package:ddara/core/designsystem/component/text/app_text.dart';
+import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/model/notification/notification_item.dart';
+import 'package:ddara/feature/notification/util/notification_display.dart';
+import 'package:ddara/l10n/app_localizations.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+/// 알림 좌측 썸네일 한 변 크기.
+const double _thumbnailSize = 72;
+
+/// payload 에 이미지가 없을 때 보여줄 기본 썸네일.
+/// (72×72 라운드 배경 + 워드마크가 포함된 완성형 asset)
+const String _defaultThumbnailAsset = 'assets/images/notification_default.svg';
+
+/// 알림 목록의 항목 한 개.
+///
+/// 좌측 이미지 썸네일 + 우측(분류 라벨·경과 시간 한 줄 / 본문) 으로 구성된 카드.
+/// 도메인 알림 모델([NotificationItem])을 받아 표시용 문자열로 풀어 그린다.
+/// [onTap] 을 주면 카드 전체가 눌리는 영역이 된다.
+class NotificationTile extends StatelessWidget {
+  const NotificationTile({super.key, required this.item, this.onTap});
+
+  final NotificationItem item;
+
+  /// 카드 탭 콜백. null 이면 탭에 반응하지 않는다.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AppSurface(
+      onTap: onTap,
+      // 누르는 동안 살짝 밝게. (앱 전반의 Cupertino 페이드와 일관)
+      pressedColor: AppColors.bgSurfaceAlt,
+      padding: const EdgeInsets.all(AppSpacing.s4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpacing.s3,
+        children: [
+          _NotificationThumbnail(
+            imageUrl: item.payload.imageUrl,
+            bare: item.showsBareThumbnail,
+          ),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpacing.s2,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: AppSpacing.s1,
+                  children: [
+                    Expanded(
+                      child: AppText.caption(
+                        item.displayLabel(l10n),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    AppText.caption(
+                      item.displayTimeAgo(l10n),
+                      color: AppColors.textTertiary,
+                    ),
+                  ],
+                ),
+                AppText.body(
+                  item.displayMessage(l10n),
+                  color: AppColors.textPrimary,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 알림 좌측 썸네일. 72×72 정사각형(라운드 8) 박스에 payload 이미지를 채운다.
+///
+/// [imageUrl] 이 없거나 로드 실패하면 bg-base 배경만 남긴다.
+/// [bare] 가 true 면 박스(배경·라운드) 없이 이미지만 그대로 그린다. (앱 로고 등)
+class _NotificationThumbnail extends StatelessWidget {
+  const _NotificationThumbnail({this.imageUrl, this.bare = false});
+
+  final String? imageUrl;
+  final bool bare;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = imageUrl;
+
+    if (bare) {
+      // 박스 없이 이미지만. (로고가 잘리지 않도록 contain)
+      return SizedBox(
+        width: _thumbnailSize,
+        height: _thumbnailSize,
+        child: (url == null || url.isEmpty)
+            ? SvgPicture.asset(_defaultThumbnailAsset)
+            : Image.network(
+                url,
+                fit: BoxFit.contain,
+                // 로드 실패 시에도 기본 썸네일로 대체한다.
+                errorBuilder: (context, error, stackTrace) =>
+                    SvgPicture.asset(_defaultThumbnailAsset),
+              ),
+      );
+    }
+
+    return Container(
+      width: _thumbnailSize,
+      height: _thumbnailSize,
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        color: AppColors.bgBase,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xs),
+        ),
+      ),
+      child: (url == null || url.isEmpty)
+          ? SvgPicture.asset(_defaultThumbnailAsset)
+          : Image.network(
+              url,
+              fit: BoxFit.cover,
+              // 로드 실패 시에도 기본 썸네일로 대체한다.
+              errorBuilder: (context, error, stackTrace) =>
+                  SvgPicture.asset(_defaultThumbnailAsset),
+            ),
+    );
+  }
+}
