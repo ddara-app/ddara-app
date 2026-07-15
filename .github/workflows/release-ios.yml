@@ -2,6 +2,7 @@
 #
 # 산출물: Apple Distribution + App Store 프로파일(ddara-team3-distribution) 서명 IPA
 #         → App Store Connect 업로드 (처리 후 TestFlight 반영, 심사 제출은 콘솔에서)
+#         → 동일 IPA 를 액션 아티팩트(ios-release-ipa, 14일 보관)로도 다운로드 가능
 # 가이드: lib/release-ios-research.md, lib/release-cicd-research.md
 #
 # ⚠️ 선행 조건 (자동화 이전에 반드시 1회 수동):
@@ -127,6 +128,16 @@ jobs:
 
       - name: IPA 경로 탐색
         run: echo "IPA_PATH=$(ls build/ios/ipa/*.ipa | head -n1)" >> "$GITHUB_ENV"
+
+      # ASC 업로드와 별개로 IPA 를 직접 받을 수 있도록 아티팩트로 보존.
+      # (업로드 스텝보다 앞에 두어 ASC 업로드가 실패해도 다운로드 가능)
+      - name: IPA 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-ipa
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: error
+          retention-days: 14
 
       - name: App Store Connect 업로드 (ASC API 키)
         env:
