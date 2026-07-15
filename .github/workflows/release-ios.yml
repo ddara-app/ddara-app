@@ -141,23 +141,6 @@ jobs:
             --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
           # 업로드 후 ASC 처리(수 분~수십 분) → TestFlight 반영. 심사 제출은 콘솔에서 진행.
 
-      # Crashlytics 심볼화를 위해 dSYM 업로드. 업로드는 이미 끝난 뒤이므로 비차단 처리.
-      - name: Crashlytics dSYM 업로드
-        run: |
-          # Firebase 설치 방식(SPM/Pods)에 무관하게 upload-symbols 를 이름으로 탐색.
-          UPLOAD=$(find "$HOME/Library/Developer/Xcode/DerivedData" ios \
-            -type f -name upload-symbols 2>/dev/null | head -n1)
-          DSYMS=build/ios/archive/Runner.xcarchive/dSYMs
-          if [ -z "$UPLOAD" ]; then
-            echo "::warning::upload-symbols 를 찾지 못해 dSYM 업로드를 건너뜁니다."
-          elif [ ! -d "$DSYMS" ]; then
-            echo "::warning::dSYM 폴더($DSYMS)가 없어 업로드를 건너뜁니다."
-          else
-            echo "upload-symbols: $UPLOAD"
-            "$UPLOAD" -gsp ios/Runner/GoogleService-Info.plist -p ios "$DSYMS" \
-              || echo "::warning::dSYM 업로드 실패 (배포에는 영향 없음)."
-          fi
-
   # ─────────────────────────── 배포 완료 알림 (Discord) ───────────────────────────
   notify:
     name: Discord 배포 알림
