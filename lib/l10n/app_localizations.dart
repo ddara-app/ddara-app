@@ -736,6 +736,12 @@ abstract class AppLocalizations {
   /// **'차단'**
   String get memberBlockConfirmAction;
 
+  /// 멤버 차단 완료 토스트. (차단한 닉네임 포함)
+  ///
+  /// In ko, this message translates to:
+  /// **'{nickname}님을 차단했어요.'**
+  String memberBlockedToast(String nickname);
+
   /// No description provided for @recordCycleLabel.
   ///
   /// In ko, this message translates to:

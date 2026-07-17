@@ -247,6 +247,13 @@
   },
   "memberBlockConfirmMessage": "차단하면 이 멤버의 사진이\n더 이상 보이지 않습니다.",
   "memberBlockConfirmAction": "차단",
+  "memberBlockedToast": "{nickname}님을 차단했어요.",
+  "@memberBlockedToast": {
+    "description": "멤버 차단 완료 토스트. (차단한 닉네임 포함)",
+    "placeholders": {
+      "nickname": { "type": "String" }
+    }
+  },
   "recordCycleLabel": "따라찍기",
   "recordPhotoLabel": "함께한 사진",
   "groupHistoryTitle": "지난 따라찍기",

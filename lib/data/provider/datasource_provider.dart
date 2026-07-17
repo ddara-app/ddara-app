@@ -1,4 +1,5 @@
 import 'package:ddara/core/local/provider/local_provider.dart';
+import 'package:ddara/data/datasource/block/block_datasource.dart';
 import 'package:ddara/data/datasource/cycle/cycle_datasource.dart';
 import 'package:ddara/data/datasource/fcm/fcm_datasource.dart';
 import 'package:ddara/data/datasource/notification/notification_datasource.dart';
@@ -39,4 +40,8 @@ final fcmDataSourceProvider = Provider<FcmDataSource>((ref) {
 
 final notificationDataSourceProvider = Provider<NotificationDataSource>((ref) {
   return NotificationDataSource(ref.read(dioProvider));
+});
+
+final blockDataSourceProvider = Provider<BlockDataSource>((ref) {
+  return BlockDataSource(ref.read(dioProvider));
 });

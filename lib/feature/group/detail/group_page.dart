@@ -325,7 +325,7 @@ class GroupPage extends ConsumerWidget {
               imageUrl: _shareImageUrl,
             ),
             onReportMember: (member) => _reportMember(context, member.name),
-            onBlockMember: (member) => _blockMember(context, member),
+            onBlockMember: (member) => _blockMember(context, ref, member),
           ),
         ),
         GroupSection(
@@ -403,7 +403,13 @@ class GroupPage extends ConsumerWidget {
   }
 
   /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
-  Future<void> _blockMember(BuildContext context, MemberDisplay member) async {
+  /// 성공하면 차단이 반영된 상세를 다시 조회하고 완료 토스트를 띄운다.
+  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  Future<void> _blockMember(
+    BuildContext context,
+    WidgetRef ref,
+    MemberDisplay member,
+  ) async {
     final l10n = AppLocalizations.of(context);
     final confirmed = await AppDialog.show(
       context,
@@ -415,6 +421,11 @@ class GroupPage extends ConsumerWidget {
     );
     if (!confirmed || !context.mounted) return;
 
-    // TODO: 차단 API 호출로 연결. (member.userId 전달 — 백엔드 스펙 대기)
+    final success = await ref
+        .read(groupPageNotifierProvider(groupId).notifier)
+        .blockMember(member.userId);
+    if (!success || !context.mounted) return;
+
+    Toast.showToast(context, l10n.memberBlockedToast(member.name));
   }
 }

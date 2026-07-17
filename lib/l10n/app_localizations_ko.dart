@@ -359,6 +359,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get memberBlockConfirmAction => '차단';
 
   @override
+  String memberBlockedToast(String nickname) {
+    return '$nickname님을 차단했어요.';
+  }
+
+  @override
   String get recordCycleLabel => '따라찍기';
 
   @override

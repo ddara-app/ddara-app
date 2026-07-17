@@ -1,5 +1,6 @@
 import 'package:ddara/core/auth/provider/auth_provider.dart';
 import 'package:ddara/domain/usecase/auth/login_use_case.dart';
+import 'package:ddara/domain/usecase/block/block_user_use_case.dart';
 import 'package:ddara/domain/usecase/auth/logout_use_case.dart';
 import 'package:ddara/domain/usecase/auth/signup_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
@@ -136,4 +137,8 @@ final getNotificationsUseCaseProvider = Provider<GetNotificationsUseCase>((
   ref,
 ) {
   return GetNotificationsUseCase(ref.read(notificationRepositoryProvider));
+});
+
+final blockUserUseCaseProvider = Provider<BlockUserUseCase>((ref) {
+  return BlockUserUseCase(ref.read(blockRepositoryProvider));
 });
