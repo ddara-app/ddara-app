@@ -16,6 +16,7 @@ import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -283,6 +284,8 @@ class GroupPage extends ConsumerWidget {
     List<HistoryCycle> cycles,
   ) {
     final l10n = AppLocalizations.of(context);
+    // 현재 사용자 id. (본인 프로필에는 신고·차단 메뉴를 띄우지 않기 위함)
+    final myUserId = ref.watch(currentProfileProvider).valueOrNull?.id;
     return Column(
       // 상단부터 쌓되 가로는 중앙 정렬.
       mainAxisAlignment: MainAxisAlignment.start,
@@ -322,6 +325,8 @@ class GroupPage extends ConsumerWidget {
                     imageUrl: member.profileImageUrl,
                     // 차단한 멤버는 기본 아이콘 + 취소선 닉네임으로 표시된다.
                     isBlocked: state.blockedUserIds.contains(member.userId),
+                    // 본인 프로필에는 롱프레스 메뉴를 띄우지 않는다.
+                    isMe: member.userId == myUserId,
                   ),
                 )
                 .toList(),

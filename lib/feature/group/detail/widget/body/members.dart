@@ -34,6 +34,7 @@ typedef MemberDisplay = ({
   String name,
   String? imageUrl,
   bool isBlocked,
+  bool isMe,
 });
 
 /// 롱프레스 메뉴의 항목 하나. (라벨 + 글자색 + 선택 콜백)
@@ -110,6 +111,15 @@ class _MemberAvatar extends StatelessWidget {
     final labelDecoration = member.isBlocked
         ? TextDecoration.lineThrough
         : null;
+
+    // 본인 프로필은 신고·차단 대상이 아니므로 메뉴 없이 아바타만 보여준다.
+    if (member.isMe) {
+      return _CircleLabel(
+        label: label,
+        labelDecoration: labelDecoration,
+        child: ProfileAvatar(size: _circleSize, imageUrl: imageUrl),
+      );
+    }
 
     final actions = <_MenuAction>[
       (
