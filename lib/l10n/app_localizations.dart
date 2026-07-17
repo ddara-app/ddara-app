@@ -1339,6 +1339,12 @@ abstract class AppLocalizations {
   /// **'차단한 멤버의 사진입니다.'**
   String get blockedPhotoPlaceholder;
 
+  /// No description provided for @photoUnderReviewPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 접수되어\n검토 중인 사진입니다'**
+  String get photoUnderReviewPlaceholder;
+
   /// No description provided for @profileLinkedAccount.
   ///
   /// In ko, this message translates to:

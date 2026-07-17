@@ -703,6 +703,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedPhotoPlaceholder => '차단한 멤버의 사진입니다.';
 
   @override
+  String get photoUnderReviewPlaceholder => '신고 접수되어\n검토 중인 사진입니다';
+
+  @override
   String get profileLinkedAccount => '연동 계정';
 
   @override

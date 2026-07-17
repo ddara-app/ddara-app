@@ -4,6 +4,7 @@ import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/feature/group/widget/take_photo_button.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 멤버 사진 카드. 배경 이미지 위에 하단 이름 라벨을 표시한다.
@@ -14,6 +15,7 @@ import 'package:flutter/cupertino.dart';
 /// - [isLocked] 이면(본인이 아직 업로드 안 함) 타인 사진을 블러 처리하고
 ///   가운데에 자물쇠 아이콘을 표시한다.
 /// - [isBlocked] 이면(차단한 멤버) 사진 대신 차단 자리표시를 보여준다.
+/// - [isUnderReview] 이면(신고 접수) 사진 대신 검토 안내 자리표시를 보여준다.
 class MemberPhotoCard extends StatelessWidget {
   const MemberPhotoCard({
     super.key,
@@ -24,6 +26,7 @@ class MemberPhotoCard extends StatelessWidget {
     this.heroTag,
     this.isLocked = false,
     this.isBlocked = false,
+    this.isUnderReview = false,
   });
 
   /// 카드 배경 이미지. null 이면 가운데에 placeholder(버튼/아이콘)를 보여준다.
@@ -49,12 +52,17 @@ class MemberPhotoCard extends StatelessWidget {
   /// 차단한 멤버의 카드인지 여부. (사진 대신 차단 자리표시를 보여준다)
   final bool isBlocked;
 
+  /// 사진이 신고 접수로 검토 중인지 여부. (사진 대신 검토 안내 자리표시)
+  final bool isUnderReview;
+
   @override
   Widget build(BuildContext context) {
     final image = this.image;
     final onTakePhoto = this.onTakePhoto;
-    // 잠금은 보여줄 사진이 있을 때만 의미가 있다. (차단 자리표시는 잠그지 않는다)
-    final locked = !isBlocked && isLocked && image != null;
+    // 사진 대신 자리표시를 보여줘야 하는 상태. (차단이 검토보다 우선)
+    final obscured = isBlocked || isUnderReview;
+    // 잠금은 보여줄 사진이 있을 때만 의미가 있다. (자리표시는 잠그지 않는다)
+    final locked = !obscured && isLocked && image != null;
     final heroTag = this.heroTag;
 
     // 배경 이미지(잠기지 않은 경우 Hero 로 감싸 크게 보기와 이어지게 한다).
@@ -73,10 +81,16 @@ class MemberPhotoCard extends StatelessWidget {
         height: 225,
         child: Stack(
           children: [
-            // 배경: 차단 자리표시 / 이미지(잠금 시 블러) / surface.
+            // 배경: 차단·검토 자리표시 / 이미지(잠금 시 블러) / surface.
             Positioned.fill(
               child: isBlocked
                   ? const BlockedPhotoPlaceholder()
+                  : isUnderReview
+                  ? BlockedPhotoPlaceholder(
+                      message: AppLocalizations.of(
+                        context,
+                      ).photoUnderReviewPlaceholder,
+                    )
                   : image == null
                   ? const ColoredBox(color: AppColors.bgSurface)
                   : (locked
@@ -99,8 +113,8 @@ class MemberPhotoCard extends StatelessWidget {
                 ),
               )
             // 사진이 없을 때: 본인이면 촬영 버튼, 아니면 갤러리 아이콘.
-            // (차단 자리표시가 안내를 대신하므로 차단 카드는 제외)
-            else if (image == null && !isBlocked)
+            // (차단·검토 자리표시가 안내를 대신하므로 해당 카드는 제외)
+            else if (image == null && !obscured)
               Center(
                 child: onTakePhoto != null
                     ? TakePhotoButton(onPressed: onTakePhoto)
@@ -110,8 +124,8 @@ class MemberPhotoCard extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
               ),
-            // 하단 이름 라벨. (차단한 멤버는 닉네임도 노출하지 않는다)
-            if (!isBlocked)
+            // 하단 이름 라벨. (차단·검토 중 카드는 닉네임도 노출하지 않는다)
+            if (!obscured)
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Padding(

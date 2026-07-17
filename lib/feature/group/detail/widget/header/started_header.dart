@@ -59,11 +59,16 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 오버레이에 띄울 헤더 사본 크기. (메뉴를 열 때 측정)
   Size? _copySize;
 
-  /// 신고 메뉴를 띄울 수 있는지. (콜백 有 + 차단·빈 이미지 아님)
+  /// 스타터 사진이 신고 접수로 검토 중인지 여부.
+  bool get _underReview => widget.progress.starterImageUnderReview;
+
+  /// 사진을 자리표시로 가려야 하는 상태인지. (차단 또는 검토 중)
+  bool get _obscured => widget.starterBlocked || _underReview;
+
+  /// 신고 메뉴를 띄울 수 있는지.
+  /// (콜백 有 + 이미지 有 + 가림 상태 아님 — 검토 중인 사진은 재신고 불가)
   bool get _canReport =>
-      widget.onReport != null &&
-      !widget.starterBlocked &&
-      widget.imageUri.isNotEmpty;
+      widget.onReport != null && !_obscured && widget.imageUri.isNotEmpty;
 
   void _toggle() => setState(() => _expanded = !_expanded);
 
@@ -181,8 +186,8 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 펼친 상태: 대표 이미지 + 진행 정보 + 하단 스크림.
   Widget _buildExpanded() {
-    // 차단한 스타터의 사진은 크게 보기를 막는다.
-    final onImageTap = widget.starterBlocked ? null : widget.onImageTap;
+    // 가려진(차단·검토 중) 사진은 크게 보기를 막는다.
+    final onImageTap = _obscured ? null : widget.onImageTap;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: SizedBox(
@@ -249,9 +254,9 @@ class _StartedHeaderState extends State<StartedHeader> {
       child: Stack(
         children: [
           // 블러 처리된 스타터 대표 이미지 배경.
-          // (차단 자리표시는 민무늬 배경이라 블러를 걸지 않는다)
+          // (차단·검토 자리표시는 민무늬 배경이라 블러를 걸지 않는다)
           Positioned.fill(
-            child: widget.starterBlocked
+            child: _obscured
                 ? _backgroundImage()
                 : ImageFiltered(
                     imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -317,8 +322,8 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 하단 스크림 구간(heightFactor 0.45)에 맞춰 아래로 갈수록 흐려지는 배경.
   Widget _blurredBackground() {
-    // 차단 자리표시는 민무늬 배경이라 그라데이션 블러가 필요 없다.
-    if (widget.starterBlocked) return _backgroundImage();
+    // 차단·검토 자리표시는 민무늬 배경이라 그라데이션 블러가 필요 없다.
+    if (_obscured) return _backgroundImage();
     return ProgressiveBlurImage(
       sharpUntil: 0.55,
       builder: (_) => _backgroundImage(),
@@ -326,10 +331,15 @@ class _StartedHeaderState extends State<StartedHeader> {
   }
 
   /// 헤더 배경으로 쓸 이미지. URI 가 없거나 로드 실패 시 자리표시로 대체한다.
-  /// 스타터를 차단했으면 사진 대신 차단 자리표시를 보여준다.
+  /// 스타터 차단 또는 신고 검토 중이면 사진 대신 안내 자리표시를 보여준다.
   Widget _backgroundImage() {
     if (widget.starterBlocked) {
       return const BlockedPhotoPlaceholder();
+    }
+    if (_underReview) {
+      return BlockedPhotoPlaceholder(
+        message: AppLocalizations.of(context).photoUnderReviewPlaceholder,
+      );
     }
     final url = widget.imageUri;
     if (url.isEmpty) {

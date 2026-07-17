@@ -468,6 +468,7 @@
   "blockedUsersUnblockedToast": "차단을 해제했어요.",
   "blockedUsersUnblockFailed": "차단을 해제하지 못했어요.",
   "blockedPhotoPlaceholder": "차단한 멤버의 사진입니다.",
+  "photoUnderReviewPlaceholder": "신고 접수되어\n검토 중인 사진입니다",
   "profileLinkedAccount": "연동 계정",
   "profileLogout": "로그아웃",
   "profileWithdraw": "회원 탈퇴",

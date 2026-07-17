@@ -176,7 +176,12 @@ class CyclePhotoGallery extends ConsumerWidget {
                   final isBlockedMember = blockedUserIds.contains(
                     member.userId,
                   );
-                  final imageUrl = isBlockedMember ? null : member.imageUrl;
+                  // 신고 접수로 검토 중인 사진. (검토 안내 자리표시로 가린다)
+                  final isReported =
+                      member.status.toLowerCase() == 'reported';
+                  final imageUrl = isBlockedMember || isReported
+                      ? null
+                      : member.imageUrl;
                   // 잠긴(블러) 사진은 크게 볼 수 없다.
                   final locked = !isDoneCycle && !canSeeAll;
                   final ImageProvider? image = imageUrl == null
@@ -193,6 +198,7 @@ class CyclePhotoGallery extends ConsumerWidget {
                     image: image,
                     heroTag: heroTag,
                     isBlocked: isBlockedMember,
+                    isUnderReview: isReported,
                     onTap: canView
                         ? () => showPhotoViewer(
                             context,
