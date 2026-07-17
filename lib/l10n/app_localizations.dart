@@ -766,6 +766,12 @@ abstract class AppLocalizations {
   /// **'입력해 주세요'**
   String get photoReportDetailPlaceholder;
 
+  /// No description provided for @photoReportSubmitted.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고가 접수됐어요.'**
+  String get photoReportSubmitted;
+
   /// No description provided for @memberBlock.
   ///
   /// In ko, this message translates to:

@@ -4,6 +4,7 @@ import 'package:ddara/domain/repository/cycle_repository.dart';
 import 'package:ddara/domain/repository/fcm_repository.dart';
 import 'package:ddara/domain/repository/notification_repository.dart';
 import 'package:ddara/domain/repository/profile_repository.dart';
+import 'package:ddara/domain/repository/report_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/repository/auth_repository.dart';
@@ -15,6 +16,7 @@ import '../repository/fcm_repository_impl.dart';
 import '../repository/group_repository_impl.dart';
 import '../repository/notification_repository_impl.dart';
 import '../repository/profile_repository_impl.dart';
+import '../repository/report_repository_impl.dart';
 import 'datasource_provider.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -54,4 +56,8 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
 
 final blockRepositoryProvider = Provider<BlockRepository>((ref) {
   return BlockRepositoryImpl(ref.read(blockDataSourceProvider));
+});
+
+final reportRepositoryProvider = Provider<ReportRepository>((ref) {
+  return ReportRepositoryImpl(ref.read(reportDataSourceProvider));
 });

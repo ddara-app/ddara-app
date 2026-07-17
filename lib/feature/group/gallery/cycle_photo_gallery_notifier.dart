@@ -1,4 +1,6 @@
 import 'package:ddara/core/exception/group_exception.dart';
+import 'package:ddara/core/exception/report_exception.dart';
+import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,6 +60,57 @@ class CyclePhotoGalleryNotifier
       return blockedUsers.users.map((user) => user.userId).toSet();
     } catch (_) {
       return const {};
+    }
+  }
+
+  /// 에러 메시지를 소비한 뒤(토스트로 노출 후) 다시 비운다.
+  /// 같은 에러가 이후 상태 변경 때 재노출되는 것을 막는다.
+  void clearError() {
+    if (state.errorMessage.isEmpty) return;
+    state = state.copyWith(errorMessage: '');
+  }
+
+  /// [shotId] 사진을 신고한다. 성공하면 검토 상태가 반영되도록 갤러리를
+  /// 다시 조회하고 true, 실패하면 errorMessage 를 채우고 false 를 반환한다.
+  Future<bool> reportShot({
+    required int shotId,
+    required ReportReason reason,
+    String? reasonText,
+  }) async {
+    if (state.isLoading) return false;
+
+    state = state.copyWith(isLoading: true);
+    final reportShotUseCase = ref.read(reportShotUseCaseProvider);
+
+    try {
+      await reportShotUseCase(
+        shotId: shotId,
+        reason: reason,
+        reasonText: reasonText,
+      );
+      // 신고된 사진이 검토 상태로 반영되도록 갤러리를 다시 조회한다.
+      // (isLoading 은 _loadGallery 가 내린다)
+      await _loadGallery(arg);
+      return true;
+    } on InvalidReportInputException {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '신고 내용이 올바르지 않아요.',
+      );
+      return false;
+    } on ShotNotFoundException {
+      state = state.copyWith(isLoading: false, errorMessage: '이미 삭제된 사진이에요.');
+      return false;
+    } on NotGroupMemberException {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '해당 모임의 멤버가 아니에요.',
+      );
+      return false;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(isLoading: false, errorMessage: '신고하지 못했어요.');
+      return false;
     }
   }
 }

@@ -372,6 +372,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoReportDetailPlaceholder => '입력해 주세요';
 
   @override
+  String get photoReportSubmitted => '신고가 접수됐어요.';
+
+  @override
   String get memberBlock => '차단하기';
 
   @override

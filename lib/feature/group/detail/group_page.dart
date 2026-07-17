@@ -421,8 +421,8 @@ class GroupPage extends ConsumerWidget {
     final result = await PhotoReportSheet.show(context);
     if (result == null || !context.mounted) return;
 
-    // TODO: 사진 신고 API 연결.
-    //  (대상 currentCycle.starterUserId + 사유·상세 전송 — 백엔드 스펙 대기)
+    // TODO: reportShotUseCase 호출로 연결. (result.reason·detail 은 준비됨 —
+    //  상세 응답에 스타터 사진 shotId 가 없어 targetId 를 채울 수 없음, 백엔드 필드 대기)
   }
 
   /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.

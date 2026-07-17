@@ -316,8 +316,10 @@ $CycleGalleryCycleResponseCopyWith<$Res> get cycle {
 /// @nodoc
 mixin _$CycleGalleryCycleResponse {
 
- int get cycleId; int get cycleNumber; String get topic; String get starterNickname;// 스타터가 올린 사진 URL. 없으면 null.
- String? get starterImageUrl; String get status; DateTime get deadlineAt;
+ int get cycleId; int get cycleNumber; String get topic; int get starterUserId; String get starterNickname;// 스타터 샷의 shot id. (사진 신고의 targetId 로 사용)
+ int get starterShotId;// 스타터가 올린 사진 URL. 없으면 null.
+ String? get starterImageUrl;// 스타터 사진이 신고 접수로 검토 중인지 여부.
+ bool get starterImageUnderReview; String get status; DateTime get deadlineAt;
 /// Create a copy of CycleGalleryCycleResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -330,16 +332,16 @@ $CycleGalleryCycleResponseCopyWith<CycleGalleryCycleResponse> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CycleGalleryCycleResponse&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.cycleNumber, cycleNumber) || other.cycleNumber == cycleNumber)&&(identical(other.topic, topic) || other.topic == topic)&&(identical(other.starterNickname, starterNickname) || other.starterNickname == starterNickname)&&(identical(other.starterImageUrl, starterImageUrl) || other.starterImageUrl == starterImageUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CycleGalleryCycleResponse&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.cycleNumber, cycleNumber) || other.cycleNumber == cycleNumber)&&(identical(other.topic, topic) || other.topic == topic)&&(identical(other.starterUserId, starterUserId) || other.starterUserId == starterUserId)&&(identical(other.starterNickname, starterNickname) || other.starterNickname == starterNickname)&&(identical(other.starterShotId, starterShotId) || other.starterShotId == starterShotId)&&(identical(other.starterImageUrl, starterImageUrl) || other.starterImageUrl == starterImageUrl)&&(identical(other.starterImageUnderReview, starterImageUnderReview) || other.starterImageUnderReview == starterImageUnderReview)&&(identical(other.status, status) || other.status == status)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cycleId,cycleNumber,topic,starterNickname,starterImageUrl,status,deadlineAt);
+int get hashCode => Object.hash(runtimeType,cycleId,cycleNumber,topic,starterUserId,starterNickname,starterShotId,starterImageUrl,starterImageUnderReview,status,deadlineAt);
 
 @override
 String toString() {
-  return 'CycleGalleryCycleResponse(cycleId: $cycleId, cycleNumber: $cycleNumber, topic: $topic, starterNickname: $starterNickname, starterImageUrl: $starterImageUrl, status: $status, deadlineAt: $deadlineAt)';
+  return 'CycleGalleryCycleResponse(cycleId: $cycleId, cycleNumber: $cycleNumber, topic: $topic, starterUserId: $starterUserId, starterNickname: $starterNickname, starterShotId: $starterShotId, starterImageUrl: $starterImageUrl, starterImageUnderReview: $starterImageUnderReview, status: $status, deadlineAt: $deadlineAt)';
 }
 
 
@@ -350,7 +352,7 @@ abstract mixin class $CycleGalleryCycleResponseCopyWith<$Res>  {
   factory $CycleGalleryCycleResponseCopyWith(CycleGalleryCycleResponse value, $Res Function(CycleGalleryCycleResponse) _then) = _$CycleGalleryCycleResponseCopyWithImpl;
 @useResult
 $Res call({
- int cycleId, int cycleNumber, String topic, String starterNickname, String? starterImageUrl, String status, DateTime deadlineAt
+ int cycleId, int cycleNumber, String topic, int starterUserId, String starterNickname, int starterShotId, String? starterImageUrl, bool starterImageUnderReview, String status, DateTime deadlineAt
 });
 
 
@@ -367,14 +369,17 @@ class _$CycleGalleryCycleResponseCopyWithImpl<$Res>
 
 /// Create a copy of CycleGalleryCycleResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? cycleId = null,Object? cycleNumber = null,Object? topic = null,Object? starterNickname = null,Object? starterImageUrl = freezed,Object? status = null,Object? deadlineAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? cycleId = null,Object? cycleNumber = null,Object? topic = null,Object? starterUserId = null,Object? starterNickname = null,Object? starterShotId = null,Object? starterImageUrl = freezed,Object? starterImageUnderReview = null,Object? status = null,Object? deadlineAt = null,}) {
   return _then(_self.copyWith(
 cycleId: null == cycleId ? _self.cycleId : cycleId // ignore: cast_nullable_to_non_nullable
 as int,cycleNumber: null == cycleNumber ? _self.cycleNumber : cycleNumber // ignore: cast_nullable_to_non_nullable
 as int,topic: null == topic ? _self.topic : topic // ignore: cast_nullable_to_non_nullable
-as String,starterNickname: null == starterNickname ? _self.starterNickname : starterNickname // ignore: cast_nullable_to_non_nullable
-as String,starterImageUrl: freezed == starterImageUrl ? _self.starterImageUrl : starterImageUrl // ignore: cast_nullable_to_non_nullable
-as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,starterUserId: null == starterUserId ? _self.starterUserId : starterUserId // ignore: cast_nullable_to_non_nullable
+as int,starterNickname: null == starterNickname ? _self.starterNickname : starterNickname // ignore: cast_nullable_to_non_nullable
+as String,starterShotId: null == starterShotId ? _self.starterShotId : starterShotId // ignore: cast_nullable_to_non_nullable
+as int,starterImageUrl: freezed == starterImageUrl ? _self.starterImageUrl : starterImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,starterImageUnderReview: null == starterImageUnderReview ? _self.starterImageUnderReview : starterImageUnderReview // ignore: cast_nullable_to_non_nullable
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,deadlineAt: null == deadlineAt ? _self.deadlineAt : deadlineAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -461,10 +466,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int cycleId,  int cycleNumber,  String topic,  String starterNickname,  String? starterImageUrl,  String status,  DateTime deadlineAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int cycleId,  int cycleNumber,  String topic,  int starterUserId,  String starterNickname,  int starterShotId,  String? starterImageUrl,  bool starterImageUnderReview,  String status,  DateTime deadlineAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CycleGalleryCycleResponse() when $default != null:
-return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterNickname,_that.starterImageUrl,_that.status,_that.deadlineAt);case _:
+return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterUserId,_that.starterNickname,_that.starterShotId,_that.starterImageUrl,_that.starterImageUnderReview,_that.status,_that.deadlineAt);case _:
   return orElse();
 
 }
@@ -482,10 +487,10 @@ return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterNicknam
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int cycleId,  int cycleNumber,  String topic,  String starterNickname,  String? starterImageUrl,  String status,  DateTime deadlineAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int cycleId,  int cycleNumber,  String topic,  int starterUserId,  String starterNickname,  int starterShotId,  String? starterImageUrl,  bool starterImageUnderReview,  String status,  DateTime deadlineAt)  $default,) {final _that = this;
 switch (_that) {
 case _CycleGalleryCycleResponse():
-return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterNickname,_that.starterImageUrl,_that.status,_that.deadlineAt);case _:
+return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterUserId,_that.starterNickname,_that.starterShotId,_that.starterImageUrl,_that.starterImageUnderReview,_that.status,_that.deadlineAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -502,10 +507,10 @@ return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterNicknam
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int cycleId,  int cycleNumber,  String topic,  String starterNickname,  String? starterImageUrl,  String status,  DateTime deadlineAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int cycleId,  int cycleNumber,  String topic,  int starterUserId,  String starterNickname,  int starterShotId,  String? starterImageUrl,  bool starterImageUnderReview,  String status,  DateTime deadlineAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CycleGalleryCycleResponse() when $default != null:
-return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterNickname,_that.starterImageUrl,_that.status,_that.deadlineAt);case _:
+return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterUserId,_that.starterNickname,_that.starterShotId,_that.starterImageUrl,_that.starterImageUnderReview,_that.status,_that.deadlineAt);case _:
   return null;
 
 }
@@ -517,15 +522,20 @@ return $default(_that.cycleId,_that.cycleNumber,_that.topic,_that.starterNicknam
 @JsonSerializable()
 
 class _CycleGalleryCycleResponse implements CycleGalleryCycleResponse {
-  const _CycleGalleryCycleResponse({required this.cycleId, required this.cycleNumber, required this.topic, required this.starterNickname, required this.starterImageUrl, required this.status, required this.deadlineAt});
+  const _CycleGalleryCycleResponse({required this.cycleId, required this.cycleNumber, required this.topic, required this.starterUserId, required this.starterNickname, required this.starterShotId, required this.starterImageUrl, required this.starterImageUnderReview, required this.status, required this.deadlineAt});
   factory _CycleGalleryCycleResponse.fromJson(Map<String, dynamic> json) => _$CycleGalleryCycleResponseFromJson(json);
 
 @override final  int cycleId;
 @override final  int cycleNumber;
 @override final  String topic;
+@override final  int starterUserId;
 @override final  String starterNickname;
+// 스타터 샷의 shot id. (사진 신고의 targetId 로 사용)
+@override final  int starterShotId;
 // 스타터가 올린 사진 URL. 없으면 null.
 @override final  String? starterImageUrl;
+// 스타터 사진이 신고 접수로 검토 중인지 여부.
+@override final  bool starterImageUnderReview;
 @override final  String status;
 @override final  DateTime deadlineAt;
 
@@ -542,16 +552,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CycleGalleryCycleResponse&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.cycleNumber, cycleNumber) || other.cycleNumber == cycleNumber)&&(identical(other.topic, topic) || other.topic == topic)&&(identical(other.starterNickname, starterNickname) || other.starterNickname == starterNickname)&&(identical(other.starterImageUrl, starterImageUrl) || other.starterImageUrl == starterImageUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CycleGalleryCycleResponse&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.cycleNumber, cycleNumber) || other.cycleNumber == cycleNumber)&&(identical(other.topic, topic) || other.topic == topic)&&(identical(other.starterUserId, starterUserId) || other.starterUserId == starterUserId)&&(identical(other.starterNickname, starterNickname) || other.starterNickname == starterNickname)&&(identical(other.starterShotId, starterShotId) || other.starterShotId == starterShotId)&&(identical(other.starterImageUrl, starterImageUrl) || other.starterImageUrl == starterImageUrl)&&(identical(other.starterImageUnderReview, starterImageUnderReview) || other.starterImageUnderReview == starterImageUnderReview)&&(identical(other.status, status) || other.status == status)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cycleId,cycleNumber,topic,starterNickname,starterImageUrl,status,deadlineAt);
+int get hashCode => Object.hash(runtimeType,cycleId,cycleNumber,topic,starterUserId,starterNickname,starterShotId,starterImageUrl,starterImageUnderReview,status,deadlineAt);
 
 @override
 String toString() {
-  return 'CycleGalleryCycleResponse(cycleId: $cycleId, cycleNumber: $cycleNumber, topic: $topic, starterNickname: $starterNickname, starterImageUrl: $starterImageUrl, status: $status, deadlineAt: $deadlineAt)';
+  return 'CycleGalleryCycleResponse(cycleId: $cycleId, cycleNumber: $cycleNumber, topic: $topic, starterUserId: $starterUserId, starterNickname: $starterNickname, starterShotId: $starterShotId, starterImageUrl: $starterImageUrl, starterImageUnderReview: $starterImageUnderReview, status: $status, deadlineAt: $deadlineAt)';
 }
 
 
@@ -562,7 +572,7 @@ abstract mixin class _$CycleGalleryCycleResponseCopyWith<$Res> implements $Cycle
   factory _$CycleGalleryCycleResponseCopyWith(_CycleGalleryCycleResponse value, $Res Function(_CycleGalleryCycleResponse) _then) = __$CycleGalleryCycleResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int cycleId, int cycleNumber, String topic, String starterNickname, String? starterImageUrl, String status, DateTime deadlineAt
+ int cycleId, int cycleNumber, String topic, int starterUserId, String starterNickname, int starterShotId, String? starterImageUrl, bool starterImageUnderReview, String status, DateTime deadlineAt
 });
 
 
@@ -579,14 +589,17 @@ class __$CycleGalleryCycleResponseCopyWithImpl<$Res>
 
 /// Create a copy of CycleGalleryCycleResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? cycleId = null,Object? cycleNumber = null,Object? topic = null,Object? starterNickname = null,Object? starterImageUrl = freezed,Object? status = null,Object? deadlineAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? cycleId = null,Object? cycleNumber = null,Object? topic = null,Object? starterUserId = null,Object? starterNickname = null,Object? starterShotId = null,Object? starterImageUrl = freezed,Object? starterImageUnderReview = null,Object? status = null,Object? deadlineAt = null,}) {
   return _then(_CycleGalleryCycleResponse(
 cycleId: null == cycleId ? _self.cycleId : cycleId // ignore: cast_nullable_to_non_nullable
 as int,cycleNumber: null == cycleNumber ? _self.cycleNumber : cycleNumber // ignore: cast_nullable_to_non_nullable
 as int,topic: null == topic ? _self.topic : topic // ignore: cast_nullable_to_non_nullable
-as String,starterNickname: null == starterNickname ? _self.starterNickname : starterNickname // ignore: cast_nullable_to_non_nullable
-as String,starterImageUrl: freezed == starterImageUrl ? _self.starterImageUrl : starterImageUrl // ignore: cast_nullable_to_non_nullable
-as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,starterUserId: null == starterUserId ? _self.starterUserId : starterUserId // ignore: cast_nullable_to_non_nullable
+as int,starterNickname: null == starterNickname ? _self.starterNickname : starterNickname // ignore: cast_nullable_to_non_nullable
+as String,starterShotId: null == starterShotId ? _self.starterShotId : starterShotId // ignore: cast_nullable_to_non_nullable
+as int,starterImageUrl: freezed == starterImageUrl ? _self.starterImageUrl : starterImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,starterImageUnderReview: null == starterImageUnderReview ? _self.starterImageUnderReview : starterImageUnderReview // ignore: cast_nullable_to_non_nullable
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,deadlineAt: null == deadlineAt ? _self.deadlineAt : deadlineAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -599,8 +612,10 @@ as DateTime,
 /// @nodoc
 mixin _$CycleGalleryMemberResponse {
 
- int get userId; String get nickname;// 프로필 이미지 URL. 없으면 null.
- String? get profileImageUrl; bool get isStarter;// 사진 카드 상태. (open: 공개 / empty: 미업로드 / locked: 잠금)
+ int get userId;// 멤버가 올린 사진의 shot id. 미업로드면 null. (사진 신고의 targetId 로 사용)
+ int? get shotId; String get nickname;// 프로필 이미지 URL. 없으면 null.
+ String? get profileImageUrl; bool get isStarter;// 사진 카드 상태.
+// (open: 공개 / empty: 미업로드 / locked: 잠금 / reported: 신고 검토 중)
  String get status;// 멤버가 따라찍은 사진 URL. 없으면 null.
  String? get imageUrl;// 업로드 시각. 미업로드면 null.
  DateTime? get uploadedAt;
@@ -616,16 +631,16 @@ $CycleGalleryMemberResponseCopyWith<CycleGalleryMemberResponse> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CycleGalleryMemberResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.isStarter, isStarter) || other.isStarter == isStarter)&&(identical(other.status, status) || other.status == status)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.uploadedAt, uploadedAt) || other.uploadedAt == uploadedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CycleGalleryMemberResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.shotId, shotId) || other.shotId == shotId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.isStarter, isStarter) || other.isStarter == isStarter)&&(identical(other.status, status) || other.status == status)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.uploadedAt, uploadedAt) || other.uploadedAt == uploadedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,nickname,profileImageUrl,isStarter,status,imageUrl,uploadedAt);
+int get hashCode => Object.hash(runtimeType,userId,shotId,nickname,profileImageUrl,isStarter,status,imageUrl,uploadedAt);
 
 @override
 String toString() {
-  return 'CycleGalleryMemberResponse(userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, isStarter: $isStarter, status: $status, imageUrl: $imageUrl, uploadedAt: $uploadedAt)';
+  return 'CycleGalleryMemberResponse(userId: $userId, shotId: $shotId, nickname: $nickname, profileImageUrl: $profileImageUrl, isStarter: $isStarter, status: $status, imageUrl: $imageUrl, uploadedAt: $uploadedAt)';
 }
 
 
@@ -636,7 +651,7 @@ abstract mixin class $CycleGalleryMemberResponseCopyWith<$Res>  {
   factory $CycleGalleryMemberResponseCopyWith(CycleGalleryMemberResponse value, $Res Function(CycleGalleryMemberResponse) _then) = _$CycleGalleryMemberResponseCopyWithImpl;
 @useResult
 $Res call({
- int userId, String nickname, String? profileImageUrl, bool isStarter, String status, String? imageUrl, DateTime? uploadedAt
+ int userId, int? shotId, String nickname, String? profileImageUrl, bool isStarter, String status, String? imageUrl, DateTime? uploadedAt
 });
 
 
@@ -653,10 +668,11 @@ class _$CycleGalleryMemberResponseCopyWithImpl<$Res>
 
 /// Create a copy of CycleGalleryMemberResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? isStarter = null,Object? status = null,Object? imageUrl = freezed,Object? uploadedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? shotId = freezed,Object? nickname = null,Object? profileImageUrl = freezed,Object? isStarter = null,Object? status = null,Object? imageUrl = freezed,Object? uploadedAt = freezed,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
+as int,shotId: freezed == shotId ? _self.shotId : shotId // ignore: cast_nullable_to_non_nullable
+as int?,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,isStarter: null == isStarter ? _self.isStarter : isStarter // ignore: cast_nullable_to_non_nullable
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -747,10 +763,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CycleGalleryMemberResponse() when $default != null:
-return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
+return $default(_that.userId,_that.shotId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
   return orElse();
 
 }
@@ -768,10 +784,10 @@ return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.isStarte
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)  $default,) {final _that = this;
 switch (_that) {
 case _CycleGalleryMemberResponse():
-return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
+return $default(_that.userId,_that.shotId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -788,10 +804,10 @@ return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.isStarte
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CycleGalleryMemberResponse() when $default != null:
-return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
+return $default(_that.userId,_that.shotId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
   return null;
 
 }
@@ -803,15 +819,18 @@ return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.isStarte
 @JsonSerializable()
 
 class _CycleGalleryMemberResponse implements CycleGalleryMemberResponse {
-  const _CycleGalleryMemberResponse({required this.userId, required this.nickname, required this.profileImageUrl, required this.isStarter, required this.status, required this.imageUrl, required this.uploadedAt});
+  const _CycleGalleryMemberResponse({required this.userId, required this.shotId, required this.nickname, required this.profileImageUrl, required this.isStarter, required this.status, required this.imageUrl, required this.uploadedAt});
   factory _CycleGalleryMemberResponse.fromJson(Map<String, dynamic> json) => _$CycleGalleryMemberResponseFromJson(json);
 
 @override final  int userId;
+// 멤버가 올린 사진의 shot id. 미업로드면 null. (사진 신고의 targetId 로 사용)
+@override final  int? shotId;
 @override final  String nickname;
 // 프로필 이미지 URL. 없으면 null.
 @override final  String? profileImageUrl;
 @override final  bool isStarter;
-// 사진 카드 상태. (open: 공개 / empty: 미업로드 / locked: 잠금)
+// 사진 카드 상태.
+// (open: 공개 / empty: 미업로드 / locked: 잠금 / reported: 신고 검토 중)
 @override final  String status;
 // 멤버가 따라찍은 사진 URL. 없으면 null.
 @override final  String? imageUrl;
@@ -831,16 +850,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CycleGalleryMemberResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.isStarter, isStarter) || other.isStarter == isStarter)&&(identical(other.status, status) || other.status == status)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.uploadedAt, uploadedAt) || other.uploadedAt == uploadedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CycleGalleryMemberResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.shotId, shotId) || other.shotId == shotId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.isStarter, isStarter) || other.isStarter == isStarter)&&(identical(other.status, status) || other.status == status)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.uploadedAt, uploadedAt) || other.uploadedAt == uploadedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,nickname,profileImageUrl,isStarter,status,imageUrl,uploadedAt);
+int get hashCode => Object.hash(runtimeType,userId,shotId,nickname,profileImageUrl,isStarter,status,imageUrl,uploadedAt);
 
 @override
 String toString() {
-  return 'CycleGalleryMemberResponse(userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, isStarter: $isStarter, status: $status, imageUrl: $imageUrl, uploadedAt: $uploadedAt)';
+  return 'CycleGalleryMemberResponse(userId: $userId, shotId: $shotId, nickname: $nickname, profileImageUrl: $profileImageUrl, isStarter: $isStarter, status: $status, imageUrl: $imageUrl, uploadedAt: $uploadedAt)';
 }
 
 
@@ -851,7 +870,7 @@ abstract mixin class _$CycleGalleryMemberResponseCopyWith<$Res> implements $Cycl
   factory _$CycleGalleryMemberResponseCopyWith(_CycleGalleryMemberResponse value, $Res Function(_CycleGalleryMemberResponse) _then) = __$CycleGalleryMemberResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, String nickname, String? profileImageUrl, bool isStarter, String status, String? imageUrl, DateTime? uploadedAt
+ int userId, int? shotId, String nickname, String? profileImageUrl, bool isStarter, String status, String? imageUrl, DateTime? uploadedAt
 });
 
 
@@ -868,10 +887,11 @@ class __$CycleGalleryMemberResponseCopyWithImpl<$Res>
 
 /// Create a copy of CycleGalleryMemberResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? isStarter = null,Object? status = null,Object? imageUrl = freezed,Object? uploadedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? shotId = freezed,Object? nickname = null,Object? profileImageUrl = freezed,Object? isStarter = null,Object? status = null,Object? imageUrl = freezed,Object? uploadedAt = freezed,}) {
   return _then(_CycleGalleryMemberResponse(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
+as int,shotId: freezed == shotId ? _self.shotId : shotId // ignore: cast_nullable_to_non_nullable
+as int?,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,isStarter: null == isStarter ? _self.isStarter : isStarter // ignore: cast_nullable_to_non_nullable
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable

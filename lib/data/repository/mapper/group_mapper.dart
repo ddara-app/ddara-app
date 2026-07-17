@@ -115,8 +115,11 @@ extension CycleGalleryMapper on CycleGalleryResponse {
         cycleId: cycle.cycleId,
         cycleNumber: cycle.cycleNumber,
         topic: cycle.topic,
+        starterUserId: cycle.starterUserId,
         starterNickname: cycle.starterNickname,
+        starterShotId: cycle.starterShotId,
         starterImageUrl: cycle.starterImageUrl,
+        starterImageUnderReview: cycle.starterImageUnderReview,
         status: cycle.status,
         deadlineAt: cycle.deadlineAt,
       ),
@@ -125,6 +128,7 @@ extension CycleGalleryMapper on CycleGalleryResponse {
           .map(
             (member) => CycleGalleryMember(
               userId: member.userId,
+              shotId: member.shotId,
               nickname: member.nickname,
               profileImageUrl: member.profileImageUrl,
               isStarter: member.isStarter,

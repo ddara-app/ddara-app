@@ -2,6 +2,7 @@ import 'package:ddara/core/designsystem/component/app_text_field.dart';
 import 'package:ddara/core/designsystem/component/button/app_button.dart';
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/core/widget/app_checkbox.dart';
 import 'package:ddara/core/widget/draggable_sheet.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -10,39 +11,19 @@ import 'package:flutter/cupertino.dart';
 /// 드래그 핸들 크기.
 const Size _handleSize = Size(40, 4);
 
-/// 사진 신고 사유.
-///
-/// TODO: 신고 API 연결 시 서버 코드와 매핑. (백엔드 스펙 대기)
-enum PhotoReportReason {
-  /// 음란물.
-  obscene,
-
-  /// 폭력·혐오.
-  violence,
-
-  /// 타인 무단촬영.
-  unauthorizedFilming,
-
-  /// 사칭·괴롭힘.
-  impersonation,
-
-  /// 기타.
-  etc,
-}
-
 /// 사유별 표시 라벨.
-extension PhotoReportReasonLabel on PhotoReportReason {
+extension ReportReasonLabel on ReportReason {
   String label(AppLocalizations l10n) {
     switch (this) {
-      case PhotoReportReason.obscene:
+      case ReportReason.obscene:
         return l10n.photoReportReasonObscene;
-      case PhotoReportReason.violence:
+      case ReportReason.violence:
         return l10n.photoReportReasonViolence;
-      case PhotoReportReason.unauthorizedFilming:
+      case ReportReason.unauthorizedPhoto:
         return l10n.photoReportReasonUnauthorizedFilming;
-      case PhotoReportReason.impersonation:
+      case ReportReason.harassment:
         return l10n.photoReportReasonImpersonation;
-      case PhotoReportReason.etc:
+      case ReportReason.etc:
         return l10n.photoReportReasonEtc;
     }
   }
@@ -50,7 +31,7 @@ extension PhotoReportReasonLabel on PhotoReportReason {
 
 /// 시트가 반환하는 신고 내용.
 /// (선택한 사유 + 상세 입력 — 상세는 '기타' 사유일 때만 채워진다)
-typedef PhotoReportResult = ({PhotoReportReason reason, String detail});
+typedef PhotoReportResult = ({ReportReason reason, String detail});
 
 /// 사진 신고 사유를 선택하는 바텀시트.
 ///
@@ -76,7 +57,17 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
   final TextEditingController _detailController = TextEditingController();
 
   /// 선택한 신고 사유. 선택 전엔 null. (하나만 선택할 수 있다)
-  PhotoReportReason? _reason;
+  ReportReason? _reason;
+
+  /// 신고할 수 있는 상태인지. (사유 선택 필수, '기타'는 상세 내용도 필수)
+  bool get _canSubmit {
+    final reason = _reason;
+    if (reason == null) return false;
+    if (reason == ReportReason.etc) {
+      return _detailController.text.trim().isNotEmpty;
+    }
+    return true;
+  }
 
   @override
   void dispose() {
@@ -88,7 +79,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
     final reason = _reason;
     if (reason == null) return;
     // 상세 입력은 '기타' 사유에만 노출되므로 그 외 사유에서는 비운다.
-    final detail = reason == PhotoReportReason.etc
+    final detail = reason == ReportReason.etc
         ? _detailController.text.trim()
         : '';
     Navigator.of(context).pop((reason: reason, detail: detail));
@@ -157,14 +148,14 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                         ),
                       ),
                       // 신고 사유 선택 목록. (단일 선택)
-                      for (final reason in PhotoReportReason.values)
+                      for (final reason in ReportReason.values)
                         _ReasonRow(
                           label: reason.label(l10n),
                           selected: _reason == reason,
                           onSelect: () => setState(() => _reason = reason),
                         ),
                       // 상세 내용 입력. ('기타' 사유를 선택했을 때만 노출)
-                      if (_reason == PhotoReportReason.etc)
+                      if (_reason == ReportReason.etc)
                         Padding(
                           padding: const EdgeInsets.only(
                             left: AppSpacing.s4,
@@ -174,6 +165,8 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                           child: AppTextField(
                             controller: _detailController,
                             placeholder: l10n.photoReportDetailPlaceholder,
+                            // 입력에 따라 신고 버튼 활성 상태를 갱신한다.
+                            onChanged: (_) => setState(() {}),
                           ),
                         ),
                       Padding(
@@ -182,10 +175,10 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                           left: AppSpacing.s4,
                           right: AppSpacing.s4,
                         ),
-                        // 사유를 선택하기 전엔 비활성화한다.
+                        // 사유 미선택('기타'는 상세 미입력 포함) 시 비활성화한다.
                         child: AppButton(
                           label: l10n.photoReport,
-                          onPressed: _reason == null ? null : _submit,
+                          onPressed: _canSubmit ? _submit : null,
                         ),
                       ),
                     ],

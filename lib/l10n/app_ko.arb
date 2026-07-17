@@ -246,6 +246,7 @@
   "photoReportReasonImpersonation": "사칭·괴롭힘",
   "photoReportReasonEtc": "기타",
   "photoReportDetailPlaceholder": "입력해 주세요",
+  "photoReportSubmitted": "신고가 접수됐어요.",
   "memberBlock": "차단하기",
   "memberBlockConfirmTitle": "{nickname}님을 차단할까요?",
   "@memberBlockConfirmTitle": {

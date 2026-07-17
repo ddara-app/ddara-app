@@ -5,6 +5,7 @@ import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/photo_viewer.dart';
+import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/gallery/widget/photo_report_sheet.dart';
@@ -28,6 +29,17 @@ class CyclePhotoGallery extends ConsumerWidget {
     final state = ref.watch(cyclePhotoGalleryNotifierProvider(cycleId));
     final gallery = state.gallery;
 
+    // 신고 등 액션 실패를 토스트로 안내한다.
+    // (초기 조회 실패는 본문에 표시되므로 갤러리가 로드된 뒤의 에러만 다룬다)
+    ref.listen(cyclePhotoGalleryNotifierProvider(cycleId), (prev, next) {
+      if (next.gallery != null && next.errorMessage.isNotEmpty) {
+        Toast.showToast(context, next.errorMessage, type: ToastType.error);
+        ref
+            .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+            .clearError();
+      }
+    });
+
     return CupertinoPageScaffold(
       // 조회 전엔 제목이 없으므로 빈 문자열.
       navigationBar: AppBar(
@@ -44,6 +56,7 @@ class CyclePhotoGallery extends ConsumerWidget {
                 : const Center(child: CupertinoActivityIndicator()),
           _ => _buildContent(
             context,
+            ref,
             gallery,
             state.myUserId,
             state.blockedUserIds,
@@ -55,6 +68,7 @@ class CyclePhotoGallery extends ConsumerWidget {
 
   Widget _buildContent(
     BuildContext context,
+    WidgetRef ref,
     CycleGallery gallery,
     int? myUserId,
     Set<int> blockedUserIds,
@@ -62,18 +76,13 @@ class CyclePhotoGallery extends ConsumerWidget {
     final cycle = gallery.cycle;
 
     // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
-    final starterBlocked = gallery.members.any(
-      (m) => m.isStarter && blockedUserIds.contains(m.userId),
-    );
+    final starterBlocked = blockedUserIds.contains(cycle.starterUserId);
 
     // 마감된(done) 회차는 사진이 있는 카드만 보여준다. (미업로드 빈 카드는 숨김)
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
 
-    // 스타터 멤버. (헤더 사진 신고 대상 — 응답에 없으면 null)
-    final starter = gallery.members.where((m) => m.isStarter).firstOrNull;
-
-    // 본인이 스타터인지 여부. (내 멤버가 스타터 플래그를 가졌는지)
-    final iAmStarter = starter != null && starter.userId == myUserId;
+    // 본인이 스타터인지 여부.
+    final iAmStarter = cycle.starterUserId == myUserId;
     // 스타터이거나 본인이 사진을 올렸으면 모든 멤버의 사진을 볼 수 있다.
     // 그 외(스타터 아님 + 미업로드)면 사진이 있는 멤버는 블러+자물쇠로 가린다.
     final canSeeAll = iAmStarter || gallery.viewerUploaded;
@@ -120,9 +129,9 @@ class CyclePhotoGallery extends ConsumerWidget {
             progress: _toGroupCycle(gallery),
             starterBlocked: starterBlocked,
             // 스타터 사진 롱프레스 → 신고 메뉴. (본인이 스타터면 띄우지 않는다)
-            onReport: starter == null || iAmStarter
+            onReport: iAmStarter
                 ? null
-                : () => _reportPhoto(context, starter),
+                : () => _reportPhoto(context, ref, cycle.starterShotId),
             // 스타터 대표 사진 탭 → 헤더에서 보이던 프레임 그대로 크게 보여준다.
             // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
             onImageTap: (cycle.starterImageUrl ?? '').isEmpty
@@ -213,7 +222,8 @@ class CyclePhotoGallery extends ConsumerWidget {
                   );
 
                   // 타인의 보이는 사진만 신고할 수 있다. (본인·잠김·차단 제외)
-                  if (isMe || !canView) return card;
+                  final shotId = member.shotId;
+                  if (isMe || !canView || shotId == null) return card;
 
                   return _MenuPhotoCard(
                     cardWidth: cardWidth,
@@ -222,7 +232,7 @@ class CyclePhotoGallery extends ConsumerWidget {
                       name: member.nickname,
                       image: image,
                     ),
-                    onReport: () => _reportPhoto(context, member),
+                    onReport: () => _reportPhoto(context, ref, shotId),
                     child: card,
                   );
                 },
@@ -235,36 +245,42 @@ class CyclePhotoGallery extends ConsumerWidget {
   }
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
+  /// 성공 시 검토 상태가 반영된 갤러리를 다시 조회하고 완료 토스트를 띄운다.
+  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
   Future<void> _reportPhoto(
     BuildContext context,
-    CycleGalleryMember member,
+    WidgetRef ref,
+    int shotId,
   ) async {
     final result = await PhotoReportSheet.show(context);
     if (result == null || !context.mounted) return;
 
-    // TODO: 사진 신고 API 연결. (대상 member.userId + 사유·상세 전송 — 백엔드 스펙 대기)
+    final success = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .reportShot(
+          shotId: shotId,
+          reason: result.reason,
+          reasonText: result.detail.isEmpty ? null : result.detail,
+        );
+    if (!success || !context.mounted) return;
+
+    Toast.showToast(context, AppLocalizations.of(context).photoReportSubmitted);
   }
 
   /// [StartedHeader] 가 요구하는 [GroupCycle] 로 변환한다.
   /// (헤더는 회차·주제·스타터·마감만 쓰므로 응답에 없는 값은 기본값으로 채운다)
   GroupCycle _toGroupCycle(CycleGallery gallery) {
     final cycle = gallery.cycle;
-    // 응답 cycle 에 starterUserId 가 없어, 닉네임이 일치하는 멤버의 userId 로 채운다.
-    final starterUserId = gallery.members
-        .where((m) => m.nickname == cycle.starterNickname)
-        .map((m) => m.userId)
-        .firstOrNull;
-
     return GroupCycle(
       cycleId: cycle.cycleId,
       cycleNumber: cycle.cycleNumber,
       topic: cycle.topic,
-      starterUserId: starterUserId ?? 0,
+      starterUserId: cycle.starterUserId,
       starterNickname: cycle.starterNickname,
       starterImageUrl: cycle.starterImageUrl,
-      // 갤러리 응답에는 검토 여부가 없어 기본값(false)으로 채운다.
-      starterImageUnderReview: false,
+      starterImageUnderReview: cycle.starterImageUnderReview,
       status: cycle.status,
+      // 응답에 시작 시각이 없어 마감 시각으로 채운다. (헤더에서 쓰지 않음)
       startedAt: cycle.deadlineAt,
       deadlineAt: cycle.deadlineAt,
     );
