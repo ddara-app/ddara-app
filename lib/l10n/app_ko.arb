@@ -237,6 +237,16 @@
       "email": { "type": "String" }
     }
   },
+  "memberBlock": "차단하기",
+  "memberBlockConfirmTitle": "{nickname}님을 차단할까요?",
+  "@memberBlockConfirmTitle": {
+    "description": "멤버 차단 확인 다이얼로그 제목. (차단 대상 닉네임 포함)",
+    "placeholders": {
+      "nickname": { "type": "String" }
+    }
+  },
+  "memberBlockConfirmMessage": "차단하면 이 멤버의 사진이\n더 이상 보이지 않습니다.",
+  "memberBlockConfirmAction": "차단",
   "recordCycleLabel": "따라찍기",
   "recordPhotoLabel": "함께한 사진",
   "groupHistoryTitle": "지난 따라찍기",

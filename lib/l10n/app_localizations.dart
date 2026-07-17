@@ -712,6 +712,30 @@ abstract class AppLocalizations {
   /// **'메일 앱을 열 수 없어요. ({email})'**
   String memberReportMailFailed(String email);
 
+  /// No description provided for @memberBlock.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단하기'**
+  String get memberBlock;
+
+  /// 멤버 차단 확인 다이얼로그 제목. (차단 대상 닉네임 포함)
+  ///
+  /// In ko, this message translates to:
+  /// **'{nickname}님을 차단할까요?'**
+  String memberBlockConfirmTitle(String nickname);
+
+  /// No description provided for @memberBlockConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단하면 이 멤버의 사진이\n더 이상 보이지 않습니다.'**
+  String get memberBlockConfirmMessage;
+
+  /// No description provided for @memberBlockConfirmAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단'**
+  String get memberBlockConfirmAction;
+
   /// No description provided for @recordCycleLabel.
   ///
   /// In ko, this message translates to:

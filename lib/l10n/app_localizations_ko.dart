@@ -345,6 +345,20 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get memberBlock => '차단하기';
+
+  @override
+  String memberBlockConfirmTitle(String nickname) {
+    return '$nickname님을 차단할까요?';
+  }
+
+  @override
+  String get memberBlockConfirmMessage => '차단하면 이 멤버의 사진이\n더 이상 보이지 않습니다.';
+
+  @override
+  String get memberBlockConfirmAction => '차단';
+
+  @override
   String get recordCycleLabel => '따라찍기';
 
   @override

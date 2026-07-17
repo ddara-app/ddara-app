@@ -22,6 +22,7 @@ class AppDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.confirmLabel,
+    this.message,
     this.cancelLabel,
     this.confirmColor,
     this.confirmLabelColor,
@@ -29,6 +30,9 @@ class AppDialog extends StatelessWidget {
 
   /// 가운데 정렬되는 제목.
   final String title;
+
+  /// 제목 아래 본문(body) 설명. null 이면 제목만 보여준다.
+  final String? message;
 
   /// 확인(주요 동작) 버튼 라벨.
   final String confirmLabel;
@@ -48,6 +52,7 @@ class AppDialog extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String confirmLabel,
+    String? message,
     String? cancelLabel,
     Color? confirmColor,
     Color? confirmLabelColor,
@@ -58,6 +63,7 @@ class AppDialog extends StatelessWidget {
       builder: (_) => AppDialog(
         title: title,
         confirmLabel: confirmLabel,
+        message: message,
         cancelLabel: cancelLabel,
         confirmColor: confirmColor,
         confirmLabelColor: confirmLabelColor,
@@ -89,9 +95,15 @@ class AppDialog extends StatelessWidget {
                     right: AppSpacing.s6,
                     bottom: AppSpacing.s6,
                   ),
-                  child: AppText.headlineMedium(
-                    title,
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: AppSpacing.s3,
+                    children: [
+                      AppText.headlineMedium(title, textAlign: TextAlign.center),
+                      if (message != null)
+                        AppText.body(message!, textAlign: TextAlign.center),
+                    ],
                   ),
                 ),
                 Padding(

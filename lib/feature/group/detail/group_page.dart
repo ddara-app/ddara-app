@@ -312,8 +312,11 @@ class GroupPage extends ConsumerWidget {
           body: Members(
             members: groupDetail.members
                 .map(
-                  (member) =>
-                      (name: member.nickname, imageUrl: member.profileImageUrl),
+                  (member) => (
+                    userId: member.userId,
+                    name: member.nickname,
+                    imageUrl: member.profileImageUrl,
+                  ),
                 )
                 .toList(),
             onAddMember: () => InviteShareSheet.show(
@@ -322,6 +325,7 @@ class GroupPage extends ConsumerWidget {
               imageUrl: _shareImageUrl,
             ),
             onReportMember: (member) => _reportMember(context, member.name),
+            onBlockMember: (member) => _blockMember(context, member),
           ),
         ),
         GroupSection(
@@ -396,5 +400,21 @@ class GroupPage extends ConsumerWidget {
         type: ToastType.error,
       );
     }
+  }
+
+  /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
+  Future<void> _blockMember(BuildContext context, MemberDisplay member) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.memberBlockConfirmTitle(member.name),
+      message: l10n.memberBlockConfirmMessage,
+      confirmLabel: l10n.memberBlockConfirmAction,
+      confirmColor: AppColors.statusDanger,
+      confirmLabelColor: AppColors.textPrimary,
+    );
+    if (!confirmed || !context.mounted) return;
+
+    // TODO: 차단 API 호출로 연결. (member.userId 전달 — 백엔드 스펙 대기)
   }
 }
