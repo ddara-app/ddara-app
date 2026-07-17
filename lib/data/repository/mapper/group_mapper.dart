@@ -153,6 +153,7 @@ extension GroupListMapper on GroupListResponse {
               ownerNickname: group.ownerNickname,
               memberCount: group.memberCount,
               thumbnailUrl: group.thumbnailUrl,
+              thumbnailUnderReview: group.thumbnailUnderReview,
               thumbnailUserId: group.thumbnailUserId,
               currentCycle: group.currentCycle == null
                   ? null

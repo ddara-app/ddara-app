@@ -47,10 +47,16 @@ class MeetingCard extends StatelessWidget {
             children: [
               // 대표 이미지(모임 썸네일). 없거나 로드 실패면 갤러리 아이콘.
               // 하단 스크림 구간(heightFactor 0.4)에 맞춰 아래로 갈수록 흐려진다.
-              // 썸네일을 올린 멤버를 차단했으면 사진 대신 차단 자리표시.
+              // 차단·신고 검토 중이면 사진 대신 안내 자리표시. (차단이 우선)
               Positioned.fill(
                 child: thumbnailBlocked
                     ? const BlockedPhotoPlaceholder()
+                    : group.thumbnailUnderReview
+                    ? BlockedPhotoPlaceholder(
+                        message: AppLocalizations.of(
+                          context,
+                        ).photoUnderReviewPlaceholder,
+                      )
                     : ProgressiveBlurImage(
                         sharpUntil: 0.6,
                         builder: (_) => group.thumbnailUrl != null

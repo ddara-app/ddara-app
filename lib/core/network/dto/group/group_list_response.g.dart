@@ -23,6 +23,7 @@ _GroupResponse _$GroupResponseFromJson(Map<String, dynamic> json) =>
       ownerNickname: json['ownerNickname'] as String,
       memberCount: (json['memberCount'] as num).toInt(),
       thumbnailUrl: json['thumbnailUrl'] as String?,
+      thumbnailUnderReview: json['thumbnailUnderReview'] as bool,
       thumbnailUserId: (json['thumbnailUserId'] as num?)?.toInt(),
       currentCycle: json['currentCycle'] == null
           ? null
@@ -39,6 +40,7 @@ Map<String, dynamic> _$GroupResponseToJson(_GroupResponse instance) =>
       'ownerNickname': instance.ownerNickname,
       'memberCount': instance.memberCount,
       'thumbnailUrl': instance.thumbnailUrl,
+      'thumbnailUnderReview': instance.thumbnailUnderReview,
       'thumbnailUserId': instance.thumbnailUserId,
       'currentCycle': instance.currentCycle,
       'createdAt': instance.createdAt.toIso8601String(),
