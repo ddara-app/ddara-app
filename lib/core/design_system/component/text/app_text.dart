@@ -61,6 +61,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.titleLarge,
        _defaultColor = AppColors.textPrimary;
 

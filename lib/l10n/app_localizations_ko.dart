@@ -408,6 +408,12 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get recordCycleLabel => '따라찍기';
+
+  @override
+  String get recordPhotoLabel => '함께한 사진';
+
+  @override
   String get recordSectionTitle => '기록';
 
   @override

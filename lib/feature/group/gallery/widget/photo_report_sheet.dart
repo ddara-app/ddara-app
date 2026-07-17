@@ -1,10 +1,10 @@
-import 'package:ddara/core/designsystem/component/app_text_field.dart';
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/text_field/app_text_field.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
-import 'package:ddara/core/widget/app_checkbox.dart';
-import 'package:ddara/core/widget/draggable_sheet.dart';
+import 'package:ddara/core/design_system/component/checkbox/app_checkbox.dart';
+import 'package:ddara/core/widget/bottom_sheet/draggable_sheet.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 

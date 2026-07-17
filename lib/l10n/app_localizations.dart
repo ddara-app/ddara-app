@@ -827,6 +827,17 @@ abstract class AppLocalizations {
   String memberBlockedToast(String nickname);
 
   /// No description provided for @recordCycleLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기'**
+  String get recordCycleLabel;
+
+  /// No description provided for @recordPhotoLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'함께한 사진'**
+  String get recordPhotoLabel;
+
   /// No description provided for @recordSectionTitle.
   ///
   /// In ko, this message translates to:

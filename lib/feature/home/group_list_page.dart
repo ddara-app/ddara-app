@@ -100,7 +100,10 @@ class _GroupListPageState extends State<GroupListPage> {
                 // 스와이프로 넘겨도 탭 라벨 강조가 따라오도록 인덱스를 동기화.
                 onPageChanged: (index) => setState(() => _tabIndex = index),
                 children: [
-                  _GroupListView(groups: widget.groups),
+                  _GroupListView(
+                    groups: widget.groups,
+                    blockedUserIds: widget.blockedUserIds,
+                  ),
                   const _RecentUpdatesView(),
                 ],
               ),
@@ -225,9 +228,13 @@ class _GroupListPageState extends State<GroupListPage> {
 
 /// 따라찍기 모임 탭: 진행 중인 모임 카드 목록.
 class _GroupListView extends StatelessWidget {
-  const _GroupListView({required this.groups});
+  const _GroupListView({required this.groups, required this.blockedUserIds});
 
   final List<Group> groups;
+
+  /// 내가 차단한 사용자 userId 집합.
+  /// (차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다)
+  final Set<int> blockedUserIds;
 
   @override
   Widget build(BuildContext context) {
@@ -240,6 +247,8 @@ class _GroupListView extends StatelessWidget {
       ),
       cardBuilder: (context, group) => MeetingCard(
         group: group,
+        // 차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다.
+        thumbnailBlocked: blockedUserIds.contains(group.thumbnailUserId),
         onTap: () => _openGroup(context, group.groupId),
       ),
     );
