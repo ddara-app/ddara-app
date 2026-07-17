@@ -1,3 +1,4 @@
+import 'package:ddara/core/network/dto/block/block_list_response.dart';
 import 'package:dio/dio.dart';
 
 class BlockDataSource {
@@ -9,5 +10,12 @@ class BlockDataSource {
   /// [userId] 사용자를 차단한다. (응답 본문 없음)
   Future<void> blockUser(int userId) async {
     await _dio.post(_baseUrl, data: {'userId': userId});
+  }
+
+  /// 내가 차단한 사용자 목록을 조회한다.
+  Future<BlockListResponse> getBlocks() async {
+    final response = await _dio.get(_baseUrl);
+
+    return BlockListResponse.fromJson(response.data);
   }
 }

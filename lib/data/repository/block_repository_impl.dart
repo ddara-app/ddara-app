@@ -1,9 +1,12 @@
 import 'package:ddara/core/exception/block_error_code.dart';
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
+import 'package:ddara/core/model/block/blocked_users.dart';
 import 'package:ddara/data/datasource/block/block_datasource.dart';
 import 'package:ddara/domain/repository/block_repository.dart';
 import 'package:dio/dio.dart';
+
+import 'mapper/block_mapper.dart';
 
 class BlockRepositoryImpl implements BlockRepository {
   final BlockDataSource _blockDataSource;
@@ -32,6 +35,16 @@ class BlockRepositoryImpl implements BlockRepository {
         default:
           throw NetworkException();
       }
+    }
+  }
+
+  @override
+  Future<BlockedUsers> getBlockedUsers() async {
+    try {
+      final response = await _blockDataSource.getBlocks();
+      return response.toDomain();
+    } on DioException {
+      throw NetworkException();
     }
   }
 }
