@@ -110,26 +110,27 @@ class MemberPhotoCard extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
               ),
-            // 하단 이름 라벨.
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.s3),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.s3,
-                    vertical: AppSpacing.s1,
-                  ),
-                  decoration: ShapeDecoration(
-                    color: AppColors.overlayScrim,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+            // 하단 이름 라벨. (차단한 멤버는 닉네임도 노출하지 않는다)
+            if (!isBlocked)
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.s3),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.s3,
+                      vertical: AppSpacing.s1,
                     ),
+                    decoration: ShapeDecoration(
+                      color: AppColors.overlayScrim,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                    ),
+                    child: AppText.label(name, color: AppColors.textPrimary),
                   ),
-                  child: AppText.label(name, color: AppColors.textPrimary),
                 ),
               ),
-            ),
           ],
         ),
       ),
