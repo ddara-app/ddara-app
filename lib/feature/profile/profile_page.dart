@@ -89,6 +89,16 @@ class ProfilePage extends ConsumerWidget {
                       ],
                     ),
                     ProfileSection(
+                      label: l10n.profileSectionManage,
+                      children: [
+                        ProfileRow(
+                          label: l10n.profileBlockedUsers,
+                          trailing: const ProfileChevron(),
+                          onTap: () => context.push(RoutePath.blockedUsers),
+                        ),
+                      ],
+                    ),
+                    ProfileSection(
                       label: l10n.profileSectionSupport,
                       children: [
                         ProfileRow(

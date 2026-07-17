@@ -1231,6 +1231,36 @@ abstract class AppLocalizations {
   /// **'계정 관리'**
   String get profileAccountManage;
 
+  /// No description provided for @profileSectionManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'관리'**
+  String get profileSectionManage;
+
+  /// No description provided for @profileBlockedUsers.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 유저 목록'**
+  String get profileBlockedUsers;
+
+  /// No description provided for @blockedUsersTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 유저'**
+  String get blockedUsersTitle;
+
+  /// No description provided for @blockedUsersEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 유저가 없어요'**
+  String get blockedUsersEmpty;
+
+  /// No description provided for @blockedUsersUnblock.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단 해제'**
+  String get blockedUsersUnblock;
+
   /// No description provided for @profileLinkedAccount.
   ///
   /// In ko, this message translates to:

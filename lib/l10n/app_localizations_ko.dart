@@ -649,6 +649,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profileAccountManage => '계정 관리';
 
   @override
+  String get profileSectionManage => '관리';
+
+  @override
+  String get profileBlockedUsers => '차단한 유저 목록';
+
+  @override
+  String get blockedUsersTitle => '차단한 유저';
+
+  @override
+  String get blockedUsersEmpty => '차단한 유저가 없어요';
+
+  @override
+  String get blockedUsersUnblock => '차단 해제';
+
+  @override
   String get profileLinkedAccount => '연동 계정';
 
   @override
