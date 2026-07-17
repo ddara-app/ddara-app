@@ -3,6 +3,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
@@ -20,6 +21,8 @@ class StartedHeader extends StatefulWidget {
     required this.imageUri,
     required this.progress,
     this.onImageTap,
+    this.onReport,
+    this.starterBlocked = false,
   });
 
   /// 대표로 보여줄 이미지 URI.
@@ -31,6 +34,16 @@ class StartedHeader extends StatefulWidget {
   /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
   final VoidCallback? onImageTap;
 
+  /// 대표 이미지를 롱프레스해 '신고하기'를 선택했을 때.
+  /// null 이면 신고 메뉴가 뜨지 않는다. (펼친 상태에서만 동작)
+  final VoidCallback? onReport;
+
+  /// 스타터를 차단한 상태인지 여부.
+  ///
+  /// true 면 대표 이미지 대신 자리표시([BlockedPhotoPlaceholder])를 보여주고
+  /// 크게 보기(탭)를 막는다.
+  final bool starterBlocked;
+
   @override
   State<StartedHeader> createState() => _StartedHeaderState();
 }
@@ -39,24 +52,142 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 헤더 펼침 여부. (true: 큰 이미지 헤더 / false: 축소된 헤더)
   bool _expanded = true;
 
+  /// 헤더 위치를 신고 메뉴가 따라가게 잇는 링크.
+  final LayerLink _link = LayerLink();
+  OverlayEntry? _entry;
+
+  /// 오버레이에 띄울 헤더 사본 크기. (메뉴를 열 때 측정)
+  Size? _copySize;
+
+  /// 스타터 사진이 신고 접수로 검토 중인지 여부.
+  bool get _underReview => widget.progress.starterImageUnderReview;
+
+  /// 사진을 자리표시로 가려야 하는 상태인지. (차단 또는 검토 중)
+  bool get _obscured => widget.starterBlocked || _underReview;
+
+  /// 신고 메뉴를 띄울 수 있는지.
+  /// (콜백 有 + 이미지 有 + 가림 상태 아님 — 검토 중인 사진은 재신고 불가)
+  bool get _canReport =>
+      widget.onReport != null && !_obscured && widget.imageUri.isNotEmpty;
+
   void _toggle() => setState(() => _expanded = !_expanded);
+
+  void _openMenu() {
+    if (_entry != null) return;
+    // 사본이 원본 헤더와 정확히 겹치도록 현재 크기를 기억해 둔다.
+    _copySize = context.size;
+    _entry = OverlayEntry(builder: (_) => _buildMenuOverlay());
+    Overlay.of(context).insert(_entry!);
+  }
+
+  void _closeMenu() {
+    _entry?.remove();
+    _entry = null;
+  }
+
+  /// 메뉴를 닫은 뒤 신고 콜백을 실행한다.
+  void _selectReport() {
+    _closeMenu();
+    widget.onReport?.call();
+  }
+
+  @override
+  void dispose() {
+    _entry?.remove();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      duration: const Duration(milliseconds: 250),
-      // 위 고정 헤더라 접힐 때 위에서부터 높이가 줄도록 상단 기준 정렬.
-      alignment: Alignment.topCenter,
-      crossFadeState: _expanded
-          ? CrossFadeState.showFirst
-          : CrossFadeState.showSecond,
-      firstChild: _buildExpanded(),
-      secondChild: _buildCollapsed(),
+    return CompositedTransformTarget(
+      link: _link,
+      child: AnimatedCrossFade(
+        duration: const Duration(milliseconds: 250),
+        // 위 고정 헤더라 접힐 때 위에서부터 높이가 줄도록 상단 기준 정렬.
+        alignment: Alignment.topCenter,
+        crossFadeState: _expanded
+            ? CrossFadeState.showFirst
+            : CrossFadeState.showSecond,
+        firstChild: _buildExpanded(),
+        secondChild: _buildCollapsed(),
+      ),
+    );
+  }
+
+  /// 신고 메뉴 오버레이. 배경을 블러 처리하고 헤더 사본 위에 메뉴를 띄운다.
+  Widget _buildMenuOverlay() {
+    final copySize = _copySize;
+    return Stack(
+      children: [
+        // 배경을 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _closeMenu,
+            child: const ColoredBox(color: AppColorPrimitives.black60),
+          ),
+        ),
+        // 대상 헤더(이미지) 사본을 스크림 위로 띄워 선명하게 유지한다.
+        if (copySize != null)
+          CompositedTransformFollower(
+            link: _link,
+            targetAnchor: Alignment.topLeft,
+            followerAnchor: Alignment.topLeft,
+            child: IgnorePointer(
+              child: SizedBox.fromSize(
+                size: copySize,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  child: _blurredBackground(),
+                ),
+              ),
+            ),
+          ),
+        // 헤더가 화면 상단에 붙어 있어 메뉴는 이미지 안쪽 좌상단에 앵커한다.
+        CompositedTransformFollower(
+          link: _link,
+          targetAnchor: Alignment.topLeft,
+          followerAnchor: Alignment.topLeft,
+          offset: const Offset(AppSpacing.s3, AppSpacing.s3),
+          child: _reportMenu(),
+        ),
+      ],
+    );
+  }
+
+  Widget _reportMenu() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgSurface,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.borderDefault),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColorPrimitives.black40,
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s4,
+          vertical: AppSpacing.s3,
+        ),
+        minimumSize: Size.zero,
+        onPressed: _selectReport,
+        child: AppText.body(
+          AppLocalizations.of(context).photoReport,
+          color: AppColors.statusDanger,
+        ),
+      ),
     );
   }
 
   /// 펼친 상태: 대표 이미지 + 진행 정보 + 하단 스크림.
   Widget _buildExpanded() {
+    // 가려진(차단·검토 중) 사진은 크게 보기를 막는다.
+    final onImageTap = _obscured ? null : widget.onImageTap;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: SizedBox(
@@ -64,14 +195,14 @@ class _StartedHeaderState extends State<StartedHeader> {
         height: 478,
         child: Stack(
           children: [
-            // 배경: 스타터 대표 이미지. (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기)
+            // 배경: 스타터 대표 이미지.
+            // (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기, 길게 누르면 신고 메뉴)
             Positioned.fill(
-              child: widget.onImageTap == null
-                  ? _blurredBackground()
-                  : GestureDetector(
-                      onTap: widget.onImageTap,
-                      child: _blurredBackground(),
-                    ),
+              child: GestureDetector(
+                onTap: onImageTap,
+                onLongPress: _canReport ? _openMenu : null,
+                child: _blurredBackground(),
+              ),
             ),
             // 하단 진행 정보의 가독성을 위한 스크림.
             const BottomScrim(
@@ -123,11 +254,14 @@ class _StartedHeaderState extends State<StartedHeader> {
       child: Stack(
         children: [
           // 블러 처리된 스타터 대표 이미지 배경.
+          // (차단·검토 자리표시는 민무늬 배경이라 블러를 걸지 않는다)
           Positioned.fill(
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: _backgroundImage(),
-            ),
+            child: _obscured
+                ? _backgroundImage()
+                : ImageFiltered(
+                    imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: _backgroundImage(),
+                  ),
           ),
           // 텍스트 대비를 위한 어두운 오버레이 + 진행 정보.
           Container(
@@ -188,6 +322,8 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 하단 스크림 구간(heightFactor 0.45)에 맞춰 아래로 갈수록 흐려지는 배경.
   Widget _blurredBackground() {
+    // 차단·검토 자리표시는 민무늬 배경이라 그라데이션 블러가 필요 없다.
+    if (_obscured) return _backgroundImage();
     return ProgressiveBlurImage(
       sharpUntil: 0.55,
       builder: (_) => _backgroundImage(),
@@ -195,7 +331,16 @@ class _StartedHeaderState extends State<StartedHeader> {
   }
 
   /// 헤더 배경으로 쓸 이미지. URI 가 없거나 로드 실패 시 자리표시로 대체한다.
+  /// 스타터 차단 또는 신고 검토 중이면 사진 대신 안내 자리표시를 보여준다.
   Widget _backgroundImage() {
+    if (widget.starterBlocked) {
+      return const BlockedPhotoPlaceholder();
+    }
+    if (_underReview) {
+      return BlockedPhotoPlaceholder(
+        message: AppLocalizations.of(context).photoUnderReviewPlaceholder,
+      );
+    }
     final url = widget.imageUri;
     if (url.isEmpty) {
       return const EmptyThumbnail();

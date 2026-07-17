@@ -1,6 +1,7 @@
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/group_list.dart';
+import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
@@ -9,10 +10,18 @@ import 'package:flutter/cupertino.dart';
 
 /// 모임 카드. (대표 이미지 위에 상태·이름·멤버 요약을 얹은 형태) — 비율 균일
 class MeetingCard extends StatelessWidget {
-  const MeetingCard({super.key, required this.group, required this.onTap});
+  const MeetingCard({
+    super.key,
+    required this.group,
+    required this.onTap,
+    this.thumbnailBlocked = false,
+  });
 
   final Group group;
   final VoidCallback onTap;
+
+  /// 썸네일을 올린 멤버를 차단한 상태인지 여부. (차단 자리표시로 대체)
+  final bool thumbnailBlocked;
 
   @override
   Widget build(BuildContext context) {
@@ -38,17 +47,27 @@ class MeetingCard extends StatelessWidget {
             children: [
               // 대표 이미지(모임 썸네일). 없거나 로드 실패면 갤러리 아이콘.
               // 하단 스크림 구간(heightFactor 0.4)에 맞춰 아래로 갈수록 흐려진다.
+              // 차단·신고 검토 중이면 사진 대신 안내 자리표시. (차단이 우선)
               Positioned.fill(
-                child: ProgressiveBlurImage(
-                  sharpUntil: 0.6,
-                  builder: (_) => group.thumbnailUrl != null
-                      ? Image.network(
-                          group.thumbnailUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => const EmptyThumbnail(),
-                        )
-                      : const EmptyThumbnail(),
-                ),
+                child: thumbnailBlocked
+                    ? const BlockedPhotoPlaceholder()
+                    : group.thumbnailUnderReview
+                    ? BlockedPhotoPlaceholder(
+                        message: AppLocalizations.of(
+                          context,
+                        ).photoUnderReviewPlaceholder,
+                      )
+                    : ProgressiveBlurImage(
+                        sharpUntil: 0.6,
+                        builder: (_) => group.thumbnailUrl != null
+                            ? Image.network(
+                                group.thumbnailUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) =>
+                                    const EmptyThumbnail(),
+                              )
+                            : const EmptyThumbnail(),
+                      ),
               ),
               // 하단 스크림. (텍스트 가독성 + 하단 경계를 배경과 자연스럽게 잇기)
               const BottomScrim(),

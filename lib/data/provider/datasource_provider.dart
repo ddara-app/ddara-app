@@ -1,8 +1,10 @@
 import 'package:ddara/core/local/provider/local_provider.dart';
+import 'package:ddara/data/datasource/block/block_datasource.dart';
 import 'package:ddara/data/datasource/cycle/cycle_datasource.dart';
 import 'package:ddara/data/datasource/fcm/fcm_datasource.dart';
 import 'package:ddara/data/datasource/notification/notification_datasource.dart';
 import 'package:ddara/data/datasource/profile/profile_datasource.dart';
+import 'package:ddara/data/datasource/report/report_datasource.dart';
 import 'package:ddara/data/datasource/upload/upload_datasource.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -39,4 +41,12 @@ final fcmDataSourceProvider = Provider<FcmDataSource>((ref) {
 
 final notificationDataSourceProvider = Provider<NotificationDataSource>((ref) {
   return NotificationDataSource(ref.read(dioProvider));
+});
+
+final blockDataSourceProvider = Provider<BlockDataSource>((ref) {
+  return BlockDataSource(ref.read(dioProvider));
+});
+
+final reportDataSourceProvider = Provider<ReportDataSource>((ref) {
+  return ReportDataSource(ref.read(dioProvider));
 });

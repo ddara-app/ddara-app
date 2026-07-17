@@ -70,7 +70,10 @@ class _HomePageState extends ConsumerState<HomePage> {
       return Center(child: AppText.body(state.errorMessage));
     }
     if (state.groups.isNotEmpty) {
-      return GroupListPage(groups: state.groups);
+      return GroupListPage(
+        groups: state.groups,
+        blockedUserIds: state.blockedUserIds,
+      );
     }
     return const EmptyGroupPage();
   }

@@ -345,6 +345,55 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get photoReport => '신고하기';
+
+  @override
+  String get photoReportSheetTitle => '신고 사유를 선택해 주세요';
+
+  @override
+  String get photoReportSheetSubtitle => '신고 내용은 24시간 안에 확인해요';
+
+  @override
+  String get photoReportReasonObscene => '음란물';
+
+  @override
+  String get photoReportReasonViolence => '폭력·혐오';
+
+  @override
+  String get photoReportReasonUnauthorizedFilming => '타인 무단촬영';
+
+  @override
+  String get photoReportReasonImpersonation => '사칭·괴롭힘';
+
+  @override
+  String get photoReportReasonEtc => '기타';
+
+  @override
+  String get photoReportDetailPlaceholder => '입력해 주세요';
+
+  @override
+  String get photoReportSubmitted => '신고를 접수했어요. 24시간 안에 확인할게요';
+
+  @override
+  String get memberBlock => '차단하기';
+
+  @override
+  String memberBlockConfirmTitle(String nickname) {
+    return '$nickname님을 차단할까요?';
+  }
+
+  @override
+  String get memberBlockConfirmMessage => '차단하면 이 멤버의 사진이\n더 이상 보이지 않습니다.';
+
+  @override
+  String get memberBlockConfirmAction => '차단';
+
+  @override
+  String memberBlockedToast(String nickname) {
+    return '$nickname님을 차단했어요.';
+  }
+
+  @override
   String get recordCycleLabel => '따라찍기';
 
   @override
@@ -628,6 +677,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get profileAccountManage => '계정 관리';
+
+  @override
+  String get profileSectionManage => '관리';
+
+  @override
+  String get profileBlockedUsers => '차단한 유저 목록';
+
+  @override
+  String get blockedUsersTitle => '차단한 유저';
+
+  @override
+  String get blockedUsersEmpty => '차단한 유저가 없어요';
+
+  @override
+  String get blockedUsersUnblock => '차단 해제';
+
+  @override
+  String get blockedUsersUnblockedToast => '차단을 해제했어요.';
+
+  @override
+  String get blockedUsersUnblockFailed => '차단을 해제하지 못했어요.';
+
+  @override
+  String get blockedPhotoPlaceholder => '차단한 멤버의 사진입니다.';
+
+  @override
+  String get photoUnderReviewPlaceholder => '신고 접수되어\n검토 중인 사진입니다';
 
   @override
   String get profileLinkedAccount => '연동 계정';

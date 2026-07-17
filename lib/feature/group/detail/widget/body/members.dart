@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/widget/profile_avatar.dart';
@@ -8,6 +6,9 @@ import 'package:flutter/cupertino.dart';
 
 /// 멤버 아바타·추가 버튼의 원 지름.
 const double _circleSize = 60;
+
+/// 차단한 멤버 닉네임 취소선 굵기. (폰트 기본 굵기의 배수)
+const double _blockedStrikeThickness = 2.0;
 
 /// 이름 라벨을 그대로 보여줄 최대 글자 수. (6자까지는 줄이지 않는다)
 const int _maxNameLength = 6;
@@ -28,7 +29,16 @@ String _ellipsizeName(String name) {
 /// 모임 멤버 한 명의 표시 데이터.
 ///
 /// TODO: 모임 조회 API 의 멤버 모델로 대체. (백엔드 스펙 대기 — 임시 record)
-typedef MemberDisplay = ({String name, String? imageUrl});
+typedef MemberDisplay = ({
+  int userId,
+  String name,
+  String? imageUrl,
+  bool isBlocked,
+  bool isMe,
+});
+
+/// 롱프레스 메뉴의 항목 하나. (라벨 + 글자색 + 선택 콜백)
+typedef _MenuAction = ({String label, Color? color, VoidCallback onSelect});
 
 /// 모임 멤버 목록. (원형 프로필 + 이름, 끝에 멤버 추가 버튼)
 class Members extends StatelessWidget {
@@ -37,6 +47,7 @@ class Members extends StatelessWidget {
     required this.members,
     required this.onAddMember,
     required this.onReportMember,
+    required this.onBlockMember,
   });
 
   final List<MemberDisplay> members;
@@ -46,6 +57,9 @@ class Members extends StatelessWidget {
 
   /// 멤버 아바타를 롱프레스해 '닉네임 신고'를 선택했을 때. (대상 멤버 전달)
   final ValueChanged<MemberDisplay> onReportMember;
+
+  /// 멤버 아바타를 롱프레스해 '차단하기'를 선택했을 때. (대상 멤버 전달)
+  final ValueChanged<MemberDisplay> onBlockMember;
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +73,9 @@ class Members extends StatelessWidget {
         children: [
           for (final member in members)
             _MemberAvatar(
-              name: member.name,
-              imageUrl: member.imageUrl,
+              member: member,
               onReport: () => onReportMember(member),
+              onBlock: () => onBlockMember(member),
             ),
           // 멤버 목록 끝에 항상 붙는 추가 버튼.
           _AddMemberButton(onPressed: onAddMember),
@@ -74,55 +88,92 @@ class Members extends StatelessWidget {
 /// 원형 프로필 아바타 + 이름 라벨.
 class _MemberAvatar extends StatelessWidget {
   const _MemberAvatar({
-    required this.name,
-    required this.imageUrl,
+    required this.member,
     required this.onReport,
+    required this.onBlock,
   });
 
-  final String name;
-
-  /// 프로필 이미지 URL. null·빈 값이면 기본 아이콘을 보여준다.
-  final String? imageUrl;
+  final MemberDisplay member;
 
   /// 컨텍스트 메뉴에서 '닉네임 신고'를 선택했을 때.
   final VoidCallback onReport;
 
+  /// 컨텍스트 메뉴에서 '차단하기'를 선택했을 때.
+  final VoidCallback onBlock;
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final label = _ellipsizeName(member.name);
+
+    // 차단한 멤버는 기본 프로필 아이콘 + 취소선 닉네임으로 표시한다.
+    final imageUrl = member.isBlocked ? null : member.imageUrl;
+    final labelDecoration = member.isBlocked
+        ? TextDecoration.lineThrough
+        : null;
+
+    // 본인 프로필은 신고·차단 대상이 아니므로 메뉴 없이 아바타만 보여준다.
+    if (member.isMe) {
+      return _CircleLabel(
+        label: label,
+        labelDecoration: labelDecoration,
+        child: ProfileAvatar(size: _circleSize, imageUrl: imageUrl),
+      );
+    }
+
+    final actions = <_MenuAction>[
+      (
+        label: l10n.memberBlock,
+        color: AppColors.statusDanger,
+        onSelect: onBlock,
+      ),
+      (
+        label: l10n.memberReportNickname,
+        color: AppColors.statusDanger,
+        onSelect: onReport,
+      ),
+    ];
+
     return _CircleLabel(
-      label: _ellipsizeName(name),
-      child: _ReportableAvatar(
-        name: name,
+      label: label,
+      labelDecoration: labelDecoration,
+      child: _MenuAvatar(
+        label: label,
+        labelDecoration: labelDecoration,
         imageUrl: imageUrl,
-        onReport: onReport,
+        actions: actions,
       ),
     );
   }
 }
 
-/// 롱프레스하면 아바타 위쪽에 '닉네임 신고' 메뉴(오버레이)를 띄우는 원형 아바타.
+/// 롱프레스하면 아바타 위쪽에 컨텍스트 메뉴(오버레이)를 띄우는 원형 아바타.
 ///
 /// 아바타에 앵커된 작은 메뉴로, 바깥을 탭하면 닫힌다.
-class _ReportableAvatar extends StatefulWidget {
-  const _ReportableAvatar({
-    required this.name,
+class _MenuAvatar extends StatefulWidget {
+  const _MenuAvatar({
+    required this.label,
     required this.imageUrl,
-    required this.onReport,
+    required this.actions,
+    this.labelDecoration,
   });
 
-  /// 아바타 아래 라벨로 보여줄 멤버 이름. (오버레이에서 블러 없이 유지)
-  final String name;
+  /// 아바타 아래 라벨. (오버레이에서 블러 없이 유지 — 원본 라벨과 동일 문자열)
+  final String label;
+
+  /// 라벨 글자 장식. (원본 라벨과 동일하게 유지 — 예: 차단 멤버 취소선)
+  final TextDecoration? labelDecoration;
 
   final String? imageUrl;
 
-  /// '닉네임 신고'를 선택했을 때.
-  final VoidCallback onReport;
+  /// 메뉴에 나열할 항목들. (위에서부터 순서대로)
+  final List<_MenuAction> actions;
 
   @override
-  State<_ReportableAvatar> createState() => _ReportableAvatarState();
+  State<_MenuAvatar> createState() => _MenuAvatarState();
 }
 
-class _ReportableAvatarState extends State<_ReportableAvatar> {
+class _MenuAvatarState extends State<_MenuAvatar> {
   /// 아바타 위치를 메뉴가 따라가게 잇는 링크.
   final LayerLink _link = LayerLink();
   OverlayEntry? _entry;
@@ -140,10 +191,10 @@ class _ReportableAvatarState extends State<_ReportableAvatar> {
     _entry = null;
   }
 
-  /// 메뉴를 닫은 뒤 신고 콜백을 실행한다.
-  void _select() {
+  /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
+  void _select(VoidCallback onSelect) {
     _close();
-    widget.onReport();
+    onSelect();
   }
 
   @override
@@ -155,15 +206,12 @@ class _ReportableAvatarState extends State<_ReportableAvatar> {
   Widget _buildOverlay() {
     return Stack(
       children: [
-        // 배경을 블러 + 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
+        // 배경을 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
         Positioned.fill(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: _close,
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-              child: const ColoredBox(color: AppColorPrimitives.black20),
-            ),
+            child: const ColoredBox(color: AppColorPrimitives.black60),
           ),
         ),
         // 대상 아바타 사본을 스크림 위로 띄워 선명하게 유지한다.
@@ -183,9 +231,13 @@ class _ReportableAvatarState extends State<_ReportableAvatar> {
           targetAnchor: Alignment.bottomCenter,
           followerAnchor: Alignment.topCenter,
           offset: const Offset(0, AppSpacing.s2),
-          // 원본 라벨과 동일하게 줄인 이름을 써야 사본이 정확히 겹친다.
+          // 원본 라벨과 동일한 문자열·장식을 써야 사본이 정확히 겹친다.
           child: IgnorePointer(
-            child: AppText.caption(_ellipsizeName(widget.name)),
+            child: AppText.caption(
+              widget.label,
+              decoration: widget.labelDecoration,
+              decorationThickness: _blockedStrikeThickness,
+            ),
           ),
         ),
         // 아바타 위쪽(좌측 정렬)에 앵커. (아바타 위로 s2 만큼 띄움)
@@ -202,6 +254,7 @@ class _ReportableAvatarState extends State<_ReportableAvatar> {
 
   Widget _menu() {
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -214,16 +267,28 @@ class _ReportableAvatarState extends State<_ReportableAvatar> {
           ),
         ],
       ),
-      child: CupertinoButton(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s4,
-          vertical: AppSpacing.s3,
-        ),
-        minimumSize: Size.zero,
-        onPressed: _select,
-        child: AppText.body(
-          AppLocalizations.of(context).memberReportNickname,
-          color: AppColors.statusDanger,
+      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < widget.actions.length; i++) ...[
+              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
+              CupertinoButton(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s4,
+                  vertical: AppSpacing.s3,
+                ),
+                minimumSize: Size.zero,
+                onPressed: () => _select(widget.actions[i].onSelect),
+                child: AppText.body(
+                  widget.actions[i].label,
+                  color: widget.actions[i].color,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -269,10 +334,19 @@ class _AddMemberButton extends StatelessWidget {
 ///
 /// [onTap] 을 주면 [child] 영역이 버튼이 된다.
 class _CircleLabel extends StatelessWidget {
-  const _CircleLabel({required this.child, required this.label, this.onTap});
+  const _CircleLabel({
+    required this.child,
+    required this.label,
+    this.labelDecoration,
+    this.onTap,
+  });
 
   final Widget child;
   final String label;
+
+  /// 라벨 글자 장식. (예: 차단 멤버 취소선)
+  final TextDecoration? labelDecoration;
+
   final VoidCallback? onTap;
 
   @override
@@ -290,7 +364,11 @@ class _CircleLabel extends StatelessWidget {
           )
         else
           child,
-        AppText.caption(label),
+        AppText.caption(
+          label,
+          decoration: labelDecoration,
+          decorationThickness: _blockedStrikeThickness,
+        ),
       ],
     );
   }

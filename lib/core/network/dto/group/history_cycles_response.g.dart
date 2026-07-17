@@ -24,6 +24,8 @@ _HistoryCycleResponse _$HistoryCycleResponseFromJson(
   cycleId: (json['cycleId'] as num).toInt(),
   topic: json['topic'] as String,
   thumbnailUrl: json['thumbnailUrl'] as String?,
+  thumbnailUnderReview: json['thumbnailUnderReview'] as bool,
+  starterUserId: (json['starterUserId'] as num).toInt(),
   participantCount: (json['participantCount'] as num).toInt(),
   date: DateTime.parse(json['date'] as String),
 );
@@ -34,6 +36,8 @@ Map<String, dynamic> _$HistoryCycleResponseToJson(
   'cycleId': instance.cycleId,
   'topic': instance.topic,
   'thumbnailUrl': instance.thumbnailUrl,
+  'thumbnailUnderReview': instance.thumbnailUnderReview,
+  'starterUserId': instance.starterUserId,
   'participantCount': instance.participantCount,
   'date': instance.date.toIso8601String(),
 };

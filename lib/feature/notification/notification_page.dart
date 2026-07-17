@@ -65,6 +65,7 @@ class NotificationPage extends ConsumerWidget {
           for (final notification in state.items)
             NotificationTile(
               item: notification,
+              blockedUserIds: state.blockedUserIds,
               onTap: _onTap(context, notification),
             ),
         ],

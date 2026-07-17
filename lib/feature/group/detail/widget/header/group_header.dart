@@ -17,6 +17,7 @@ class GroupHeader extends StatelessWidget {
     required this.navigateToStart,
     required this.onTakePhoto,
     this.canStart = true,
+    this.starterBlocked = false,
   });
 
   /// 대표로 보여줄 이미지 URI. null/빈 값이면 빈 상태로 본다.
@@ -33,6 +34,10 @@ class GroupHeader extends StatelessWidget {
 
   /// 따라찍기를 시작할 수 있는지 여부. (멤버가 부족하면 시작 버튼을 비활성화)
   final bool canStart;
+
+  /// 진행 중 사이클의 스타터를 차단한 상태인지 여부.
+  /// (true 면 헤더에 스타터 사진 대신 차단 자리표시를 보여준다)
+  final bool starterBlocked;
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +63,21 @@ class GroupHeader extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        StartedHeader(imageUri: cycle.starterImageUrl ?? "", progress: cycle),
+        // 사진 신고는 갤러리에서만 지원하므로 onReport 는 연결하지 않는다.
+        StartedHeader(
+          imageUri: cycle.starterImageUrl ?? "",
+          progress: cycle,
+          starterBlocked: starterBlocked,
+        ),
         const SizedBox(height: AppSpacing.s5),
-        AppButton(label: l10n.groupHeaderTakePhoto, onPressed: onTakePhoto),
+        // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로
+        // 촬영 버튼을 비활성화한다.
+        AppButton(
+          label: l10n.groupHeaderTakePhoto,
+          onPressed: starterBlocked || cycle.starterImageUnderReview
+              ? null
+              : onTakePhoto,
+        ),
       ],
     );
   }

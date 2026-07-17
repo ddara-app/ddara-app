@@ -237,6 +237,33 @@
       "email": { "type": "String" }
     }
   },
+  "photoReport": "신고하기",
+  "photoReportSheetTitle": "신고 사유를 선택해 주세요",
+  "photoReportSheetSubtitle": "신고 내용은 24시간 안에 확인해요",
+  "photoReportReasonObscene": "음란물",
+  "photoReportReasonViolence": "폭력·혐오",
+  "photoReportReasonUnauthorizedFilming": "타인 무단촬영",
+  "photoReportReasonImpersonation": "사칭·괴롭힘",
+  "photoReportReasonEtc": "기타",
+  "photoReportDetailPlaceholder": "입력해 주세요",
+  "photoReportSubmitted": "신고를 접수했어요. 24시간 안에 확인할게요",
+  "memberBlock": "차단하기",
+  "memberBlockConfirmTitle": "{nickname}님을 차단할까요?",
+  "@memberBlockConfirmTitle": {
+    "description": "멤버 차단 확인 다이얼로그 제목. (차단 대상 닉네임 포함)",
+    "placeholders": {
+      "nickname": { "type": "String" }
+    }
+  },
+  "memberBlockConfirmMessage": "차단하면 이 멤버의 사진이\n더 이상 보이지 않습니다.",
+  "memberBlockConfirmAction": "차단",
+  "memberBlockedToast": "{nickname}님을 차단했어요.",
+  "@memberBlockedToast": {
+    "description": "멤버 차단 완료 토스트. (차단한 닉네임 포함)",
+    "placeholders": {
+      "nickname": { "type": "String" }
+    }
+  },
   "recordCycleLabel": "따라찍기",
   "recordPhotoLabel": "함께한 사진",
   "groupHistoryTitle": "지난 따라찍기",
@@ -433,6 +460,15 @@
   "profileAppVersion": "앱 버전",
   "profileSectionAccount": "계정",
   "profileAccountManage": "계정 관리",
+  "profileSectionManage": "관리",
+  "profileBlockedUsers": "차단한 유저 목록",
+  "blockedUsersTitle": "차단한 유저",
+  "blockedUsersEmpty": "차단한 유저가 없어요",
+  "blockedUsersUnblock": "차단 해제",
+  "blockedUsersUnblockedToast": "차단을 해제했어요.",
+  "blockedUsersUnblockFailed": "차단을 해제하지 못했어요.",
+  "blockedPhotoPlaceholder": "차단한 멤버의 사진입니다.",
+  "photoUnderReviewPlaceholder": "신고 접수되어\n검토 중인 사진입니다",
   "profileLinkedAccount": "연동 계정",
   "profileLogout": "로그아웃",
   "profileWithdraw": "회원 탈퇴",

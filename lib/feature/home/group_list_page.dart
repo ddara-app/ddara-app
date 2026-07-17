@@ -19,10 +19,18 @@ const double _fabSize = 56;
 ///
 /// 카드 높이가 균일하므로 Masonry 패키지 없이 `Row` + `Column` 2개로 충분하다.
 class GroupListPage extends StatefulWidget {
-  const GroupListPage({super.key, required this.groups});
+  const GroupListPage({
+    super.key,
+    required this.groups,
+    this.blockedUserIds = const {},
+  });
 
   /// 표시할 모임 목록. (상위 HomePage 에서 조회 결과를 주입)
   final List<Group> groups;
+
+  /// 내가 차단한 사용자 userId 집합.
+  /// (차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다)
+  final Set<int> blockedUserIds;
 
   @override
   State<GroupListPage> createState() => _GroupListPageState();
@@ -75,6 +83,7 @@ class _GroupListPageState extends State<GroupListPage> {
                           for (var i = 0; i < groups.length; i += 2)
                             MeetingCard(
                               group: groups[i],
+                              thumbnailBlocked: _isThumbnailBlocked(groups[i]),
                               onTap: () =>
                                   _openGroup(context, groups[i].groupId),
                             ),
@@ -92,6 +101,7 @@ class _GroupListPageState extends State<GroupListPage> {
                           for (var i = 1; i < groups.length; i += 2)
                             MeetingCard(
                               group: groups[i],
+                              thumbnailBlocked: _isThumbnailBlocked(groups[i]),
                               onTap: () =>
                                   _openGroup(context, groups[i].groupId),
                             ),
@@ -121,6 +131,11 @@ class _GroupListPageState extends State<GroupListPage> {
         ),
       ],
     );
+  }
+
+  /// [group] 의 썸네일을 올린 멤버가 차단 상태인지 여부.
+  bool _isThumbnailBlocked(Group group) {
+    return widget.blockedUserIds.contains(group.thumbnailUserId);
   }
 
   void _openGroup(BuildContext context, int groupId) {

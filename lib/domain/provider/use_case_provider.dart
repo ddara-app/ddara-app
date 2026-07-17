@@ -1,5 +1,8 @@
 import 'package:ddara/core/auth/provider/auth_provider.dart';
 import 'package:ddara/domain/usecase/auth/login_use_case.dart';
+import 'package:ddara/domain/usecase/block/block_user_use_case.dart';
+import 'package:ddara/domain/usecase/block/get_blocked_users_use_case.dart';
+import 'package:ddara/domain/usecase/block/unblock_user_use_case.dart';
 import 'package:ddara/domain/usecase/auth/logout_use_case.dart';
 import 'package:ddara/domain/usecase/auth/signup_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
@@ -14,6 +17,7 @@ import 'package:ddara/domain/usecase/profile/get_notification_settings_use_case.
 import 'package:ddara/domain/usecase/profile/get_profile_use_case.dart';
 import 'package:ddara/domain/usecase/profile/reset_profile_image_use_case.dart';
 import 'package:ddara/domain/usecase/profile/upload_profile_image_use_case.dart';
+import 'package:ddara/domain/usecase/report/report_shot_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/provider/repository_provider.dart';
@@ -136,4 +140,20 @@ final getNotificationsUseCaseProvider = Provider<GetNotificationsUseCase>((
   ref,
 ) {
   return GetNotificationsUseCase(ref.read(notificationRepositoryProvider));
+});
+
+final blockUserUseCaseProvider = Provider<BlockUserUseCase>((ref) {
+  return BlockUserUseCase(ref.read(blockRepositoryProvider));
+});
+
+final getBlockedUsersUseCaseProvider = Provider<GetBlockedUsersUseCase>((ref) {
+  return GetBlockedUsersUseCase(ref.read(blockRepositoryProvider));
+});
+
+final unblockUserUseCaseProvider = Provider<UnblockUserUseCase>((ref) {
+  return UnblockUserUseCase(ref.read(blockRepositoryProvider));
+});
+
+final reportShotUseCaseProvider = Provider<ReportShotUseCase>((ref) {
+  return ReportShotUseCase(ref.read(reportRepositoryProvider));
 });
