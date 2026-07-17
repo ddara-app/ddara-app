@@ -756,6 +756,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoUnderReviewPlaceholder => '신고 접수되어\n검토 중인 사진입니다';
 
   @override
+  String get photoUnderReviewPlaceholderShort => '신고 접수\n검토중';
+
+  @override
+  String get blockedCycleTopic => '차단한 멤버의 따라찍기';
+
+  @override
   String get profileLinkedAccount => '연동 계정';
 
   @override

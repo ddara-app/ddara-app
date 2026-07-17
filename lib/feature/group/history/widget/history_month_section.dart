@@ -12,6 +12,7 @@ class HistoryMonthSection extends StatelessWidget {
     required this.year,
     required this.month,
     required this.cycles,
+    this.blockedUserIds = const {},
     this.showTitle = true,
     this.showYear = true,
   });
@@ -22,6 +23,10 @@ class HistoryMonthSection extends StatelessWidget {
 
   /// 이 년·월에 포함된 사이클들.
   final List<HistoryCycle> cycles;
+
+  /// 내가 차단한 사용자 userId 집합.
+  /// (차단한 스타터의 썸네일은 차단 자리표시로 가린다)
+  final Set<int> blockedUserIds;
 
   /// 제목 표시 여부. (년·월 필터가 걸린 경우 제목 없이 목록만 표시)
   final bool showTitle;
@@ -47,7 +52,12 @@ class HistoryMonthSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: AppSpacing.s6,
           children: [
-            for (final cycle in cycles) HistoryListItem(cycle: cycle),
+            for (final cycle in cycles)
+              HistoryListItem(
+                cycle: cycle,
+                // 차단한 스타터의 썸네일은 차단 자리표시로 가린다.
+                thumbnailBlocked: blockedUserIds.contains(cycle.starterUserId),
+              ),
           ],
         ),
       ],

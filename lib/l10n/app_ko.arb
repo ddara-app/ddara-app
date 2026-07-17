@@ -520,6 +520,8 @@
   "blockedUsersUnblockFailed": "차단을 해제하지 못했어요.",
   "blockedPhotoPlaceholder": "차단한 멤버의 사진입니다.",
   "photoUnderReviewPlaceholder": "신고 접수되어\n검토 중인 사진입니다",
+  "photoUnderReviewPlaceholderShort": "신고 접수\n검토중",
+  "blockedCycleTopic": "차단한 멤버의 따라찍기",
   "profileLinkedAccount": "연동 계정",
   "profileLogout": "로그아웃",
   "profileWithdraw": "회원 탈퇴",
