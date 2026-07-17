@@ -54,7 +54,9 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 헤더 위치를 신고 메뉴가 따라가게 잇는 링크.
   final LayerLink _link = LayerLink();
-  OverlayEntry? _entry;
+
+  /// 열려 있는 신고 메뉴 라우트. 닫혀 있으면 null.
+  Route<void>? _menuRoute;
 
   /// 오버레이에 띄울 헤더 사본 크기. (메뉴를 열 때 측정)
   Size? _copySize;
@@ -73,27 +75,34 @@ class _StartedHeaderState extends State<StartedHeader> {
   void _toggle() => setState(() => _expanded = !_expanded);
 
   void _openMenu() {
-    if (_entry != null) return;
+    if (_menuRoute != null) return;
     // 사본이 원본 헤더와 정확히 겹치도록 현재 크기를 기억해 둔다.
     _copySize = context.size;
-    _entry = OverlayEntry(builder: (_) => _buildMenuOverlay());
-    Overlay.of(context).insert(_entry!);
-  }
-
-  void _closeMenu() {
-    _entry?.remove();
-    _entry = null;
+    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
+    // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
+    final route = RawDialogRoute<void>(
+      barrierColor: AppColorPrimitives.black60,
+      barrierLabel: AppLocalizations.of(context).commonCancel,
+      transitionDuration: Duration.zero,
+      pageBuilder: (dialogContext, _, _) => _buildMenuOverlay(dialogContext),
+    );
+    _menuRoute = route;
+    Navigator.of(context).push(route).then((_) => _menuRoute = null);
   }
 
   /// 메뉴를 닫은 뒤 신고 콜백을 실행한다.
-  void _selectReport() {
-    _closeMenu();
+  void _selectReport(BuildContext dialogContext) {
+    Navigator.of(dialogContext).pop();
     widget.onReport?.call();
   }
 
   @override
   void dispose() {
-    _entry?.remove();
+    // 헤더가 사라지면(화면 전환 등) 열려 있던 메뉴 라우트도 함께 닫는다.
+    final route = _menuRoute;
+    if (route != null && route.isActive) {
+      route.navigator?.removeRoute(route);
+    }
     super.dispose();
   }
 
@@ -115,18 +124,10 @@ class _StartedHeaderState extends State<StartedHeader> {
   }
 
   /// 신고 메뉴 오버레이. 배경을 블러 처리하고 헤더 사본 위에 메뉴를 띄운다.
-  Widget _buildMenuOverlay() {
+  Widget _buildMenuOverlay(BuildContext dialogContext) {
     final copySize = _copySize;
     return Stack(
       children: [
-        // 배경을 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _closeMenu,
-            child: const ColoredBox(color: AppColorPrimitives.black60),
-          ),
-        ),
         // 대상 헤더(이미지) 사본을 스크림 위로 띄워 선명하게 유지한다.
         if (copySize != null)
           CompositedTransformFollower(
@@ -149,13 +150,13 @@ class _StartedHeaderState extends State<StartedHeader> {
           targetAnchor: Alignment.topLeft,
           followerAnchor: Alignment.topLeft,
           offset: const Offset(AppSpacing.s3, AppSpacing.s3),
-          child: _reportMenu(),
+          child: _reportMenu(dialogContext),
         ),
       ],
     );
   }
 
-  Widget _reportMenu() {
+  Widget _reportMenu(BuildContext dialogContext) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
@@ -175,7 +176,7 @@ class _StartedHeaderState extends State<StartedHeader> {
           vertical: AppSpacing.s3,
         ),
         minimumSize: Size.zero,
-        onPressed: _selectReport,
+        onPressed: () => _selectReport(dialogContext),
         child: AppText.body(
           AppLocalizations.of(context).photoReport,
           color: AppColors.statusDanger,

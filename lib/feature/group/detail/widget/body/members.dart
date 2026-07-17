@@ -176,44 +176,43 @@ class _MenuAvatar extends StatefulWidget {
 class _MenuAvatarState extends State<_MenuAvatar> {
   /// 아바타 위치를 메뉴가 따라가게 잇는 링크.
   final LayerLink _link = LayerLink();
-  OverlayEntry? _entry;
 
-  bool get _isOpen => _entry != null;
+  /// 열려 있는 메뉴 라우트. 닫혀 있으면 null.
+  Route<void>? _menuRoute;
 
   void _open() {
-    if (_isOpen) return;
-    _entry = OverlayEntry(builder: (_) => _buildOverlay());
-    Overlay.of(context).insert(_entry!);
-  }
-
-  void _close() {
-    _entry?.remove();
-    _entry = null;
+    if (_menuRoute != null) return;
+    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
+    // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
+    final route = RawDialogRoute<void>(
+      barrierColor: AppColorPrimitives.black60,
+      barrierLabel: AppLocalizations.of(context).commonCancel,
+      transitionDuration: Duration.zero,
+      pageBuilder: (dialogContext, _, _) => _buildOverlay(dialogContext),
+    );
+    _menuRoute = route;
+    Navigator.of(context).push(route).then((_) => _menuRoute = null);
   }
 
   /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
-  void _select(VoidCallback onSelect) {
-    _close();
+  void _select(BuildContext dialogContext, VoidCallback onSelect) {
+    Navigator.of(dialogContext).pop();
     onSelect();
   }
 
   @override
   void dispose() {
-    _entry?.remove();
+    // 아바타가 사라지면(목록 갱신 등) 열려 있던 메뉴 라우트도 함께 닫는다.
+    final route = _menuRoute;
+    if (route != null && route.isActive) {
+      route.navigator?.removeRoute(route);
+    }
     super.dispose();
   }
 
-  Widget _buildOverlay() {
+  Widget _buildOverlay(BuildContext dialogContext) {
     return Stack(
       children: [
-        // 배경을 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _close,
-            child: const ColoredBox(color: AppColorPrimitives.black60),
-          ),
-        ),
         // 대상 아바타 사본을 스크림 위로 띄워 선명하게 유지한다.
         // (원본 위치에 정확히 겹치므로 아바타만 떠오른 것처럼 보인다)
         CompositedTransformFollower(
@@ -246,13 +245,13 @@ class _MenuAvatarState extends State<_MenuAvatar> {
           targetAnchor: Alignment.topLeft,
           followerAnchor: Alignment.bottomLeft,
           offset: const Offset(0, -AppSpacing.s2),
-          child: _menu(),
+          child: _menu(dialogContext),
         ),
       ],
     );
   }
 
-  Widget _menu() {
+  Widget _menu(BuildContext dialogContext) {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -281,7 +280,8 @@ class _MenuAvatarState extends State<_MenuAvatar> {
                   vertical: AppSpacing.s3,
                 ),
                 minimumSize: Size.zero,
-                onPressed: () => _select(widget.actions[i].onSelect),
+                onPressed: () =>
+                    _select(dialogContext, widget.actions[i].onSelect),
                 child: AppText.body(
                   widget.actions[i].label,
                   color: widget.actions[i].color,
