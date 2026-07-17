@@ -1273,6 +1273,12 @@ abstract class AppLocalizations {
   /// **'차단을 해제하지 못했어요.'**
   String get blockedUsersUnblockFailed;
 
+  /// No description provided for @blockedPhotoPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 멤버의 사진입니다.'**
+  String get blockedPhotoPlaceholder;
+
   /// No description provided for @profileLinkedAccount.
   ///
   /// In ko, this message translates to:

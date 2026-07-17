@@ -3,6 +3,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
@@ -20,6 +21,7 @@ class StartedHeader extends StatefulWidget {
     required this.imageUri,
     required this.progress,
     this.onImageTap,
+    this.starterBlocked = false,
   });
 
   /// 대표로 보여줄 이미지 URI.
@@ -30,6 +32,12 @@ class StartedHeader extends StatefulWidget {
 
   /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
   final VoidCallback? onImageTap;
+
+  /// 스타터를 차단한 상태인지 여부.
+  ///
+  /// true 면 대표 이미지 대신 자리표시([BlockedPhotoPlaceholder])를 보여주고
+  /// 크게 보기(탭)를 막는다.
+  final bool starterBlocked;
 
   @override
   State<StartedHeader> createState() => _StartedHeaderState();
@@ -57,6 +65,8 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 펼친 상태: 대표 이미지 + 진행 정보 + 하단 스크림.
   Widget _buildExpanded() {
+    // 차단한 스타터의 사진은 크게 보기를 막는다.
+    final onImageTap = widget.starterBlocked ? null : widget.onImageTap;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: SizedBox(
@@ -66,10 +76,10 @@ class _StartedHeaderState extends State<StartedHeader> {
           children: [
             // 배경: 스타터 대표 이미지. (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기)
             Positioned.fill(
-              child: widget.onImageTap == null
+              child: onImageTap == null
                   ? _blurredBackground()
                   : GestureDetector(
-                      onTap: widget.onImageTap,
+                      onTap: onImageTap,
                       child: _blurredBackground(),
                     ),
             ),
@@ -123,11 +133,14 @@ class _StartedHeaderState extends State<StartedHeader> {
       child: Stack(
         children: [
           // 블러 처리된 스타터 대표 이미지 배경.
+          // (차단 자리표시는 민무늬 배경이라 블러를 걸지 않는다)
           Positioned.fill(
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: _backgroundImage(),
-            ),
+            child: widget.starterBlocked
+                ? _backgroundImage()
+                : ImageFiltered(
+                    imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: _backgroundImage(),
+                  ),
           ),
           // 텍스트 대비를 위한 어두운 오버레이 + 진행 정보.
           Container(
@@ -188,6 +201,8 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 하단 스크림 구간(heightFactor 0.45)에 맞춰 아래로 갈수록 흐려지는 배경.
   Widget _blurredBackground() {
+    // 차단 자리표시는 민무늬 배경이라 그라데이션 블러가 필요 없다.
+    if (widget.starterBlocked) return _backgroundImage();
     return ProgressiveBlurImage(
       sharpUntil: 0.55,
       builder: (_) => _backgroundImage(),
@@ -195,7 +210,11 @@ class _StartedHeaderState extends State<StartedHeader> {
   }
 
   /// 헤더 배경으로 쓸 이미지. URI 가 없거나 로드 실패 시 자리표시로 대체한다.
+  /// 스타터를 차단했으면 사진 대신 차단 자리표시를 보여준다.
   Widget _backgroundImage() {
+    if (widget.starterBlocked) {
+      return const BlockedPhotoPlaceholder();
+    }
     final url = widget.imageUri;
     if (url.isEmpty) {
       return const EmptyThumbnail();

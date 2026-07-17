@@ -8,6 +8,9 @@ class CyclePhotoGalleryState {
   /// (멤버의 userId 와 비교해 본인 카드를 판별한다)
   final int? myUserId;
 
+  /// 내가 차단한 사용자 userId 집합. (차단한 멤버의 사진을 가리는 데 사용)
+  final Set<int> blockedUserIds;
+
   /// 갤러리 조회 중 여부.
   final bool isLoading;
 
@@ -17,6 +20,7 @@ class CyclePhotoGalleryState {
   const CyclePhotoGalleryState({
     this.gallery,
     this.myUserId,
+    this.blockedUserIds = const {},
     this.isLoading = false,
     this.errorMessage = '',
   });
@@ -27,12 +31,14 @@ class CyclePhotoGalleryState {
   CyclePhotoGalleryState copyWith({
     CycleGallery? gallery,
     int? myUserId,
+    Set<int>? blockedUserIds,
     bool? isLoading,
     String? errorMessage,
   }) {
     return CyclePhotoGalleryState(
       gallery: gallery ?? this.gallery,
       myUserId: myUserId ?? this.myUserId,
+      blockedUserIds: blockedUserIds ?? this.blockedUserIds,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
     );

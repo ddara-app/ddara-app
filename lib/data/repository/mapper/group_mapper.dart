@@ -70,6 +70,7 @@ extension GroupDetailMapper on GroupDetailResponse {
               starterUserId: cycle.starterUserId,
               starterNickname: cycle.starterNickname,
               starterImageUrl: cycle.starterImageUrl,
+              starterImageUnderReview: cycle.starterImageUnderReview,
               status: cycle.status,
               startedAt: cycle.startedAt,
               deadlineAt: cycle.deadlineAt,
@@ -94,6 +95,8 @@ extension HistoryCyclesMapper on HistoryCyclesResponse {
               cycleId: cycle.cycleId,
               topic: cycle.topic,
               thumbnailUrl: cycle.thumbnailUrl,
+              thumbnailUnderReview: cycle.thumbnailUnderReview,
+              starterUserId: cycle.starterUserId,
               participantCount: cycle.participantCount,
               date: cycle.date,
             ),
@@ -146,6 +149,7 @@ extension GroupListMapper on GroupListResponse {
               ownerNickname: group.ownerNickname,
               memberCount: group.memberCount,
               thumbnailUrl: group.thumbnailUrl,
+              thumbnailUserId: group.thumbnailUserId,
               currentCycle: group.currentCycle == null
                   ? null
                   : CurrentCycle(

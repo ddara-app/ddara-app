@@ -670,6 +670,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedUsersUnblockFailed => '차단을 해제하지 못했어요.';
 
   @override
+  String get blockedPhotoPlaceholder => '차단한 멤버의 사진입니다.';
+
+  @override
   String get profileLinkedAccount => '연동 계정';
 
   @override

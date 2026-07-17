@@ -1,6 +1,7 @@
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
@@ -13,10 +14,15 @@ class HistoryPhotos extends StatelessWidget {
     super.key,
     required this.cycles,
     required this.onCycleTap,
+    this.blockedUserIds = const {},
   });
 
   /// 표시할 지난 사이클 목록.
   final List<HistoryCycle> cycles;
+
+  /// 내가 차단한 사용자 userId 집합.
+  /// (차단한 스타터의 썸네일은 차단 자리표시로 가린다)
+  final Set<int> blockedUserIds;
 
   /// 카드 탭 콜백. (해당 사이클 갤러리로의 이동은 호출부가 담당)
   final ValueChanged<int> onCycleTap;
@@ -60,6 +66,10 @@ class HistoryPhotos extends StatelessWidget {
                 date: _dateLabel(l10n, cycles[i].date),
                 participantCount: cycles[i].participantCount,
                 thumbnailUrl: cycles[i].thumbnailUrl,
+                // 차단한 스타터의 썸네일은 차단 자리표시로 가린다.
+                thumbnailBlocked: blockedUserIds.contains(
+                  cycles[i].starterUserId,
+                ),
                 radius: AppRadius.lg,
               ),
             ),
@@ -119,6 +129,7 @@ class _PhotoCard extends StatelessWidget {
     required this.date,
     required this.participantCount,
     required this.thumbnailUrl,
+    required this.thumbnailBlocked,
     required this.radius,
   });
 
@@ -136,6 +147,9 @@ class _PhotoCard extends StatelessWidget {
 
   /// 대표 썸네일 URL. null·빈 값이면 임시 에셋으로 대체한다.
   final String? thumbnailUrl;
+
+  /// 썸네일을 올린 스타터를 차단한 상태인지 여부. (차단 자리표시로 대체)
+  final bool thumbnailBlocked;
 
   /// 카드 모서리 둥글기.
   final double radius;
@@ -194,7 +208,11 @@ class _PhotoCard extends StatelessWidget {
   }
 
   /// 카드 배경 썸네일. URL 이 없거나 로드 실패 시 자리표시로 대체한다.
+  /// 차단한 스타터의 썸네일은 사진 대신 차단 자리표시를 보여준다.
   Widget _thumbnail() {
+    if (thumbnailBlocked) {
+      return const BlockedPhotoPlaceholder();
+    }
     final url = thumbnailUrl;
     if (url == null || url.isEmpty) {
       return const EmptyThumbnail();

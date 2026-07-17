@@ -20,15 +20,17 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
     final getHistoryCyclesUseCase = ref.read(getHistoryCyclesUseCaseProvider);
 
     try {
-      // 모임 상세와 히스토리를 함께(병렬) 조회한다.
+      // 모임 상세와 히스토리, 차단 목록을 함께(병렬) 조회한다.
       final results = await Future.wait([
         getGroupDetailUseCase(groupId),
         getHistoryCyclesUseCase(groupId),
+        _loadBlockedUserIds(),
       ]);
       state = state.copyWith(
         isLoading: false,
         groupDetail: results[0] as GroupDetail,
         historyCycles: results[1] as HistoryCycles,
+        blockedUserIds: results[2] as Set<int>,
       );
     } on NotGroupMemberException {
       state = state.copyWith(
@@ -43,6 +45,19 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
         isLoading: false,
         errorMessage: '모임 정보를 불러오지 못했어요.',
       );
+    }
+  }
+
+  /// 내가 차단한 사용자 userId 집합을 조회한다.
+  ///
+  /// 차단 목록 조회가 실패해도 화면(상세)을 막지 않도록, 실패 시 빈 집합으로
+  /// 대체한다. (사진 가림이 한 번 빠질 뿐 치명적이지 않다)
+  Future<Set<int>> _loadBlockedUserIds() async {
+    try {
+      final blockedUsers = await ref.read(getBlockedUsersUseCaseProvider)();
+      return blockedUsers.users.map((user) => user.userId).toSet();
+    } catch (_) {
+      return const {};
     }
   }
 

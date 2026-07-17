@@ -2,6 +2,7 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/feature/group/widget/take_photo_button.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -12,6 +13,7 @@ import 'package:flutter/cupertino.dart';
 ///   그 외에는 갤러리 아이콘을 가운데에 보여준다.
 /// - [isLocked] 이면(본인이 아직 업로드 안 함) 타인 사진을 블러 처리하고
 ///   가운데에 자물쇠 아이콘을 표시한다.
+/// - [isBlocked] 이면(차단한 멤버) 사진 대신 차단 자리표시를 보여준다.
 class MemberPhotoCard extends StatelessWidget {
   const MemberPhotoCard({
     super.key,
@@ -21,6 +23,7 @@ class MemberPhotoCard extends StatelessWidget {
     this.onTap,
     this.heroTag,
     this.isLocked = false,
+    this.isBlocked = false,
   });
 
   /// 카드 배경 이미지. null 이면 가운데에 placeholder(버튼/아이콘)를 보여준다.
@@ -43,12 +46,15 @@ class MemberPhotoCard extends StatelessWidget {
   /// 본인이 아직 업로드하지 않아 타인 사진이 잠긴 상태. (블러 + 자물쇠)
   final bool isLocked;
 
+  /// 차단한 멤버의 카드인지 여부. (사진 대신 차단 자리표시를 보여준다)
+  final bool isBlocked;
+
   @override
   Widget build(BuildContext context) {
     final image = this.image;
     final onTakePhoto = this.onTakePhoto;
-    // 잠금은 보여줄 사진이 있을 때만 의미가 있다.
-    final locked = isLocked && image != null;
+    // 잠금은 보여줄 사진이 있을 때만 의미가 있다. (차단 자리표시는 잠그지 않는다)
+    final locked = !isBlocked && isLocked && image != null;
     final heroTag = this.heroTag;
 
     // 배경 이미지(잠기지 않은 경우 Hero 로 감싸 크게 보기와 이어지게 한다).
@@ -67,9 +73,11 @@ class MemberPhotoCard extends StatelessWidget {
         height: 225,
         child: Stack(
           children: [
-            // 배경: 이미지(잠금 시 블러) 또는 surface.
+            // 배경: 차단 자리표시 / 이미지(잠금 시 블러) / surface.
             Positioned.fill(
-              child: image == null
+              child: isBlocked
+                  ? const BlockedPhotoPlaceholder()
+                  : image == null
                   ? const ColoredBox(color: AppColors.bgSurface)
                   : (locked
                         ? ImageFiltered(
@@ -91,7 +99,8 @@ class MemberPhotoCard extends StatelessWidget {
                 ),
               )
             // 사진이 없을 때: 본인이면 촬영 버튼, 아니면 갤러리 아이콘.
-            else if (image == null)
+            // (차단 자리표시가 안내를 대신하므로 차단 카드는 제외)
+            else if (image == null && !isBlocked)
               Center(
                 child: onTakePhoto != null
                     ? TakePhotoButton(onPressed: onTakePhoto)

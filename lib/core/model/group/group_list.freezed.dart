@@ -278,7 +278,8 @@ as List<Group>,
 mixin _$Group {
 
  int get groupId; String get name; String get ownerNickname; int get memberCount;// 모임 대표 썸네일(진행 사이클 스타터 샷). 아직 없으면 null.
- String? get thumbnailUrl;// 진행 중인 사이클이 없으면 null.
+ String? get thumbnailUrl;// 썸네일을 올린 사용자의 userId. 썸네일이 없으면 null.
+ int? get thumbnailUserId;// 진행 중인 사이클이 없으면 null.
  CurrentCycle? get currentCycle;
 /// Create a copy of Group
 /// with the given fields replaced by the non-null parameter values.
@@ -290,16 +291,16 @@ $GroupCopyWith<Group> get copyWith => _$GroupCopyWithImpl<Group>(this as Group, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Group&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.ownerNickname, ownerNickname) || other.ownerNickname == ownerNickname)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Group&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.ownerNickname, ownerNickname) || other.ownerNickname == ownerNickname)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.thumbnailUserId, thumbnailUserId) || other.thumbnailUserId == thumbnailUserId)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,groupId,name,ownerNickname,memberCount,thumbnailUrl,currentCycle);
+int get hashCode => Object.hash(runtimeType,groupId,name,ownerNickname,memberCount,thumbnailUrl,thumbnailUserId,currentCycle);
 
 @override
 String toString() {
-  return 'Group(groupId: $groupId, name: $name, ownerNickname: $ownerNickname, memberCount: $memberCount, thumbnailUrl: $thumbnailUrl, currentCycle: $currentCycle)';
+  return 'Group(groupId: $groupId, name: $name, ownerNickname: $ownerNickname, memberCount: $memberCount, thumbnailUrl: $thumbnailUrl, thumbnailUserId: $thumbnailUserId, currentCycle: $currentCycle)';
 }
 
 
@@ -310,7 +311,7 @@ abstract mixin class $GroupCopyWith<$Res>  {
   factory $GroupCopyWith(Group value, $Res Function(Group) _then) = _$GroupCopyWithImpl;
 @useResult
 $Res call({
- int groupId, String name, String ownerNickname, int memberCount, String? thumbnailUrl, CurrentCycle? currentCycle
+ int groupId, String name, String ownerNickname, int memberCount, String? thumbnailUrl, int? thumbnailUserId, CurrentCycle? currentCycle
 });
 
 
@@ -327,14 +328,15 @@ class _$GroupCopyWithImpl<$Res>
 
 /// Create a copy of Group
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? groupId = null,Object? name = null,Object? ownerNickname = null,Object? memberCount = null,Object? thumbnailUrl = freezed,Object? currentCycle = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? groupId = null,Object? name = null,Object? ownerNickname = null,Object? memberCount = null,Object? thumbnailUrl = freezed,Object? thumbnailUserId = freezed,Object? currentCycle = freezed,}) {
   return _then(_self.copyWith(
 groupId: null == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,ownerNickname: null == ownerNickname ? _self.ownerNickname : ownerNickname // ignore: cast_nullable_to_non_nullable
 as String,memberCount: null == memberCount ? _self.memberCount : memberCount // ignore: cast_nullable_to_non_nullable
 as int,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
-as String?,currentCycle: freezed == currentCycle ? _self.currentCycle : currentCycle // ignore: cast_nullable_to_non_nullable
+as String?,thumbnailUserId: freezed == thumbnailUserId ? _self.thumbnailUserId : thumbnailUserId // ignore: cast_nullable_to_non_nullable
+as int?,currentCycle: freezed == currentCycle ? _self.currentCycle : currentCycle // ignore: cast_nullable_to_non_nullable
 as CurrentCycle?,
   ));
 }
@@ -432,10 +434,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  CurrentCycle? currentCycle)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  int? thumbnailUserId,  CurrentCycle? currentCycle)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Group() when $default != null:
-return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.currentCycle);case _:
+return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUserId,_that.currentCycle);case _:
   return orElse();
 
 }
@@ -453,10 +455,10 @@ return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  CurrentCycle? currentCycle)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  int? thumbnailUserId,  CurrentCycle? currentCycle)  $default,) {final _that = this;
 switch (_that) {
 case _Group():
-return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.currentCycle);case _:
+return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUserId,_that.currentCycle);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -473,10 +475,10 @@ return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  CurrentCycle? currentCycle)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  int? thumbnailUserId,  CurrentCycle? currentCycle)?  $default,) {final _that = this;
 switch (_that) {
 case _Group() when $default != null:
-return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.currentCycle);case _:
+return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUserId,_that.currentCycle);case _:
   return null;
 
 }
@@ -488,7 +490,7 @@ return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_
 
 
 class _Group implements Group {
-  const _Group({required this.groupId, required this.name, required this.ownerNickname, required this.memberCount, required this.thumbnailUrl, required this.currentCycle});
+  const _Group({required this.groupId, required this.name, required this.ownerNickname, required this.memberCount, required this.thumbnailUrl, required this.thumbnailUserId, required this.currentCycle});
   
 
 @override final  int groupId;
@@ -497,6 +499,8 @@ class _Group implements Group {
 @override final  int memberCount;
 // 모임 대표 썸네일(진행 사이클 스타터 샷). 아직 없으면 null.
 @override final  String? thumbnailUrl;
+// 썸네일을 올린 사용자의 userId. 썸네일이 없으면 null.
+@override final  int? thumbnailUserId;
 // 진행 중인 사이클이 없으면 null.
 @override final  CurrentCycle? currentCycle;
 
@@ -510,16 +514,16 @@ _$GroupCopyWith<_Group> get copyWith => __$GroupCopyWithImpl<_Group>(this, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Group&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.ownerNickname, ownerNickname) || other.ownerNickname == ownerNickname)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Group&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.ownerNickname, ownerNickname) || other.ownerNickname == ownerNickname)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.thumbnailUserId, thumbnailUserId) || other.thumbnailUserId == thumbnailUserId)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,groupId,name,ownerNickname,memberCount,thumbnailUrl,currentCycle);
+int get hashCode => Object.hash(runtimeType,groupId,name,ownerNickname,memberCount,thumbnailUrl,thumbnailUserId,currentCycle);
 
 @override
 String toString() {
-  return 'Group(groupId: $groupId, name: $name, ownerNickname: $ownerNickname, memberCount: $memberCount, thumbnailUrl: $thumbnailUrl, currentCycle: $currentCycle)';
+  return 'Group(groupId: $groupId, name: $name, ownerNickname: $ownerNickname, memberCount: $memberCount, thumbnailUrl: $thumbnailUrl, thumbnailUserId: $thumbnailUserId, currentCycle: $currentCycle)';
 }
 
 
@@ -530,7 +534,7 @@ abstract mixin class _$GroupCopyWith<$Res> implements $GroupCopyWith<$Res> {
   factory _$GroupCopyWith(_Group value, $Res Function(_Group) _then) = __$GroupCopyWithImpl;
 @override @useResult
 $Res call({
- int groupId, String name, String ownerNickname, int memberCount, String? thumbnailUrl, CurrentCycle? currentCycle
+ int groupId, String name, String ownerNickname, int memberCount, String? thumbnailUrl, int? thumbnailUserId, CurrentCycle? currentCycle
 });
 
 
@@ -547,14 +551,15 @@ class __$GroupCopyWithImpl<$Res>
 
 /// Create a copy of Group
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? groupId = null,Object? name = null,Object? ownerNickname = null,Object? memberCount = null,Object? thumbnailUrl = freezed,Object? currentCycle = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? groupId = null,Object? name = null,Object? ownerNickname = null,Object? memberCount = null,Object? thumbnailUrl = freezed,Object? thumbnailUserId = freezed,Object? currentCycle = freezed,}) {
   return _then(_Group(
 groupId: null == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,ownerNickname: null == ownerNickname ? _self.ownerNickname : ownerNickname // ignore: cast_nullable_to_non_nullable
 as String,memberCount: null == memberCount ? _self.memberCount : memberCount // ignore: cast_nullable_to_non_nullable
 as int,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
-as String?,currentCycle: freezed == currentCycle ? _self.currentCycle : currentCycle // ignore: cast_nullable_to_non_nullable
+as String?,thumbnailUserId: freezed == thumbnailUserId ? _self.thumbnailUserId : thumbnailUserId // ignore: cast_nullable_to_non_nullable
+as int?,currentCycle: freezed == currentCycle ? _self.currentCycle : currentCycle // ignore: cast_nullable_to_non_nullable
 as CurrentCycle?,
   ));
 }

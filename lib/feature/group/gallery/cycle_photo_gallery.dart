@@ -40,7 +40,12 @@ class CyclePhotoGallery extends ConsumerWidget {
             state.errorMessage.isNotEmpty
                 ? Center(child: AppText.body(state.errorMessage))
                 : const Center(child: CupertinoActivityIndicator()),
-          _ => _buildContent(context, gallery, state.myUserId),
+          _ => _buildContent(
+            context,
+            gallery,
+            state.myUserId,
+            state.blockedUserIds,
+          ),
         },
       ),
     );
@@ -50,8 +55,14 @@ class CyclePhotoGallery extends ConsumerWidget {
     BuildContext context,
     CycleGallery gallery,
     int? myUserId,
+    Set<int> blockedUserIds,
   ) {
     final cycle = gallery.cycle;
+
+    // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
+    final starterBlocked = gallery.members.any(
+      (m) => m.isStarter && blockedUserIds.contains(m.userId),
+    );
 
     // 마감된(done) 회차는 사진이 있는 카드만 보여준다. (미업로드 빈 카드는 숨김)
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
@@ -104,6 +115,7 @@ class CyclePhotoGallery extends ConsumerWidget {
           StartedHeader(
             imageUri: cycle.starterImageUrl ?? '',
             progress: _toGroupCycle(gallery),
+            starterBlocked: starterBlocked,
             // 스타터 대표 사진 탭 → 헤더에서 보이던 프레임 그대로 크게 보여준다.
             // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
             onImageTap: (cycle.starterImageUrl ?? '').isEmpty
@@ -142,7 +154,11 @@ class CyclePhotoGallery extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final member = members[index];
                   final isMe = member.userId == myUserId;
-                  final imageUrl = member.imageUrl;
+                  // 차단한 멤버는 사진을 아예 로드하지 않고 자리표시만 보여준다.
+                  final isBlockedMember = blockedUserIds.contains(
+                    member.userId,
+                  );
+                  final imageUrl = isBlockedMember ? null : member.imageUrl;
                   // 잠긴(블러) 사진은 크게 볼 수 없다.
                   final locked = !isDoneCycle && !canSeeAll;
                   final ImageProvider? image = imageUrl == null
@@ -158,6 +174,7 @@ class CyclePhotoGallery extends ConsumerWidget {
                     name: isMe ? '나' : member.nickname,
                     image: image,
                     heroTag: heroTag,
+                    isBlocked: isBlockedMember,
                     onTap: canView
                         ? () => showPhotoViewer(
                             context,
@@ -169,7 +186,8 @@ class CyclePhotoGallery extends ConsumerWidget {
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
                     // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
-                    onTakePhoto: isMe && !isDoneCycle
+                    // 스타터를 차단했으면 가이드 사진을 볼 수 없으므로 역시 숨긴다.
+                    onTakePhoto: isMe && !isDoneCycle && !starterBlocked
                         ? () => context.push(
                             RoutePath.followerCamera,
                             // 대상 사이클 id 와 가이드용 스타터 사진 URL 을 넘긴다.
@@ -210,6 +228,8 @@ class CyclePhotoGallery extends ConsumerWidget {
       starterUserId: starterUserId ?? 0,
       starterNickname: cycle.starterNickname,
       starterImageUrl: cycle.starterImageUrl,
+      // 갤러리 응답에는 검토 여부가 없어 기본값(false)으로 채운다.
+      starterImageUnderReview: false,
       status: cycle.status,
       startedAt: cycle.deadlineAt,
       deadlineAt: cycle.deadlineAt,

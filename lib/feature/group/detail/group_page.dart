@@ -297,6 +297,10 @@ class GroupPage extends ConsumerWidget {
             progress: groupDetail.currentCycle,
             // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
             canStart: groupDetail.members.length >= _minMembersToStart,
+            // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
+            starterBlocked: state.blockedUserIds.contains(
+              groupDetail.currentCycle?.starterUserId,
+            ),
             navigateToStart: () =>
                 _pushThenRefresh(context, ref, RoutePath.starter, groupId),
             // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
@@ -357,6 +361,8 @@ class GroupPage extends ConsumerWidget {
                 )
               : HistoryPhotos(
                   cycles: cycles,
+                  // 차단한 스타터의 썸네일은 차단 자리표시로 가린다.
+                  blockedUserIds: state.blockedUserIds,
                   // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
                   onCycleTap: (cycleId) => _pushThenRefresh(
                     context,

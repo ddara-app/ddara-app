@@ -457,6 +457,7 @@
   "blockedUsersUnblock": "차단 해제",
   "blockedUsersUnblockedToast": "차단을 해제했어요.",
   "blockedUsersUnblockFailed": "차단을 해제하지 못했어요.",
+  "blockedPhotoPlaceholder": "차단한 멤버의 사진입니다.",
   "profileLinkedAccount": "연동 계정",
   "profileLogout": "로그아웃",
   "profileWithdraw": "회원 탈퇴",
