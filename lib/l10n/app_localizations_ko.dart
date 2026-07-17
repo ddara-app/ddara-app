@@ -345,6 +345,33 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get photoReport => '신고하기';
+
+  @override
+  String get photoReportSheetTitle => '신고 사유를 선택해 주세요';
+
+  @override
+  String get photoReportSheetSubtitle => '신고 내용은 24시간 안에 확인해요';
+
+  @override
+  String get photoReportReasonObscene => '음란물';
+
+  @override
+  String get photoReportReasonViolence => '폭력·혐오';
+
+  @override
+  String get photoReportReasonUnauthorizedFilming => '타인 무단촬영';
+
+  @override
+  String get photoReportReasonImpersonation => '사칭·괴롭힘';
+
+  @override
+  String get photoReportReasonEtc => '기타';
+
+  @override
+  String get photoReportDetailPlaceholder => '입력해 주세요';
+
+  @override
   String get memberBlock => '차단하기';
 
   @override

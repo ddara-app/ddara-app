@@ -237,6 +237,15 @@
       "email": { "type": "String" }
     }
   },
+  "photoReport": "신고하기",
+  "photoReportSheetTitle": "신고 사유를 선택해 주세요",
+  "photoReportSheetSubtitle": "신고 내용은 24시간 안에 확인해요",
+  "photoReportReasonObscene": "음란물",
+  "photoReportReasonViolence": "폭력·혐오",
+  "photoReportReasonUnauthorizedFilming": "타인 무단촬영",
+  "photoReportReasonImpersonation": "사칭·괴롭힘",
+  "photoReportReasonEtc": "기타",
+  "photoReportDetailPlaceholder": "입력해 주세요",
   "memberBlock": "차단하기",
   "memberBlockConfirmTitle": "{nickname}님을 차단할까요?",
   "@memberBlockConfirmTitle": {

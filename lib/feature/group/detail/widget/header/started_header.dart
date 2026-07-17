@@ -21,6 +21,7 @@ class StartedHeader extends StatefulWidget {
     required this.imageUri,
     required this.progress,
     this.onImageTap,
+    this.onReport,
     this.starterBlocked = false,
   });
 
@@ -32,6 +33,10 @@ class StartedHeader extends StatefulWidget {
 
   /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
   final VoidCallback? onImageTap;
+
+  /// 대표 이미지를 롱프레스해 '신고하기'를 선택했을 때.
+  /// null 이면 신고 메뉴가 뜨지 않는다. (펼친 상태에서만 동작)
+  final VoidCallback? onReport;
 
   /// 스타터를 차단한 상태인지 여부.
   ///
@@ -47,19 +52,130 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 헤더 펼침 여부. (true: 큰 이미지 헤더 / false: 축소된 헤더)
   bool _expanded = true;
 
+  /// 헤더 위치를 신고 메뉴가 따라가게 잇는 링크.
+  final LayerLink _link = LayerLink();
+  OverlayEntry? _entry;
+
+  /// 오버레이에 띄울 헤더 사본 크기. (메뉴를 열 때 측정)
+  Size? _copySize;
+
+  /// 신고 메뉴를 띄울 수 있는지. (콜백 有 + 차단·빈 이미지 아님)
+  bool get _canReport =>
+      widget.onReport != null &&
+      !widget.starterBlocked &&
+      widget.imageUri.isNotEmpty;
+
   void _toggle() => setState(() => _expanded = !_expanded);
+
+  void _openMenu() {
+    if (_entry != null) return;
+    // 사본이 원본 헤더와 정확히 겹치도록 현재 크기를 기억해 둔다.
+    _copySize = context.size;
+    _entry = OverlayEntry(builder: (_) => _buildMenuOverlay());
+    Overlay.of(context).insert(_entry!);
+  }
+
+  void _closeMenu() {
+    _entry?.remove();
+    _entry = null;
+  }
+
+  /// 메뉴를 닫은 뒤 신고 콜백을 실행한다.
+  void _selectReport() {
+    _closeMenu();
+    widget.onReport?.call();
+  }
+
+  @override
+  void dispose() {
+    _entry?.remove();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      duration: const Duration(milliseconds: 250),
-      // 위 고정 헤더라 접힐 때 위에서부터 높이가 줄도록 상단 기준 정렬.
-      alignment: Alignment.topCenter,
-      crossFadeState: _expanded
-          ? CrossFadeState.showFirst
-          : CrossFadeState.showSecond,
-      firstChild: _buildExpanded(),
-      secondChild: _buildCollapsed(),
+    return CompositedTransformTarget(
+      link: _link,
+      child: AnimatedCrossFade(
+        duration: const Duration(milliseconds: 250),
+        // 위 고정 헤더라 접힐 때 위에서부터 높이가 줄도록 상단 기준 정렬.
+        alignment: Alignment.topCenter,
+        crossFadeState: _expanded
+            ? CrossFadeState.showFirst
+            : CrossFadeState.showSecond,
+        firstChild: _buildExpanded(),
+        secondChild: _buildCollapsed(),
+      ),
+    );
+  }
+
+  /// 신고 메뉴 오버레이. 배경을 블러 처리하고 헤더 사본 위에 메뉴를 띄운다.
+  Widget _buildMenuOverlay() {
+    final copySize = _copySize;
+    return Stack(
+      children: [
+        // 배경을 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _closeMenu,
+            child: const ColoredBox(color: AppColorPrimitives.black60),
+          ),
+        ),
+        // 대상 헤더(이미지) 사본을 스크림 위로 띄워 선명하게 유지한다.
+        if (copySize != null)
+          CompositedTransformFollower(
+            link: _link,
+            targetAnchor: Alignment.topLeft,
+            followerAnchor: Alignment.topLeft,
+            child: IgnorePointer(
+              child: SizedBox.fromSize(
+                size: copySize,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  child: _blurredBackground(),
+                ),
+              ),
+            ),
+          ),
+        // 헤더가 화면 상단에 붙어 있어 메뉴는 이미지 안쪽 좌상단에 앵커한다.
+        CompositedTransformFollower(
+          link: _link,
+          targetAnchor: Alignment.topLeft,
+          followerAnchor: Alignment.topLeft,
+          offset: const Offset(AppSpacing.s3, AppSpacing.s3),
+          child: _reportMenu(),
+        ),
+      ],
+    );
+  }
+
+  Widget _reportMenu() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgSurface,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.borderDefault),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColorPrimitives.black40,
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s4,
+          vertical: AppSpacing.s3,
+        ),
+        minimumSize: Size.zero,
+        onPressed: _selectReport,
+        child: AppText.body(
+          AppLocalizations.of(context).photoReport,
+          color: AppColors.statusDanger,
+        ),
+      ),
     );
   }
 
@@ -74,14 +190,14 @@ class _StartedHeaderState extends State<StartedHeader> {
         height: 478,
         child: Stack(
           children: [
-            // 배경: 스타터 대표 이미지. (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기)
+            // 배경: 스타터 대표 이미지.
+            // (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기, 길게 누르면 신고 메뉴)
             Positioned.fill(
-              child: onImageTap == null
-                  ? _blurredBackground()
-                  : GestureDetector(
-                      onTap: onImageTap,
-                      child: _blurredBackground(),
-                    ),
+              child: GestureDetector(
+                onTap: onImageTap,
+                onLongPress: _canReport ? _openMenu : null,
+                child: _blurredBackground(),
+              ),
             ),
             // 하단 진행 정보의 가독성을 위한 스크림.
             const BottomScrim(

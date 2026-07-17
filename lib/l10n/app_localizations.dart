@@ -712,6 +712,60 @@ abstract class AppLocalizations {
   /// **'메일 앱을 열 수 없어요. ({email})'**
   String memberReportMailFailed(String email);
 
+  /// No description provided for @photoReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하기'**
+  String get photoReport;
+
+  /// No description provided for @photoReportSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 사유를 선택해 주세요'**
+  String get photoReportSheetTitle;
+
+  /// No description provided for @photoReportSheetSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 내용은 24시간 안에 확인해요'**
+  String get photoReportSheetSubtitle;
+
+  /// No description provided for @photoReportReasonObscene.
+  ///
+  /// In ko, this message translates to:
+  /// **'음란물'**
+  String get photoReportReasonObscene;
+
+  /// No description provided for @photoReportReasonViolence.
+  ///
+  /// In ko, this message translates to:
+  /// **'폭력·혐오'**
+  String get photoReportReasonViolence;
+
+  /// No description provided for @photoReportReasonUnauthorizedFilming.
+  ///
+  /// In ko, this message translates to:
+  /// **'타인 무단촬영'**
+  String get photoReportReasonUnauthorizedFilming;
+
+  /// No description provided for @photoReportReasonImpersonation.
+  ///
+  /// In ko, this message translates to:
+  /// **'사칭·괴롭힘'**
+  String get photoReportReasonImpersonation;
+
+  /// No description provided for @photoReportReasonEtc.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get photoReportReasonEtc;
+
+  /// No description provided for @photoReportDetailPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'입력해 주세요'**
+  String get photoReportDetailPlaceholder;
+
   /// No description provided for @memberBlock.
   ///
   /// In ko, this message translates to:

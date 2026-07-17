@@ -15,6 +15,7 @@ import 'package:ddara/feature/group/detail/widget/body/members.dart';
 import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
+import 'package:ddara/feature/group/gallery/widget/photo_report_sheet.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -301,6 +302,8 @@ class GroupPage extends ConsumerWidget {
             starterBlocked: state.blockedUserIds.contains(
               groupDetail.currentCycle?.starterUserId,
             ),
+            // 스타터 사진 롱프레스 → 신고 메뉴.
+            onReportStarter: () => _reportStarterPhoto(context, groupDetail),
             navigateToStart: () =>
                 _pushThenRefresh(context, ref, RoutePath.starter, groupId),
             // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
@@ -408,6 +411,18 @@ class GroupPage extends ConsumerWidget {
         type: ToastType.error,
       );
     }
+  }
+
+  /// 스타터 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
+  Future<void> _reportStarterPhoto(
+    BuildContext context,
+    GroupDetail groupDetail,
+  ) async {
+    final result = await PhotoReportSheet.show(context);
+    if (result == null || !context.mounted) return;
+
+    // TODO: 사진 신고 API 연결.
+    //  (대상 currentCycle.starterUserId + 사유·상세 전송 — 백엔드 스펙 대기)
   }
 
   /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.

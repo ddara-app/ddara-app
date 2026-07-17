@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:ddara/core/designsystem/component/text/app_text.dart';
 import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/widget/profile_avatar.dart';
@@ -198,15 +196,12 @@ class _MenuAvatarState extends State<_MenuAvatar> {
   Widget _buildOverlay() {
     return Stack(
       children: [
-        // 배경을 블러 + 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
+        // 배경을 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
         Positioned.fill(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: _close,
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-              child: const ColoredBox(color: AppColorPrimitives.black20),
-            ),
+            child: const ColoredBox(color: AppColorPrimitives.black60),
           ),
         ),
         // 대상 아바타 사본을 스크림 위로 띄워 선명하게 유지한다.
