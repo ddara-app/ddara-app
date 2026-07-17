@@ -769,7 +769,7 @@ abstract class AppLocalizations {
   /// No description provided for @photoReportSubmitted.
   ///
   /// In ko, this message translates to:
-  /// **'신고가 접수됐어요.'**
+  /// **'신고를 접수했어요. 24시간 안에 확인할게요'**
   String get photoReportSubmitted;
 
   /// No description provided for @memberBlock.
