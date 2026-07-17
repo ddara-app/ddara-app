@@ -58,6 +58,8 @@ _NotificationPayloadResponse _$NotificationPayloadResponseFromJson(
       : DateTime.parse(json['deadlineAt'] as String),
   remainingMinutes: (json['remainingMinutes'] as num?)?.toInt(),
   imageUrl: json['imageUrl'] as String?,
+  imageUnderReview: json['imageUnderReview'] as bool?,
+  starterUserId: (json['starterUserId'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$NotificationPayloadResponseToJson(
@@ -70,4 +72,6 @@ Map<String, dynamic> _$NotificationPayloadResponseToJson(
   'deadlineAt': instance.deadlineAt?.toIso8601String(),
   'remainingMinutes': instance.remainingMinutes,
   'imageUrl': instance.imageUrl,
+  'imageUnderReview': instance.imageUnderReview,
+  'starterUserId': instance.starterUserId,
 };

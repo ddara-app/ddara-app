@@ -736,6 +736,97 @@ abstract class AppLocalizations {
   /// **'메일 앱을 열 수 없어요. ({email})'**
   String memberReportMailFailed(String email);
 
+  /// No description provided for @photoReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하기'**
+  String get photoReport;
+
+  /// No description provided for @photoReportSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 사유를 선택해 주세요'**
+  String get photoReportSheetTitle;
+
+  /// No description provided for @photoReportSheetSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 내용은 24시간 안에 확인해요'**
+  String get photoReportSheetSubtitle;
+
+  /// No description provided for @photoReportReasonObscene.
+  ///
+  /// In ko, this message translates to:
+  /// **'음란물'**
+  String get photoReportReasonObscene;
+
+  /// No description provided for @photoReportReasonViolence.
+  ///
+  /// In ko, this message translates to:
+  /// **'폭력·혐오'**
+  String get photoReportReasonViolence;
+
+  /// No description provided for @photoReportReasonUnauthorizedFilming.
+  ///
+  /// In ko, this message translates to:
+  /// **'타인 무단촬영'**
+  String get photoReportReasonUnauthorizedFilming;
+
+  /// No description provided for @photoReportReasonImpersonation.
+  ///
+  /// In ko, this message translates to:
+  /// **'사칭·괴롭힘'**
+  String get photoReportReasonImpersonation;
+
+  /// No description provided for @photoReportReasonEtc.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get photoReportReasonEtc;
+
+  /// No description provided for @photoReportDetailPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'입력해 주세요'**
+  String get photoReportDetailPlaceholder;
+
+  /// No description provided for @photoReportSubmitted.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고를 접수했어요. 24시간 안에 확인할게요'**
+  String get photoReportSubmitted;
+
+  /// No description provided for @memberBlock.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단하기'**
+  String get memberBlock;
+
+  /// 멤버 차단 확인 다이얼로그 제목. (차단 대상 닉네임 포함)
+  ///
+  /// In ko, this message translates to:
+  /// **'{nickname}님을 차단할까요?'**
+  String memberBlockConfirmTitle(String nickname);
+
+  /// No description provided for @memberBlockConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단하면 이 멤버의 사진이\n더 이상 보이지 않습니다.'**
+  String get memberBlockConfirmMessage;
+
+  /// No description provided for @memberBlockConfirmAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단'**
+  String get memberBlockConfirmAction;
+
+  /// 멤버 차단 완료 토스트. (차단한 닉네임 포함)
+  ///
+  /// In ko, this message translates to:
+  /// **'{nickname}님을 차단했어요.'**
+  String memberBlockedToast(String nickname);
+
+  /// No description provided for @recordCycleLabel.
   /// No description provided for @recordSectionTitle.
   ///
   /// In ko, this message translates to:
@@ -1272,6 +1363,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'계정 관리'**
   String get profileAccountManage;
+
+  /// No description provided for @profileSectionManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'관리'**
+  String get profileSectionManage;
+
+  /// No description provided for @profileBlockedUsers.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 유저 목록'**
+  String get profileBlockedUsers;
+
+  /// No description provided for @blockedUsersTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 유저'**
+  String get blockedUsersTitle;
+
+  /// No description provided for @blockedUsersEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 유저가 없어요'**
+  String get blockedUsersEmpty;
+
+  /// No description provided for @blockedUsersUnblock.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단 해제'**
+  String get blockedUsersUnblock;
+
+  /// No description provided for @blockedUsersUnblockedToast.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단을 해제했어요.'**
+  String get blockedUsersUnblockedToast;
+
+  /// No description provided for @blockedUsersUnblockFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단을 해제하지 못했어요.'**
+  String get blockedUsersUnblockFailed;
+
+  /// No description provided for @blockedPhotoPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 멤버의 사진입니다.'**
+  String get blockedPhotoPlaceholder;
+
+  /// No description provided for @photoUnderReviewPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 접수되어\n검토 중인 사진입니다'**
+  String get photoUnderReviewPlaceholder;
 
   /// No description provided for @profileLinkedAccount.
   ///

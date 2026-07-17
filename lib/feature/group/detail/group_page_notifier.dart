@@ -1,3 +1,4 @@
+import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
@@ -19,15 +20,17 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
     final getHistoryCyclesUseCase = ref.read(getHistoryCyclesUseCaseProvider);
 
     try {
-      // 모임 상세와 히스토리를 함께(병렬) 조회한다.
+      // 모임 상세와 히스토리, 차단 목록을 함께(병렬) 조회한다.
       final results = await Future.wait([
         getGroupDetailUseCase(groupId),
         getHistoryCyclesUseCase(groupId),
+        _loadBlockedUserIds(),
       ]);
       state = state.copyWith(
         isLoading: false,
         groupDetail: results[0] as GroupDetail,
         historyCycles: results[1] as HistoryCycles,
+        blockedUserIds: results[2] as Set<int>,
       );
     } on NotGroupMemberException {
       state = state.copyWith(
@@ -42,6 +45,19 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
         isLoading: false,
         errorMessage: '모임 정보를 불러오지 못했어요.',
       );
+    }
+  }
+
+  /// 내가 차단한 사용자 userId 집합을 조회한다.
+  ///
+  /// 차단 목록 조회가 실패해도 화면(상세)을 막지 않도록, 실패 시 빈 집합으로
+  /// 대체한다. (사진 가림이 한 번 빠질 뿐 치명적이지 않다)
+  Future<Set<int>> _loadBlockedUserIds() async {
+    try {
+      final blockedUsers = await ref.read(getBlockedUsersUseCaseProvider)();
+      return blockedUsers.users.map((user) => user.userId).toSet();
+    } catch (_) {
+      return const {};
     }
   }
 
@@ -85,6 +101,36 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
       state = state.copyWith(isLoading: false, errorMessage: '모임에서 나가지 못했어요.');
+      return false;
+    }
+  }
+
+  /// [userId] 멤버를 차단한다. 성공하면 true, 실패하면 errorMessage 를 채우고 false 를 반환한다.
+  /// 요청 시작~완료까지 isLoading 을 true 로 두고, 성공 시 차단이 반영된
+  /// 목록을 받도록 상세를 다시 조회한다.
+  Future<bool> blockMember(int userId) async {
+    if (state.isLoading) return false;
+
+    state = state.copyWith(isLoading: true);
+    final blockUserUseCase = ref.read(blockUserUseCaseProvider);
+
+    try {
+      await blockUserUseCase(userId);
+      // 차단 결과를 반영하기 위해 상세를 다시 조회한다. (isLoading 은 _load 가 내린다)
+      await _load(arg);
+      return true;
+    } on InvalidBlockInputException {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '자기 자신은 차단할 수 없어요.',
+      );
+      return false;
+    } on BlockTargetNotFoundException {
+      state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 사용자예요.');
+      return false;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(isLoading: false, errorMessage: '차단하지 못했어요.');
       return false;
     }
   }

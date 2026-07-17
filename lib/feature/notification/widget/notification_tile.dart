@@ -20,16 +20,32 @@ const String _defaultThumbnailAsset = 'assets/images/notification_default.svg';
 /// 도메인 알림 모델([NotificationItem])을 받아 표시용 문자열로 풀어 그린다.
 /// [onTap] 을 주면 카드 전체가 눌리는 영역이 된다.
 class NotificationTile extends StatelessWidget {
-  const NotificationTile({super.key, required this.item, this.onTap});
+  const NotificationTile({
+    super.key,
+    required this.item,
+    this.onTap,
+    this.blockedUserIds = const {},
+  });
 
   final NotificationItem item;
 
   /// 카드 탭 콜백. null 이면 탭에 반응하지 않는다.
   final VoidCallback? onTap;
 
+  /// 내가 차단한 사용자 userId 집합.
+  /// (차단한 멤버가 올린 썸네일은 노출하지 않는다)
+  final Set<int> blockedUserIds;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final payload = item.payload;
+    // 차단·신고 검토 중인 스타터 샷은 노출하지 않는다.
+    // (72px 소형 썸네일이라 안내 문구 대신 기본 썸네일로 대체한다)
+    final starterUserId = payload.starterUserId;
+    final thumbnailObscured =
+        payload.imageUnderReview ||
+        (starterUserId != null && blockedUserIds.contains(starterUserId));
     return AppSurface(
       onTap: onTap,
       // 누르는 동안 살짝 밝게. (앱 전반의 Cupertino 페이드와 일관)
@@ -40,7 +56,7 @@ class NotificationTile extends StatelessWidget {
         spacing: AppSpacing.s3,
         children: [
           _NotificationThumbnail(
-            imageUrl: item.payload.imageUrl,
+            imageUrl: thumbnailObscured ? null : payload.imageUrl,
             bare: item.showsBareThumbnail,
           ),
           Expanded(

@@ -28,10 +28,18 @@ const int _tabCount = 2;
 /// 아래 [PageView] 를 좌우 스와이프해 두 화면을 오간다.
 /// FAB 는 탭과 무관하게 항상 우하단에 떠 있다.
 class GroupListPage extends StatefulWidget {
-  const GroupListPage({super.key, required this.groups});
+  const GroupListPage({
+    super.key,
+    required this.groups,
+    this.blockedUserIds = const {},
+  });
 
   /// 표시할 모임 목록. (상위 HomePage 에서 조회 결과를 주입)
   final List<Group> groups;
+
+  /// 내가 차단한 사용자 userId 집합.
+  /// (차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다)
+  final Set<int> blockedUserIds;
 
   @override
   State<GroupListPage> createState() => _GroupListPageState();
@@ -350,5 +358,4 @@ class _CardGridView extends StatelessWidget {
       ),
     );
   }
-
 }

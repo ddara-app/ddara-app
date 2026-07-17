@@ -46,6 +46,8 @@ abstract class GroupCycleResponse with _$GroupCycleResponse {
     required int starterUserId,
     required String starterNickname,
     required String? starterImageUrl,
+    // 스타터 사진이 신고 접수로 검토 중인지 여부.
+    required bool starterImageUnderReview,
     required String status,
     required DateTime startedAt,
     required DateTime deadlineAt,

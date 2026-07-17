@@ -48,6 +48,10 @@ abstract class NotificationPayloadResponse with _$NotificationPayloadResponse {
     int? remainingMinutes,
     // 알림 썸네일 이미지 URL.
     required String? imageUrl,
+    // 썸네일(스타터 샷)이 신고 접수로 검토 중인지 여부. (NEW_CYCLE 에 존재)
+    bool? imageUnderReview,
+    // 썸네일을 올린 스타터의 userId. (NEW_CYCLE 에 존재)
+    int? starterUserId,
   }) = _NotificationPayloadResponse;
 
   factory NotificationPayloadResponse.fromJson(Map<String, dynamic> json) =>
