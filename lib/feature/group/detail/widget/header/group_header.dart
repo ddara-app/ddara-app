@@ -70,10 +70,13 @@ class GroupHeader extends StatelessWidget {
           starterBlocked: starterBlocked,
         ),
         const SizedBox(height: AppSpacing.s5),
-        // 스타터를 차단했으면 가이드 사진을 볼 수 없으므로 촬영 버튼을 비활성화한다.
+        // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로
+        // 촬영 버튼을 비활성화한다.
         AppButton(
           label: l10n.groupHeaderTakePhoto,
-          onPressed: starterBlocked ? null : onTakePhoto,
+          onPressed: starterBlocked || cycle.starterImageUnderReview
+              ? null
+              : onTakePhoto,
         ),
       ],
     );

@@ -210,8 +210,13 @@ class CyclePhotoGallery extends ConsumerWidget {
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
                     // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
-                    // 스타터를 차단했으면 가이드 사진을 볼 수 없으므로 역시 숨긴다.
-                    onTakePhoto: isMe && !isDoneCycle && !starterBlocked
+                    // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로
+                    // 역시 숨긴다.
+                    onTakePhoto:
+                        isMe &&
+                            !isDoneCycle &&
+                            !starterBlocked &&
+                            !cycle.starterImageUnderReview
                         ? () => context.push(
                             RoutePath.followerCamera,
                             // 대상 사이클 id 와 가이드용 스타터 사진 URL 을 넘긴다.
