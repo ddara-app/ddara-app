@@ -4,6 +4,7 @@ import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/block/blocked_users.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/widget/profile_avatar.dart';
+import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/profile/blocked/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/blocked/util/blocked_users_state.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -31,12 +32,13 @@ class BlockedUsersPage extends ConsumerWidget {
         title: l10n.blockedUsersTitle,
         onBack: () => context.pop(),
       ),
-      child: SafeArea(bottom: false, child: _body(context, l10n, state)),
+      child: SafeArea(bottom: false, child: _body(context, ref, l10n, state)),
     );
   }
 
   Widget _body(
     BuildContext context,
+    WidgetRef ref,
     AppLocalizations l10n,
     BlockedUsersState state,
   ) {
@@ -65,10 +67,25 @@ class BlockedUsersPage extends ConsumerWidget {
       itemCount: users.length,
       itemBuilder: (context, index) => _BlockedUserTile(
         user: users[index],
-        onUnblock: () {
-          // TODO: 차단 해제 API 연결. (백엔드 스펙 대기)
-        },
+        onUnblock: () => _unblock(context, ref, users[index].userId),
       ),
+    );
+  }
+
+  /// 차단을 해제하고 결과를 토스트로 안내한다. (성공 시 목록은 notifier 가 재조회)
+  Future<void> _unblock(BuildContext context, WidgetRef ref, int userId) async {
+    final l10n = AppLocalizations.of(context);
+    final success = await ref
+        .read(blockedUsersNotifierProvider.notifier)
+        .unblock(userId);
+    if (!context.mounted) return;
+
+    Toast.showToast(
+      context,
+      success
+          ? l10n.blockedUsersUnblockedToast
+          : l10n.blockedUsersUnblockFailed,
+      type: success ? ToastType.info : ToastType.error,
     );
   }
 }

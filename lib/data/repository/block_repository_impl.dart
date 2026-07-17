@@ -47,4 +47,14 @@ class BlockRepositoryImpl implements BlockRepository {
       throw NetworkException();
     }
   }
+
+  @override
+  Future<void> unblockUser(int userId) async {
+    try {
+      await _blockDataSource.unblockUser(userId);
+    } on DioException {
+      // 별도 에러 코드가 없는 API 라 네트워크 오류로 통일한다.
+      throw NetworkException();
+    }
+  }
 }

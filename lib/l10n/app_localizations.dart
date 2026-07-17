@@ -1261,6 +1261,18 @@ abstract class AppLocalizations {
   /// **'차단 해제'**
   String get blockedUsersUnblock;
 
+  /// No description provided for @blockedUsersUnblockedToast.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단을 해제했어요.'**
+  String get blockedUsersUnblockedToast;
+
+  /// No description provided for @blockedUsersUnblockFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단을 해제하지 못했어요.'**
+  String get blockedUsersUnblockFailed;
+
   /// No description provided for @profileLinkedAccount.
   ///
   /// In ko, this message translates to:

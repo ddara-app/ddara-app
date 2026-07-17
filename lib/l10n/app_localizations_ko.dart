@@ -664,6 +664,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedUsersUnblock => '차단 해제';
 
   @override
+  String get blockedUsersUnblockedToast => '차단을 해제했어요.';
+
+  @override
+  String get blockedUsersUnblockFailed => '차단을 해제하지 못했어요.';
+
+  @override
   String get profileLinkedAccount => '연동 계정';
 
   @override

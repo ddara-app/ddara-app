@@ -2,6 +2,7 @@ import 'package:ddara/core/auth/provider/auth_provider.dart';
 import 'package:ddara/domain/usecase/auth/login_use_case.dart';
 import 'package:ddara/domain/usecase/block/block_user_use_case.dart';
 import 'package:ddara/domain/usecase/block/get_blocked_users_use_case.dart';
+import 'package:ddara/domain/usecase/block/unblock_user_use_case.dart';
 import 'package:ddara/domain/usecase/auth/logout_use_case.dart';
 import 'package:ddara/domain/usecase/auth/signup_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
@@ -146,4 +147,8 @@ final blockUserUseCaseProvider = Provider<BlockUserUseCase>((ref) {
 
 final getBlockedUsersUseCaseProvider = Provider<GetBlockedUsersUseCase>((ref) {
   return GetBlockedUsersUseCase(ref.read(blockRepositoryProvider));
+});
+
+final unblockUserUseCaseProvider = Provider<UnblockUserUseCase>((ref) {
+  return UnblockUserUseCase(ref.read(blockRepositoryProvider));
 });

@@ -4,4 +4,6 @@ abstract interface class BlockRepository {
   Future<void> blockUser(int userId);
 
   Future<BlockedUsers> getBlockedUsers();
+
+  Future<void> unblockUser(int userId);
 }

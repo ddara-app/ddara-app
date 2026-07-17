@@ -18,4 +18,9 @@ class BlockDataSource {
 
     return BlockListResponse.fromJson(response.data);
   }
+
+  /// [userId] 사용자의 차단을 해제한다. (응답 본문 없음)
+  Future<void> unblockUser(int userId) async {
+    await _dio.delete('$_baseUrl/$userId');
+  }
 }
