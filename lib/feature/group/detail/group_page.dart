@@ -320,6 +320,8 @@ class GroupPage extends ConsumerWidget {
                     userId: member.userId,
                     name: member.nickname,
                     imageUrl: member.profileImageUrl,
+                    // 차단한 멤버는 기본 아이콘 + 취소선 닉네임으로 표시된다.
+                    isBlocked: state.blockedUserIds.contains(member.userId),
                   ),
                 )
                 .toList(),

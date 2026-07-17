@@ -9,6 +9,9 @@ import 'package:flutter/cupertino.dart';
 /// 멤버 아바타·추가 버튼의 원 지름.
 const double _circleSize = 60;
 
+/// 차단한 멤버 닉네임 취소선 굵기. (폰트 기본 굵기의 배수)
+const double _blockedStrikeThickness = 2.0;
+
 /// 이름 라벨을 그대로 보여줄 최대 글자 수. (6자까지는 줄이지 않는다)
 const int _maxNameLength = 6;
 
@@ -28,7 +31,12 @@ String _ellipsizeName(String name) {
 /// 모임 멤버 한 명의 표시 데이터.
 ///
 /// TODO: 모임 조회 API 의 멤버 모델로 대체. (백엔드 스펙 대기 — 임시 record)
-typedef MemberDisplay = ({int userId, String name, String? imageUrl});
+typedef MemberDisplay = ({
+  int userId,
+  String name,
+  String? imageUrl,
+  bool isBlocked,
+});
 
 /// 롱프레스 메뉴의 항목 하나. (라벨 + 글자색 + 선택 콜백)
 typedef _MenuAction = ({String label, Color? color, VoidCallback onSelect});
@@ -99,6 +107,12 @@ class _MemberAvatar extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final label = _ellipsizeName(member.name);
 
+    // 차단한 멤버는 기본 프로필 아이콘 + 취소선 닉네임으로 표시한다.
+    final imageUrl = member.isBlocked ? null : member.imageUrl;
+    final labelDecoration = member.isBlocked
+        ? TextDecoration.lineThrough
+        : null;
+
     final actions = <_MenuAction>[
       (
         label: l10n.memberBlock,
@@ -114,9 +128,11 @@ class _MemberAvatar extends StatelessWidget {
 
     return _CircleLabel(
       label: label,
+      labelDecoration: labelDecoration,
       child: _MenuAvatar(
         label: label,
-        imageUrl: member.imageUrl,
+        labelDecoration: labelDecoration,
+        imageUrl: imageUrl,
         actions: actions,
       ),
     );
@@ -131,10 +147,14 @@ class _MenuAvatar extends StatefulWidget {
     required this.label,
     required this.imageUrl,
     required this.actions,
+    this.labelDecoration,
   });
 
   /// 아바타 아래 라벨. (오버레이에서 블러 없이 유지 — 원본 라벨과 동일 문자열)
   final String label;
+
+  /// 라벨 글자 장식. (원본 라벨과 동일하게 유지 — 예: 차단 멤버 취소선)
+  final TextDecoration? labelDecoration;
 
   final String? imageUrl;
 
@@ -206,8 +226,14 @@ class _MenuAvatarState extends State<_MenuAvatar> {
           targetAnchor: Alignment.bottomCenter,
           followerAnchor: Alignment.topCenter,
           offset: const Offset(0, AppSpacing.s2),
-          // 원본 라벨과 동일한 문자열을 써야 사본이 정확히 겹친다.
-          child: IgnorePointer(child: AppText.caption(widget.label)),
+          // 원본 라벨과 동일한 문자열·장식을 써야 사본이 정확히 겹친다.
+          child: IgnorePointer(
+            child: AppText.caption(
+              widget.label,
+              decoration: widget.labelDecoration,
+              decorationThickness: _blockedStrikeThickness,
+            ),
+          ),
         ),
         // 아바타 위쪽(좌측 정렬)에 앵커. (아바타 위로 s2 만큼 띄움)
         CompositedTransformFollower(
@@ -303,10 +329,19 @@ class _AddMemberButton extends StatelessWidget {
 ///
 /// [onTap] 을 주면 [child] 영역이 버튼이 된다.
 class _CircleLabel extends StatelessWidget {
-  const _CircleLabel({required this.child, required this.label, this.onTap});
+  const _CircleLabel({
+    required this.child,
+    required this.label,
+    this.labelDecoration,
+    this.onTap,
+  });
 
   final Widget child;
   final String label;
+
+  /// 라벨 글자 장식. (예: 차단 멤버 취소선)
+  final TextDecoration? labelDecoration;
+
   final VoidCallback? onTap;
 
   @override
@@ -324,7 +359,11 @@ class _CircleLabel extends StatelessWidget {
           )
         else
           child,
-        AppText.caption(label),
+        AppText.caption(
+          label,
+          decoration: labelDecoration,
+          decorationThickness: _blockedStrikeThickness,
+        ),
       ],
     );
   }
