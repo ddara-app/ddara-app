@@ -70,6 +70,8 @@ class HistoryPhotos extends StatelessWidget {
                 thumbnailBlocked: blockedUserIds.contains(
                   cycles[i].starterUserId,
                 ),
+                // 신고 접수로 검토 중인 썸네일도 자리표시로 가린다.
+                thumbnailUnderReview: cycles[i].thumbnailUnderReview,
                 radius: AppRadius.lg,
               ),
             ),
@@ -130,6 +132,7 @@ class _PhotoCard extends StatelessWidget {
     required this.participantCount,
     required this.thumbnailUrl,
     required this.thumbnailBlocked,
+    required this.thumbnailUnderReview,
     required this.radius,
   });
 
@@ -150,6 +153,9 @@ class _PhotoCard extends StatelessWidget {
 
   /// 썸네일을 올린 스타터를 차단한 상태인지 여부. (차단 자리표시로 대체)
   final bool thumbnailBlocked;
+
+  /// 썸네일이 신고 접수로 검토 중인지 여부. (검토 안내 자리표시로 대체)
+  final bool thumbnailUnderReview;
 
   /// 카드 모서리 둥글기.
   final double radius;
@@ -178,7 +184,7 @@ class _PhotoCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            _thumbnail(),
+            _thumbnail(context),
             // 우측 상단: 참여 인원
             Padding(
               padding: const EdgeInsets.all(AppSpacing.s3),
@@ -208,10 +214,15 @@ class _PhotoCard extends StatelessWidget {
   }
 
   /// 카드 배경 썸네일. URL 이 없거나 로드 실패 시 자리표시로 대체한다.
-  /// 차단한 스타터의 썸네일은 사진 대신 차단 자리표시를 보여준다.
-  Widget _thumbnail() {
+  /// 스타터 차단 또는 신고 검토 중이면 사진 대신 안내 자리표시를 보여준다.
+  Widget _thumbnail(BuildContext context) {
     if (thumbnailBlocked) {
       return const BlockedPhotoPlaceholder();
+    }
+    if (thumbnailUnderReview) {
+      return BlockedPhotoPlaceholder(
+        message: AppLocalizations.of(context).photoUnderReviewPlaceholder,
+      );
     }
     final url = thumbnailUrl;
     if (url == null || url.isEmpty) {
