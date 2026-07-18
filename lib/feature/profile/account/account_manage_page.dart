@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -33,6 +34,7 @@ class AccountManagePage extends ConsumerWidget {
       if (!context.mounted) return;
       switch (status) {
         case LogoutStatus.success:
+          MixpanelManager.instance.track('logout_succeeded');
           context.go(RoutePath.login);
         case LogoutStatus.fail:
           Toast.showToast(
@@ -54,6 +56,7 @@ class AccountManagePage extends ConsumerWidget {
       if (!context.mounted) return;
       switch (status) {
         case WithdrawStatus.success:
+          MixpanelManager.instance.track('account_withdraw_succeeded');
           context.go(RoutePath.login);
         case WithdrawStatus.fail:
           Toast.showToast(

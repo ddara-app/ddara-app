@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/logo/logo.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
@@ -21,9 +22,28 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  /// 홈 콘텐츠(빈 상태·목록)가 처음 확정됐을 때 조회 이벤트를 한 번만 보낸다.
+  bool _viewTracked = false;
+
+  /// 로딩·에러가 끝나 화면이 확정되면 빈 상태/목록을 구분해 조회 이벤트를 전송한다.
+  void _trackHomeViewed(HomeState state) {
+    if (_viewTracked) return;
+    // 아직 어떤 화면인지 확정되지 않았으므로 보류.
+    if (state.isLoading || state.errorMessage.isNotEmpty) return;
+    _viewTracked = true;
+    MixpanelManager.instance.track(
+      'home_viewed',
+      properties: {
+        'state': state.groups.isEmpty ? 'empty' : 'list',
+        'group_count': state.groups.length,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(homeNotifierProvider);
+    _trackHomeViewed(state);
     // 서버 프로필의 이미지 URL. (조회 전·미등록이면 null → 기본 아바타)
     final profileImageUrl = ref
         .watch(currentProfileProvider)

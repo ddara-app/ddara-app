@@ -15,6 +15,7 @@ class ProfileHeader extends StatelessWidget {
     this.imageUrl,
     required this.name,
     this.onImageSourceSelected,
+    this.onEditPressed,
   });
 
   /// 프로필 이미지 URL. null·빈 값이면 기본 아이콘을 보여준다.
@@ -26,6 +27,9 @@ class ProfileHeader extends StatelessWidget {
   /// 편집 버튼(+) 을 눌러 이미지 소스를 고른 뒤 호출된다.
   /// null 이면 편집 버튼을 눌러도 시트만 뜨고 선택은 무시된다.
   final ValueChanged<ProfileImageSource>? onImageSourceSelected;
+
+  /// 편집 버튼(+) 을 눌러 소스 선택 시트를 여는 순간 호출된다. (선택 여부와 무관)
+  final VoidCallback? onEditPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +61,7 @@ class ProfileHeader extends StatelessWidget {
   /// 이미지 소스 선택 시트를 띄우고, 고른 값을 [onImageSourceSelected] 로 전달한다.
   /// 등록된 이미지가 있을 때만 '기본 이미지로 변경' 항목을 함께 노출한다.
   Future<void> _pickImageSource(BuildContext context) async {
+    onEditPressed?.call();
     final source = await ProfileImageSourceSheet.show(
       context,
       showReset: imageUrl != null && imageUrl!.isNotEmpty,
