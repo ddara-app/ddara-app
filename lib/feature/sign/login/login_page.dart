@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -25,22 +26,52 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
+  /// 성공·실패 상태에는 소셜 타입 정보가 없어, 마지막으로 시도한
+  /// 소셜 타입을 기억해 결과 이벤트의 provider 프로퍼티로 사용한다.
+  SocialLoginType? _lastAttempted;
+
+  @override
+  void initState() {
+    super.initState();
+    MixpanelManager.instance.track('login_page_viewed');
+  }
+
+  void _onSocialLogin(SocialLoginType type) {
+    _lastAttempted = type;
+    MixpanelManager.instance.track(
+      'login_attempted',
+      properties: {'provider': type.name},
+    );
+    ref.read(loginNotifierProvider.notifier).socialLogin(context, type);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final notifier = ref.read(loginNotifierProvider.notifier);
     final isLoading = ref.watch(loginNotifierProvider) is LoginLoading;
 
     ref.listen(loginNotifierProvider, (previous, next) {
       switch (next) {
         case LoginSuccess():
+          MixpanelManager.instance.track(
+            'login_succeeded',
+            properties: {'provider': _lastAttempted?.name},
+          );
           // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
           routeAfterAuth(ref, GoRouter.of(context));
 
         case SignupRequired():
+          MixpanelManager.instance.track(
+            'login_signup_required',
+            properties: {'provider': next.social.name},
+          );
           context.push(RoutePath.signup, extra: next.social);
 
         case LoginFail(message: final message):
+          MixpanelManager.instance.track(
+            'login_failed',
+            properties: {'provider': _lastAttempted?.name, 'reason': message},
+          );
           Toast.showToast(context, message, type: ToastType.error);
 
         default:
@@ -94,10 +125,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         foregroundColor: const Color(0xFF000000),
                         onPressed: isLoading
                             ? null
-                            : () => notifier.socialLogin(
-                                context,
-                                SocialLoginType.kakao,
-                              ),
+                            : () => _onSocialLogin(SocialLoginType.kakao),
                       ),
                       _SocialLoginButton(
                         label: l10n.loginGoogle,
@@ -106,10 +134,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         foregroundColor: const Color(0xFF000000),
                         onPressed: isLoading
                             ? null
-                            : () => notifier.socialLogin(
-                                context,
-                                SocialLoginType.google,
-                              ),
+                            : () => _onSocialLogin(SocialLoginType.google),
                       ),
                       // 애플 로그인은 iOS 에서만 노출한다. (안드로이드는 미지원)
                       if (Platform.isIOS)
@@ -120,10 +145,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           foregroundColor: const Color(0xFF000000),
                           onPressed: isLoading
                               ? null
-                              : () => notifier.socialLogin(
-                                  context,
-                                  SocialLoginType.apple,
-                                ),
+                              : () => _onSocialLogin(SocialLoginType.apple),
                         ),
                       AppTextButton(
                         label: l10n.loginViewPolicies,

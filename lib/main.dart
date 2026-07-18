@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/analytics/mixpanel_manager.dart';
 import 'core/invite/deep_link_service.dart';
 import 'l10n/app_localizations.dart';
 import 'core/router/pending_invite.dart';
@@ -38,6 +39,7 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: '.env');
     KakaoSdk.init(nativeAppKey: dotenv.get("KAKAO_NATIVE_APP_KEY"));
+    await MixpanelManager.init();
     await _initCrashReporting();
     _registerFcmBackgroundHandler();
     SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayStyle);

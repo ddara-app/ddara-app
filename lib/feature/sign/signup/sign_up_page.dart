@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -17,6 +18,21 @@ class SignUpPage extends ConsumerStatefulWidget {
 }
 
 class _SignUpPageState extends ConsumerState<SignUpPage> {
+  /// 페이지 진입 이벤트는 한 번만 보낸다. (build 재호출로 중복 전송 방지)
+  bool _pageViewTracked = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_pageViewTracked) return;
+    _pageViewTracked = true;
+    final social = GoRouterState.of(context).extra as SocialLoginType;
+    MixpanelManager.instance.track(
+      'signup_page_viewed',
+      properties: {'provider': social.name},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final social = GoRouterState.of(context).extra as SocialLoginType;
@@ -25,6 +41,10 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
     ref.listen(signNotifierProvider(social), (prev, next) {
       if (prev?.isSuccess == false && next.isSuccess) {
+        MixpanelManager.instance.track(
+          'signup_succeeded',
+          properties: {'provider': social.name},
+        );
         // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
         routeAfterAuth(ref, GoRouter.of(context));
         return;

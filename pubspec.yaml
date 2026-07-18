@@ -79,6 +79,9 @@ dependencies:
   firebase_auth: ^6.5.4
   crypto: ^3.0.7
 
+  mixpanel_flutter: ^2.0.0
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
