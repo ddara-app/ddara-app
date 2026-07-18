@@ -25,6 +25,7 @@ import '../usecase/group/change_nickname_use_case.dart';
 import '../usecase/group/exit_group_use_case.dart';
 import '../usecase/group/get_group_detail_use_case.dart';
 import '../usecase/group/get_history_cycles_use_case.dart';
+import '../usecase/group/get_history_list_use_case.dart';
 import '../usecase/group/get_invite_group_use_case.dart';
 import '../usecase/group/join_group_use_case.dart';
 
@@ -78,6 +79,10 @@ final getHistoryCyclesUseCaseProvider = Provider<GetHistoryCyclesUseCase>((
   ref,
 ) {
   return GetHistoryCyclesUseCase(ref.read(groupRepositoryProvider));
+});
+
+final getHistoryListUseCaseProvider = Provider<GetHistoryListUseCase>((ref) {
+  return GetHistoryListUseCase(ref.read(groupRepositoryProvider));
 });
 
 final changeNicknameUseCaseProvider = Provider<ChangeNicknameUseCase>((ref) {

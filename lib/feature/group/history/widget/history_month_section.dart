@@ -1,6 +1,6 @@
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/feature/group/history/widget/history_list_item.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
@@ -22,7 +22,7 @@ class HistoryMonthSection extends StatelessWidget {
   final int month;
 
   /// 이 년·월에 포함된 사이클들.
-  final List<HistoryCycle> cycles;
+  final List<HistoryListCycle> cycles;
 
   /// 내가 차단한 사용자 userId 집합.
   /// (차단한 스타터의 썸네일은 차단 자리표시로 가린다)

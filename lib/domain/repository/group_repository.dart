@@ -1,6 +1,7 @@
 import 'package:ddara/core/model/group/change_nickname.dart';
 import 'package:ddara/core/model/group/create_group.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/model/group/invite_group.dart';
 
 import '../../core/model/group/group_detail.dart';
@@ -24,7 +25,12 @@ abstract interface class GroupRepository {
 
   Future<void> exitGroup(int groupId);
 
+  /// 모임 페이지 프리뷰용 지난 따라찍기. (경량)
   Future<HistoryCycles> getHistoryCycles(int groupId);
+
+  /// 더보기 화면용 지난 따라찍기. (통계 + 참가자 목록 포함)
+  /// [year]·[month] 를 함께 주면 해당 연·월로 필터링한다. (month 단독 사용 불가)
+  Future<HistoryList> getHistoryList(int groupId, {int? year, int? month});
 
   Future<ChangeNickName> changeNickName(int groupId, String nickName);
 }

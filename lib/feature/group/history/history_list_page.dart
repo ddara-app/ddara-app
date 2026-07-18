@@ -1,7 +1,7 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/feature/group/history/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/history/util/history_list_state.dart';
 import 'package:ddara/feature/group/history/widget/history_month_section.dart';
@@ -60,8 +60,11 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: AppSpacing.s7,
             children: [
-              // TODO: 따라찍기 수·함께한 사진 수 데이터 연동. (임시 0)
-              const RecordSection(ddaraCount: 0, photoCount: 0),
+              // 조회 전(로딩)엔 통계가 없어 0/0 으로 보여준다.
+              RecordSection(
+                myCount: state.historyList?.stats.myCount ?? 0,
+                totalCount: state.historyList?.stats.totalCount ?? 0,
+              ),
               _filterSection(l10n),
               ..._monthSections(l10n, state),
             ],
@@ -121,7 +124,7 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
 
   /// 년·월 섹션 목록. (조회 전엔 로딩/에러, 결과 없으면 빈 안내)
   List<Widget> _monthSections(AppLocalizations l10n, HistoryListState state) {
-    final cycles = state.historyCycles?.cycles;
+    final cycles = state.historyList?.cycles;
     if (cycles == null) {
       return [
         SizedBox(
@@ -133,14 +136,8 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       ];
     }
 
-    // 필터가 설정돼 있으면 해당 년·월의 사이클만 보여준다.
-    final visible = _selectedMonth == null
-        ? cycles
-        : cycles.where((c) {
-            final d = c.date.toLocal();
-            return d.year == _selectedYear && d.month == _selectedMonth;
-          }).toList();
-    if (visible.isEmpty) {
+    // 필터링은 서버(year·month 쿼리)가 처리하므로 받은 목록을 그대로 보여준다.
+    if (cycles.isEmpty) {
       return [
         SizedBox(
           width: double.infinity,
@@ -153,8 +150,8 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
     }
 
     // 년·월 단위로 묶는다. (목록 순서 유지)
-    final grouped = <(int, int), List<HistoryCycle>>{};
-    for (final cycle in visible) {
+    final grouped = <(int, int), List<HistoryListCycle>>{};
+    for (final cycle in cycles) {
       final d = cycle.date.toLocal();
       grouped.putIfAbsent((d.year, d.month), () => []).add(cycle);
     }
@@ -173,7 +170,7 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
     ];
   }
 
-  /// 초기화 → 전체보기로 되돌리고 피커를 닫는다.
+  /// 초기화 → 전체보기로 되돌리고 피커를 닫는다. (서버 전체 재조회)
   void _onFilterReset() {
     setState(() {
       _selectedYear = null;
@@ -181,15 +178,18 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       _displayYear = DateTime.now().year;
       _pickerVisible = false;
     });
+    ref.read(historyListNotifierProvider(widget.groupId).notifier).applyFilter();
   }
 
-  /// 월 선택 → 필터 확정 후 피커를 닫는다.
-  /// TODO: 선택된 년·월로 목록 필터링 연동.
+  /// 월 선택 → 필터 확정 후 피커를 닫고, 선택한 연·월로 서버 재조회한다.
   void _onMonthSelected(int month) {
     setState(() {
       _selectedYear = _displayYear;
       _selectedMonth = month;
       _pickerVisible = false;
     });
+    ref
+        .read(historyListNotifierProvider(widget.groupId).notifier)
+        .applyFilter(year: _selectedYear, month: _selectedMonth);
   }
 }

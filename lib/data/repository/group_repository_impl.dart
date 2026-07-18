@@ -9,6 +9,7 @@ import 'package:ddara/core/model/group/create_group.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/group_list.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/model/group/invite_group.dart';
 import 'package:ddara/core/model/group/join_group.dart';
 import 'package:ddara/data/datasource/group/group_datasource.dart';
@@ -177,24 +178,47 @@ class GroupRepositoryImpl implements GroupRepository {
   Future<HistoryCycles> getHistoryCycles(int groupId) async {
     try {
       final response = await _groupDataSource.getHistoryCycles(groupId);
-      return response.toDomain();
+      return response.toGroupHistory();
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? GroupHistoryErrorCode.fromValue(e.response?.data['code'])
-          : null;
+      throw _mapHistoryError(e);
+    }
+  }
 
-      switch (code) {
-        case GroupHistoryErrorCode.notGroupMember:
-          // 403 — 해당 모임의 멤버가 아님
-          throw NotGroupMemberException();
+  @override
+  Future<HistoryList> getHistoryList(
+    int groupId, {
+    int? year,
+    int? month,
+  }) async {
+    try {
+      final response = await _groupDataSource.getHistoryCycles(
+        groupId,
+        year: year,
+        month: month,
+      );
+      return response.toHistoryList();
+    } on DioException catch (e) {
+      throw _mapHistoryError(e);
+    }
+  }
 
-        case GroupHistoryErrorCode.groupNotFound:
-          // 404 — 모임을 찾을 수 없음
-          throw GroupNotFoundException();
+  /// 지난 따라찍기 조회 공통 에러 매핑. (프리뷰·더보기 동일 엔드포인트)
+  Exception _mapHistoryError(DioException e) {
+    final code = e.response?.data is Map
+        ? GroupHistoryErrorCode.fromValue(e.response?.data['code'])
+        : null;
 
-        default:
-          throw NetworkException();
-      }
+    switch (code) {
+      case GroupHistoryErrorCode.notGroupMember:
+        // 403 — 해당 모임의 멤버가 아님
+        return NotGroupMemberException();
+
+      case GroupHistoryErrorCode.groupNotFound:
+        // 404 — 모임을 찾을 수 없음
+        return GroupNotFoundException();
+
+      default:
+        return NetworkException();
     }
   }
 
