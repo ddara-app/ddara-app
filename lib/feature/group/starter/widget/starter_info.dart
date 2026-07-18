@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/text_field/app_text_field.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -59,6 +60,10 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
 
       final cycleId = next.uploadedCycleId;
       if (prev?.uploadedCycleId == null && cycleId != null) {
+        MixpanelManager.instance.track(
+          'starter_photo_posted',
+          properties: {'group_id': widget.groupId, 'cycle_id': cycleId},
+        );
         // 새 사이클이 생겼으므로 스택 아래 모임 상세를 무효화해, 갤러리에서
         // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.
         ref.invalidate(group_detail.groupPageNotifierProvider(widget.groupId));

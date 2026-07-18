@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
@@ -56,22 +57,28 @@ class GroupPage extends ConsumerWidget {
         ref.read(groupPageNotifierProvider(groupId).notifier).clearError();
       }
 
-      // 진입해 상세가 처음 로드됐을 때, 인원이 기준 미만이면 초대 시트를 띄운다.
+      // 진입해 상세가 처음 로드된 시점을 조회 이벤트로 남긴다.
       final detail = next.groupDetail;
-      if (prev?.groupDetail == null &&
-          detail != null &&
-          detail.members.length < _inviteThreshold) {
-        // 빌드/네비게이션 도중 모달을 띄우지 않도록 다음 프레임에 연다.
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!context.mounted) return;
-          InviteShareSheet.show(
-            context,
-            inviteCode: detail.inviteCode,
-            imageUrl: _shareImageUrl,
-            // 인원 부족으로 자동으로 띄운 경우라 머리말을 안내 문구로 바꾼다.
-            memberShortage: true,
-          );
-        });
+      if (prev?.groupDetail == null && detail != null) {
+        MixpanelManager.instance.track(
+          'group_page_viewed',
+          properties: {'group_id': groupId},
+        );
+
+        // 인원이 기준 미만이면 초대 시트를 띄운다.
+        if (detail.members.length < _inviteThreshold) {
+          // 빌드/네비게이션 도중 모달을 띄우지 않도록 다음 프레임에 연다.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
+            InviteShareSheet.show(
+              context,
+              inviteCode: detail.inviteCode,
+              imageUrl: _shareImageUrl,
+              // 인원 부족으로 자동으로 띄운 경우라 머리말을 안내 문구로 바꾼다.
+              memberShortage: true,
+            );
+          });
+        }
       }
     });
 
@@ -186,9 +193,15 @@ class GroupPage extends ConsumerWidget {
     );
     if (nickName == null || !context.mounted) return;
 
-    await ref
+    final success = await ref
         .read(groupPageNotifierProvider(groupId).notifier)
         .changeNickName(nickName);
+    if (success) {
+      MixpanelManager.instance.track(
+        'group_nickname_changed',
+        properties: {'group_id': groupId},
+      );
+    }
   }
 
   /// 모임 나가기를 실행한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
@@ -210,6 +223,10 @@ class GroupPage extends ConsumerWidget {
         .exitGroup();
     if (!success || !context.mounted) return;
 
+    MixpanelManager.instance.track(
+      'group_exit_succeeded',
+      properties: {'group_id': groupId},
+    );
     ref.invalidate(homeNotifierProvider);
     context.go(RoutePath.home);
   }
@@ -348,12 +365,18 @@ class GroupPage extends ConsumerWidget {
               AppTextButton(
                 label: l10n.groupHistoryMore,
                 // 지난 따라찍기 전체 목록으로 이동. (복귀 시 상세 갱신)
-                onPressed: () => _pushThenRefresh(
-                  context,
-                  ref,
-                  RoutePath.historyList,
-                  groupId,
-                ),
+                onPressed: () {
+                  MixpanelManager.instance.track(
+                    'group_history_more_clicked',
+                    properties: {'group_id': groupId},
+                  );
+                  _pushThenRefresh(
+                    context,
+                    ref,
+                    RoutePath.historyList,
+                    groupId,
+                  );
+                },
               ),
             ],
           ),
@@ -368,12 +391,18 @@ class GroupPage extends ConsumerWidget {
                   // 차단한 스타터의 썸네일은 차단 자리표시로 가린다.
                   blockedUserIds: state.blockedUserIds,
                   // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
-                  onCycleTap: (cycleId) => _pushThenRefresh(
-                    context,
-                    ref,
-                    RoutePath.follower,
-                    cycleId,
-                  ),
+                  onCycleTap: (cycleId) {
+                    MixpanelManager.instance.track(
+                      'group_history_cycle_clicked',
+                      properties: {'group_id': groupId, 'cycle_id': cycleId},
+                    );
+                    _pushThenRefresh(
+                      context,
+                      ref,
+                      RoutePath.follower,
+                      cycleId,
+                    );
+                  },
                 ),
         ),
       ],

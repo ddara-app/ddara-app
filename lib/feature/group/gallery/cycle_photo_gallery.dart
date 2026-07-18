@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -19,13 +20,29 @@ import 'package:go_router/go_router.dart';
 ///
 /// 스타터의 사진을 멤버들이 따라찍은 결과 사진을 모아 보여준다.
 /// (헤더 + 모임명 + 멤버 사진 그리드)
-class CyclePhotoGallery extends ConsumerWidget {
+class CyclePhotoGallery extends ConsumerStatefulWidget {
   const CyclePhotoGallery({super.key, required this.cycleId});
 
   final int cycleId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CyclePhotoGallery> createState() => _CyclePhotoGalleryState();
+}
+
+class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
+  int get cycleId => widget.cycleId;
+
+  @override
+  void initState() {
+    super.initState();
+    MixpanelManager.instance.track(
+      'gallery_page_viewed',
+      properties: {'cycle_id': cycleId},
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(cyclePhotoGalleryNotifierProvider(cycleId));
     final gallery = state.gallery;
 
