@@ -19,5 +19,9 @@ abstract class NotificationPayload with _$NotificationPayload {
     required int? remainingMinutes,
     // 알림 아바타에 쓸 이미지 URL. 없으면 null → 기본 아바타.
     required String? imageUrl,
+    // 썸네일(스타터 샷)이 신고 접수로 검토 중인지 여부. (NEW_CYCLE 에만 존재)
+    required bool imageUnderReview,
+    // 썸네일을 올린 스타터의 userId. NEW_CYCLE 외에는 null.
+    required int? starterUserId,
   }) = _NotificationPayload;
 }

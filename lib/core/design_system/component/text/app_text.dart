@@ -22,6 +22,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.display,
        _defaultColor = AppColors.textPrimary;
 
@@ -33,6 +35,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.headlineLarge,
        _defaultColor = AppColors.textPrimary;
 
@@ -44,6 +48,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.headlineMedium,
        _defaultColor = AppColors.textPrimary;
 
@@ -55,6 +61,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.titleLarge,
        _defaultColor = AppColors.textPrimary;
 
@@ -66,6 +74,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.title,
        _defaultColor = AppColors.textPrimary;
 
@@ -77,6 +87,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.label,
        _defaultColor = AppColors.textSecondary;
 
@@ -88,6 +100,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.body,
        _defaultColor = AppColors.textSecondary;
 
@@ -99,6 +113,8 @@ class AppText extends StatelessWidget {
     this.color,
     this.maxLines,
     this.overflow,
+    this.decoration,
+    this.decorationThickness,
   }) : _style = AppTypography.caption,
        _defaultColor = AppColors.textSecondary;
 
@@ -114,6 +130,12 @@ class AppText extends StatelessWidget {
   /// 넘칠 때 처리 방식. (예: [TextOverflow.ellipsis]) null 이면 기본 동작.
   final TextOverflow? overflow;
 
+  /// 글자 장식. (예: 취소선 [TextDecoration.lineThrough]) null 이면 없음.
+  final TextDecoration? decoration;
+
+  /// 장식 선 굵기. 폰트 기본 굵기에 대한 배수. (예: 2.0 = 두 배) null 이면 기본.
+  final double? decorationThickness;
+
   final TextStyle _style;
   final Color _defaultColor;
 
@@ -124,7 +146,11 @@ class AppText extends StatelessWidget {
       textAlign: textAlign,
       maxLines: maxLines,
       overflow: overflow,
-      style: _style.copyWith(color: color ?? _defaultColor),
+      style: _style.copyWith(
+        color: color ?? _defaultColor,
+        decoration: decoration,
+        decorationThickness: decorationThickness,
+      ),
     );
   }
 }

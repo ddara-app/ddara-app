@@ -21,6 +21,7 @@ import '../../feature/onboarding/onboarding_page.dart';
 import '../../feature/onboarding/provider/onboarding_provider.dart';
 import '../../feature/permission/permission_page.dart';
 import '../../feature/profile/account/account_manage_page.dart';
+import '../../feature/profile/blocked/blocked_users_page.dart';
 import '../../feature/profile/profile_page.dart';
 import '../../feature/profile/policy/policy_viewer_page.dart';
 import '../../feature/profile/policy/terms_policy_page.dart';
@@ -176,6 +177,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePath.accountManage,
         builder: (_, _) => const AccountManagePage(),
+      ),
+      GoRoute(
+        path: RoutePath.blockedUsers,
+        builder: (_, _) => const BlockedUsersPage(),
       ),
       GoRoute(
         path: RoutePath.notificationSettings,

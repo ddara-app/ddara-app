@@ -166,6 +166,7 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
           year: entry.key.$1,
           month: entry.key.$2,
           cycles: entry.value,
+          blockedUserIds: state.blockedUserIds,
           showTitle: _selectedMonth == null,
           showYear: entry.key.$1 != currentYear,
         ),

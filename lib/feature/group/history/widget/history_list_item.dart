@@ -5,10 +5,11 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/l10n/app_localizations.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
 /// 목록에 함께 보여줄 참가자 아바타 최대 개수.
@@ -26,10 +27,17 @@ const double _thumbnailSize = 100;
 /// 지난 따라찍기 단일 아이템.
 /// (좌: 썸네일 · 우: 주제 / 참가 인원 / 날짜 / 참가자 프로필)
 class HistoryListItem extends StatelessWidget {
-  const HistoryListItem({super.key, required this.cycle});
+  const HistoryListItem({
+    super.key,
+    required this.cycle,
+    this.thumbnailBlocked = false,
+  });
 
   /// 표시할 지난 사이클.
   final HistoryCycle cycle;
+
+  /// 썸네일을 올린 스타터를 차단한 상태인지 여부. (차단 자리표시로 대체)
+  final bool thumbnailBlocked;
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +52,17 @@ class HistoryListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: AppSpacing.s3,
         children: [
-          _thumbnail(),
+          _thumbnail(context),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: AppSpacing.s1,
               children: [
-                AppText.titleLarge(cycle.topic),
+                // 차단한 스타터의 따라찍기는 주제 대신 차단 안내 문구를 보여준다.
+                AppText.titleLarge(
+                  thumbnailBlocked ? l10n.blockedCycleTopic : cycle.topic,
+                  color: thumbnailBlocked ? AppColors.textSecondary : null,
+                ),
                 AppText.caption(
                   _dateLabel(l10n, cycle.date),
                   color: AppColors.textSecondary,
@@ -69,8 +81,8 @@ class HistoryListItem extends StatelessWidget {
   }
 
   /// 좌측 정사각 썸네일. URL 이 없거나 로드 실패 시 자리표시로 대체한다.
-  Widget _thumbnail() {
-    final url = cycle.thumbnailUrl;
+  /// 스타터 차단 또는 신고 검토 중이면 사진 대신 안내 자리표시를 보여준다.
+  Widget _thumbnail(BuildContext context) {
     return Container(
       width: _thumbnailSize,
       height: _thumbnailSize,
@@ -81,13 +93,38 @@ class HistoryListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
       ),
-      child: url == null || url.isEmpty
-          ? const EmptyThumbnail()
-          : Image.network(
-              url,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const EmptyThumbnail(),
-            ),
+      child: _thumbnailContent(context),
+    );
+  }
+
+  Widget _thumbnailContent(BuildContext context) {
+    if (thumbnailBlocked) {
+      // 차단은 문구 대신 자물쇠 아이콘만 중앙에 보여준다.
+      return const ColoredBox(
+        color: AppColors.bgSurfaceAlt,
+        child: Center(
+          child: Icon(
+            CupertinoIcons.lock_fill,
+            size: 32,
+            color: AppColors.bgSurface,
+          ),
+        ),
+      );
+    }
+    if (cycle.thumbnailUnderReview) {
+      // 100×100 작은 썸네일이라 짧은 검토 안내 문구를 쓴다.
+      return BlockedPhotoPlaceholder(
+        message: AppLocalizations.of(context).photoUnderReviewPlaceholderShort,
+      );
+    }
+    final url = cycle.thumbnailUrl;
+    if (url == null || url.isEmpty) {
+      return const EmptyThumbnail();
+    }
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (_, _, _) => const EmptyThumbnail(),
     );
   }
 

@@ -38,8 +38,11 @@ _CycleGalleryCycleResponse _$CycleGalleryCycleResponseFromJson(
   cycleId: (json['cycleId'] as num).toInt(),
   cycleNumber: (json['cycleNumber'] as num).toInt(),
   topic: json['topic'] as String,
+  starterUserId: (json['starterUserId'] as num).toInt(),
   starterNickname: json['starterNickname'] as String,
+  starterShotId: (json['starterShotId'] as num).toInt(),
   starterImageUrl: json['starterImageUrl'] as String?,
+  starterImageUnderReview: json['starterImageUnderReview'] as bool,
   status: json['status'] as String,
   deadlineAt: DateTime.parse(json['deadlineAt'] as String),
 );
@@ -50,8 +53,11 @@ Map<String, dynamic> _$CycleGalleryCycleResponseToJson(
   'cycleId': instance.cycleId,
   'cycleNumber': instance.cycleNumber,
   'topic': instance.topic,
+  'starterUserId': instance.starterUserId,
   'starterNickname': instance.starterNickname,
+  'starterShotId': instance.starterShotId,
   'starterImageUrl': instance.starterImageUrl,
+  'starterImageUnderReview': instance.starterImageUnderReview,
   'status': instance.status,
   'deadlineAt': instance.deadlineAt.toIso8601String(),
 };
@@ -60,6 +66,7 @@ _CycleGalleryMemberResponse _$CycleGalleryMemberResponseFromJson(
   Map<String, dynamic> json,
 ) => _CycleGalleryMemberResponse(
   userId: (json['userId'] as num).toInt(),
+  shotId: (json['shotId'] as num?)?.toInt(),
   nickname: json['nickname'] as String,
   profileImageUrl: json['profileImageUrl'] as String?,
   isStarter: json['isStarter'] as bool,
@@ -74,6 +81,7 @@ Map<String, dynamic> _$CycleGalleryMemberResponseToJson(
   _CycleGalleryMemberResponse instance,
 ) => <String, dynamic>{
   'userId': instance.userId,
+  'shotId': instance.shotId,
   'nickname': instance.nickname,
   'profileImageUrl': instance.profileImageUrl,
   'isStarter': instance.isStarter,

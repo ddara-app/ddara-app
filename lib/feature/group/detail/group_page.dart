@@ -16,6 +16,7 @@ import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -283,6 +284,8 @@ class GroupPage extends ConsumerWidget {
     List<HistoryCycle> cycles,
   ) {
     final l10n = AppLocalizations.of(context);
+    // 현재 사용자 id. (본인 프로필에는 신고·차단 메뉴를 띄우지 않기 위함)
+    final myUserId = ref.watch(currentProfileProvider).valueOrNull?.id;
     return Column(
       // 상단부터 쌓되 가로는 중앙 정렬.
       mainAxisAlignment: MainAxisAlignment.start,
@@ -297,6 +300,10 @@ class GroupPage extends ConsumerWidget {
             progress: groupDetail.currentCycle,
             // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
             canStart: groupDetail.members.length >= _minMembersToStart,
+            // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
+            starterBlocked: state.blockedUserIds.contains(
+              groupDetail.currentCycle?.starterUserId,
+            ),
             navigateToStart: () =>
                 _pushThenRefresh(context, ref, RoutePath.starter, groupId),
             // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
@@ -312,8 +319,15 @@ class GroupPage extends ConsumerWidget {
           body: Members(
             members: groupDetail.members
                 .map(
-                  (member) =>
-                      (name: member.nickname, imageUrl: member.profileImageUrl),
+                  (member) => (
+                    userId: member.userId,
+                    name: member.nickname,
+                    imageUrl: member.profileImageUrl,
+                    // 차단한 멤버는 기본 아이콘 + 취소선 닉네임으로 표시된다.
+                    isBlocked: state.blockedUserIds.contains(member.userId),
+                    // 본인 프로필에는 롱프레스 메뉴를 띄우지 않는다.
+                    isMe: member.userId == myUserId,
+                  ),
                 )
                 .toList(),
             onAddMember: () => InviteShareSheet.show(
@@ -322,6 +336,7 @@ class GroupPage extends ConsumerWidget {
               imageUrl: _shareImageUrl,
             ),
             onReportMember: (member) => _reportMember(context, member.name),
+            onBlockMember: (member) => _blockMember(context, ref, member),
           ),
         ),
         GroupSection(
@@ -350,6 +365,8 @@ class GroupPage extends ConsumerWidget {
                 )
               : HistoryPhotos(
                   cycles: cycles,
+                  // 차단한 스타터의 썸네일은 차단 자리표시로 가린다.
+                  blockedUserIds: state.blockedUserIds,
                   // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
                   onCycleTap: (cycleId) => _pushThenRefresh(
                     context,
@@ -393,5 +410,32 @@ class GroupPage extends ConsumerWidget {
         type: ToastType.error,
       );
     }
+  }
+
+  /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
+  /// 성공하면 차단이 반영된 상세를 다시 조회하고 완료 토스트를 띄운다.
+  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  Future<void> _blockMember(
+    BuildContext context,
+    WidgetRef ref,
+    MemberDisplay member,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.memberBlockConfirmTitle(member.name),
+      message: l10n.memberBlockConfirmMessage,
+      confirmLabel: l10n.memberBlockConfirmAction,
+      confirmColor: AppColors.statusDanger,
+      confirmLabelColor: AppColors.textPrimary,
+    );
+    if (!confirmed || !context.mounted) return;
+
+    final success = await ref
+        .read(groupPageNotifierProvider(groupId).notifier)
+        .blockMember(member.userId);
+    if (!success || !context.mounted) return;
+
+    Toast.showToast(context, l10n.memberBlockedToast(member.name));
   }
 }

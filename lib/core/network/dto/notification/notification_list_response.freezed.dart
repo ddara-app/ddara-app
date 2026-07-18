@@ -594,7 +594,9 @@ mixin _$NotificationPayloadResponse {
  int? get cycleId;// 사이클 마감 시각. (NEW_CYCLE·DEADLINE 등에 존재)
  DateTime? get deadlineAt;// 서버가 계산한 마감까지 남은 분. (DEADLINE 에 존재)
  int? get remainingMinutes;// 알림 썸네일 이미지 URL.
- String? get imageUrl;
+ String? get imageUrl;// 썸네일(스타터 샷)이 신고 접수로 검토 중인지 여부. (NEW_CYCLE 에 존재)
+ bool? get imageUnderReview;// 썸네일을 올린 스타터의 userId. (NEW_CYCLE 에 존재)
+ int? get starterUserId;
 /// Create a copy of NotificationPayloadResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -607,16 +609,16 @@ $NotificationPayloadResponseCopyWith<NotificationPayloadResponse> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationPayloadResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt)&&(identical(other.remainingMinutes, remainingMinutes) || other.remainingMinutes == remainingMinutes)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationPayloadResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt)&&(identical(other.remainingMinutes, remainingMinutes) || other.remainingMinutes == remainingMinutes)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.imageUnderReview, imageUnderReview) || other.imageUnderReview == imageUnderReview)&&(identical(other.starterUserId, starterUserId) || other.starterUserId == starterUserId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,deadlineAt,remainingMinutes,imageUrl);
+int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,deadlineAt,remainingMinutes,imageUrl,imageUnderReview,starterUserId);
 
 @override
 String toString() {
-  return 'NotificationPayloadResponse(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, deadlineAt: $deadlineAt, remainingMinutes: $remainingMinutes, imageUrl: $imageUrl)';
+  return 'NotificationPayloadResponse(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, deadlineAt: $deadlineAt, remainingMinutes: $remainingMinutes, imageUrl: $imageUrl, imageUnderReview: $imageUnderReview, starterUserId: $starterUserId)';
 }
 
 
@@ -627,7 +629,7 @@ abstract mixin class $NotificationPayloadResponseCopyWith<$Res>  {
   factory $NotificationPayloadResponseCopyWith(NotificationPayloadResponse value, $Res Function(NotificationPayloadResponse) _then) = _$NotificationPayloadResponseCopyWithImpl;
 @useResult
 $Res call({
- int? groupId, String? groupName, String? actorNickname, int? cycleId, DateTime? deadlineAt, int? remainingMinutes, String? imageUrl
+ int? groupId, String? groupName, String? actorNickname, int? cycleId, DateTime? deadlineAt, int? remainingMinutes, String? imageUrl, bool? imageUnderReview, int? starterUserId
 });
 
 
@@ -644,7 +646,7 @@ class _$NotificationPayloadResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationPayloadResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? deadlineAt = freezed,Object? remainingMinutes = freezed,Object? imageUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? deadlineAt = freezed,Object? remainingMinutes = freezed,Object? imageUrl = freezed,Object? imageUnderReview = freezed,Object? starterUserId = freezed,}) {
   return _then(_self.copyWith(
 groupId: freezed == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
@@ -653,7 +655,9 @@ as String?,cycleId: freezed == cycleId ? _self.cycleId : cycleId // ignore: cast
 as int?,deadlineAt: freezed == deadlineAt ? _self.deadlineAt : deadlineAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,remainingMinutes: freezed == remainingMinutes ? _self.remainingMinutes : remainingMinutes // ignore: cast_nullable_to_non_nullable
 as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,imageUnderReview: freezed == imageUnderReview ? _self.imageUnderReview : imageUnderReview // ignore: cast_nullable_to_non_nullable
+as bool?,starterUserId: freezed == starterUserId ? _self.starterUserId : starterUserId // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -738,10 +742,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl,  bool? imageUnderReview,  int? starterUserId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationPayloadResponse() when $default != null:
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl,_that.imageUnderReview,_that.starterUserId);case _:
   return orElse();
 
 }
@@ -759,10 +763,10 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl,  bool? imageUnderReview,  int? starterUserId)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationPayloadResponse():
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl,_that.imageUnderReview,_that.starterUserId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -779,10 +783,10 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? groupId,  String? groupName,  String? actorNickname,  int? cycleId,  DateTime? deadlineAt,  int? remainingMinutes,  String? imageUrl,  bool? imageUnderReview,  int? starterUserId)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationPayloadResponse() when $default != null:
-return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl);case _:
+return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,_that.deadlineAt,_that.remainingMinutes,_that.imageUrl,_that.imageUnderReview,_that.starterUserId);case _:
   return null;
 
 }
@@ -794,7 +798,7 @@ return $default(_that.groupId,_that.groupName,_that.actorNickname,_that.cycleId,
 @JsonSerializable()
 
 class _NotificationPayloadResponse implements NotificationPayloadResponse {
-  const _NotificationPayloadResponse({required this.groupId, required this.groupName, required this.actorNickname, required this.cycleId, this.deadlineAt, this.remainingMinutes, required this.imageUrl});
+  const _NotificationPayloadResponse({required this.groupId, required this.groupName, required this.actorNickname, required this.cycleId, this.deadlineAt, this.remainingMinutes, required this.imageUrl, this.imageUnderReview, this.starterUserId});
   factory _NotificationPayloadResponse.fromJson(Map<String, dynamic> json) => _$NotificationPayloadResponseFromJson(json);
 
 // 관련 모임 id/이름.
@@ -810,6 +814,10 @@ class _NotificationPayloadResponse implements NotificationPayloadResponse {
 @override final  int? remainingMinutes;
 // 알림 썸네일 이미지 URL.
 @override final  String? imageUrl;
+// 썸네일(스타터 샷)이 신고 접수로 검토 중인지 여부. (NEW_CYCLE 에 존재)
+@override final  bool? imageUnderReview;
+// 썸네일을 올린 스타터의 userId. (NEW_CYCLE 에 존재)
+@override final  int? starterUserId;
 
 /// Create a copy of NotificationPayloadResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -824,16 +832,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationPayloadResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt)&&(identical(other.remainingMinutes, remainingMinutes) || other.remainingMinutes == remainingMinutes)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationPayloadResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.actorNickname, actorNickname) || other.actorNickname == actorNickname)&&(identical(other.cycleId, cycleId) || other.cycleId == cycleId)&&(identical(other.deadlineAt, deadlineAt) || other.deadlineAt == deadlineAt)&&(identical(other.remainingMinutes, remainingMinutes) || other.remainingMinutes == remainingMinutes)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.imageUnderReview, imageUnderReview) || other.imageUnderReview == imageUnderReview)&&(identical(other.starterUserId, starterUserId) || other.starterUserId == starterUserId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,deadlineAt,remainingMinutes,imageUrl);
+int get hashCode => Object.hash(runtimeType,groupId,groupName,actorNickname,cycleId,deadlineAt,remainingMinutes,imageUrl,imageUnderReview,starterUserId);
 
 @override
 String toString() {
-  return 'NotificationPayloadResponse(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, deadlineAt: $deadlineAt, remainingMinutes: $remainingMinutes, imageUrl: $imageUrl)';
+  return 'NotificationPayloadResponse(groupId: $groupId, groupName: $groupName, actorNickname: $actorNickname, cycleId: $cycleId, deadlineAt: $deadlineAt, remainingMinutes: $remainingMinutes, imageUrl: $imageUrl, imageUnderReview: $imageUnderReview, starterUserId: $starterUserId)';
 }
 
 
@@ -844,7 +852,7 @@ abstract mixin class _$NotificationPayloadResponseCopyWith<$Res> implements $Not
   factory _$NotificationPayloadResponseCopyWith(_NotificationPayloadResponse value, $Res Function(_NotificationPayloadResponse) _then) = __$NotificationPayloadResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int? groupId, String? groupName, String? actorNickname, int? cycleId, DateTime? deadlineAt, int? remainingMinutes, String? imageUrl
+ int? groupId, String? groupName, String? actorNickname, int? cycleId, DateTime? deadlineAt, int? remainingMinutes, String? imageUrl, bool? imageUnderReview, int? starterUserId
 });
 
 
@@ -861,7 +869,7 @@ class __$NotificationPayloadResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationPayloadResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? deadlineAt = freezed,Object? remainingMinutes = freezed,Object? imageUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? groupId = freezed,Object? groupName = freezed,Object? actorNickname = freezed,Object? cycleId = freezed,Object? deadlineAt = freezed,Object? remainingMinutes = freezed,Object? imageUrl = freezed,Object? imageUnderReview = freezed,Object? starterUserId = freezed,}) {
   return _then(_NotificationPayloadResponse(
 groupId: freezed == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
@@ -870,7 +878,9 @@ as String?,cycleId: freezed == cycleId ? _self.cycleId : cycleId // ignore: cast
 as int?,deadlineAt: freezed == deadlineAt ? _self.deadlineAt : deadlineAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,remainingMinutes: freezed == remainingMinutes ? _self.remainingMinutes : remainingMinutes // ignore: cast_nullable_to_non_nullable
 as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,imageUnderReview: freezed == imageUnderReview ? _self.imageUnderReview : imageUnderReview // ignore: cast_nullable_to_non_nullable
+as bool?,starterUserId: freezed == starterUserId ? _self.starterUserId : starterUserId // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

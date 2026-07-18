@@ -70,6 +70,7 @@ extension GroupDetailMapper on GroupDetailResponse {
               starterUserId: cycle.starterUserId,
               starterNickname: cycle.starterNickname,
               starterImageUrl: cycle.starterImageUrl,
+              starterImageUnderReview: cycle.starterImageUnderReview,
               status: cycle.status,
               startedAt: cycle.startedAt,
               deadlineAt: cycle.deadlineAt,
@@ -94,6 +95,8 @@ extension HistoryCyclesMapper on HistoryCyclesResponse {
               cycleId: cycle.cycleId,
               topic: cycle.topic,
               thumbnailUrl: cycle.thumbnailUrl,
+              thumbnailUnderReview: cycle.thumbnailUnderReview,
+              starterUserId: cycle.starterUserId,
               participantCount: cycle.participantCount,
               date: cycle.date,
             ),
@@ -112,8 +115,11 @@ extension CycleGalleryMapper on CycleGalleryResponse {
         cycleId: cycle.cycleId,
         cycleNumber: cycle.cycleNumber,
         topic: cycle.topic,
+        starterUserId: cycle.starterUserId,
         starterNickname: cycle.starterNickname,
+        starterShotId: cycle.starterShotId,
         starterImageUrl: cycle.starterImageUrl,
+        starterImageUnderReview: cycle.starterImageUnderReview,
         status: cycle.status,
         deadlineAt: cycle.deadlineAt,
       ),
@@ -122,6 +128,7 @@ extension CycleGalleryMapper on CycleGalleryResponse {
           .map(
             (member) => CycleGalleryMember(
               userId: member.userId,
+              shotId: member.shotId,
               nickname: member.nickname,
               profileImageUrl: member.profileImageUrl,
               isStarter: member.isStarter,
@@ -146,6 +153,8 @@ extension GroupListMapper on GroupListResponse {
               ownerNickname: group.ownerNickname,
               memberCount: group.memberCount,
               thumbnailUrl: group.thumbnailUrl,
+              thumbnailUnderReview: group.thumbnailUnderReview,
+              thumbnailUserId: group.thumbnailUserId,
               currentCycle: group.currentCycle == null
                   ? null
                   : CurrentCycle(

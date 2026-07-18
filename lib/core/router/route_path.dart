@@ -16,6 +16,7 @@ class RoutePath {
   static const followerCamera = '/group/camera';
   static const profile = '/profile';
   static const accountManage = '/profile/account';
+  static const blockedUsers = '/profile/blocked-users';
   static const notificationSettings = '/profile/notification-settings';
   static const termsPolicy = '/profile/terms-policy';
   static const policyViewer = '/profile/terms-policy/viewer';
