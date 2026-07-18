@@ -10,6 +10,7 @@ import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// 모임에 따라찍기가 시작된 뒤 상단에 보여주는 헤더. ([EmptyHeader] 의 반대 상태)
 ///
@@ -23,6 +24,7 @@ class StartedHeader extends StatefulWidget {
     this.onImageTap,
     this.onReport,
     this.starterBlocked = false,
+    this.memberCount,
   });
 
   /// 대표로 보여줄 이미지 URI.
@@ -30,6 +32,10 @@ class StartedHeader extends StatefulWidget {
 
   /// 진행 중인 따라찍기(사이클) 정보.
   final GroupCycle progress;
+
+  /// 모임 총원. 지정하면 진행 상태 우측에 참여 인원(아이콘 + n/총원)을 보여준다.
+  /// null 이면 참여 인원 칩을 숨긴다.
+  final int? memberCount;
 
   /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
   final VoidCallback? onImageTap;
@@ -187,6 +193,7 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 펼친 상태: 대표 이미지 + 진행 정보 + 하단 스크림.
   Widget _buildExpanded() {
+    final l10n = AppLocalizations.of(context);
     // 가려진(차단·검토 중) 사진은 크게 보기를 막는다.
     final onImageTap = _obscured ? null : widget.onImageTap;
     return ClipRRect(
@@ -211,35 +218,31 @@ class _StartedHeaderState extends State<StartedHeader> {
               color: AppColors.bgBase,
               maxAlpha: 0.5,
             ),
-            // 콘텐츠: 상단 남은 시간 + 하단 진행 정보.
+            // 콘텐츠: 하단 진행 정보. (진행 상태 표시는 진행 정보 안으로 옮겼다)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.s5),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [_buildInfoRow()],
+              ),
+            ),
+            // 우상단: 스타터 안내 pill. (스타터 · 닉네임)
             Padding(
               padding: const EdgeInsets.only(
                 top: AppSpacing.s4,
-                bottom: AppSpacing.s5,
+                right: AppSpacing.s4,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.s4,
+              child: Align(
+                alignment: Alignment.topRight,
+                child: _pill(
+                  child: AppText.caption(
+                    l10n.startedHeaderStarterChip(
+                      widget.progress.starterNickname,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        AppText.caption(
-                          _statusText(),
-                          textAlign: TextAlign.center,
-                          color: AppColors.textPrimary,
-                        ),
-                      ],
-                    ),
+                    color: AppColors.textPrimary,
                   ),
-                  _buildInfoRow(),
-                ],
+                ),
               ),
             ),
           ],
@@ -281,9 +284,8 @@ class _StartedHeaderState extends State<StartedHeader> {
     );
   }
 
-  /// 진행 정보(회차·제목·시작자) + 펼침/접힘 토글 버튼 한 줄.
+  /// 진행 정보(상태 · 제목) + 펼침/접힘 토글 버튼 한 줄.
   Widget _buildInfoRow() {
-    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
@@ -299,18 +301,41 @@ class _StartedHeaderState extends State<StartedHeader> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: AppSpacing.s1,
               children: [
-                AppText.label(
-                  l10n.startedHeaderCycle(widget.progress.cycleNumber),
-                  textAlign: TextAlign.center,
-                  color: AppColors.textAccent,
+                // 좌상단에 있던 진행 상태(검정 60% pill)를 주제 위로 옮기고,
+                // 같은 배경 안에서 가운데 점으로 참여 인원(아이콘 + n/총원)을 잇는다.
+                _pill(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: AppSpacing.s1,
+                    children: [
+                      AppText.caption(
+                        _statusText(),
+                        color: AppColors.textPrimary,
+                      ),
+                      if (widget.memberCount != null) ...[
+                        AppText.caption('·', color: AppColors.textPrimary),
+                        SvgPicture.asset(
+                          'assets/images/ic_people.svg',
+                          width: 14,
+                          height: 14,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.textPrimary,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        AppText.caption(
+                          '${widget.progress.uploadedUserIds.length + 1}'
+                          '/${widget.memberCount}',
+                          color: AppColors.textPrimary,
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
                 AppText.display(
                   widget.progress.topic,
                   textAlign: TextAlign.left,
-                ),
-                AppText.body(
-                  l10n.startedHeaderStarter(widget.progress.starterNickname),
-                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -350,6 +375,21 @@ class _StartedHeaderState extends State<StartedHeader> {
       url,
       fit: BoxFit.cover,
       errorBuilder: (_, _, _) => const EmptyThumbnail(),
+    );
+  }
+
+  /// 검정 60% 원형(pill) 배경 위에 [child] 를 얹는 공통 칩.
+  Widget _pill({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s3,
+        vertical: AppSpacing.s1,
+      ),
+      decoration: const ShapeDecoration(
+        color: AppColorPrimitives.black60,
+        shape: StadiumBorder(),
+      ),
+      child: child,
     );
   }
 

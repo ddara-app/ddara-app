@@ -934,6 +934,18 @@ abstract class AppLocalizations {
   /// **'{name}님이 시작했어요'**
   String startedHeaderStarter(String name);
 
+  /// 헤더 우상단에서 멤버들의 업로드 현황을 펼쳐 보는 토글 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'업로드 친구 확인하기'**
+  String get startedHeaderCheckUploads;
+
+  /// 헤더 우상단 스타터 안내 칩 (스타터 · 닉네임)
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터 · {nickname}'**
+  String startedHeaderStarterChip(String nickname);
+
   /// 마감 시간이 지난 경우 표시
   ///
   /// In ko, this message translates to:

@@ -478,6 +478,14 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get startedHeaderCheckUploads => '업로드 친구 확인하기';
+
+  @override
+  String startedHeaderStarterChip(String nickname) {
+    return '스타터 · $nickname';
+  }
+
+  @override
   String get remainingDeadline => '마감';
 
   @override

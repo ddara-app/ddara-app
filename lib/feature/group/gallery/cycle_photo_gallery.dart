@@ -151,6 +151,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             imageUri: cycle.starterImageUrl ?? '',
             progress: _toGroupCycle(gallery),
             starterBlocked: starterBlocked,
+            // 모임 페이지와 동일하게 참여 인원(n/총원)을 표시한다.
+            memberCount: gallery.members.length,
             // 스타터 사진 롱프레스 → 신고 메뉴. (본인이 스타터면 띄우지 않는다)
             onReport: iAmStarter
                 ? null
@@ -321,6 +323,12 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       // 응답에 시작 시각이 없어 마감 시각으로 채운다. (헤더에서 쓰지 않음)
       startedAt: cycle.deadlineAt,
       deadlineAt: cycle.deadlineAt,
+      // 참여 인원 표시용: 스타터를 제외하고 이번 사이클에 사진을 올린 멤버.
+      // (헤더가 스타터 +1 로 참여자 수를 계산하므로 모임 페이지와 동일하게 맞춘다)
+      uploadedUserIds: gallery.members
+          .where((member) => !member.isStarter && member.uploadedAt != null)
+          .map((member) => member.userId)
+          .toList(),
     );
   }
 }

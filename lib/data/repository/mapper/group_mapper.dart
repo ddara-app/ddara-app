@@ -74,6 +74,7 @@ extension GroupDetailMapper on GroupDetailResponse {
               status: cycle.status,
               startedAt: cycle.startedAt,
               deadlineAt: cycle.deadlineAt,
+              uploadedUserIds: cycle.uploadedUserIds,
             ),
       createdAt: createdAt,
     );

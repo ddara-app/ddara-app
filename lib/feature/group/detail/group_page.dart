@@ -315,6 +315,8 @@ class GroupPage extends ConsumerWidget {
           child: GroupHeader(
             // 진행 중인 사이클을 그대로 전달. null 이면 헤더가 빈 상태를 보여준다.
             progress: groupDetail.currentCycle,
+            // 헤더의 참여 인원 표시 'n/총원'에 쓸 모임 총원.
+            memberCount: groupDetail.members.length,
             // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
             canStart: groupDetail.members.length >= _minMembersToStart,
             // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.

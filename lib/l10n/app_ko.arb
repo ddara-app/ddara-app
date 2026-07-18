@@ -348,6 +348,17 @@
       "name": { "type": "String" }
     }
   },
+  "startedHeaderCheckUploads": "업로드 친구 확인하기",
+  "@startedHeaderCheckUploads": {
+    "description": "헤더 우상단에서 멤버들의 업로드 현황을 펼쳐 보는 토글 라벨"
+  },
+  "startedHeaderStarterChip": "스타터 · {nickname}",
+  "@startedHeaderStarterChip": {
+    "description": "헤더 우상단 스타터 안내 칩 (스타터 · 닉네임)",
+    "placeholders": {
+      "nickname": { "type": "String" }
+    }
+  },
   "remainingDeadline": "마감",
   "@remainingDeadline": {
     "description": "마감 시간이 지난 경우 표시"
