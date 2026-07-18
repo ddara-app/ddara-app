@@ -1,9 +1,7 @@
-import 'dart:math' as math;
-
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
@@ -12,14 +10,17 @@ import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
-/// 목록에 함께 보여줄 참가자 아바타 최대 개수.
-const int _maxAvatars = 4;
+/// 겹쳐 보여줄 참가자 아바타 최대 개수. (초과분은 '+n' 칩으로 표시)
+const int _maxAvatars = 2;
 
 /// 참가자 아바타 지름.
 const double _avatarSize = 24;
 
 /// 겹침 나열 시 아바타 간 가로 간격. (지름보다 작아 일부 겹친다)
 const double _avatarStep = 16;
+
+/// '+n' 칩 가로 크기. (아바타보다 살짝 넓은 알약 형태)
+const double _moreChipWidth = 32;
 
 /// 썸네일 한 변 크기.
 const double _thumbnailSize = 100;
@@ -34,7 +35,7 @@ class HistoryListItem extends StatelessWidget {
   });
 
   /// 표시할 지난 사이클.
-  final HistoryCycle cycle;
+  final HistoryListCycle cycle;
 
   /// 썸네일을 올린 스타터를 차단한 상태인지 여부. (차단 자리표시로 대체)
   final bool thumbnailBlocked;
@@ -50,7 +51,7 @@ class HistoryListItem extends StatelessWidget {
       onTap: () => context.push(RoutePath.follower, extra: cycle.cycleId),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s3,
+        spacing: AppSpacing.s4,
         children: [
           _thumbnail(context),
           Expanded(
@@ -134,23 +135,56 @@ class HistoryListItem extends StatelessWidget {
     return l10n.historyDate(d.month, d.day);
   }
 
-  /// 참가자 프로필 아바타를 일부 겹쳐 나열. (최대 [_maxAvatars]개)
-  /// TODO: 참가자 프로필 이미지 URL 데이터 연동. (현재 기본 아이콘)
+  /// 참가자 프로필을 최대 [_maxAvatars]개까지 겹쳐 나열하고,
+  /// 더 있으면 마지막에 '+n' 칩을 잇는다.
   Widget _participantAvatars() {
-    final count = math.min(cycle.participantCount, _maxAvatars);
-    if (count == 0) return const SizedBox.shrink();
+    final avatars = cycle.participants.take(_maxAvatars).toList();
+    if (avatars.isEmpty) return const SizedBox.shrink();
+    // participants 목록이 잘려 올 수 있어 총원은 participantCount 로 센다.
+    final remaining = cycle.participantCount - avatars.length;
+
+    final children = <Widget>[
+      for (var i = 0; i < avatars.length; i++)
+        Positioned(
+          left: i * _avatarStep,
+          child: ProfileAvatar(
+            size: _avatarSize,
+            imageUrl: avatars[i].profileImageUrl,
+          ),
+        ),
+    ];
+
+    final double width;
+    if (remaining > 0) {
+      final chipLeft = avatars.length * _avatarStep;
+      children.add(Positioned(left: chipLeft, child: _moreChip(remaining)));
+      width = chipLeft + _moreChipWidth;
+    } else {
+      width = _avatarSize + (avatars.length - 1) * _avatarStep;
+    }
+
     return SizedBox(
-      width: _avatarSize + (count - 1) * _avatarStep,
+      width: width,
       height: _avatarSize,
-      child: Stack(
-        children: [
-          for (var i = 0; i < count; i++)
-            Positioned(
-              left: i * _avatarStep,
-              child: const ProfileAvatar(size: _avatarSize),
-            ),
-        ],
+      child: Stack(children: children),
+    );
+  }
+
+  /// 표시하지 못한 나머지 참가자 수를 나타내는 '+n' 알약 칩.
+  Widget _moreChip(int count) {
+    return Container(
+      width: _moreChipWidth,
+      height: _avatarSize,
+      alignment: Alignment.center,
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        color: AppColors.bgSurfaceAlt,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(width: 1, color: AppColors.borderDefault),
+          borderRadius: BorderRadius.circular(AppRadius.full),
+        ),
       ),
+      child: AppText.caption('+$count', color: AppColors.textPrimary),
     );
   }
 }

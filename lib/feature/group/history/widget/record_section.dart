@@ -8,15 +8,15 @@ import 'package:flutter/widgets.dart';
 class RecordSection extends StatelessWidget {
   const RecordSection({
     super.key,
-    required this.ddaraCount,
-    required this.photoCount,
+    required this.myCount,
+    required this.totalCount,
   });
 
-  /// 따라찍기 수.
-  final int ddaraCount;
+  /// 내가 참여한 따라찍기 수.
+  final int myCount;
 
-  /// 함께한 사진 수.
-  final int photoCount;
+  /// 모임의 전체 따라찍기 수.
+  final int totalCount;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class RecordSection extends StatelessWidget {
       spacing: AppSpacing.s6,
       children: [
         AppText.headlineLarge(l10n.recordSectionTitle),
-        Record(ddaraCount: ddaraCount, photoCount: photoCount),
+        Record(myCount: myCount, totalCount: totalCount),
       ],
     );
   }

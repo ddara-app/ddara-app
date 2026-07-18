@@ -13,15 +13,26 @@ class HistoryListNotifier
     return const HistoryListState(isLoading: true);
   }
 
-  Future<void> _load(int groupId) async {
-    final getHistoryCyclesUseCase = ref.read(getHistoryCyclesUseCaseProvider);
+  /// 연·월 필터를 적용해 목록을 다시 조회한다.
+  /// (전체보기는 year·month 를 모두 null 로 호출)
+  Future<void> applyFilter({int? year, int? month}) async {
+    state = state.copyWith(isLoading: true, errorMessage: '');
+    await _load(arg, year: year, month: month);
+  }
+
+  Future<void> _load(int groupId, {int? year, int? month}) async {
+    final getHistoryListUseCase = ref.read(getHistoryListUseCaseProvider);
 
     try {
-      final historyCycles = await getHistoryCyclesUseCase(groupId);
+      final historyList = await getHistoryListUseCase(
+        groupId,
+        year: year,
+        month: month,
+      );
       final blockedUserIds = await _loadBlockedUserIds();
       state = state.copyWith(
         isLoading: false,
-        historyCycles: historyCycles,
+        historyList: historyList,
         blockedUserIds: blockedUserIds,
       );
     } on NotGroupMemberException {

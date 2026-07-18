@@ -3,15 +3,15 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 
-/// 모임 기록 요약 카드. (따라찍기 수 · 함께한 사진 수)
+/// 모임 기록 요약 카드. (나의 따라찍기 · 모임 따라찍기)
 class Record extends StatelessWidget {
-  const Record({super.key, required this.ddaraCount, required this.photoCount});
+  const Record({super.key, required this.myCount, required this.totalCount});
 
-  /// 따라찍기 수.
-  final int ddaraCount;
+  /// 내가 참여한 따라찍기 수.
+  final int myCount;
 
-  /// 함께한 사진 수.
-  final int photoCount;
+  /// 모임의 전체 따라찍기 수.
+  final int totalCount;
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +37,13 @@ class Record extends StatelessWidget {
         children: [
           Expanded(
             child: _StatItem(
-              value: '$ddaraCount',
+              value: '$myCount',
               label: l10n.recordMyCycleLabel,
             ),
           ),
           Expanded(
             child: _StatItem(
-              value: '$photoCount',
+              value: '$totalCount',
               label: l10n.recordGroupCycleLabel,
             ),
           ),

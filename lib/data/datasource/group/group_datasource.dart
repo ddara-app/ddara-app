@@ -64,8 +64,20 @@ class GroupDataSource {
     await _dio.delete('$_baseUrl/$groupId/members/me');
   }
 
-  Future<HistoryCyclesResponse> getHistoryCycles(int groupId) async {
-    final response = await _dio.get('$_baseUrl/$groupId/cycles?status=done');
+  Future<HistoryCyclesResponse> getHistoryCycles(
+    int groupId, {
+    int? year,
+    int? month,
+  }) async {
+    final response = await _dio.get(
+      '$_baseUrl/$groupId/cycles',
+      queryParameters: {
+        'status': 'done',
+        // year 는 month 와 함께 사용. (month 단독은 서버에서 불가) null 이면 생략.
+        'year': ?year,
+        'month': ?month,
+      },
+    );
 
     return HistoryCyclesResponse.fromJson(response.data);
   }
