@@ -3,6 +3,7 @@ import 'package:ddara/domain/repository/block_repository.dart';
 import 'package:ddara/domain/repository/comment_repository.dart';
 import 'package:ddara/domain/repository/cycle_repository.dart';
 import 'package:ddara/domain/repository/fcm_repository.dart';
+import 'package:ddara/domain/repository/feed_repository.dart';
 import 'package:ddara/domain/repository/notification_repository.dart';
 import 'package:ddara/domain/repository/profile_repository.dart';
 import 'package:ddara/domain/repository/report_repository.dart';
@@ -15,6 +16,7 @@ import '../repository/block_repository_impl.dart';
 import '../repository/comment_repository_impl.dart';
 import '../repository/cycle_repository_impl.dart';
 import '../repository/fcm_repository_impl.dart';
+import '../repository/feed_repository_impl.dart';
 import '../repository/group_repository_impl.dart';
 import '../repository/notification_repository_impl.dart';
 import '../repository/profile_repository_impl.dart';
@@ -66,4 +68,8 @@ final reportRepositoryProvider = Provider<ReportRepository>((ref) {
 
 final commentRepositoryProvider = Provider<CommentRepository>((ref) {
   return CommentRepositoryImpl(ref.read(commentDataSourceProvider));
+});
+
+final feedRepositoryProvider = Provider<FeedRepository>((ref) {
+  return FeedRepositoryImpl(ref.read(feedDataSourceProvider));
 });

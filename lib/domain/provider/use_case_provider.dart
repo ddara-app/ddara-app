@@ -10,6 +10,7 @@ import 'package:ddara/domain/usecase/comment/delete_comment_use_case.dart';
 import 'package:ddara/domain/usecase/comment/edit_comment_use_case.dart';
 import 'package:ddara/domain/usecase/comment/get_comments_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
+import 'package:ddara/domain/usecase/feed/get_feed_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/get_cycle_gallery_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/starter_upload_use_case.dart';
 import 'package:ddara/domain/usecase/group/create_group_use_case.dart';
@@ -186,4 +187,8 @@ final deleteCommentUseCaseProvider = Provider<DeleteCommentUseCase>((ref) {
 
 final editCommentUseCaseProvider = Provider<EditCommentUseCase>((ref) {
   return EditCommentUseCase(ref.read(commentRepositoryProvider));
+});
+
+final getFeedUseCaseProvider = Provider<GetFeedUseCase>((ref) {
+  return GetFeedUseCase(ref.read(feedRepositoryProvider));
 });
