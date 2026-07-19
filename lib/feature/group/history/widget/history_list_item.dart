@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -119,10 +120,14 @@ class HistoryListItem extends StatelessWidget {
     if (url == null || url.isEmpty) {
       return const EmptyThumbnail();
     }
-    return Image.network(
-      url,
+    return CachedNetworkImage(
+      imageUrl: url,
       fit: BoxFit.cover,
-      errorBuilder: (_, _, _) => const EmptyThumbnail(),
+      // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
+      memCacheWidth: (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
+          .round(),
+      placeholder: (_, _) => const EmptyThumbnail(),
+      errorWidget: (_, _, _) => const EmptyThumbnail(),
     );
   }
 

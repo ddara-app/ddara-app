@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
@@ -228,10 +229,11 @@ class _PhotoCard extends StatelessWidget {
     if (url == null || url.isEmpty) {
       return const EmptyThumbnail();
     }
-    return Image.network(
-      url,
+    return CachedNetworkImage(
+      imageUrl: url,
       fit: BoxFit.cover,
-      errorBuilder: (_, _, _) => const EmptyThumbnail(),
+      placeholder: (_, _) => const EmptyThumbnail(),
+      errorWidget: (_, _, _) => const EmptyThumbnail(),
     );
   }
 }

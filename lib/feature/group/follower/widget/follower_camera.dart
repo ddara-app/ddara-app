@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/widget/camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -23,8 +24,10 @@ class FollowerCamera extends StatelessWidget {
       // TODO: 모임 상태에 따라 투명도/모드 영역 표시 여부 결정.
       showOpacity: true,
       showViewMode: true,
-      // TODO: 네트워크 이미지 라이브러리 적용 시 해당 provider 로 교체.
-      guideImage: guideImageUrl.isEmpty ? null : NetworkImage(guideImageUrl),
+      // 가이드 사진은 갤러리/상세에서 이미 본 스타터 사진이라 디스크 캐시를 공유한다.
+      guideImage: guideImageUrl.isEmpty
+          ? null
+          : CachedNetworkImageProvider(guideImageUrl),
       onCapture: onCapture,
     );
   }

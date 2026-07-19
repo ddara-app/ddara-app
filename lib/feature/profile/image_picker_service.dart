@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ddara/core/design_system/theme/app_colors.dart';
 import 'package:flutter/widgets.dart' show Color;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,6 +45,9 @@ class ImagePickerService {
   /// 크롭 UI 에 원형 마스크를 씌워 원 안 영역만 이동/확대해 지정한다. 원형이라
   /// 코너가 투명해지므로 투명도를 보존하도록 PNG 로 출력한다.
   /// 취소·실패 시 null 을 반환한다.
+  ///
+  /// 크롭 결과는 별도 파일로 생성되므로, 성공·취소와 무관하게 크롭을 마치면
+  /// 피커가 만든 원본 사본([sourcePath])은 임시 파일이 쌓이지 않도록 삭제한다.
   Future<XFile?> cropToCircle(String sourcePath, {String title = '사진 편집'}) async {
     try {
       final CroppedFile? cropped = await _cropper.cropImage(
@@ -82,6 +87,12 @@ class ImagePickerService {
       return cropped == null ? null : XFile(cropped.path);
     } catch (_) {
       return null;
+    } finally {
+      try {
+        await File(sourcePath).delete();
+      } catch (_) {
+        // 삭제 실패는 무시한다. (OS 가 임시 디렉토리를 주기적으로 정리)
+      }
     }
   }
 }

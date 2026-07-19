@@ -91,7 +91,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final response = await _profileDataSource.updateProfileImage(
         presign.imageUrl,
       );
-      return response.profileImageUrl;
+
+      // 업로드 성공 후처리 — 방금 올린 바이트를 새 URL 의 캐시로 심어
+      // (같은 URL 덮어쓰기 대비 메모리 캐시 비움 포함) 재다운로드 없이 바로
+      // 보이게 하고, 크롭 임시 파일을 삭제한다. (실패는 무시)
+      final newUrl = response.profileImageUrl;
+      await _uploadDataSource.seedImageCache(newUrl, bytes);
+      await _uploadDataSource.deleteTempFile(imagePath);
+      return newUrl;
     } on DioException catch (e) {
       final code = e.response?.data is Map
           ? ProfileErrorCode.fromValue(e.response?.data['code'])

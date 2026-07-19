@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
@@ -166,7 +167,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                 ? null
                 : () => showPhotoViewer(
                     context,
-                    image: NetworkImage(cycle.starterImageUrl!),
+                    image: CachedNetworkImageProvider(cycle.starterImageUrl!),
                     aspectRatio:
                         (MediaQuery.of(context).size.width -
                             AppSpacing.s4 * 2) /
@@ -236,7 +237,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   final locked = !isDoneCycle && !canSeeAll;
                   final ImageProvider? image = imageUrl == null
                       ? null
-                      : NetworkImage(imageUrl);
+                      : CachedNetworkImageProvider(imageUrl);
                   // 사진이 있으면(잠겨 있어도) 탭해서 뷰어를 열 수 있다.
                   final canOpen = image != null;
                   // 선명하게 볼 수 있는(= Hero 전환·신고 가능) 상태.

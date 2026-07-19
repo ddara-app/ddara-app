@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_list.dart';
@@ -60,10 +61,11 @@ class MeetingCard extends StatelessWidget {
                     : ProgressiveBlurImage(
                         sharpUntil: 0.6,
                         builder: (_) => group.thumbnailUrl != null
-                            ? Image.network(
-                                group.thumbnailUrl!,
+                            ? CachedNetworkImage(
+                                imageUrl: group.thumbnailUrl!,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) =>
+                                placeholder: (_, _) => const EmptyThumbnail(),
+                                errorWidget: (_, _, _) =>
                                     const EmptyThumbnail(),
                               )
                             : const EmptyThumbnail(),

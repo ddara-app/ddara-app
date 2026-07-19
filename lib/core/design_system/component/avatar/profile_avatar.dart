@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -34,11 +35,14 @@ class ProfileAvatar extends StatelessWidget {
         color: AppColors.bgSurfaceAlt,
         shape: BoxShape.circle,
       ),
-      child: Image.network(
-        url,
+      child: CachedNetworkImage(
+        imageUrl: url,
         fit: BoxFit.cover,
-        // 로드 실패 시 기본 아이콘으로 대체.
-        errorBuilder: (context, error, stackTrace) => _DefaultIcon(size: size),
+        // 표시 지름(물리 픽셀)에 맞춰 디코딩해 작은 아바타의 메모리 사용을 줄인다.
+        memCacheWidth: (size * MediaQuery.devicePixelRatioOf(context)).round(),
+        // 로딩 중·로드 실패 모두 기본 아이콘으로 대체.
+        placeholder: (context, url) => _DefaultIcon(size: size),
+        errorWidget: (context, url, error) => _DefaultIcon(size: size),
       ),
     );
   }

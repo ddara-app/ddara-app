@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -116,11 +117,17 @@ class _NotificationThumbnail extends StatelessWidget {
         height: _thumbnailSize,
         child: (url == null || url.isEmpty)
             ? SvgPicture.asset(_defaultThumbnailAsset)
-            : Image.network(
-                url,
+            : CachedNetworkImage(
+                imageUrl: url,
                 fit: BoxFit.contain,
-                // 로드 실패 시에도 기본 썸네일로 대체한다.
-                errorBuilder: (context, error, stackTrace) =>
+                // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
+                memCacheWidth:
+                    (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
+                        .round(),
+                // 로딩 중·로드 실패 모두 기본 썸네일로 대체한다.
+                placeholder: (context, url) =>
+                    SvgPicture.asset(_defaultThumbnailAsset),
+                errorWidget: (context, url, error) =>
                     SvgPicture.asset(_defaultThumbnailAsset),
               ),
       );
@@ -138,11 +145,17 @@ class _NotificationThumbnail extends StatelessWidget {
       ),
       child: (url == null || url.isEmpty)
           ? SvgPicture.asset(_defaultThumbnailAsset)
-          : Image.network(
-              url,
+          : CachedNetworkImage(
+              imageUrl: url,
               fit: BoxFit.cover,
-              // 로드 실패 시에도 기본 썸네일로 대체한다.
-              errorBuilder: (context, error, stackTrace) =>
+              // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
+              memCacheWidth:
+                  (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
+                      .round(),
+              // 로딩 중·로드 실패 모두 기본 썸네일로 대체한다.
+              placeholder: (context, url) =>
+                  SvgPicture.asset(_defaultThumbnailAsset),
+              errorWidget: (context, url, error) =>
                   SvgPicture.asset(_defaultThumbnailAsset),
             ),
     );
