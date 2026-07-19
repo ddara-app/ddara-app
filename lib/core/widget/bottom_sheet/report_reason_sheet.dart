@@ -4,86 +4,73 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/checkbox/app_checkbox.dart';
 import 'package:ddara/core/widget/bottom_sheet/draggable_sheet.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 드래그 핸들 크기.
 const Size _handleSize = Size(40, 4);
 
-/// 신고 사유 한 개.
-class ReportReasonOption {
-  const ReportReasonOption({required this.label, this.requiresDetail = false});
+/// 시트가 반환하는 신고 내용.
+/// (선택한 사유 + 상세 입력 — 상세는 '기타' 사유일 때만 채워진다)
+typedef ReportSheetResult<T extends Object> = ({T reason, String detail});
 
-  /// 화면에 보여줄 사유 라벨.
-  final String label;
-
-  /// 선택 시 상세 입력이 필수인지. ('기타'류 사유)
-  final bool requiresDetail;
-}
-
-/// 신고 사유 시트가 반환하는 값. (선택한 사유의 인덱스 + 상세 입력)
-typedef ReportReasonSheetResult = ({int index, String detail});
-
-/// 신고 사유를 고르는 공통 바텀시트.
+/// 신고 사유를 선택하는 공통 바텀시트.
 ///
-/// 사유 목록([reasons])만 바꿔 사진·댓글 등 어디서든 재사용한다. 사유 하나를
-/// 선택하고([ReportReasonOption.requiresDetail] 이면 상세 입력란이 함께 열린다)
-/// [submitLabel] 버튼으로 확정하면 [ReportReasonSheetResult] 를 반환한다.
+/// 사유 하나를 선택하고([etcReason] 은 상세 내용 입력란이 함께 열린다)
+/// '신고하기'로 확정하면 [ReportSheetResult] 를 [Navigator.pop] 으로 반환한다.
 /// 취소(바깥 탭·아래로 드래그)면 null 을 반환한다.
-class ReportReasonSheet extends StatefulWidget {
+///
+/// 사유 목록은 신고 대상(사진·유저 등)마다 다르므로 [T] 로 받는다.
+class ReportReasonSheet<T extends Object> extends StatefulWidget {
   const ReportReasonSheet({
     super.key,
-    required this.title,
-    required this.subtitle,
-    required this.submitLabel,
-    required this.detailPlaceholder,
     required this.reasons,
+    required this.labelOf,
+    required this.etcReason,
   });
 
-  final String title;
-  final String subtitle;
-  final String submitLabel;
-  final String detailPlaceholder;
-  final List<ReportReasonOption> reasons;
+  /// 나열할 신고 사유들. (위에서부터 순서대로)
+  final List<T> reasons;
 
-  /// 바텀시트를 띄우고 확정한 값을 받는다. 취소·바깥 탭이면 null.
-  static Future<ReportReasonSheetResult?> show(
+  /// 사유의 표시 라벨.
+  final String Function(T reason) labelOf;
+
+  /// 상세 내용 입력이 필수인 '기타' 사유.
+  final T etcReason;
+
+  /// 바텀시트를 띄우고 확정한 신고 내용을 받는다. 취소·바깥 탭이면 null.
+  static Future<ReportSheetResult<T>?> show<T extends Object>(
     BuildContext context, {
-    required String title,
-    required String subtitle,
-    required String submitLabel,
-    required String detailPlaceholder,
-    required List<ReportReasonOption> reasons,
+    required List<T> reasons,
+    required String Function(T reason) labelOf,
+    required T etcReason,
   }) {
-    return showCupertinoModalPopup<ReportReasonSheetResult>(
+    return showCupertinoModalPopup<ReportSheetResult<T>>(
       context: context,
-      builder: (_) => ReportReasonSheet(
-        title: title,
-        subtitle: subtitle,
-        submitLabel: submitLabel,
-        detailPlaceholder: detailPlaceholder,
+      builder: (_) => ReportReasonSheet<T>(
         reasons: reasons,
+        labelOf: labelOf,
+        etcReason: etcReason,
       ),
     );
   }
 
   @override
-  State<ReportReasonSheet> createState() => _ReportReasonSheetState();
+  State<ReportReasonSheet<T>> createState() => _ReportReasonSheetState<T>();
 }
 
-class _ReportReasonSheetState extends State<ReportReasonSheet> {
+class _ReportReasonSheetState<T extends Object>
+    extends State<ReportReasonSheet<T>> {
   final TextEditingController _detailController = TextEditingController();
 
-  /// 선택한 사유의 인덱스. 선택 전엔 null. (하나만 선택할 수 있다)
-  int? _selectedIndex;
+  /// 선택한 신고 사유. 선택 전엔 null. (하나만 선택할 수 있다)
+  T? _reason;
 
-  ReportReasonOption? get _selected =>
-      _selectedIndex == null ? null : widget.reasons[_selectedIndex!];
-
-  /// 신고할 수 있는 상태인지. (사유 선택 필수, 상세 필수 사유는 상세 입력도 필수)
+  /// 신고할 수 있는 상태인지. (사유 선택 필수, '기타'는 상세 내용도 필수)
   bool get _canSubmit {
-    final selected = _selected;
-    if (selected == null) return false;
-    if (selected.requiresDetail) {
+    final reason = _reason;
+    if (reason == null) return false;
+    if (reason == widget.etcReason) {
       return _detailController.text.trim().isNotEmpty;
     }
     return true;
@@ -96,24 +83,27 @@ class _ReportReasonSheetState extends State<ReportReasonSheet> {
   }
 
   void _submit() {
-    final index = _selectedIndex;
-    final selected = _selected;
-    if (index == null || selected == null) return;
-    // 상세 입력은 필수 사유에만 노출되므로 그 외 사유에서는 비운다.
-    final detail = selected.requiresDetail
+    final reason = _reason;
+    if (reason == null) return;
+    // 상세 입력은 '기타' 사유에만 노출되므로 그 외 사유에서는 비운다.
+    final detail = reason == widget.etcReason
         ? _detailController.text.trim()
         : '';
-    Navigator.of(context).pop((index: index, detail: detail));
+    Navigator.of(context).pop((reason: reason, detail: detail));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     // 아래로 드래그해도 닫히도록 감싼다. (취소와 동일하게 null 반환)
     return DraggableSheet(
       child: Container(
         decoration: const BoxDecoration(
           color: AppColors.bgSurface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadius.lg),
+          ),
         ),
         padding: EdgeInsets.only(
           top: AppSpacing.s3,
@@ -133,7 +123,9 @@ class _ReportReasonSheetState extends State<ReportReasonSheet> {
                   decoration: ShapeDecoration(
                     color: AppColors.textTertiary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(_handleSize.height / 2),
+                      borderRadius: BorderRadius.circular(
+                        _handleSize.height / 2,
+                      ),
                     ),
                   ),
                 ),
@@ -157,20 +149,20 @@ class _ReportReasonSheetState extends State<ReportReasonSheet> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppText.headlineLarge(widget.title),
-                            AppText.body(widget.subtitle),
+                            AppText.headlineLarge(l10n.reportSheetTitle),
+                            AppText.body(l10n.reportSheetSubtitle),
                           ],
                         ),
                       ),
                       // 신고 사유 선택 목록. (단일 선택)
-                      for (var i = 0; i < widget.reasons.length; i++)
+                      for (final reason in widget.reasons)
                         _ReasonRow(
-                          label: widget.reasons[i].label,
-                          selected: _selectedIndex == i,
-                          onSelect: () => setState(() => _selectedIndex = i),
+                          label: widget.labelOf(reason),
+                          selected: _reason == reason,
+                          onSelect: () => setState(() => _reason = reason),
                         ),
-                      // 상세 내용 입력. (상세 필수 사유를 선택했을 때만 노출)
-                      if (_selected?.requiresDetail ?? false)
+                      // 상세 내용 입력. ('기타' 사유를 선택했을 때만 노출)
+                      if (_reason == widget.etcReason)
                         Padding(
                           padding: const EdgeInsets.only(
                             left: AppSpacing.s4,
@@ -179,7 +171,7 @@ class _ReportReasonSheetState extends State<ReportReasonSheet> {
                           ),
                           child: AppTextField(
                             controller: _detailController,
-                            placeholder: widget.detailPlaceholder,
+                            placeholder: l10n.reportDetailPlaceholder,
                             // 입력에 따라 신고 버튼 활성 상태를 갱신한다.
                             onChanged: (_) => setState(() {}),
                           ),
@@ -190,9 +182,9 @@ class _ReportReasonSheetState extends State<ReportReasonSheet> {
                           left: AppSpacing.s4,
                           right: AppSpacing.s4,
                         ),
-                        // 사유 미선택(상세 필수는 상세 미입력 포함) 시 비활성화한다.
+                        // 사유 미선택('기타'는 상세 미입력 포함) 시 비활성화한다.
                         child: AppButton(
-                          label: widget.submitLabel,
+                          label: l10n.report,
                           onPressed: _canSubmit ? _submit : null,
                         ),
                       ),

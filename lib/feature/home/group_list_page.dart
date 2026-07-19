@@ -415,7 +415,7 @@ class _RecentUpdatesView extends ConsumerWidget {
         );
     if (!success || !context.mounted) return;
 
-    Toast.showToast(context, AppLocalizations.of(context).photoReportSubmitted);
+    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 }
 

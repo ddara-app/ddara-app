@@ -446,7 +446,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         );
     if (!success || !context.mounted) return;
 
-    Toast.showToast(context, AppLocalizations.of(context).photoReportSubmitted);
+    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
