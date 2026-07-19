@@ -210,13 +210,17 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   final imageUrl = isBlockedMember || isReported
                       ? null
                       : member.imageUrl;
-                  // 잠긴(블러) 사진은 크게 볼 수 없다.
+                  // 잠긴(블러) 사진. 크게 볼 때도 블러+자물쇠는 유지하지만,
+                  // 뷰어와 댓글에는 접근할 수 있다.
                   final locked = !isDoneCycle && !canSeeAll;
                   final ImageProvider? image = imageUrl == null
                       ? null
                       : NetworkImage(imageUrl);
-                  // 사진이 있고 잠기지 않았을 때만 탭해서 크게 볼 수 있다.
-                  final canView = image != null && !locked;
+                  // 사진이 있으면(잠겨 있어도) 탭해서 뷰어를 열 수 있다.
+                  final canOpen = image != null;
+                  // 선명하게 볼 수 있는(= Hero 전환·신고 가능) 상태.
+                  final canView = canOpen && !locked;
+                  // 잠긴 사진은 카드가 블러라 Hero 전환을 하지 않는다.
                   final heroTag = canView
                       ? 'gallery-photo-${member.userId}'
                       : null;
@@ -227,7 +231,9 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     heroTag: heroTag,
                     isBlocked: isBlockedMember,
                     isUnderReview: isReported,
-                    onTap: canView
+                    // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
+                    // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
+                    onTap: canOpen
                         ? () => showPhotoViewer(
                             context,
                             image: image,
@@ -238,6 +244,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                             title: member.nickname,
                             body: cycle.topic,
                             myNickname: myNickname,
+                            // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
+                            locked: locked,
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)

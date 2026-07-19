@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
@@ -46,6 +47,7 @@ class PhotoViewer extends StatefulWidget {
     this.body,
     this.comments = const [],
     this.myNickname,
+    this.locked = false,
   });
 
   /// 크게 보여줄 이미지.
@@ -62,6 +64,10 @@ class PhotoViewer extends StatefulWidget {
 
   /// 본인 닉네임. (내가 작성한 댓글의 작성자 표기에 쓴다)
   final String? myNickname;
+
+  /// 잠긴 사진 여부. true 면 뷰어에서도 블러 + 가운데 자물쇠를 유지한다.
+  /// (본인이 아직 업로드하지 않아 타인 사진이 잠긴 경우 — 댓글은 볼 수 있다)
+  final bool locked;
 
   /// 목록 카드와 뷰어를 잇는 Hero 전환 태그. null 이면 전환 애니메이션 없이 표시.
   final Object? heroTag;
@@ -202,12 +208,29 @@ class _PhotoViewerState extends State<PhotoViewer>
   @override
   Widget build(BuildContext context) {
     final ratio = widget.aspectRatio;
-    final picture = ratio == null
+    final rawPicture = ratio == null
         ? Image(image: widget.image, fit: BoxFit.contain)
         : AspectRatio(
             aspectRatio: ratio,
             child: Image(image: widget.image, fit: BoxFit.cover),
           );
+    // 잠긴 사진은 갤러리 카드와 동일하게 블러 + 가운데 자물쇠를 유지한다.
+    final Widget picture = widget.locked
+        ? Stack(
+            alignment: Alignment.center,
+            children: [
+              ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: rawPicture,
+              ),
+              const Icon(
+                CupertinoIcons.lock_fill,
+                size: 48,
+                color: AppColors.textPrimary,
+              ),
+            ],
+          )
+        : rawPicture;
 
     // 핀치 줌/드래그로 확대·이동.
     Widget content = InteractiveViewer(
@@ -533,6 +556,7 @@ class _CommentItem extends StatelessWidget {
 
 
 
+
                     AppText.caption(
                       comment.timeLabel,
                       color: AppColors.textDisabled,
@@ -571,6 +595,7 @@ Future<void> showPhotoViewer(
   String? body,
   List<PhotoComment> comments = const [],
   String? myNickname,
+  bool locked = false,
 }) {
   return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder(
@@ -586,6 +611,7 @@ Future<void> showPhotoViewer(
         body: body,
         comments: comments,
         myNickname: myNickname,
+        locked: locked,
       ),
       transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),
