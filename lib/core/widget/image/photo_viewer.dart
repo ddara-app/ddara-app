@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
@@ -128,6 +129,11 @@ class _PhotoViewerState extends State<PhotoViewer>
         setState(() => _sheetVisible = false);
       }
     });
+    // 포커스 변화에 맞춰 시트 높이를 다시 계산한다. (키보드가 실제로
+    // 다 내려오기 전, 포커스가 풀리는 즉시 시트가 함께 줄어들도록)
+    _commentFocusNode.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -243,9 +249,13 @@ class _PhotoViewerState extends State<PhotoViewer>
     );
 
     final l10n = AppLocalizations.of(context);
-    final sheetHeight = MediaQuery.sizeOf(context).height * 0.5;
-    // 키보드가 올라오면 입력 필드만 그만큼 위로 띄운다. (시트는 제자리)
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    // 키보드가 올라오면 시트를 0.9까지 키우고, 입력 필드는 키보드 높이만큼
+    // 위로 띄운다. (평소엔 0.65) 높이는 실제 인셋 대신 포커스 여부로 판단해,
+    // 키보드가 내려가기 시작하는 순간부터 시트도 함께 줄어들게 한다.
+    final sheetHeight =
+        MediaQuery.sizeOf(context).height *
+        (_commentFocusNode.hasFocus ? 0.9 : 0.65);
 
     // 키보드가 (뒤로가기·스와이프 등으로) 내려가면 입력 포커스도 해제한다.
     // (포커스 변경은 빌드 중 상태를 건드리므로 프레임 이후로 미룬다)
@@ -294,8 +304,10 @@ class _PhotoViewerState extends State<PhotoViewer>
               ),
             ),
           // 댓글 바텀시트. (등장/퇴장·드래그는 진행도를 공유하는 SlideTransition)
-          // 키보드가 올라와도 시트는 제자리에 두고, 입력 필드만 띄운다.
-          Positioned(
+          // 키보드 표시 여부에 따라 높이가 바뀌며, 그 변화는 부드럽게 애니메이션한다.
+          AnimatedPositioned(
+            duration: _duration,
+            curve: Curves.easeInOut,
             left: 0,
             right: 0,
             height: sheetHeight,
@@ -370,9 +382,13 @@ class _PhotoViewerState extends State<PhotoViewer>
                             )
                           : ListView(
                               controller: _commentScrollController,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.s4,
-                                vertical: AppSpacing.s2,
+                              // 오른쪽은 s2. 아이콘 버튼 내부 여백 12를 더해
+                              // 아이콘이 화면 끝에서 s5(20) 떨어지도록 맞춘다.
+                              padding: const EdgeInsets.only(
+                                left: AppSpacing.s4,
+                                right: AppSpacing.s2,
+                                top: AppSpacing.s2,
+                                bottom: AppSpacing.s2,
                               ),
                               children: [
                                 for (final comment in _comments)
@@ -436,17 +452,38 @@ class _PhotoViewerState extends State<PhotoViewer>
             borderRadius: BorderRadius.circular(AppRadius.full),
           ),
         ),
-        child: CupertinoTextField(
-          controller: _commentController,
-          focusNode: _commentFocusNode,
-          padding: EdgeInsets.zero,
-          decoration: null,
-          placeholder: l10n.photoViewerCommentHint,
-          placeholderStyle: placeholderStyle,
-          style: placeholderStyle.copyWith(color: AppColors.textPrimary),
-          cursorColor: AppColors.accentDefault,
-          textInputAction: TextInputAction.send,
-          onSubmitted: _submitComment,
+        child: Row(
+          children: [
+            Expanded(
+              child: CupertinoTextField(
+                controller: _commentController,
+                focusNode: _commentFocusNode,
+                padding: EdgeInsets.zero,
+                decoration: null,
+                placeholder: l10n.photoViewerCommentHint,
+                placeholderStyle: placeholderStyle,
+                style: placeholderStyle.copyWith(color: AppColors.textPrimary),
+                cursorColor: AppColors.accentDefault,
+                textInputAction: TextInputAction.send,
+                onSubmitted: _submitComment,
+              ),
+            ),
+            // 입력값이 있을 때만 tail 아이콘을 띄운다.
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _commentController,
+              builder: (context, value, _) {
+                if (value.text.trim().isEmpty) return const SizedBox.shrink();
+                return const Padding(
+                  padding: EdgeInsets.only(left: AppSpacing.s2),
+                  child: Icon(
+                    CupertinoIcons.paperplane_fill,
+                    size: 20,
+                    color: AppColors.textDisabled,
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -474,21 +511,48 @@ class _CommentItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    AppText.caption(
-                      comment.nickname,
-                      color: AppColors.textAccent,
+                    Flexible(
+                      child: AppText.caption(
+                        comment.nickname,
+                        color: AppColors.textAccent,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.s1,
+                      ),
+                      child: AppText.caption(
+                        '·',
+                        color: AppColors.textDisabled,
+                      ),
+                    ),
+
+
+
+
                     AppText.caption(
                       comment.timeLabel,
                       color: AppColors.textDisabled,
                     ),
                   ],
                 ),
-                AppText.body(comment.content),
+                AppText.body(
+                  comment.content,
+                  color: AppColors.textPrimary,
+                ),
               ],
+            ),
+          ),
+          AppBarIconButton(
+            size: 20,
+            onPressed: () {},
+            child: const Icon(
+              CupertinoIcons.ellipsis_vertical,
+              size: 20,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
