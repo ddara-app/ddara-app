@@ -1132,6 +1132,36 @@ abstract class AppLocalizations {
   /// **'수정됨'**
   String get commentEdited;
 
+  /// 댓글 신고 사유 - 성적 발언
+  ///
+  /// In ko, this message translates to:
+  /// **'성적 발언'**
+  String get commentReportReasonSexual;
+
+  /// 댓글 신고 사유 - 폭력·혐오 표현
+  ///
+  /// In ko, this message translates to:
+  /// **'폭력·혐오 표현'**
+  String get commentReportReasonViolence;
+
+  /// 댓글 신고 사유 - 욕설·비방 표현
+  ///
+  /// In ko, this message translates to:
+  /// **'욕설·비방 표현'**
+  String get commentReportReasonAbuse;
+
+  /// 댓글 신고 사유 - 사칭·괴롭힘
+  ///
+  /// In ko, this message translates to:
+  /// **'사칭·괴롭힘'**
+  String get commentReportReasonHarassment;
+
+  /// 댓글 신고 사유 - 기타
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get commentReportReasonEtc;
+
   /// 댓글 삭제 확인 다이얼로그 제목
   ///
   /// In ko, this message translates to:

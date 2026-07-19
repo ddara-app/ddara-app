@@ -585,6 +585,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commentEdited => '수정됨';
 
   @override
+  String get commentReportReasonSexual => '성적 발언';
+
+  @override
+  String get commentReportReasonViolence => '폭력·혐오 표현';
+
+  @override
+  String get commentReportReasonAbuse => '욕설·비방 표현';
+
+  @override
+  String get commentReportReasonHarassment => '사칭·괴롭힘';
+
+  @override
+  String get commentReportReasonEtc => '기타';
+
+  @override
   String get commentDeleteTitle => '이 댓글을 삭제할까요?';
 
   @override

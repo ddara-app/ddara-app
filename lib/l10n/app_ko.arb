@@ -453,6 +453,26 @@
   "@commentEdited": {
     "description": "수정된 댓글의 시간 옆에 붙는 표시"
   },
+  "commentReportReasonSexual": "성적 발언",
+  "@commentReportReasonSexual": {
+    "description": "댓글 신고 사유 - 성적 발언"
+  },
+  "commentReportReasonViolence": "폭력·혐오 표현",
+  "@commentReportReasonViolence": {
+    "description": "댓글 신고 사유 - 폭력·혐오 표현"
+  },
+  "commentReportReasonAbuse": "욕설·비방 표현",
+  "@commentReportReasonAbuse": {
+    "description": "댓글 신고 사유 - 욕설·비방 표현"
+  },
+  "commentReportReasonHarassment": "사칭·괴롭힘",
+  "@commentReportReasonHarassment": {
+    "description": "댓글 신고 사유 - 사칭·괴롭힘"
+  },
+  "commentReportReasonEtc": "기타",
+  "@commentReportReasonEtc": {
+    "description": "댓글 신고 사유 - 기타"
+  },
   "commentDeleteTitle": "이 댓글을 삭제할까요?",
   "@commentDeleteTitle": {
     "description": "댓글 삭제 확인 다이얼로그 제목"

@@ -2,6 +2,7 @@ import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/exception/report_error_code.dart';
 import 'package:ddara/core/exception/report_exception.dart';
+import 'package:ddara/core/model/report/comment_report_reason.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/data/datasource/report/report_datasource.dart';
 import 'package:ddara/domain/repository/report_repository.dart';
@@ -25,27 +26,49 @@ class ReportRepositoryImpl implements ReportRepository {
         reasonText: reasonText,
       );
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ReportErrorCode.fromValue(e.response?.data['code'])
-          : null;
+      _throwReportError(e);
+    }
+  }
 
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ReportErrorCode.invalidInput:
-          // 400 — 필수값 누락, 본인 사진 신고, ETC 인데 reasonText 없음
-          throw InvalidReportInputException();
+  @override
+  Future<void> reportComment({
+    required int commentId,
+    required CommentReportReason reason,
+    String? reasonText,
+  }) async {
+    try {
+      await _reportDataSource.reportComment(
+        commentId: commentId,
+        reasonCode: reason.code,
+        reasonText: reasonText,
+      );
+    } on DioException catch (e) {
+      _throwReportError(e);
+    }
+  }
 
-        case ReportErrorCode.notGroupMember:
-          // 403 — 해당 사진이 속한 모임의 멤버가 아님
-          throw NotGroupMemberException();
+  /// 신고 접수(`POST /api/reports`) 실패를 도메인 예외로 변환한다. (사진·댓글 공통)
+  Never _throwReportError(DioException e) {
+    final code = e.response?.data is Map
+        ? ReportErrorCode.fromValue(e.response?.data['code'])
+        : null;
 
-        case ReportErrorCode.shotNotFound:
-          // 404 — 사진 없음 (운영 삭제된 사진 포함)
-          throw ShotNotFoundException();
+    // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
+    switch (code) {
+      case ReportErrorCode.invalidInput:
+        // 400 — 필수값 누락, ETC 인데 reasonText 없음 등
+        throw InvalidReportInputException();
 
-        default:
-          throw NetworkException();
-      }
+      case ReportErrorCode.notGroupMember:
+        // 403 — 해당 대상이 속한 모임의 멤버가 아님
+        throw NotGroupMemberException();
+
+      case ReportErrorCode.shotNotFound:
+        // 404 — 대상 없음 (운영 삭제 포함)
+        throw ShotNotFoundException();
+
+      default:
+        throw NetworkException();
     }
   }
 }

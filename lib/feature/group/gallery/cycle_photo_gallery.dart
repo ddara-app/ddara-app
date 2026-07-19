@@ -11,6 +11,7 @@ import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
 import 'package:ddara/feature/group/gallery/widget/photo_report_sheet.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -190,6 +191,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     },
                     onEditComment: (comment, newContent) =>
                         _editComment(ref, comment, newContent),
+                    onReportComment: (comment) =>
+                        _reportComment(context, ref, comment),
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -284,6 +287,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                             },
                             onEditComment: (comment, newContent) =>
                                 _editComment(ref, comment, newContent),
+                            onReportComment: (comment) =>
+                                _reportComment(context, ref, comment),
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
@@ -415,6 +420,32 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
 
     // 수정에 성공했으므로 '수정됨' 표시를 켠다.
     return comment.copyWith(content: content, isEdited: true);
+  }
+
+  /// 댓글 신고 사유 시트를 띄우고, 확정하면 접수한다.
+  /// 성공 시 완료 토스트를 띄운다. (신고해도 댓글은 그대로 노출 — 관리자 검토 후 처리)
+  /// 실패는 notifier 가 errorMessage → 토스트로 처리한다.
+  Future<void> _reportComment(
+    BuildContext context,
+    WidgetRef ref,
+    PhotoComment comment,
+  ) async {
+    final commentId = comment.commentId;
+    if (commentId == null) return;
+
+    final result = await CommentReportSheet.show(context);
+    if (result == null || !context.mounted) return;
+
+    final success = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .reportComment(
+          commentId: commentId,
+          reason: result.reason,
+          reasonText: result.detail.isEmpty ? null : result.detail,
+        );
+    if (!success || !context.mounted) return;
+
+    Toast.showToast(context, AppLocalizations.of(context).photoReportSubmitted);
   }
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.

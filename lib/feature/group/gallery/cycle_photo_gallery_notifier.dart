@@ -2,6 +2,7 @@ import 'package:ddara/core/exception/comment_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
 import 'package:ddara/core/model/comment/comment.dart';
+import 'package:ddara/core/model/report/comment_report_reason.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
@@ -157,6 +158,38 @@ class CyclePhotoGalleryNotifier
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
       state = state.copyWith(errorMessage: '댓글을 삭제하지 못했어요.');
+      return false;
+    }
+  }
+
+  /// [commentId] 댓글을 신고한다. 성공하면 true, 실패하면 errorMessage 를
+  /// 채우고 false 를 반환한다. (신고해도 댓글은 그대로 노출 — 재조회하지 않는다)
+  Future<bool> reportComment({
+    required int commentId,
+    required CommentReportReason reason,
+    String? reasonText,
+  }) async {
+    final reportCommentUseCase = ref.read(reportCommentUseCaseProvider);
+
+    try {
+      await reportCommentUseCase(
+        commentId: commentId,
+        reason: reason,
+        reasonText: reasonText,
+      );
+      return true;
+    } on InvalidReportInputException {
+      state = state.copyWith(errorMessage: '신고 내용이 올바르지 않아요.');
+      return false;
+    } on ShotNotFoundException {
+      state = state.copyWith(errorMessage: '이미 삭제된 댓글이에요.');
+      return false;
+    } on NotGroupMemberException {
+      state = state.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.');
+      return false;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(errorMessage: '신고하지 못했어요.');
       return false;
     }
   }
