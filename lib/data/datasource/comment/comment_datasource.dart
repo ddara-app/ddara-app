@@ -18,4 +18,11 @@ class CommentDataSource {
 
     return CommentResponse.fromJson(response.data);
   }
+
+  /// [shotId] 사진의 댓글 목록을 조회한다.
+  Future<CommentListResponse> getComments(int shotId) async {
+    final response = await _dio.get('/api/shots/$shotId/comments');
+
+    return CommentListResponse.fromJson(response.data);
+  }
 }

@@ -1090,6 +1090,12 @@ abstract class AppLocalizations {
   /// **'아직 댓글이 없습니다.'**
   String get photoViewerCommentEmpty;
 
+  /// 신고 접수로 검토 중인 댓글의 내용 자리표시
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 접수되어 검토 중인 댓글입니다'**
+  String get photoViewerCommentUnderReview;
+
   /// No description provided for @cameraPermissionTitle.
   ///
   /// In ko, this message translates to:

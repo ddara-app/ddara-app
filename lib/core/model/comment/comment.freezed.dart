@@ -17,7 +17,10 @@ mixin _$Comment {
  int get commentId;// 작성자 userId.
  int get userId;// 작성자 닉네임. (모임 내 닉네임)
  String get nickname;// 작성자 프로필 이미지 URL. 없으면 null.
- String? get profileImageUrl; String get content; DateTime get createdAt;
+ String? get profileImageUrl;// 댓글 내용. 신고 접수로 검토 중(underReview)이면 null.
+ String? get content;// 신고 접수로 검토 중인 댓글인지 여부.
+ bool get underReview; DateTime get createdAt;// 수정 시각. 수정된 적 없으면 null.
+ DateTime? get updatedAt;
 /// Create a copy of Comment
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +31,16 @@ $CommentCopyWith<Comment> get copyWith => _$CommentCopyWithImpl<Comment>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Comment&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Comment&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,commentId,userId,nickname,profileImageUrl,content,createdAt);
+int get hashCode => Object.hash(runtimeType,commentId,userId,nickname,profileImageUrl,content,underReview,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Comment(commentId: $commentId, userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, createdAt: $createdAt)';
+  return 'Comment(commentId: $commentId, userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, underReview: $underReview, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +51,7 @@ abstract mixin class $CommentCopyWith<$Res>  {
   factory $CommentCopyWith(Comment value, $Res Function(Comment) _then) = _$CommentCopyWithImpl;
 @useResult
 $Res call({
- int commentId, int userId, String nickname, String? profileImageUrl, String content, DateTime createdAt
+ int commentId, int userId, String nickname, String? profileImageUrl, String? content, bool underReview, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -65,15 +68,17 @@ class _$CommentCopyWithImpl<$Res>
 
 /// Create a copy of Comment
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? commentId = null,Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? commentId = null,Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = freezed,Object? underReview = null,Object? createdAt = null,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 commentId: null == commentId ? _self.commentId : commentId // ignore: cast_nullable_to_non_nullable
 as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
-as String?,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as String?,underReview: null == underReview ? _self.underReview : underReview // ignore: cast_nullable_to_non_nullable
+as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -158,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String content,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Comment() when $default != null:
-return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.createdAt);case _:
+return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -179,10 +184,10 @@ return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUr
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String content,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Comment():
-return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.createdAt);case _:
+return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +204,10 @@ return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUr
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String content,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Comment() when $default != null:
-return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.createdAt);case _:
+return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -214,7 +219,7 @@ return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUr
 
 
 class _Comment implements Comment {
-  const _Comment({required this.commentId, required this.userId, required this.nickname, required this.profileImageUrl, required this.content, required this.createdAt});
+  const _Comment({required this.commentId, required this.userId, required this.nickname, required this.profileImageUrl, required this.content, this.underReview = false, required this.createdAt, this.updatedAt});
   
 
 @override final  int commentId;
@@ -224,8 +229,13 @@ class _Comment implements Comment {
 @override final  String nickname;
 // 작성자 프로필 이미지 URL. 없으면 null.
 @override final  String? profileImageUrl;
-@override final  String content;
+// 댓글 내용. 신고 접수로 검토 중(underReview)이면 null.
+@override final  String? content;
+// 신고 접수로 검토 중인 댓글인지 여부.
+@override@JsonKey() final  bool underReview;
 @override final  DateTime createdAt;
+// 수정 시각. 수정된 적 없으면 null.
+@override final  DateTime? updatedAt;
 
 /// Create a copy of Comment
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +247,16 @@ _$CommentCopyWith<_Comment> get copyWith => __$CommentCopyWithImpl<_Comment>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Comment&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Comment&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,commentId,userId,nickname,profileImageUrl,content,createdAt);
+int get hashCode => Object.hash(runtimeType,commentId,userId,nickname,profileImageUrl,content,underReview,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Comment(commentId: $commentId, userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, createdAt: $createdAt)';
+  return 'Comment(commentId: $commentId, userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, underReview: $underReview, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -257,7 +267,7 @@ abstract mixin class _$CommentCopyWith<$Res> implements $CommentCopyWith<$Res> {
   factory _$CommentCopyWith(_Comment value, $Res Function(_Comment) _then) = __$CommentCopyWithImpl;
 @override @useResult
 $Res call({
- int commentId, int userId, String nickname, String? profileImageUrl, String content, DateTime createdAt
+ int commentId, int userId, String nickname, String? profileImageUrl, String? content, bool underReview, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -274,15 +284,17 @@ class __$CommentCopyWithImpl<$Res>
 
 /// Create a copy of Comment
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? commentId = null,Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? commentId = null,Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = freezed,Object? underReview = null,Object? createdAt = null,Object? updatedAt = freezed,}) {
   return _then(_Comment(
 commentId: null == commentId ? _self.commentId : commentId // ignore: cast_nullable_to_non_nullable
 as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
 as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
-as String?,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as String?,underReview: null == underReview ? _self.underReview : underReview // ignore: cast_nullable_to_non_nullable
+as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

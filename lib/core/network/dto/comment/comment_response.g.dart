@@ -12,8 +12,12 @@ _CommentResponse _$CommentResponseFromJson(Map<String, dynamic> json) =>
       userId: (json['userId'] as num).toInt(),
       nickname: json['nickname'] as String,
       profileImageUrl: json['profileImageUrl'] as String?,
-      content: json['content'] as String,
+      content: json['content'] as String?,
+      underReview: json['underReview'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$CommentResponseToJson(_CommentResponse instance) =>
@@ -23,5 +27,18 @@ Map<String, dynamic> _$CommentResponseToJson(_CommentResponse instance) =>
       'nickname': instance.nickname,
       'profileImageUrl': instance.profileImageUrl,
       'content': instance.content,
+      'underReview': instance.underReview,
       'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };
+
+_CommentListResponse _$CommentListResponseFromJson(Map<String, dynamic> json) =>
+    _CommentListResponse(
+      comments: (json['comments'] as List<dynamic>)
+          .map((e) => CommentResponse.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$CommentListResponseToJson(
+  _CommentListResponse instance,
+) => <String, dynamic>{'comments': instance.comments};

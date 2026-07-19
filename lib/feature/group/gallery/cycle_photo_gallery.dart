@@ -2,6 +2,7 @@ import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/comment/comment.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -173,7 +174,9 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     title: cycle.starterNickname,
                     body: cycle.topic,
                     myNickname: myNickname,
-                    // 스타터 사진 댓글은 스타터 shot id 로 등록한다.
+                    // 스타터 사진 댓글은 스타터 shot id 로 등록·조회한다.
+                    onLoadComments: () =>
+                        _loadComments(context, ref, cycle.starterShotId),
                     onSubmitComment: (content) => _submitComment(
                       context,
                       ref,
@@ -256,8 +259,12 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                             myNickname: myNickname,
                             // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
                             locked: locked,
-                            // 사진에 shot id 가 있으면 댓글을 등록할 수 있다.
-                            // (잠긴 사진은 서버가 SHOT_LOCKED 로 거부 → 토스트 안내)
+                            // 사진에 shot id 가 있으면 댓글을 조회·등록할 수 있다.
+                            // (잠긴 사진은 서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내)
+                            onLoadComments: shotId == null
+                                ? null
+                                : () =>
+                                      _loadComments(context, ref, shotId),
                             onSubmitComment: shotId == null
                                 ? null
                                 : (content) =>
@@ -307,6 +314,22 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     );
   }
 
+  /// [shotId] 사진의 댓글 목록을 조회해 화면 표시용으로 변환한다.
+  /// 실패하면 null 을 반환한다. (차단 유저 제외는 notifier 가 처리)
+  Future<List<PhotoComment>?> _loadComments(
+    BuildContext context,
+    WidgetRef ref,
+    int shotId,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final comments = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .loadComments(shotId: shotId);
+    if (comments == null) return null;
+
+    return comments.map((comment) => _toPhotoComment(comment, l10n)).toList();
+  }
+
   /// [shotId] 사진에 [content] 댓글을 등록하고, 성공 시 화면에 추가할
   /// [PhotoComment] 를(작성자·시각 포함), 실패 시 null 을 반환한다.
   /// (실패 안내는 notifier 가 errorMessage → 토스트로 처리)
@@ -322,11 +345,20 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         .submitComment(shotId: shotId, content: content);
     if (created == null) return null;
 
+    return _toPhotoComment(created, l10n);
+  }
+
+  /// 도메인 [Comment] 를 뷰어 표시용 [PhotoComment] 로 변환한다.
+  /// 검토 중인 댓글은 내용 대신 자리표시 문구를 넣는다.
+  PhotoComment _toPhotoComment(Comment comment, AppLocalizations l10n) {
     return PhotoComment(
-      nickname: created.nickname,
-      content: created.content,
-      timeLabel: timeAgoLabel(created.createdAt, l10n),
-      profileImageUrl: created.profileImageUrl,
+      nickname: comment.nickname,
+      content: comment.underReview
+          ? l10n.photoViewerCommentUnderReview
+          : (comment.content ?? ''),
+      timeLabel: timeAgoLabel(comment.createdAt, l10n),
+      profileImageUrl: comment.profileImageUrl,
+      isUnderReview: comment.underReview,
     );
   }
 

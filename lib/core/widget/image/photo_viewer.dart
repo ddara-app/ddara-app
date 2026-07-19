@@ -16,12 +16,13 @@ class PhotoComment {
     required this.content,
     required this.timeLabel,
     this.profileImageUrl,
+    this.isUnderReview = false,
   });
 
   /// 작성자 닉네임.
   final String nickname;
 
-  /// 댓글 내용.
+  /// 댓글 내용. (검토 중인 댓글이면 호출 측에서 자리표시 문구를 넣어 전달)
   final String content;
 
   /// 작성 시각 라벨. (예: '3분 전' — 호출 측에서 포맷해 전달)
@@ -29,6 +30,10 @@ class PhotoComment {
 
   /// 작성자 프로필 이미지 URL. null·빈 값이면 기본 아이콘.
   final String? profileImageUrl;
+
+  /// 신고 접수로 검토 중인 댓글인지 여부.
+  /// (내용을 흐린 색으로 보여주고 더보기 메뉴를 숨긴다)
+  final bool isUnderReview;
 }
 
 /// 이미지를 전체 화면으로 크게 보여주는 뷰어.
@@ -49,6 +54,7 @@ class PhotoViewer extends StatefulWidget {
     this.myNickname,
     this.locked = false,
     this.onSubmitComment,
+    this.onLoadComments,
   });
 
   /// 크게 보여줄 이미지.
@@ -71,6 +77,11 @@ class PhotoViewer extends StatefulWidget {
   /// 재시도할 수 있게 한다. (실패 안내는 호출 측에서 처리)
   /// null 로 두면 API 연동 없이 메모리상에만 쌓는 임시 동작을 한다.
   final Future<PhotoComment?> Function(String content)? onSubmitComment;
+
+  /// 댓글 목록 조회 콜백. 시트를 처음 열 때 한 번 호출해 목록을 채운다.
+  /// 성공 시 표시할 목록을, 실패 시 null 을 반환한다. (실패 안내는 호출 측에서
+  /// 처리하고, 다시 열면 재시도한다) null 로 두면 [comments] 만 표시한다.
+  final Future<List<PhotoComment>?> Function()? onLoadComments;
 
   /// 잠긴 사진 여부. true 면 뷰어에서도 블러 + 가운데 자물쇠를 유지한다.
   /// (본인이 아직 업로드하지 않아 타인 사진이 잠긴 경우 — 댓글은 볼 수 있다)
@@ -136,6 +147,12 @@ class _PhotoViewerState extends State<PhotoViewer>
   /// 댓글 등록 요청 진행 중 여부. (연속 전송 방지)
   bool _submitting = false;
 
+  /// 댓글 목록을 (성공적으로) 한 번이라도 불러왔는지 여부. (재조회 방지)
+  bool _commentsLoaded = false;
+
+  /// 댓글 목록 조회 진행 중 여부. (시트 본문에 로딩 인디케이터 표시)
+  bool _loadingComments = false;
+
   @override
   void initState() {
     super.initState();
@@ -161,10 +178,33 @@ class _PhotoViewerState extends State<PhotoViewer>
     super.dispose();
   }
 
-  /// 시트를 연다.
+  /// 시트를 연다. (처음 열 때 댓글 목록을 조회한다)
   void _openSheet() {
     setState(() => _sheetVisible = true);
     _sheetController.animateTo(1, curve: Curves.easeInOut);
+    _loadComments();
+  }
+
+  /// 댓글 목록을 처음 한 번 조회해 채운다. (실패하면 다음에 다시 열 때 재시도)
+  Future<void> _loadComments() async {
+    final onLoad = widget.onLoadComments;
+    if (onLoad == null || _commentsLoaded || _loadingComments) return;
+
+    setState(() => _loadingComments = true);
+    final loaded = await onLoad();
+    if (!mounted) return;
+    setState(() {
+      _loadingComments = false;
+      // 실패(null)면 loaded 표시를 남기지 않아 다음에 다시 열 때 재시도한다.
+      if (loaded == null) return;
+      _commentsLoaded = true;
+      // 조회 완료 전 등록한 임시 댓글(있다면)은 서버 목록 뒤에 잇는다.
+      final pending = List.of(_comments);
+      _comments
+        ..clear()
+        ..addAll(loaded)
+        ..addAll(pending);
+    });
   }
 
   /// 시트를 닫는다. (키보드가 떠 있으면 함께 내린다)
@@ -424,9 +464,12 @@ class _PhotoViewerState extends State<PhotoViewer>
                         ],
                       ),
                     ),
-                    // 본문: 댓글이 없으면 안내 문구, 있으면 스크롤 목록.
+                    // 본문: 조회 중이면 로딩, 댓글이 없으면 안내 문구,
+                    // 있으면 스크롤 목록.
                     Expanded(
-                      child: _comments.isEmpty
+                      child: _loadingComments && _comments.isEmpty
+                          ? const Center(child: CupertinoActivityIndicator())
+                          : _comments.isEmpty
                           ? Center(
                               child: AppText.body(
                                 l10n.photoViewerCommentEmpty,
@@ -598,22 +641,27 @@ class _CommentItem extends StatelessWidget {
                     ),
                   ],
                 ),
+                // 검토 중인 댓글은 자리표시 문구를 흐린 색으로 보여준다.
                 AppText.body(
                   comment.content,
-                  color: AppColors.textPrimary,
+                  color: comment.isUnderReview
+                      ? AppColors.textDisabled
+                      : AppColors.textPrimary,
                 ),
               ],
             ),
           ),
-          AppBarIconButton(
-            size: 20,
-            onPressed: () {},
-            child: const Icon(
-              CupertinoIcons.ellipsis_vertical,
+          // 검토 중인 댓글은 더보기(신고 등) 메뉴를 숨긴다.
+          if (!comment.isUnderReview)
+            AppBarIconButton(
               size: 20,
-              color: AppColors.textPrimary,
+              onPressed: () {},
+              child: const Icon(
+                CupertinoIcons.ellipsis_vertical,
+                size: 20,
+                color: AppColors.textPrimary,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -632,6 +680,7 @@ Future<void> showPhotoViewer(
   String? myNickname,
   bool locked = false,
   Future<PhotoComment?> Function(String content)? onSubmitComment,
+  Future<List<PhotoComment>?> Function()? onLoadComments,
 }) {
   return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder(
@@ -649,6 +698,7 @@ Future<void> showPhotoViewer(
         myNickname: myNickname,
         locked: locked,
         onSubmitComment: onSubmitComment,
+        onLoadComments: onLoadComments,
       ),
       transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),

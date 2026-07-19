@@ -9,7 +9,15 @@ extension CommentMapper on CommentResponse {
       nickname: nickname,
       profileImageUrl: profileImageUrl,
       content: content,
+      underReview: underReview,
       createdAt: createdAt,
+      updatedAt: updatedAt,
     );
+  }
+}
+
+extension CommentListMapper on CommentListResponse {
+  List<Comment> toDomain() {
+    return comments.map((comment) => comment.toDomain()).toList();
   }
 }

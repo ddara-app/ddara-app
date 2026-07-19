@@ -6,6 +6,7 @@ import 'package:ddara/domain/usecase/block/unblock_user_use_case.dart';
 import 'package:ddara/domain/usecase/auth/logout_use_case.dart';
 import 'package:ddara/domain/usecase/auth/signup_use_case.dart';
 import 'package:ddara/domain/usecase/comment/create_comment_use_case.dart';
+import 'package:ddara/domain/usecase/comment/get_comments_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/get_cycle_gallery_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/starter_upload_use_case.dart';
@@ -166,4 +167,8 @@ final reportShotUseCaseProvider = Provider<ReportShotUseCase>((ref) {
 
 final createCommentUseCaseProvider = Provider<CreateCommentUseCase>((ref) {
   return CreateCommentUseCase(ref.read(commentRepositoryProvider));
+});
+
+final getCommentsUseCaseProvider = Provider<GetCommentsUseCase>((ref) {
+  return GetCommentsUseCase(ref.read(commentRepositoryProvider));
 });

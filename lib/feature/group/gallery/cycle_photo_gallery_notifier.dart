@@ -116,6 +116,30 @@ class CyclePhotoGalleryNotifier
     }
   }
 
+  /// [shotId] 사진의 댓글 목록을 조회한다. 성공하면 (차단 유저 댓글을 제외한)
+  /// 목록을, 실패하면 errorMessage 를 채우고 null 을 반환한다.
+  Future<List<Comment>?> loadComments({required int shotId}) async {
+    final getCommentsUseCase = ref.read(getCommentsUseCaseProvider);
+
+    try {
+      final comments = await getCommentsUseCase(shotId);
+      // 차단한 유저의 댓글은 보이지 않게 제외한다.
+      return comments
+          .where((comment) => !state.blockedUserIds.contains(comment.userId))
+          .toList();
+    } on ShotNotFoundException {
+      state = state.copyWith(errorMessage: '이미 삭제된 사진이에요.');
+      return null;
+    } on NotGroupMemberException {
+      state = state.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.');
+      return null;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(errorMessage: '댓글을 불러오지 못했어요.');
+      return null;
+    }
+  }
+
   /// [shotId] 사진에 댓글을 등록한다. 성공하면 생성된 댓글을, 실패하면
   /// errorMessage 를 채우고 null 을 반환한다.
   /// (댓글은 갤러리 화면에 노출되지 않으므로 갤러리를 재조회하지 않는다)
