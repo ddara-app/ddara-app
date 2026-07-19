@@ -55,7 +55,7 @@ class Members extends StatelessWidget {
   /// 우측 끝 + 버튼(멤버 초대) 탭 콜백.
   final VoidCallback onAddMember;
 
-  /// 멤버 아바타를 롱프레스해 '닉네임 신고'를 선택했을 때. (대상 멤버 전달)
+  /// 멤버 아바타를 롱프레스해 '유저 신고'를 선택했을 때. (대상 멤버 전달)
   final ValueChanged<MemberDisplay> onReportMember;
 
   /// 멤버 아바타를 롱프레스해 '차단하기'를 선택했을 때. (대상 멤버 전달)
@@ -95,7 +95,7 @@ class _MemberAvatar extends StatelessWidget {
 
   final MemberDisplay member;
 
-  /// 컨텍스트 메뉴에서 '닉네임 신고'를 선택했을 때.
+  /// 컨텍스트 메뉴에서 '유저 신고'를 선택했을 때.
   final VoidCallback onReport;
 
   /// 컨텍스트 메뉴에서 '차단하기'를 선택했을 때.
@@ -128,7 +128,7 @@ class _MemberAvatar extends StatelessWidget {
         onSelect: onBlock,
       ),
       (
-        label: l10n.memberReportNickname,
+        label: l10n.memberReportUser,
         color: AppColors.statusDanger,
         onSelect: onReport,
       ),

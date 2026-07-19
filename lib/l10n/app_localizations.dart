@@ -712,47 +712,41 @@ abstract class AppLocalizations {
   /// **'추가하기'**
   String get groupMembersAdd;
 
-  /// No description provided for @memberReportNickname.
+  /// No description provided for @memberReportUser.
   ///
   /// In ko, this message translates to:
-  /// **'닉네임 신고'**
-  String get memberReportNickname;
+  /// **'유저 신고'**
+  String get memberReportUser;
 
-  /// No description provided for @memberReportMailSubject.
-  ///
-  /// In ko, this message translates to:
-  /// **'[따라] 닉네임 신고'**
-  String get memberReportMailSubject;
-
-  /// 닉네임 신고 메일의 본문. (신고 대상 닉네임 포함)
-  ///
-  /// In ko, this message translates to:
-  /// **'신고할 닉네임: {nickname}\n\n신고 사유를 작성해 주세요.\n'**
-  String memberReportMailBody(String nickname);
-
-  /// 닉네임 신고 메일 앱 실행에 실패했을 때 안내
-  ///
-  /// In ko, this message translates to:
-  /// **'메일 앱을 열 수 없어요. ({email})'**
-  String memberReportMailFailed(String email);
-
-  /// No description provided for @photoReport.
+  /// No description provided for @report.
   ///
   /// In ko, this message translates to:
   /// **'신고하기'**
-  String get photoReport;
+  String get report;
 
-  /// No description provided for @photoReportSheetTitle.
+  /// No description provided for @reportSheetTitle.
   ///
   /// In ko, this message translates to:
   /// **'신고 사유를 선택해 주세요'**
-  String get photoReportSheetTitle;
+  String get reportSheetTitle;
 
-  /// No description provided for @photoReportSheetSubtitle.
+  /// No description provided for @reportSheetSubtitle.
   ///
   /// In ko, this message translates to:
   /// **'신고 내용은 24시간 안에 확인해요'**
-  String get photoReportSheetSubtitle;
+  String get reportSheetSubtitle;
+
+  /// No description provided for @reportDetailPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'입력해 주세요'**
+  String get reportDetailPlaceholder;
+
+  /// No description provided for @reportSubmitted.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고를 접수했어요. 24시간 안에 확인할게요'**
+  String get reportSubmitted;
 
   /// No description provided for @photoReportReasonObscene.
   ///
@@ -784,17 +778,29 @@ abstract class AppLocalizations {
   /// **'기타'**
   String get photoReportReasonEtc;
 
-  /// No description provided for @photoReportDetailPlaceholder.
+  /// No description provided for @userReportReasonNickname.
   ///
   /// In ko, this message translates to:
-  /// **'입력해 주세요'**
-  String get photoReportDetailPlaceholder;
+  /// **'부적절한 닉네임(욕설·음란·혐오)'**
+  String get userReportReasonNickname;
 
-  /// No description provided for @photoReportSubmitted.
+  /// No description provided for @userReportReasonProfileImage.
   ///
   /// In ko, this message translates to:
-  /// **'신고를 접수했어요. 24시간 안에 확인할게요'**
-  String get photoReportSubmitted;
+  /// **'부적절한 프로필 사진(음란·혐오)'**
+  String get userReportReasonProfileImage;
+
+  /// No description provided for @userReportReasonHarassment.
+  ///
+  /// In ko, this message translates to:
+  /// **'사칭·괴롭힘'**
+  String get userReportReasonHarassment;
+
+  /// No description provided for @userReportReasonEtc.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get userReportReasonEtc;
 
   /// No description provided for @memberBlock.
   ///

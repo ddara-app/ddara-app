@@ -469,7 +469,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         );
     if (!success || !context.mounted) return;
 
-    Toast.showToast(context, AppLocalizations.of(context).photoReportSubmitted);
+    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 
   /// [StartedHeader] 가 요구하는 [GroupCycle] 로 변환한다.
@@ -609,7 +609,7 @@ class _MenuPhotoCardState extends State<_MenuPhotoCard> {
         minimumSize: Size.zero,
         onPressed: () => _select(dialogContext),
         child: AppText.body(
-          AppLocalizations.of(context).photoReport,
+          AppLocalizations.of(context).report,
           color: AppColors.statusDanger,
         ),
       ),

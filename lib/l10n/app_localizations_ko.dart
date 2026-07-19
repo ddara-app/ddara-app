@@ -343,29 +343,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupMembersAdd => '추가하기';
 
   @override
-  String get memberReportNickname => '닉네임 신고';
+  String get memberReportUser => '유저 신고';
 
   @override
-  String get memberReportMailSubject => '[따라] 닉네임 신고';
+  String get report => '신고하기';
 
   @override
-  String memberReportMailBody(String nickname) {
-    return '신고할 닉네임: $nickname\n\n신고 사유를 작성해 주세요.\n';
-  }
+  String get reportSheetTitle => '신고 사유를 선택해 주세요';
 
   @override
-  String memberReportMailFailed(String email) {
-    return '메일 앱을 열 수 없어요. ($email)';
-  }
+  String get reportSheetSubtitle => '신고 내용은 24시간 안에 확인해요';
 
   @override
-  String get photoReport => '신고하기';
+  String get reportDetailPlaceholder => '입력해 주세요';
 
   @override
-  String get photoReportSheetTitle => '신고 사유를 선택해 주세요';
-
-  @override
-  String get photoReportSheetSubtitle => '신고 내용은 24시간 안에 확인해요';
+  String get reportSubmitted => '신고를 접수했어요. 24시간 안에 확인할게요';
 
   @override
   String get photoReportReasonObscene => '음란물';
@@ -383,10 +376,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoReportReasonEtc => '기타';
 
   @override
-  String get photoReportDetailPlaceholder => '입력해 주세요';
+  String get userReportReasonNickname => '부적절한 닉네임(욕설·음란·혐오)';
 
   @override
-  String get photoReportSubmitted => '신고를 접수했어요. 24시간 안에 확인할게요';
+  String get userReportReasonProfileImage => '부적절한 프로필 사진(음란·혐오)';
+
+  @override
+  String get userReportReasonHarassment => '사칭·괴롭힘';
+
+  @override
+  String get userReportReasonEtc => '기타';
 
   @override
   String get memberBlock => '차단하기';

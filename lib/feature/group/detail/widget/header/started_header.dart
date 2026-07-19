@@ -185,7 +185,7 @@ class _StartedHeaderState extends State<StartedHeader> {
         minimumSize: Size.zero,
         onPressed: () => _selectReport(dialogContext),
         child: AppText.body(
-          AppLocalizations.of(context).photoReport,
+          AppLocalizations.of(context).report,
           color: AppColors.statusDanger,
         ),
       ),
