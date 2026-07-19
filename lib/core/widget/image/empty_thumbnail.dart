@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:ddara/core/widget/icon/gallery_icon.dart';
+import 'package:flutter/widgets.dart';
 
 /// 썸네일이 없거나 로드 실패했을 때의 자리표시. (빈 배경 + 중앙 갤러리 아이콘)
 ///
@@ -12,11 +13,7 @@ class EmptyThumbnail extends StatelessWidget {
     return const ColoredBox(
       color: AppColors.bgSurfaceAlt,
       child: Center(
-        child: Icon(
-          CupertinoIcons.photo,
-          size: 40,
-          color: AppColors.textTertiary,
-        ),
+        child: GalleryIcon(size: 40, color: AppColors.textTertiary),
       ),
     );
   }

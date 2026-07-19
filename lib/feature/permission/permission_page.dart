@@ -2,10 +2,12 @@ import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/permission_dialog.dart';
+import 'package:ddara/core/widget/icon/gallery_icon.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/feature/permission/permission_request_recovery.dart';
 import 'package:ddara/feature/permission/widget/permission_item.dart';
@@ -184,7 +186,10 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                 ),
               ),
               PermissionItem(
-                icon: CupertinoIcons.photo,
+                leading: const GalleryIcon(
+                  size: 24,
+                  color: AppColors.textPrimary,
+                ),
                 title: l10n.permissionStorage,
                 description: l10n.permissionStorageDescription,
                 onTap: () => _request(

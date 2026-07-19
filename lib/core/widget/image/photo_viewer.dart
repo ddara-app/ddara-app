@@ -6,6 +6,7 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
+import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -421,11 +422,7 @@ class _PhotoViewerState extends State<PhotoViewer>
                 imageFilter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: rawPicture,
               ),
-              const Icon(
-                CupertinoIcons.lock_fill,
-                size: 48,
-                color: AppColors.textPrimary,
-              ),
+              const LockIcon(size: 48, color: AppColors.textPrimary),
             ],
           )
         : rawPicture;
@@ -762,11 +759,7 @@ class _PhotoViewerState extends State<PhotoViewer>
             if (locked)
               const Padding(
                 padding: EdgeInsets.only(left: AppSpacing.s2),
-                child: Icon(
-                  CupertinoIcons.lock_fill,
-                  size: 20,
-                  color: AppColors.textDisabled,
-                ),
+                child: LockIcon(size: 20, color: AppColors.textDisabled),
               )
             // 그 외에는 입력값이 있을 때만 tail(전송) 아이콘을 띄운다. 탭하면 등록.
             else
