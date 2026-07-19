@@ -1120,6 +1120,12 @@ abstract class AppLocalizations {
   /// **'신고하기'**
   String get commentMenuReport;
 
+  /// 댓글 수정 모드에서 입력창 위에 뜨는 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글 수정 중'**
+  String get commentEditingLabel;
+
   /// 댓글 삭제 확인 다이얼로그 제목
   ///
   /// In ko, this message translates to:

@@ -445,6 +445,10 @@
   "@commentMenuReport": {
     "description": "상대방 댓글 더보기 메뉴 - 신고"
   },
+  "commentEditingLabel": "댓글 수정 중",
+  "@commentEditingLabel": {
+    "description": "댓글 수정 모드에서 입력창 위에 뜨는 라벨"
+  },
   "commentDeleteTitle": "이 댓글을 삭제할까요?",
   "@commentDeleteTitle": {
     "description": "댓글 삭제 확인 다이얼로그 제목"

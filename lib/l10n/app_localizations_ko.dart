@@ -579,6 +579,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commentMenuReport => '신고하기';
 
   @override
+  String get commentEditingLabel => '댓글 수정 중';
+
+  @override
   String get commentDeleteTitle => '이 댓글을 삭제할까요?';
 
   @override

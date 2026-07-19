@@ -44,6 +44,18 @@ class PhotoComment {
   /// 내가 작성한 댓글인지 여부.
   /// (더보기 메뉴 구성이 달라진다 — 내 댓글: 수정·삭제, 상대: 신고)
   final bool isMine;
+
+  PhotoComment copyWith({String? content}) {
+    return PhotoComment(
+      commentId: commentId,
+      nickname: nickname,
+      content: content ?? this.content,
+      timeLabel: timeLabel,
+      profileImageUrl: profileImageUrl,
+      isUnderReview: isUnderReview,
+      isMine: isMine,
+    );
+  }
 }
 
 /// 이미지를 전체 화면으로 크게 보여주는 뷰어.
@@ -96,8 +108,11 @@ class PhotoViewer extends StatefulWidget {
   /// 처리하고, 다시 열면 재시도한다) null 로 두면 [comments] 만 표시한다.
   final Future<List<PhotoComment>?> Function()? onLoadComments;
 
-  /// 내 댓글 더보기 메뉴 - '수정하기' 콜백. null 이면 메뉴에서 동작만 닫힌다.
-  final void Function(PhotoComment comment)? onEditComment;
+  /// 내 댓글 수정 적용 콜백. 수정 모드에서 전송하면 (대상 댓글, 새 내용) 으로
+  /// 호출된다. 성공 시 갱신된 댓글을, 실패 시 null 을 반환해야 한다.
+  /// null 이면 API 없이 로컬에서만 내용을 갱신한다. (임시)
+  final Future<PhotoComment?> Function(PhotoComment comment, String newContent)?
+  onEditComment;
 
   /// 내 댓글 더보기 메뉴 - '삭제하기' 콜백. 삭제에 성공하면 true 를 반환해야
   /// 하며, true 일 때 목록에서 해당 댓글을 제거한다. null 이면 확인창만 뜨고
@@ -174,6 +189,10 @@ class _PhotoViewerState extends State<PhotoViewer>
   /// 댓글 목록 조회 진행 중 여부. (시트 본문에 로딩 인디케이터 표시)
   bool _loadingComments = false;
 
+  /// 수정 중인 댓글. null 이면 새 댓글 입력 모드, 있으면 그 댓글을 수정하는
+  /// 모드다. (입력창 위에 대상 댓글을 보여주고, 전송 시 등록 대신 수정한다)
+  PhotoComment? _editingComment;
+
   @override
   void initState() {
     super.initState();
@@ -246,7 +265,26 @@ class _PhotoViewerState extends State<PhotoViewer>
     _sheetController.value -= details.primaryDelta! / sheetHeight;
   }
 
-  /// 입력한 댓글을 등록한다. (키보드의 전송 버튼·입력창 tail 아이콘 공용)
+  /// 댓글 [comment] 를 수정 모드로 전환한다. 입력창에 기존 내용을 채우고
+  /// 커서를 끝에 둔 뒤 포커스를 줘 키보드를 올린다. (입력창 위에 대상 댓글 표시)
+  void _startEditComment(PhotoComment comment) {
+    setState(() => _editingComment = comment);
+    _commentController.value = TextEditingValue(
+      text: comment.content,
+      selection: TextSelection.collapsed(offset: comment.content.length),
+    );
+    _commentFocusNode.requestFocus();
+  }
+
+  /// 수정 모드를 끝낸다. (입력값·키보드를 정리)
+  void _exitEditComment() {
+    setState(() => _editingComment = null);
+    _commentController.clear();
+    _commentFocusNode.unfocus();
+  }
+
+  /// 입력한 댓글을 등록하거나(새 댓글), 수정 모드면 수정한다.
+  /// (키보드의 전송 버튼·입력창 tail 아이콘 공용)
   ///
   /// [PhotoViewer.onSubmitComment] 가 있으면 서버에 등록하고 성공한 댓글만
   /// 목록에 추가한다. (실패 시 입력값을 유지해 재시도할 수 있게 한다)
@@ -255,6 +293,13 @@ class _PhotoViewerState extends State<PhotoViewer>
   Future<void> _submitComment(String text) async {
     final content = text.trim();
     if (content.isEmpty || _submitting) return;
+
+    // 수정 모드면 등록 대신 수정으로 처리한다.
+    final editing = _editingComment;
+    if (editing != null) {
+      await _applyEditComment(editing, content);
+      return;
+    }
 
     final onSubmit = widget.onSubmitComment;
     if (onSubmit == null) {
@@ -290,6 +335,35 @@ class _PhotoViewerState extends State<PhotoViewer>
     // 끝난 뒤에도 한 번 더 맞춰 새 댓글이 확실히 보이게 한다.
     _scrollCommentsToBottom();
     Future.delayed(_duration, _scrollCommentsToBottom);
+  }
+
+  /// 수정 모드에서 전송했을 때 대상 댓글 내용을 [content] 로 바꾼다.
+  /// [PhotoViewer.onEditComment] 가 있으면 서버 반영 후 성공한 댓글로 교체하고,
+  /// 없으면 로컬에서만 내용을 갱신한다. (임시) 성공하면 수정 모드를 끝낸다.
+  Future<void> _applyEditComment(PhotoComment original, String content) async {
+    final onEdit = widget.onEditComment;
+    if (onEdit == null) {
+      // API 콜백이 없으면 로컬에서만 내용을 갱신한다.
+      _replaceComment(original, original.copyWith(content: content));
+      _exitEditComment();
+      return;
+    }
+
+    setState(() => _submitting = true);
+    final updated = await onEdit(original, content);
+    if (!mounted) return;
+    setState(() => _submitting = false);
+    // 실패(null)면 입력값·키보드를 유지해 바로 재시도할 수 있게 한다.
+    if (updated == null) return;
+    _replaceComment(original, updated);
+    _exitEditComment();
+  }
+
+  /// 목록에서 [oldComment] 를 [newComment] 로 교체한다.
+  void _replaceComment(PhotoComment oldComment, PhotoComment newComment) {
+    final index = _comments.indexOf(oldComment);
+    if (index < 0) return;
+    setState(() => _comments[index] = newComment);
   }
 
   /// 댓글 삭제 콜백을 호출하고, 성공하면 목록에서 제거한다.
@@ -539,7 +613,7 @@ class _PhotoViewerState extends State<PhotoViewer>
                                 for (final comment in _comments)
                                   _CommentItem(
                                     comment: comment,
-                                    onEdit: widget.onEditComment,
+                                    onEdit: _startEditComment,
                                     onDelete: _handleDeleteComment,
                                     onReport: widget.onReportComment,
                                   ),
@@ -568,7 +642,15 @@ class _PhotoViewerState extends State<PhotoViewer>
                                     keyboardInset,
                               ),
                         ),
-                        child: _commentInput(l10n),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 수정 모드면 입력창 위에 대상 댓글을 보여준다.
+                            if (_editingComment != null)
+                              _editingBanner(l10n, _editingComment!),
+                            _commentInput(l10n),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -576,6 +658,42 @@ class _PhotoViewerState extends State<PhotoViewer>
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  /// 수정 모드에서 입력창 위에 뜨는 배너.
+  /// 헤더('댓글 수정 중' + 닫기) 아래에 수정 대상 댓글 아이템을 그대로 보여준다.
+  Widget _editingBanner(AppLocalizations l10n, PhotoComment comment) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 헤더: '댓글 수정 중' 라벨 + 닫기(취소).
+          Row(
+            children: [
+              Expanded(
+                child: AppText.caption(
+                  l10n.commentEditingLabel,
+                  color: AppColors.textAccent,
+                ),
+              ),
+              GestureDetector(
+                onTap: _exitEditComment,
+                behavior: HitTestBehavior.opaque,
+                child: const Icon(
+                  CupertinoIcons.xmark,
+                  size: 20,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s2),
+          // 수정 대상 댓글 아이템. (목록과 동일한 형태, 내용은 최대 2줄)
+          _CommentContent(comment: comment, contentMaxLines: 2),
         ],
       ),
     );
@@ -843,72 +961,95 @@ class _CommentItemState extends State<_CommentItem> {
     final comment = widget.comment;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s4,
-        children: [
-          ProfileAvatar(size: 32, imageUrl: comment.profileImageUrl),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: AppText.caption(
-                        comment.nickname,
-                        color: AppColors.textAccent,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.s1,
-                      ),
-                      child: AppText.caption(
-                        '·',
-                        color: AppColors.textDisabled,
-                      ),
-                    ),
-
-
-
-
-
-                    AppText.caption(
-                      comment.timeLabel,
-                      color: AppColors.textDisabled,
-                    ),
-                  ],
-                ),
-                // 검토 중인 댓글은 자리표시 문구를 흐린 색으로 보여준다.
-                AppText.body(
-                  comment.content,
-                  color: comment.isUnderReview
-                      ? AppColors.textDisabled
-                      : AppColors.textPrimary,
-                ),
-              ],
-            ),
-          ),
-          // 검토 중인 댓글은 더보기 메뉴를 숨긴다. 그 외에는 버튼을 앵커로
-          // 삼아 탭하면 컨텍스트 메뉴를 띄운다.
-          if (!comment.isUnderReview)
-            CompositedTransformTarget(
-              link: _link,
-              child: AppBarIconButton(
-                size: 20,
-                onPressed: _open,
-                child: const Icon(
-                  CupertinoIcons.ellipsis_vertical,
+      child: _CommentContent(
+        comment: comment,
+        // 검토 중인 댓글은 더보기 메뉴를 숨긴다. 그 외에는 버튼을 앵커로
+        // 삼아 탭하면 컨텍스트 메뉴를 띄운다.
+        trailing: comment.isUnderReview
+            ? null
+            : CompositedTransformTarget(
+                link: _link,
+                child: AppBarIconButton(
                   size: 20,
-                  color: AppColors.textPrimary,
+                  onPressed: _open,
+                  child: const Icon(
+                    CupertinoIcons.ellipsis_vertical,
+                    size: 20,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
-            ),
-        ],
       ),
+    );
+  }
+}
+
+/// 댓글 한 줄의 본문 레이아웃. (아바타 + 닉네임·시간 + 내용, 우측 선택 [trailing])
+/// 목록 항목([_CommentItem])과 수정 배너에서 공통으로 쓴다.
+class _CommentContent extends StatelessWidget {
+  const _CommentContent({
+    required this.comment,
+    this.trailing,
+    this.contentMaxLines,
+  });
+
+  final PhotoComment comment;
+
+  /// 우측에 붙일 위젯. (목록: 더보기 버튼 / 배너: 없음)
+  final Widget? trailing;
+
+  /// 내용 최대 줄 수. null 이면 제한 없음. (배너에서는 짧게 자른다)
+  final int? contentMaxLines;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: AppSpacing.s4,
+      children: [
+        ProfileAvatar(size: 32, imageUrl: comment.profileImageUrl),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: AppText.caption(
+                      comment.nickname,
+                      color: AppColors.textAccent,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.s1,
+                    ),
+                    child: AppText.caption('·', color: AppColors.textDisabled),
+                  ),
+                  AppText.caption(
+                    comment.timeLabel,
+                    color: AppColors.textDisabled,
+                  ),
+                ],
+              ),
+              // 검토 중인 댓글은 자리표시 문구를 흐린 색으로 보여준다.
+              AppText.body(
+                comment.content,
+                color: comment.isUnderReview
+                    ? AppColors.textDisabled
+                    : AppColors.textPrimary,
+                maxLines: contentMaxLines,
+                overflow: contentMaxLines != null
+                    ? TextOverflow.ellipsis
+                    : null,
+              ),
+            ],
+          ),
+        ),
+        ?trailing,
+      ],
     );
   }
 }
@@ -926,7 +1067,8 @@ Future<void> showPhotoViewer(
   bool locked = false,
   Future<PhotoComment?> Function(String content)? onSubmitComment,
   Future<List<PhotoComment>?> Function()? onLoadComments,
-  void Function(PhotoComment comment)? onEditComment,
+  Future<PhotoComment?> Function(PhotoComment comment, String newContent)?
+  onEditComment,
   Future<bool> Function(PhotoComment comment)? onDeleteComment,
   void Function(PhotoComment comment)? onReportComment,
 }) {
