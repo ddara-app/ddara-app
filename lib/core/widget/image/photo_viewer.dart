@@ -16,10 +16,14 @@ class PhotoComment {
     required this.nickname,
     required this.content,
     required this.timeLabel,
+    this.commentId,
     this.profileImageUrl,
     this.isUnderReview = false,
     this.isMine = false,
   });
+
+  /// 서버 댓글 id. 삭제·수정 대상 식별에 쓴다. (API 연동 전 임시 댓글은 null)
+  final int? commentId;
 
   /// 작성자 닉네임.
   final String nickname;
@@ -95,8 +99,10 @@ class PhotoViewer extends StatefulWidget {
   /// 내 댓글 더보기 메뉴 - '수정하기' 콜백. null 이면 메뉴에서 동작만 닫힌다.
   final void Function(PhotoComment comment)? onEditComment;
 
-  /// 내 댓글 더보기 메뉴 - '삭제하기' 콜백. null 이면 메뉴에서 동작만 닫힌다.
-  final void Function(PhotoComment comment)? onDeleteComment;
+  /// 내 댓글 더보기 메뉴 - '삭제하기' 콜백. 삭제에 성공하면 true 를 반환해야
+  /// 하며, true 일 때 목록에서 해당 댓글을 제거한다. null 이면 확인창만 뜨고
+  /// 목록은 그대로 둔다.
+  final Future<bool> Function(PhotoComment comment)? onDeleteComment;
 
   /// 상대 댓글 더보기 메뉴 - '신고하기' 콜백. null 이면 메뉴에서 동작만 닫힌다.
   final void Function(PhotoComment comment)? onReportComment;
@@ -284,6 +290,16 @@ class _PhotoViewerState extends State<PhotoViewer>
     // 끝난 뒤에도 한 번 더 맞춰 새 댓글이 확실히 보이게 한다.
     _scrollCommentsToBottom();
     Future.delayed(_duration, _scrollCommentsToBottom);
+  }
+
+  /// 댓글 삭제 콜백을 호출하고, 성공하면 목록에서 제거한다.
+  /// (삭제 확인창은 [_CommentItem] 이 먼저 띄우고, 확인된 경우에만 호출된다)
+  Future<void> _handleDeleteComment(PhotoComment comment) async {
+    final onDelete = widget.onDeleteComment;
+    if (onDelete == null) return;
+    final deleted = await onDelete(comment);
+    if (!mounted || !deleted) return;
+    setState(() => _comments.remove(comment));
   }
 
   /// 다음 프레임에 댓글 목록을 맨 아래로 스크롤한다.
@@ -524,7 +540,7 @@ class _PhotoViewerState extends State<PhotoViewer>
                                   _CommentItem(
                                     comment: comment,
                                     onEdit: widget.onEditComment,
-                                    onDelete: widget.onDeleteComment,
+                                    onDelete: _handleDeleteComment,
                                     onReport: widget.onReportComment,
                                   ),
                               ],
@@ -911,7 +927,7 @@ Future<void> showPhotoViewer(
   Future<PhotoComment?> Function(String content)? onSubmitComment,
   Future<List<PhotoComment>?> Function()? onLoadComments,
   void Function(PhotoComment comment)? onEditComment,
-  void Function(PhotoComment comment)? onDeleteComment,
+  Future<bool> Function(PhotoComment comment)? onDeleteComment,
   void Function(PhotoComment comment)? onReportComment,
 }) {
   return Navigator.of(context, rootNavigator: true).push(

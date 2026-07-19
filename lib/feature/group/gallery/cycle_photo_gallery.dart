@@ -183,6 +183,11 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                       cycle.starterShotId,
                       content,
                     ),
+                    onDeleteComment: (comment) async {
+                      final id = comment.commentId;
+                      if (id == null) return false;
+                      return _deleteComment(ref, id);
+                    },
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -269,6 +274,12 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                                 ? null
                                 : (content) =>
                                       _submitComment(context, ref, shotId, content),
+                            // 삭제는 댓글 id 로 처리(대상 사진 shotId 와 무관).
+                            onDeleteComment: (comment) async {
+                              final id = comment.commentId;
+                              if (id == null) return false;
+                              return _deleteComment(ref, id);
+                            },
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
@@ -361,6 +372,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     int? myUserId,
   ) {
     return PhotoComment(
+      commentId: comment.commentId,
       nickname: comment.nickname,
       content: comment.underReview
           ? l10n.photoViewerCommentUnderReview
@@ -370,6 +382,14 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       isUnderReview: comment.underReview,
       isMine: myUserId != null && comment.userId == myUserId,
     );
+  }
+
+  /// [commentId] 댓글을 삭제한다. 성공하면 true. (삭제 확인창은 뷰어가 처리)
+  /// 실패 안내는 notifier 가 errorMessage → 토스트로 처리한다.
+  Future<bool> _deleteComment(WidgetRef ref, int commentId) {
+    return ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .deleteComment(commentId: commentId);
   }
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.

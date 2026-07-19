@@ -25,4 +25,9 @@ class CommentDataSource {
 
     return CommentListResponse.fromJson(response.data);
   }
+
+  /// [commentId] 댓글을 삭제한다. (응답 본문 없음)
+  Future<void> deleteComment(int commentId) async {
+    await _dio.delete('/api/comments/$commentId');
+  }
 }

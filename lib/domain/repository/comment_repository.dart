@@ -6,4 +6,7 @@ abstract interface class CommentRepository {
 
   /// [shotId] 사진의 댓글 목록을 조회한다.
   Future<List<Comment>> getComments(int shotId);
+
+  /// [commentId] 댓글을 삭제한다.
+  Future<void> deleteComment(int commentId);
 }

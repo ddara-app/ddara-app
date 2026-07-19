@@ -83,4 +83,28 @@ class CommentRepositoryImpl implements CommentRepository {
       }
     }
   }
+
+  @override
+  Future<void> deleteComment(int commentId) async {
+    try {
+      await _commentDataSource.deleteComment(commentId);
+    } on DioException catch (e) {
+      final code = e.response?.data is Map
+          ? CommentErrorCode.fromValue(e.response?.data['code'])
+          : null;
+
+      switch (code) {
+        case CommentErrorCode.commentForbidden:
+          // 403 — 본인이 작성한 댓글이 아님
+          throw CommentForbiddenException();
+
+        case CommentErrorCode.commentNotFound:
+          // 404 — 댓글 없음
+          throw CommentNotFoundException();
+
+        default:
+          throw NetworkException();
+      }
+    }
+  }
 }

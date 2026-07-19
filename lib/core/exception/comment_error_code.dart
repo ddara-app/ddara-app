@@ -5,6 +5,8 @@ enum CommentErrorCode {
   shotLocked('SHOT_LOCKED', '내 인증샷을 올려야 댓글을 달 수 있어요.'),
   shotNotFound('SHOT_NOT_FOUND', '이미 삭제된 사진이에요.'),
   shotUnderReview('SHOT_UNDER_REVIEW', '검토 중인 사진에는 댓글을 달 수 없어요.'),
+  commentForbidden('COMMENT_FORBIDDEN', '내가 작성한 댓글만 삭제할 수 있어요.'),
+  commentNotFound('COMMENT_NOT_FOUND', '이미 삭제된 댓글이에요.'),
 
   /// 네트워크 오류 등 매칭되는 서버 코드가 없을 때의 기본값.
   unknown('UNKNOWN', '네트워크 연결이 불안정합니다.');

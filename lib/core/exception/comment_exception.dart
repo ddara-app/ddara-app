@@ -8,3 +8,9 @@ class ShotLockedException extends CommentException {}
 
 /// 409 — 검토중(신고된) 사진.
 class ShotUnderReviewException extends CommentException {}
+
+/// 403 — 본인이 작성한 댓글이 아님. (삭제 권한 없음)
+class CommentForbiddenException extends CommentException {}
+
+/// 404 — 댓글 없음.
+class CommentNotFoundException extends CommentException {}
