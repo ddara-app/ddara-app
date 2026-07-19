@@ -81,6 +81,7 @@ class PhotoViewer extends StatefulWidget {
     this.comments = const [],
     this.myNickname,
     this.locked = false,
+    this.openCommentSheet = false,
     this.onSubmitComment,
     this.onLoadComments,
     this.onEditComment,
@@ -131,6 +132,10 @@ class PhotoViewer extends StatefulWidget {
   /// 잠긴 사진 여부. true 면 뷰어에서도 블러 + 가운데 자물쇠를 유지한다.
   /// (본인이 아직 업로드하지 않아 타인 사진이 잠긴 경우 — 댓글은 볼 수 있다)
   final bool locked;
+
+  /// 댓글 시트를 연 채로 열지 여부. (댓글을 눌러 들어온 경우)
+  /// true 면 말풍선을 거치지 않고 처음부터 시트가 올라온 상태로 시작한다.
+  final bool openCommentSheet;
 
   /// 목록 카드와 뷰어를 잇는 Hero 전환 태그. null 이면 전환 애니메이션 없이 표시.
   final Object? heroTag;
@@ -217,6 +222,16 @@ class _PhotoViewerState extends State<PhotoViewer>
     _commentFocusNode.addListener(() {
       if (mounted) setState(() {});
     });
+    // 댓글을 눌러 들어왔으면 시트를 연 상태로 시작한다. 뷰어 자체가 페이드로
+    // 등장하므로 시트는 애니메이션 없이 이미 올라와 있게 둔다.
+    if (widget.openCommentSheet) {
+      _sheetVisible = true;
+      _sheetController.value = 1;
+      // 조회는 setState 를 부르므로 첫 프레임 이후로 미룬다.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadComments();
+      });
+    }
   }
 
   @override
@@ -1141,6 +1156,7 @@ Future<void> showPhotoViewer(
   List<PhotoComment> comments = const [],
   String? myNickname,
   bool locked = false,
+  bool openCommentSheet = false,
   Future<PhotoComment?> Function(String content)? onSubmitComment,
   Future<List<PhotoComment>?> Function()? onLoadComments,
   Future<PhotoComment?> Function(PhotoComment comment, String newContent)?
@@ -1163,6 +1179,7 @@ Future<void> showPhotoViewer(
         comments: comments,
         myNickname: myNickname,
         locked: locked,
+        openCommentSheet: openCommentSheet,
         onSubmitComment: onSubmitComment,
         onLoadComments: onLoadComments,
         onEditComment: onEditComment,

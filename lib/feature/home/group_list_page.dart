@@ -1,13 +1,26 @@
 import 'dart:ui' show lerpDouble;
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/comment/comment.dart';
+import 'package:ddara/core/model/feed/feed.dart';
 import 'package:ddara/core/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/time_ago.dart';
+import 'package:ddara/core/widget/image/photo_viewer.dart';
+import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
+import 'package:ddara/feature/home/provider/notifier_provider.dart';
+import 'package:ddara/feature/home/util/feed_state.dart';
 import 'package:ddara/feature/home/widget/fab_speed_dial.dart';
+import 'package:ddara/feature/home/widget/feed_card.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
 import 'package:ddara/feature/home/widget/meeting_card.dart';
+import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// 우측 하단 FAB 의 지름.
@@ -104,7 +117,7 @@ class _GroupListPageState extends State<GroupListPage> {
                     groups: widget.groups,
                     blockedUserIds: widget.blockedUserIds,
                   ),
-                  const _RecentUpdatesView(),
+                  _RecentUpdatesView(blockedUserIds: widget.blockedUserIds),
                 ],
               ),
             ),
@@ -239,7 +252,7 @@ class _GroupListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _CardGridView(
-      groups: groups,
+      items: groups,
       dashboard: HomeDashboard.groupCount(
         count: groups.length,
         pageIndex: 0,
@@ -257,26 +270,176 @@ class _GroupListView extends StatelessWidget {
 
 /// 최근 업데이트 탭: 따라찍기 모임 탭과 같은 그리드 구조를 공유한다.
 ///
-/// 업데이트 데이터가 아직 없어 지금은 대시보드만 있는 빈 그리드를 보여준다.
-class _RecentUpdatesView extends StatelessWidget {
-  const _RecentUpdatesView();
+/// 모임 카드 자리에 피드 카드(회차 주제 · 업로더 닉네임)를 채우고,
+/// 잠긴 사진은 블러 + 자물쇠로 가린다.
+class _RecentUpdatesView extends ConsumerWidget {
+  const _RecentUpdatesView({required this.blockedUserIds});
+
+  /// 내가 차단한 사용자 userId 집합.
+  /// (차단한 멤버가 올린 사진은 차단 자리표시로 가린다)
+  final Set<int> blockedUserIds;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(feedNotifierProvider);
+
+    // 댓글 등 액션 실패를 토스트로 안내한다.
+    // (초기 조회 실패는 본문에 표시되므로 피드가 로드된 뒤의 에러만 다룬다)
+    ref.listen(feedNotifierProvider, (prev, next) {
+      if (next.feed != null && next.errorMessage.isNotEmpty) {
+        Toast.showToast(context, next.errorMessage, type: ToastType.error);
+        ref.read(feedNotifierProvider.notifier).clearError();
+      }
+    });
+
+    final feed = state.feed;
+    // 조회 완료 전: 로딩 인디케이터 또는 에러 메시지. (홈 본문과 같은 분기)
+    if (feed == null) {
+      return state.errorMessage.isNotEmpty
+          ? Center(child: AppText.body(state.errorMessage))
+          : const Center(child: CupertinoActivityIndicator());
+    }
+
+    // 차단한 멤버가 올린 사진은 목록에서 아예 뺀다. (자리표시로도 남기지 않는다)
+    final items = feed.items
+        .where((item) => !blockedUserIds.contains(item.userId))
+        .toList();
+
     return _CardGridView(
-      // TODO: 최근 업데이트 데이터가 정해지면 개수·카드 목록을 채운다.
-      groups: const [],
-      dashboard: const HomeDashboard.updateCount(
-        count: 0,
+      items: items,
+      dashboard: HomeDashboard.updateCount(
+        count: feed.updateCount,
         pageIndex: 1,
         pageCount: _tabCount,
       ),
-      cardBuilder: (context, group) => MeetingCard(
-        group: group,
-        onTap: () => _openGroup(context, group.groupId),
+      cardBuilder: (context, item) => FeedCard(
+        item: item,
+        // 차단한 멤버의 댓글은 미리보기에서 뺀다.
+        blockedUserIds: blockedUserIds,
+        onCommentTap: () => _openPhotoViewer(context, ref, item, state),
+        // 카드를 누르면 그 사진이 속한 회차의 갤러리로 들어간다.
+        onTap: () => context.push(RoutePath.follower, extra: item.cycleId),
       ),
     );
   }
+
+  /// 피드 사진을 크게 띄우고, 댓글 시트가 열린 상태로 시작한다.
+  ///
+  /// 카드에서 보이던 프레임(186:245) 그대로 잘라 보여주고, 잠긴 사진은 뷰어에서도
+  /// 블러 + 자물쇠를 유지한다. (서버가 잠긴 사진의 댓글 작성을 막으므로 뷰어가
+  /// 입력창을 비활성화한다)
+  void _openPhotoViewer(
+    BuildContext context,
+    WidgetRef ref,
+    FeedItem item,
+    FeedState state,
+  ) {
+    final imageUrl = item.imageUrl;
+    if (imageUrl == null) return;
+
+    final notifier = ref.read(feedNotifierProvider.notifier);
+    showPhotoViewer(
+      context,
+      image: CachedNetworkImageProvider(imageUrl),
+      aspectRatio: photoCardAspectRatio,
+      // 댓글 시트 헤더: 업로더 닉네임 + 따라찍기 주제.
+      title: item.nickname,
+      body: item.topic,
+      myNickname: state.myNickname,
+      locked: item.locked,
+      // 댓글을 눌러 들어왔으므로 시트를 연 채로 시작한다.
+      openCommentSheet: true,
+      onLoadComments: () async {
+        final comments = await notifier.loadComments(
+          shotId: item.shotId,
+          blockedUserIds: blockedUserIds,
+        );
+        if (comments == null || !context.mounted) return null;
+        final l10n = AppLocalizations.of(context);
+        return comments
+            .map((comment) => _toPhotoComment(comment, l10n, state.myUserId))
+            .toList();
+      },
+      onSubmitComment: (content) async {
+        final created = await notifier.submitComment(
+          shotId: item.shotId,
+          content: content,
+        );
+        if (created == null || !context.mounted) return null;
+        return _toPhotoComment(
+          created,
+          AppLocalizations.of(context),
+          state.myUserId,
+        );
+      },
+      // 삭제·수정은 댓글 id 로 처리한다. (대상 사진 shotId 와 무관)
+      onDeleteComment: (comment) async {
+        final id = comment.commentId;
+        if (id == null) return false;
+        return notifier.deleteComment(commentId: id);
+      },
+      onEditComment: (comment, newContent) async {
+        final id = comment.commentId;
+        if (id == null) return null;
+        final content = await notifier.editComment(
+          commentId: id,
+          content: newContent,
+        );
+        if (content == null) return null;
+        // 수정에 성공했으므로 '수정됨' 표시를 켠다.
+        return comment.copyWith(content: content, isEdited: true);
+      },
+      onReportComment: (comment) => _reportComment(context, ref, comment),
+    );
+  }
+
+  /// 댓글 신고 사유 시트를 띄우고, 확정하면 접수한다.
+  /// 성공 시 완료 토스트를 띄운다. (신고해도 댓글은 그대로 노출 — 관리자 검토 후 처리)
+  Future<void> _reportComment(
+    BuildContext context,
+    WidgetRef ref,
+    PhotoComment comment,
+  ) async {
+    final commentId = comment.commentId;
+    if (commentId == null) return;
+
+    final result = await CommentReportSheet.show(context);
+    if (result == null || !context.mounted) return;
+
+    final success = await ref
+        .read(feedNotifierProvider.notifier)
+        .reportComment(
+          commentId: commentId,
+          reason: result.reason,
+          reasonText: result.detail.isEmpty ? null : result.detail,
+        );
+    if (!success || !context.mounted) return;
+
+    Toast.showToast(context, AppLocalizations.of(context).photoReportSubmitted);
+  }
+}
+
+/// 도메인 [Comment] 를 뷰어 표시용 [PhotoComment] 로 변환한다.
+/// 검토 중인 댓글은 내용 대신 자리표시 문구를 넣고, 작성자가 [myUserId] 와
+/// 같으면 내 댓글로 표시한다. (더보기 메뉴 구성이 달라진다)
+PhotoComment _toPhotoComment(
+  Comment comment,
+  AppLocalizations l10n,
+  int? myUserId,
+) {
+  return PhotoComment(
+    commentId: comment.commentId,
+    nickname: comment.nickname,
+    content: comment.underReview
+        ? l10n.photoViewerCommentUnderReview
+        : (comment.content ?? ''),
+    timeLabel: timeAgoLabel(comment.createdAt, l10n),
+    profileImageUrl: comment.profileImageUrl,
+    isUnderReview: comment.underReview,
+    isMine: myUserId != null && comment.userId == myUserId,
+    // 수정 시각이 있으면 수정된 댓글로 본다.
+    isEdited: comment.updatedAt != null,
+  );
 }
 
 void _openGroup(BuildContext context, int groupId) {
@@ -290,20 +453,21 @@ void _openGroup(BuildContext context, int groupId) {
 /// 차이만큼 우측 카드들이 위로 덜 내려오면서 자연스러운 지그재그가 만들어진다.
 ///
 /// 카드 높이가 균일하므로 Masonry 패키지 없이 `Row` + `Column` 2개로 충분하다.
-class _CardGridView extends StatelessWidget {
+class _CardGridView<T> extends StatelessWidget {
   const _CardGridView({
-    required this.groups,
+    required this.items,
     required this.dashboard,
     required this.cardBuilder,
   });
 
-  final List<Group> groups;
+  /// 카드로 그릴 항목 목록. (탭마다 타입이 다르다 — 모임 / 피드 항목)
+  final List<T> items;
 
   /// 우측 열 맨 위에 고정되는 요약 위젯. (탭마다 담는 내용이 다르다)
   final Widget dashboard;
 
   /// 카드 생성자. (탭마다 카드에 담는 내용이 달라 주입받는다)
-  final Widget Function(BuildContext context, Group group) cardBuilder;
+  final Widget Function(BuildContext context, T item) cardBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -342,8 +506,8 @@ class _CardGridView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: AppSpacing.s3,
                     children: [
-                      for (var i = 0; i < groups.length; i += 2)
-                        cardBuilder(context, groups[i]),
+                      for (var i = 0; i < items.length; i += 2)
+                        cardBuilder(context, items[i]),
                     ],
                   ),
                 ),
@@ -355,8 +519,8 @@ class _CardGridView extends StatelessWidget {
                     children: [
                       // 지그재그 오프셋용 고정 위젯. (내용은 탭별로 주입)
                       dashboard,
-                      for (var i = 1; i < groups.length; i += 2)
-                        cardBuilder(context, groups[i]),
+                      for (var i = 1; i < items.length; i += 2)
+                        cardBuilder(context, items[i]),
                     ],
                   ),
                 ),
