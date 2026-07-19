@@ -449,6 +449,10 @@
   "@commentEditingLabel": {
     "description": "댓글 수정 모드에서 입력창 위에 뜨는 라벨"
   },
+  "commentEdited": "수정됨",
+  "@commentEdited": {
+    "description": "수정된 댓글의 시간 옆에 붙는 표시"
+  },
   "commentDeleteTitle": "이 댓글을 삭제할까요?",
   "@commentDeleteTitle": {
     "description": "댓글 삭제 확인 다이얼로그 제목"

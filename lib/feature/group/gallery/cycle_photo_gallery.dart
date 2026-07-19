@@ -385,6 +385,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       profileImageUrl: comment.profileImageUrl,
       isUnderReview: comment.underReview,
       isMine: myUserId != null && comment.userId == myUserId,
+      // 수정 시각이 있으면 수정된 댓글로 본다.
+      isEdited: comment.updatedAt != null,
     );
   }
 
@@ -411,7 +413,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         .editComment(commentId: id, content: newContent);
     if (content == null) return null;
 
-    return comment.copyWith(content: content);
+    // 수정에 성공했으므로 '수정됨' 표시를 켠다.
+    return comment.copyWith(content: content, isEdited: true);
   }
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.

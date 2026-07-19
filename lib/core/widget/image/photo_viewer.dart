@@ -20,6 +20,7 @@ class PhotoComment {
     this.profileImageUrl,
     this.isUnderReview = false,
     this.isMine = false,
+    this.isEdited = false,
   });
 
   /// 서버 댓글 id. 삭제·수정 대상 식별에 쓴다. (API 연동 전 임시 댓글은 null)
@@ -45,7 +46,10 @@ class PhotoComment {
   /// (더보기 메뉴 구성이 달라진다 — 내 댓글: 수정·삭제, 상대: 신고)
   final bool isMine;
 
-  PhotoComment copyWith({String? content}) {
+  /// 수정된 댓글인지 여부. (시간 옆에 '수정됨' 표시)
+  final bool isEdited;
+
+  PhotoComment copyWith({String? content, bool? isEdited}) {
     return PhotoComment(
       commentId: commentId,
       nickname: nickname,
@@ -54,6 +58,7 @@ class PhotoComment {
       profileImageUrl: profileImageUrl,
       isUnderReview: isUnderReview,
       isMine: isMine,
+      isEdited: isEdited ?? this.isEdited,
     );
   }
 }
@@ -1032,6 +1037,19 @@ class _CommentContent extends StatelessWidget {
                     comment.timeLabel,
                     color: AppColors.textDisabled,
                   ),
+                  // 수정된 댓글은 시간 옆에 '· 수정됨' 을 덧붙인다.
+                  if (comment.isEdited) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.s1,
+                      ),
+                      child: AppText.caption('·', color: AppColors.textDisabled),
+                    ),
+                    AppText.caption(
+                      AppLocalizations.of(context).commentEdited,
+                      color: AppColors.textDisabled,
+                    ),
+                  ],
                 ],
               ),
               // 검토 중인 댓글은 자리표시 문구를 흐린 색으로 보여준다.

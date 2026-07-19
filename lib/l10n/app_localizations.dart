@@ -1126,6 +1126,12 @@ abstract class AppLocalizations {
   /// **'댓글 수정 중'**
   String get commentEditingLabel;
 
+  /// 수정된 댓글의 시간 옆에 붙는 표시
+  ///
+  /// In ko, this message translates to:
+  /// **'수정됨'**
+  String get commentEdited;
+
   /// 댓글 삭제 확인 다이얼로그 제목
   ///
   /// In ko, this message translates to:
