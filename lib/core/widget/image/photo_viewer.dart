@@ -152,6 +152,10 @@ class _PhotoViewerState extends State<PhotoViewer>
   /// 드래그를 놓았을 때 이 속도(px/s)보다 빠르면 진행도와 무관하게 닫는다.
   static const _dismissVelocity = 700.0;
 
+  /// 전송 버튼(알약) 높이. 아이콘 24 + 상하 패딩(s1)×2.
+  /// 입력창 높이를 이 값 기준으로 잡아, 아이콘이 생겨도 높이가 변하지 않게 한다.
+  static const double _sendButtonHeight = 24 + AppSpacing.s1 * 2;
+
   /// 시트 진행도. (0 = 닫힘 · 1 = 열림)
   /// 드래그 중에는 값을 직접 갱신해 이미지 위치·시트가 손가락을 따라온다.
   late final AnimationController _sheetController = AnimationController(
@@ -717,16 +721,19 @@ class _PhotoViewerState extends State<PhotoViewer>
       onTap: locked ? null : _commentFocusNode.requestFocus,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s5,
-          vertical: AppSpacing.s4,
+        // 우측은 전송 버튼(알약)이 자리하도록 좁게 둔다. (피그마 기준)
+        padding: const EdgeInsets.only(
+          top: AppSpacing.s2,
+          left: AppSpacing.s5,
+          right: AppSpacing.s2,
+          bottom: AppSpacing.s2,
         ),
         decoration: ShapeDecoration(
           // 잠긴 사진도 입력 영역과 같은 배경으로 통일하고, 비활성은 글자색으로
           // 구분한다.
           color: locked ? AppColors.bgSurface : null,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1.5, color: AppColors.borderStrong),
+            side: const BorderSide(width: 1.5, color: AppColors.borderDefault),
             borderRadius: BorderRadius.circular(AppRadius.full),
           ),
         ),
@@ -761,22 +768,36 @@ class _PhotoViewerState extends State<PhotoViewer>
                 padding: EdgeInsets.only(left: AppSpacing.s2),
                 child: LockIcon(size: 20, color: AppColors.textDisabled),
               )
-            // 그 외에는 입력값이 있을 때만 tail(전송) 아이콘을 띄운다. 탭하면 등록.
+            // 그 외에는 입력값이 있을 때만 tail(전송) 버튼을 띄운다. 탭하면 등록.
+            // (강조색 알약 버튼 + 종이비행기 아이콘 — 피그마 기준)
             else
               ValueListenableBuilder<TextEditingValue>(
                 valueListenable: _commentController,
                 builder: (context, value, _) {
                   if (value.text.trim().isEmpty) {
-                    return const SizedBox.shrink();
+                    // 버튼이 없어도 높이를 유지해 입력창 높이가 변하지 않게 한다.
+                    return const SizedBox(height: _sendButtonHeight);
                   }
                   return GestureDetector(
                     onTap: () => _submitComment(_commentController.text),
-                    child: const Padding(
-                      padding: EdgeInsets.only(left: AppSpacing.s2),
-                      child: Icon(
-                        CupertinoIcons.paperplane,
-                        size: 20,
-                        color: AppColors.accentDefault,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: AppSpacing.s3),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.s3,
+                          vertical: AppSpacing.s1,
+                        ),
+                        decoration: ShapeDecoration(
+                          color: AppColors.accentDefault,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.full),
+                          ),
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.arrow_up,
+                          size: 24,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                   );
