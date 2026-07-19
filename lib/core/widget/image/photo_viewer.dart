@@ -147,9 +147,6 @@ class _PhotoViewerState extends State<PhotoViewer>
   /// 댓글 등록 요청 진행 중 여부. (연속 전송 방지)
   bool _submitting = false;
 
-  /// 댓글 목록을 (성공적으로) 한 번이라도 불러왔는지 여부. (재조회 방지)
-  bool _commentsLoaded = false;
-
   /// 댓글 목록 조회 진행 중 여부. (시트 본문에 로딩 인디케이터 표시)
   bool _loadingComments = false;
 
@@ -178,32 +175,38 @@ class _PhotoViewerState extends State<PhotoViewer>
     super.dispose();
   }
 
-  /// 시트를 연다. (처음 열 때 댓글 목록을 조회한다)
+  /// 시트를 연다. (열 때마다 댓글 목록을 다시 조회한다)
   void _openSheet() {
     setState(() => _sheetVisible = true);
     _sheetController.animateTo(1, curve: Curves.easeInOut);
     _loadComments();
   }
 
-  /// 댓글 목록을 처음 한 번 조회해 채운다. (실패하면 다음에 다시 열 때 재시도)
+  /// 댓글 목록을 조회해 서버 목록으로 갱신한다. 시트를 열 때마다 호출되어,
+  /// 닫았다 다시 열면 최신 목록으로 재조회된다.
+  ///
+  /// 조회 중 기존 목록은 그대로 보여 주고(빈 목록일 때만 로딩 인디케이터),
+  /// 성공하면 서버 목록으로 교체한다. 조회 중 새로 등록한 댓글은 유실되지
+  /// 않도록 서버 목록 뒤에 잇는다. 실패하면 기존 목록을 유지한다.
   Future<void> _loadComments() async {
     final onLoad = widget.onLoadComments;
-    if (onLoad == null || _commentsLoaded || _loadingComments) return;
+    if (onLoad == null || _loadingComments) return;
 
     setState(() => _loadingComments = true);
+    // 조회 시작 시점의 목록 길이. 조회 중 등록된 댓글을 가려내는 데 쓴다.
+    final beforeCount = _comments.length;
     final loaded = await onLoad();
     if (!mounted) return;
     setState(() {
       _loadingComments = false;
-      // 실패(null)면 loaded 표시를 남기지 않아 다음에 다시 열 때 재시도한다.
+      // 실패(null)면 기존 목록을 그대로 두고 다음에 다시 열 때 재시도한다.
       if (loaded == null) return;
-      _commentsLoaded = true;
-      // 조회 완료 전 등록한 임시 댓글(있다면)은 서버 목록 뒤에 잇는다.
-      final pending = List.of(_comments);
+      // 조회 중 새로 등록된 댓글(있다면)만 서버 목록 뒤에 잇는다.
+      final addedDuringLoad = _comments.sublist(beforeCount);
       _comments
         ..clear()
         ..addAll(loaded)
-        ..addAll(pending);
+        ..addAll(addedDuringLoad);
     });
   }
 
@@ -219,11 +222,12 @@ class _PhotoViewerState extends State<PhotoViewer>
     _sheetController.value -= details.primaryDelta! / sheetHeight;
   }
 
-  /// 입력한 댓글을 등록한다.
+  /// 입력한 댓글을 등록한다. (키보드의 전송 버튼·입력창 tail 아이콘 공용)
   ///
   /// [PhotoViewer.onSubmitComment] 가 있으면 서버에 등록하고 성공한 댓글만
   /// 목록에 추가한다. (실패 시 입력값을 유지해 재시도할 수 있게 한다)
   /// 콜백이 없으면 메모리상에만 쌓는 임시 동작을 한다.
+  /// 전송에 성공하면 입력값을 비우고 키보드를 내린다.
   Future<void> _submitComment(String text) async {
     final content = text.trim();
     if (content.isEmpty || _submitting) return;
@@ -239,6 +243,7 @@ class _PhotoViewerState extends State<PhotoViewer>
         ),
       );
       _commentController.clear();
+      _commentFocusNode.unfocus();
       return;
     }
 
@@ -246,15 +251,25 @@ class _PhotoViewerState extends State<PhotoViewer>
     final created = await onSubmit(content);
     if (!mounted) return;
     setState(() => _submitting = false);
-    // 실패(null)면 입력값을 유지해 재시도할 수 있게 한다.
+    // 실패(null)면 입력값·키보드를 유지해 바로 재시도할 수 있게 한다.
     if (created == null) return;
     _commentController.clear();
+    _commentFocusNode.unfocus();
     _appendComment(created);
   }
 
-  /// 댓글을 목록에 추가하고, 다음 프레임에 맨 아래로 스크롤한다.
+  /// 댓글을 목록에 추가하고 맨 아래(새 댓글)로 스크롤한다.
   void _appendComment(PhotoComment comment) {
     setState(() => _comments.add(comment));
+    // 새 댓글이 그려진 다음 프레임에 맨 아래로 이동한다. 전송 직후 키보드가
+    // 내려가며 시트 높이·키보드 인셋이 약 _duration 동안 바뀌므로, 그 변화가
+    // 끝난 뒤에도 한 번 더 맞춰 새 댓글이 확실히 보이게 한다.
+    _scrollCommentsToBottom();
+    Future.delayed(_duration, _scrollCommentsToBottom);
+  }
+
+  /// 다음 프레임에 댓글 목록을 맨 아래로 스크롤한다.
+  void _scrollCommentsToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_commentScrollController.hasClients) return;
       _commentScrollController.animateTo(
@@ -528,14 +543,19 @@ class _PhotoViewerState extends State<PhotoViewer>
   }
 
   /// 알약 형태의 댓글 입력 필드.
+  ///
+  /// 잠긴(블러+자물쇠) 사진은 서버가 댓글 작성을 막으므로 입력을 비활성화하고,
+  /// 안내 문구 + tail 자물쇠 아이콘을 보여준다.
   Widget _commentInput(AppLocalizations l10n) {
+    final locked = widget.locked;
     final placeholderStyle = AppTypography.body.copyWith(
       color: AppColors.textDisabled,
     );
     return GestureDetector(
       // 패딩 등 박스 빈 영역을 눌러도 입력에 포커스가 잡히도록.
+      // (잠긴 사진은 포커스를 주지 않는다)
       behavior: HitTestBehavior.opaque,
-      onTap: _commentFocusNode.requestFocus,
+      onTap: locked ? null : _commentFocusNode.requestFocus,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(
@@ -543,6 +563,9 @@ class _PhotoViewerState extends State<PhotoViewer>
           vertical: AppSpacing.s4,
         ),
         decoration: ShapeDecoration(
+          // 잠긴 사진도 입력 영역과 같은 배경으로 통일하고, 비활성은 글자색으로
+          // 구분한다.
+          color: locked ? AppColors.bgSurface : null,
           shape: RoundedRectangleBorder(
             side: const BorderSide(width: 1.5, color: AppColors.borderStrong),
             borderRadius: BorderRadius.circular(AppRadius.full),
@@ -556,9 +579,16 @@ class _PhotoViewerState extends State<PhotoViewer>
                 focusNode: _commentFocusNode,
                 padding: EdgeInsets.zero,
                 decoration: null,
-                placeholder: l10n.photoViewerCommentHint,
+                // 잠긴 사진은 입력을 막고 안내 문구를 플레이스홀더로 보여준다.
+                enabled: !locked,
+                placeholder: locked
+                    ? l10n.photoViewerCommentLockedHint
+                    : l10n.photoViewerCommentHint,
                 placeholderStyle: placeholderStyle,
-                style: placeholderStyle.copyWith(color: AppColors.textPrimary),
+                // 잠긴 사진은 입력이 비활성이므로 글자도 흐린(disabled) 색으로.
+                style: placeholderStyle.copyWith(
+                  color: locked ? AppColors.textDisabled : AppColors.textPrimary,
+                ),
                 cursorColor: AppColors.accentDefault,
                 // 서버 400(200자 초과)을 막기 위해 입력 단계에서 제한한다.
                 maxLength: 200,
@@ -566,24 +596,37 @@ class _PhotoViewerState extends State<PhotoViewer>
                 onSubmitted: _submitComment,
               ),
             ),
-            // 입력값이 있을 때만 tail(전송) 아이콘을 띄운다. 탭하면 등록한다.
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: _commentController,
-              builder: (context, value, _) {
-                if (value.text.trim().isEmpty) return const SizedBox.shrink();
-                return GestureDetector(
-                  onTap: () => _submitComment(_commentController.text),
-                  child: const Padding(
-                    padding: EdgeInsets.only(left: AppSpacing.s2),
-                    child: Icon(
-                      CupertinoIcons.paperplane_fill,
-                      size: 20,
-                      color: AppColors.textDisabled,
+            // 잠긴 사진은 tail 자리에 자물쇠 아이콘을 고정으로 보여준다.
+            if (locked)
+              const Padding(
+                padding: EdgeInsets.only(left: AppSpacing.s2),
+                child: Icon(
+                  CupertinoIcons.lock_fill,
+                  size: 20,
+                  color: AppColors.textDisabled,
+                ),
+              )
+            // 그 외에는 입력값이 있을 때만 tail(전송) 아이콘을 띄운다. 탭하면 등록.
+            else
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _commentController,
+                builder: (context, value, _) {
+                  if (value.text.trim().isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return GestureDetector(
+                    onTap: () => _submitComment(_commentController.text),
+                    child: const Padding(
+                      padding: EdgeInsets.only(left: AppSpacing.s2),
+                      child: Icon(
+                        CupertinoIcons.paperplane,
+                        size: 20,
+                        color: AppColors.accentDefault,
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
           ],
         ),
       ),

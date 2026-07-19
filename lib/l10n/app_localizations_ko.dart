@@ -561,6 +561,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoViewerCommentHint => '댓글을 남겨보세요...';
 
   @override
+  String get photoViewerCommentLockedHint => '따라찍기를 이용한 후 댓글을 남길 수 있어요';
+
+  @override
   String get photoViewerCommentEmpty => '아직 댓글이 없습니다.';
 
   @override

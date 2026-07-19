@@ -1084,6 +1084,12 @@ abstract class AppLocalizations {
   /// **'댓글을 남겨보세요...'**
   String get photoViewerCommentHint;
 
+  /// 잠긴(블러+자물쇠) 사진에서 댓글 입력이 비활성화됐을 때의 안내 플레이스홀더
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기를 이용한 후 댓글을 남길 수 있어요'**
+  String get photoViewerCommentLockedHint;
+
   /// 사진 뷰어 댓글이 하나도 없을 때 안내 문구
   ///
   /// In ko, this message translates to:
