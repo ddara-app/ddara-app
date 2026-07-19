@@ -1102,6 +1102,36 @@ abstract class AppLocalizations {
   /// **'신고 접수되어 검토 중인 댓글입니다'**
   String get photoViewerCommentUnderReview;
 
+  /// 내 댓글 더보기 메뉴 - 수정
+  ///
+  /// In ko, this message translates to:
+  /// **'수정하기'**
+  String get commentMenuEdit;
+
+  /// 내 댓글 더보기 메뉴 - 삭제
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제하기'**
+  String get commentMenuDelete;
+
+  /// 상대방 댓글 더보기 메뉴 - 신고
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하기'**
+  String get commentMenuReport;
+
+  /// 댓글 삭제 확인 다이얼로그 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'이 댓글을 삭제할까요?'**
+  String get commentDeleteTitle;
+
+  /// 댓글 삭제 확인 다이얼로그 본문
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.'**
+  String get commentDeleteMessage;
+
   /// No description provided for @cameraPermissionTitle.
   ///
   /// In ko, this message translates to:

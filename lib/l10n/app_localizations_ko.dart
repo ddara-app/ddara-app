@@ -570,6 +570,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoViewerCommentUnderReview => '신고 접수되어 검토 중인 댓글입니다';
 
   @override
+  String get commentMenuEdit => '수정하기';
+
+  @override
+  String get commentMenuDelete => '삭제하기';
+
+  @override
+  String get commentMenuReport => '신고하기';
+
+  @override
+  String get commentDeleteTitle => '이 댓글을 삭제할까요?';
+
+  @override
+  String get commentDeleteMessage => '삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.';
+
+  @override
   String get cameraPermissionTitle => '카메라 권한이 필요해요';
 
   @override

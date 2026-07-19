@@ -5,6 +5,7 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,6 +18,7 @@ class PhotoComment {
     required this.timeLabel,
     this.profileImageUrl,
     this.isUnderReview = false,
+    this.isMine = false,
   });
 
   /// 작성자 닉네임.
@@ -34,6 +36,10 @@ class PhotoComment {
   /// 신고 접수로 검토 중인 댓글인지 여부.
   /// (내용을 흐린 색으로 보여주고 더보기 메뉴를 숨긴다)
   final bool isUnderReview;
+
+  /// 내가 작성한 댓글인지 여부.
+  /// (더보기 메뉴 구성이 달라진다 — 내 댓글: 수정·삭제, 상대: 신고)
+  final bool isMine;
 }
 
 /// 이미지를 전체 화면으로 크게 보여주는 뷰어.
@@ -55,6 +61,9 @@ class PhotoViewer extends StatefulWidget {
     this.locked = false,
     this.onSubmitComment,
     this.onLoadComments,
+    this.onEditComment,
+    this.onDeleteComment,
+    this.onReportComment,
   });
 
   /// 크게 보여줄 이미지.
@@ -82,6 +91,15 @@ class PhotoViewer extends StatefulWidget {
   /// 성공 시 표시할 목록을, 실패 시 null 을 반환한다. (실패 안내는 호출 측에서
   /// 처리하고, 다시 열면 재시도한다) null 로 두면 [comments] 만 표시한다.
   final Future<List<PhotoComment>?> Function()? onLoadComments;
+
+  /// 내 댓글 더보기 메뉴 - '수정하기' 콜백. null 이면 메뉴에서 동작만 닫힌다.
+  final void Function(PhotoComment comment)? onEditComment;
+
+  /// 내 댓글 더보기 메뉴 - '삭제하기' 콜백. null 이면 메뉴에서 동작만 닫힌다.
+  final void Function(PhotoComment comment)? onDeleteComment;
+
+  /// 상대 댓글 더보기 메뉴 - '신고하기' 콜백. null 이면 메뉴에서 동작만 닫힌다.
+  final void Function(PhotoComment comment)? onReportComment;
 
   /// 잠긴 사진 여부. true 면 뷰어에서도 블러 + 가운데 자물쇠를 유지한다.
   /// (본인이 아직 업로드하지 않아 타인 사진이 잠긴 경우 — 댓글은 볼 수 있다)
@@ -503,7 +521,12 @@ class _PhotoViewerState extends State<PhotoViewer>
                               ),
                               children: [
                                 for (final comment in _comments)
-                                  _CommentItem(comment: comment),
+                                  _CommentItem(
+                                    comment: comment,
+                                    onEdit: widget.onEditComment,
+                                    onDelete: widget.onDeleteComment,
+                                    onReport: widget.onReportComment,
+                                  ),
                               ],
                             ),
                     ),
@@ -635,14 +658,173 @@ class _PhotoViewerState extends State<PhotoViewer>
 }
 
 /// 댓글 시트의 댓글 한 줄. (좌: 프로필 아바타 · 우: 닉네임/시간 + 내용)
-class _CommentItem extends StatelessWidget {
-  const _CommentItem({required this.comment});
+///
+/// 더보기(⋮) 버튼을 누르면 버튼 아래에 컨텍스트 메뉴가 뜬다. 배경은 어둡게
+/// 하지 않고(투명 배리어), 바깥을 탭하면 닫힌다. 내 댓글이면 수정·삭제,
+/// 상대 댓글이면 신고 항목을 보여준다.
+class _CommentItem extends StatefulWidget {
+  const _CommentItem({
+    required this.comment,
+    this.onEdit,
+    this.onDelete,
+    this.onReport,
+  });
 
   /// 표시할 댓글.
   final PhotoComment comment;
 
+  /// 내 댓글 '수정하기' 콜백.
+  final void Function(PhotoComment comment)? onEdit;
+
+  /// 내 댓글 '삭제하기' 콜백.
+  final void Function(PhotoComment comment)? onDelete;
+
+  /// 상대 댓글 '신고하기' 콜백.
+  final void Function(PhotoComment comment)? onReport;
+
+  @override
+  State<_CommentItem> createState() => _CommentItemState();
+}
+
+class _CommentItemState extends State<_CommentItem> {
+  /// 버튼 위치에 메뉴를 잇는 링크.
+  final LayerLink _link = LayerLink();
+
+  /// 열려 있는 메뉴 라우트. 닫혀 있으면 null.
+  Route<void>? _menuRoute;
+
+  void _open() {
+    if (_menuRoute != null) return;
+    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
+    // 되도록 한다. 배리어는 투명이라 배경을 어둡게 하지 않고, 바깥 탭으로 닫힌다.
+    final route = RawDialogRoute<void>(
+      barrierColor: const Color(0x00000000),
+      barrierLabel: AppLocalizations.of(context).commonCancel,
+      transitionDuration: Duration.zero,
+      pageBuilder: (dialogContext, _, _) => _buildOverlay(dialogContext),
+    );
+    _menuRoute = route;
+    Navigator.of(context).push(route).then((_) => _menuRoute = null);
+  }
+
+  /// 메뉴를 닫은 뒤 선택한 동작을 실행한다.
+  void _select(
+    BuildContext dialogContext,
+    void Function(PhotoComment comment)? action,
+  ) {
+    Navigator.of(dialogContext).pop();
+    action?.call(widget.comment);
+  }
+
+  /// 메뉴를 닫고 삭제 확인 다이얼로그를 띄운다. 확인하면 삭제 콜백을 부른다.
+  Future<void> _confirmDelete(BuildContext dialogContext) async {
+    Navigator.of(dialogContext).pop();
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.commentDeleteTitle,
+      message: l10n.commentDeleteMessage,
+      // 삭제 버튼은 파괴적이지만 빨간색은 쓰지 않는다. (기본 강조색)
+      confirmLabel: l10n.commentMenuDelete,
+    );
+    if (!confirmed || !mounted) return;
+    widget.onDelete?.call(widget.comment);
+  }
+
+  @override
+  void dispose() {
+    // 항목이 사라지면(목록 갱신 등) 열려 있던 메뉴 라우트도 함께 닫는다.
+    final route = _menuRoute;
+    if (route != null && route.isActive) {
+      route.navigator?.removeRoute(route);
+    }
+    super.dispose();
+  }
+
+  Widget _buildOverlay(BuildContext dialogContext) {
+    // 버튼 왼쪽에 앵커해 버튼 옆(좌측)으로 펼친다. (메뉴 오른쪽 끝을 버튼
+    // 왼쪽에 붙이고 s2 만큼 띄운다)
+    return Stack(
+      children: [
+        CompositedTransformFollower(
+          link: _link,
+          targetAnchor: Alignment.centerLeft,
+          followerAnchor: Alignment.centerRight,
+          offset: const Offset(-AppSpacing.s2, 0),
+          child: _menu(dialogContext),
+        ),
+      ],
+    );
+  }
+
+  Widget _menu(BuildContext dialogContext) {
+    final l10n = AppLocalizations.of(context);
+    final List<Widget> items = widget.comment.isMine
+        ? [
+            _menuItem(
+              l10n.commentMenuDelete,
+              color: AppColors.textPrimary,
+              onPressed: () => _confirmDelete(dialogContext),
+            ),
+            Container(height: 1, color: AppColors.borderDefault),
+            _menuItem(
+              l10n.commentMenuEdit,
+              color: AppColors.textPrimary,
+              onPressed: () => _select(dialogContext, widget.onEdit),
+            ),
+          ]
+        : [
+            _menuItem(
+              l10n.commentMenuReport,
+              color: AppColors.statusDanger,
+              onPressed: () => _select(dialogContext, widget.onReport),
+            ),
+          ];
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgSurface,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.borderDefault),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColorPrimitives.black40,
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: items,
+        ),
+      ),
+    );
+  }
+
+  Widget _menuItem(
+    String label, {
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.s4,
+        vertical: AppSpacing.s3,
+      ),
+      minimumSize: Size.zero,
+      onPressed: onPressed,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: AppText.body(label, color: color),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final comment = widget.comment;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
       child: Row(
@@ -694,15 +876,19 @@ class _CommentItem extends StatelessWidget {
               ],
             ),
           ),
-          // 검토 중인 댓글은 더보기(신고 등) 메뉴를 숨긴다.
+          // 검토 중인 댓글은 더보기 메뉴를 숨긴다. 그 외에는 버튼을 앵커로
+          // 삼아 탭하면 컨텍스트 메뉴를 띄운다.
           if (!comment.isUnderReview)
-            AppBarIconButton(
-              size: 20,
-              onPressed: () {},
-              child: const Icon(
-                CupertinoIcons.ellipsis_vertical,
+            CompositedTransformTarget(
+              link: _link,
+              child: AppBarIconButton(
                 size: 20,
-                color: AppColors.textPrimary,
+                onPressed: _open,
+                child: const Icon(
+                  CupertinoIcons.ellipsis_vertical,
+                  size: 20,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
         ],
@@ -724,6 +910,9 @@ Future<void> showPhotoViewer(
   bool locked = false,
   Future<PhotoComment?> Function(String content)? onSubmitComment,
   Future<List<PhotoComment>?> Function()? onLoadComments,
+  void Function(PhotoComment comment)? onEditComment,
+  void Function(PhotoComment comment)? onDeleteComment,
+  void Function(PhotoComment comment)? onReportComment,
 }) {
   return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder(
@@ -742,6 +931,9 @@ Future<void> showPhotoViewer(
         locked: locked,
         onSubmitComment: onSubmitComment,
         onLoadComments: onLoadComments,
+        onEditComment: onEditComment,
+        onDeleteComment: onDeleteComment,
+        onReportComment: onReportComment,
       ),
       transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),

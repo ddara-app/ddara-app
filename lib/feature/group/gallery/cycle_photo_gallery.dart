@@ -322,12 +322,15 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     int shotId,
   ) async {
     final l10n = AppLocalizations.of(context);
+    final myUserId = ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId;
     final comments = await ref
         .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
         .loadComments(shotId: shotId);
     if (comments == null) return null;
 
-    return comments.map((comment) => _toPhotoComment(comment, l10n)).toList();
+    return comments
+        .map((comment) => _toPhotoComment(comment, l10n, myUserId))
+        .toList();
   }
 
   /// [shotId] 사진에 [content] 댓글을 등록하고, 성공 시 화면에 추가할
@@ -340,17 +343,23 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     String content,
   ) async {
     final l10n = AppLocalizations.of(context);
+    final myUserId = ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId;
     final created = await ref
         .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
         .submitComment(shotId: shotId, content: content);
     if (created == null) return null;
 
-    return _toPhotoComment(created, l10n);
+    return _toPhotoComment(created, l10n, myUserId);
   }
 
   /// 도메인 [Comment] 를 뷰어 표시용 [PhotoComment] 로 변환한다.
-  /// 검토 중인 댓글은 내용 대신 자리표시 문구를 넣는다.
-  PhotoComment _toPhotoComment(Comment comment, AppLocalizations l10n) {
+  /// 검토 중인 댓글은 내용 대신 자리표시 문구를 넣고, 작성자가 [myUserId] 와
+  /// 같으면 내 댓글로 표시한다. (더보기 메뉴 구성이 달라진다)
+  PhotoComment _toPhotoComment(
+    Comment comment,
+    AppLocalizations l10n,
+    int? myUserId,
+  ) {
     return PhotoComment(
       nickname: comment.nickname,
       content: comment.underReview
@@ -359,6 +368,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       timeLabel: timeAgoLabel(comment.createdAt, l10n),
       profileImageUrl: comment.profileImageUrl,
       isUnderReview: comment.underReview,
+      isMine: myUserId != null && comment.userId == myUserId,
     );
   }
 
