@@ -261,6 +261,8 @@ class _PhotoViewerState extends State<PhotoViewer>
         ..addAll(loaded)
         ..addAll(addedDuringLoad);
     });
+    // 시트를 열면 최신 댓글(맨 아래)이 먼저 보이도록 바닥으로 이동한다.
+    if (loaded != null) _scrollCommentsToBottom();
   }
 
   /// 시트를 닫는다. (키보드가 떠 있으면 함께 내린다)
@@ -299,7 +301,7 @@ class _PhotoViewerState extends State<PhotoViewer>
   /// [PhotoViewer.onSubmitComment] 가 있으면 서버에 등록하고 성공한 댓글만
   /// 목록에 추가한다. (실패 시 입력값을 유지해 재시도할 수 있게 한다)
   /// 콜백이 없으면 메모리상에만 쌓는 임시 동작을 한다.
-  /// 전송에 성공하면 입력값을 비우고 키보드를 내린다.
+  /// 전송에 성공하면 입력값을 비우고, 최신 댓글로 이동한 뒤 키보드를 내린다.
   Future<void> _submitComment(String text) async {
     final content = text.trim();
     if (content.isEmpty || _submitting) return;
@@ -314,6 +316,7 @@ class _PhotoViewerState extends State<PhotoViewer>
     final onSubmit = widget.onSubmitComment;
     if (onSubmit == null) {
       // API 콜백이 없으면 메모리상에만 추가한다. (임시 동작)
+      _commentController.clear();
       _appendComment(
         PhotoComment(
           nickname: widget.myNickname ?? '',
@@ -321,8 +324,6 @@ class _PhotoViewerState extends State<PhotoViewer>
           timeLabel: AppLocalizations.of(context).timeAgoJustNow,
         ),
       );
-      _commentController.clear();
-      _commentFocusNode.unfocus();
       return;
     }
 
@@ -333,18 +334,46 @@ class _PhotoViewerState extends State<PhotoViewer>
     // 실패(null)면 입력값·키보드를 유지해 바로 재시도할 수 있게 한다.
     if (created == null) return;
     _commentController.clear();
-    _commentFocusNode.unfocus();
     _appendComment(created);
   }
 
-  /// 댓글을 목록에 추가하고 맨 아래(새 댓글)로 스크롤한다.
+  /// 새 댓글을 목록에 추가한다.
+  ///
+  /// 먼저 최신 댓글(맨 아래)로 이동한 뒤 시트를 원래 크기로 줄이고, 줄어드는
+  /// 동안에도 계속 바닥에 붙여 최신 댓글이 이어져 보이게 한다.
+  /// (키보드가 떠 있는 동안 잠깐 입력창 뒤에 가려지는 건 허용)
   void _appendComment(PhotoComment comment) {
     setState(() => _comments.add(comment));
-    // 새 댓글이 그려진 다음 프레임에 맨 아래로 이동한다. 전송 직후 키보드가
-    // 내려가며 시트 높이·키보드 인셋이 약 _duration 동안 바뀌므로, 그 변화가
-    // 끝난 뒤에도 한 번 더 맞춰 새 댓글이 확실히 보이게 한다.
-    _scrollCommentsToBottom();
-    Future.delayed(_duration, _scrollCommentsToBottom);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_commentScrollController.hasClients) return;
+      // 1) 최신 댓글로 이동한다. (현재 크기 — 키보드가 떠 있을 수 있음)
+      _commentScrollController.jumpTo(
+        _commentScrollController.position.maxScrollExtent,
+      );
+      // 2) 그다음 시트를 원래 크기로 줄인다.
+      _commentFocusNode.unfocus();
+      // 3) 줄어드는 동안(뷰포트 축소로 maxScrollExtent 증가) 계속 바닥에 붙인다.
+      _pinCommentsToBottom();
+    });
+  }
+
+  /// 시트가 원래 크기로 줄어드는 동안(약 [_duration]) 매 프레임 목록을 맨 아래로
+  /// 붙여, 최신 댓글이 계속 바닥에 보이게 한다. (프레임 타임스탬프로 시간 측정 —
+  /// 주사율과 무관)
+  void _pinCommentsToBottom() {
+    Duration? start;
+    void pin(Duration timeStamp) {
+      if (!mounted || !_commentScrollController.hasClients) return;
+      start ??= timeStamp;
+      _commentScrollController.jumpTo(
+        _commentScrollController.position.maxScrollExtent,
+      );
+      if (timeStamp - start! < _duration) {
+        WidgetsBinding.instance.addPostFrameCallback(pin);
+      }
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback(pin);
   }
 
   /// 수정 모드에서 전송했을 때 대상 댓글 내용을 [content] 로 바꾼다.
@@ -386,14 +415,13 @@ class _PhotoViewerState extends State<PhotoViewer>
     setState(() => _comments.remove(comment));
   }
 
-  /// 다음 프레임에 댓글 목록을 맨 아래로 스크롤한다.
+  /// 다음 프레임에 댓글 목록을 맨 아래로 즉시 이동한다.
+  /// (시트 오픈 시 최신 댓글을 먼저 보여주는 데 쓴다)
   void _scrollCommentsToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_commentScrollController.hasClients) return;
-      _commentScrollController.animateTo(
+      _commentScrollController.jumpTo(
         _commentScrollController.position.maxScrollExtent,
-        duration: _duration,
-        curve: Curves.easeOut,
       );
     });
   }
@@ -607,6 +635,9 @@ class _PhotoViewerState extends State<PhotoViewer>
                             )
                           : ListView(
                               controller: _commentScrollController,
+                              // 가장자리에서 더 당겨지는 바운스(overscroll)를 막고
+                              // 끝에서 멈춘다.
+                              physics: const ClampingScrollPhysics(),
                               // 오른쪽은 s2. 아이콘 버튼 내부 여백 12를 더해
                               // 아이콘이 화면 끝에서 s5(20) 떨어지도록 맞춘다.
                               padding: const EdgeInsets.only(
