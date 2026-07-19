@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:ddara/core/exception/cycle_exception.dart';
 import 'package:ddara/core/exception/follower_upload_error_code.dart';
 import 'package:ddara/core/exception/group_exception.dart';
@@ -23,7 +25,7 @@ class CycleRepositoryImpl implements CycleRepository {
 
   static const String _contentType = 'image/jpeg';
 
-  Future<PresignResponse> uploadImage(String path) async {
+  Future<(PresignResponse, Uint8List)> uploadImage(String path) async {
     final bytes = await _uploadDataSource.compress(path);
 
     // 1) presigned URL 발급 → 2) S3 직접 업로드.
@@ -36,10 +38,23 @@ class CycleRepositoryImpl implements CycleRepository {
         bytes,
         _contentType,
       );
-      return presign;
+      // 압축 바이트는 성공 후 캐시 시딩에 재사용하도록 함께 반환한다.
+      return (presign, bytes);
     } on DioException {
       throw StarterImageUploadException();
     }
+  }
+
+  /// 업로드 성공 후처리 — 방금 올린 바이트를 [imageUrl] 의 디스크 캐시로 심어
+  /// 표시 시점의 재다운로드를 없애고, 촬영 임시 파일을 삭제한다.
+  /// (실패 시 등록된 사이클에는 영향이 없어야 하므로 둘 다 예외를 삼킨다)
+  Future<void> _finalizeUpload(
+    String imageUrl,
+    Uint8List bytes,
+    String path,
+  ) async {
+    await _uploadDataSource.seedImageCache(imageUrl, bytes);
+    await _uploadDataSource.deleteTempFile(path);
   }
 
   @override
@@ -48,7 +63,7 @@ class CycleRepositoryImpl implements CycleRepository {
     String topic,
     String path,
   ) async {
-    final presign = await uploadImage(path);
+    final (presign, bytes) = await uploadImage(path);
 
     // 3) 업로드된 imageUrl로 사이클 생성.
     try {
@@ -58,6 +73,7 @@ class CycleRepositoryImpl implements CycleRepository {
         presign.imageUrl,
       );
 
+      await _finalizeUpload(presign.imageUrl, bytes, path);
       return response.toDomain();
     } on DioException catch (e) {
       final code = e.response?.data is Map
@@ -97,7 +113,7 @@ class CycleRepositoryImpl implements CycleRepository {
 
   @override
   Future<FollowerUpload> uploadFollower(int cycleId, String path) async {
-    final presign = await uploadImage(path);
+    final (presign, bytes) = await uploadImage(path);
 
     // 업로드된 imageUrl로 따라찍기 사진을 등록한다.
     try {
@@ -106,6 +122,7 @@ class CycleRepositoryImpl implements CycleRepository {
         presign.imageUrl,
       );
 
+      await _finalizeUpload(presign.imageUrl, bytes, path);
       return response.toDomain();
     } on DioException catch (e) {
       final code = e.response?.data is Map

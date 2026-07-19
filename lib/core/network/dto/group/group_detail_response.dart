@@ -51,6 +51,8 @@ abstract class GroupCycleResponse with _$GroupCycleResponse {
     required String status,
     required DateTime startedAt,
     required DateTime deadlineAt,
+    // 이번 사이클에 사진을 올린 멤버 userId 목록. (서버 미제공 시 빈 목록)
+    @Default(<int>[]) List<int> uploadedUserIds,
   }) = _GroupCycleResponse;
 
   factory GroupCycleResponse.fromJson(Map<String, dynamic> json) =>

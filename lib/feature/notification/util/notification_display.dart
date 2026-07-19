@@ -1,5 +1,6 @@
 import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/core/model/notification/notification_type.dart';
+import 'package:ddara/core/util/time_ago.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 
 /// 도메인 알림 모델에서 화면 표시용 문자열을 뽑아내는 확장.
@@ -79,15 +80,5 @@ extension NotificationDisplay on NotificationItem {
   }
 
   /// 생성 시각을 '방금 전'·'5분 전' 같은 상대 시간 문자열로 변환한다.
-  String displayTimeAgo(AppLocalizations l10n) {
-    final diff = DateTime.now().difference(createdAt);
-
-    if (diff.inMinutes < 1) return l10n.timeAgoJustNow;
-    if (diff.inMinutes < 60) return l10n.timeAgoMinutes(diff.inMinutes);
-    if (diff.inHours < 24) return l10n.timeAgoHours(diff.inHours);
-    if (diff.inDays < 7) return l10n.timeAgoDays(diff.inDays);
-    if (diff.inDays < 30) return l10n.timeAgoWeeks(diff.inDays ~/ 7);
-    if (diff.inDays < 365) return l10n.timeAgoMonths(diff.inDays ~/ 30);
-    return l10n.timeAgoYears(diff.inDays ~/ 365);
-  }
+  String displayTimeAgo(AppLocalizations l10n) => timeAgoLabel(createdAt, l10n);
 }

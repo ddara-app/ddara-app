@@ -1,4 +1,4 @@
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 따라찍기 가이드(친구가 미리 찍은) 사진을 좌상단 코너에 작게 띄우는 미니뷰.
@@ -12,8 +12,9 @@ class CornerMiniView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 96,
-      height: 128,
+      // 3:4 비율 고정.
+      width: 112,
+      height: 112 * 4 / 3,
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         image: DecorationImage(image: image, fit: BoxFit.cover),

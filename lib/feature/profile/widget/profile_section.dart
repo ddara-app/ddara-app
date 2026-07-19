@@ -1,9 +1,9 @@
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../../../core/designsystem/component/divider/app_divider.dart';
-import '../../../core/designsystem/component/surface/app_surface.dart';
-import '../../../core/designsystem/component/text/app_text.dart';
+import '../../../core/design_system/component/divider/app_divider.dart';
+import '../../../core/design_system/component/surface/app_surface.dart';
+import '../../../core/design_system/component/text/app_text.dart';
 
 /// 프로필 화면의 "라벨 + 카드" 섹션.
 ///

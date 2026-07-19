@@ -2,6 +2,7 @@ import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/exception/report_error_code.dart';
 import 'package:ddara/core/exception/report_exception.dart';
+import 'package:ddara/core/model/report/comment_report_reason.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/core/model/report/user_report_reason.dart';
 import 'package:ddara/data/datasource/report/report_datasource.dart';
@@ -31,6 +32,23 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
+  Future<void> reportComment({
+    required int commentId,
+    required CommentReportReason reason,
+    String? reasonText,
+  }) async {
+    try {
+      await _reportDataSource.reportComment(
+        commentId: commentId,
+        reasonCode: reason.code,
+        reasonText: reasonText,
+      );
+    } on DioException catch (e) {
+      throw _toException(e);
+    }
+  }
+
+  @override
   Future<void> reportUser({
     required int userId,
     required int groupId,
@@ -49,7 +67,7 @@ class ReportRepositoryImpl implements ReportRepository {
     }
   }
 
-  /// 신고 접수 실패 응답을 도메인 예외로 변환한다. (사진·유저 신고 공통)
+  /// 신고 접수 실패 응답을 도메인 예외로 변환한다. (사진·댓글·유저 신고 공통)
   ///
   /// 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
   Exception _toException(DioException e) {
@@ -68,7 +86,7 @@ class ReportRepositoryImpl implements ReportRepository {
         return NotGroupMemberException();
 
       case ReportErrorCode.shotNotFound:
-        // 404 — 사진 없음 (운영 삭제된 사진 포함)
+        // 404 — 대상 없음 (운영 삭제된 사진·댓글 포함)
         return ShotNotFoundException();
 
       case ReportErrorCode.userNotFound:

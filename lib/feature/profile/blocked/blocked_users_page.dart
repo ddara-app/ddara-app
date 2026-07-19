@@ -1,9 +1,9 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/block/blocked_users.dart';
 import 'package:ddara/core/util/date_format.dart';
-import 'package:ddara/core/widget/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/profile/blocked/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/blocked/util/blocked_users_state.dart';

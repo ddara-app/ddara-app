@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
 import 'package:ddara/core/widget/camera/header/camera_header.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
@@ -9,6 +9,7 @@ import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
+import 'package:ddara/core/widget/icon/reverse_icon.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -340,15 +341,19 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                       top: AppSpacing.s4,
                       child: CornerMiniView(image: widget.guideImage!),
                     ),
-                    // 고스트 확대: Preview 영역 비율을 유지한 채 살짝 작게(85%) 가운데.
+                    // 고스트 확대: 가운데 90% 창으로 프리뷰 크기 그대로 보여준다.
+                    // (창 밖 가장자리는 잘림 — 창·이미지 배치는 GhostGuideView 가 처리)
                     GuideViewMode.ghostZoom => Positioned.fill(
-                      child: FractionallySizedBox(
-                        widthFactor: 0.85,
-                        heightFactor: 0.85,
-                        child: GhostGuideView(
-                          image: widget.guideImage!,
-                          opacity: _guideOpacity,
-                        ),
+                      child: GhostGuideView(
+                        image: widget.guideImage!,
+                        opacity: _guideOpacity,
+                        // 원본 전체가 아니라 모임 상세 헤더에서 보이던 프레임만
+                        // 가이드로 쓴다. (헤더 프레임: 가로 = 화면 - 좌우 s4
+                        // 패딩, 세로 478 고정 — StartedHeader 참조)
+                        frameAspectRatio:
+                            (MediaQuery.sizeOf(context).width -
+                                AppSpacing.s4 * 2) /
+                            478,
                       ),
                     ),
                   },
@@ -367,7 +372,10 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                         onPressed: _toggleFlash,
                       ),
                       _PreviewControlButton(
-                        icon: CupertinoIcons.arrow_2_circlepath,
+                        leading: const ReverseIcon(
+                          size: 24,
+                          color: AppColors.textPrimary,
+                        ),
                         onPressed: _switchCamera,
                       ),
                     ],
@@ -389,9 +397,14 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
 /// 프리뷰 위에 얹는 컨트롤 버튼. (배경 없이 흰색 아이콘만)
 class _PreviewControlButton extends StatelessWidget {
-  const _PreviewControlButton({required this.icon, required this.onPressed});
+  const _PreviewControlButton({this.icon, this.leading, required this.onPressed})
+    : assert(icon != null || leading != null, 'icon 또는 leading 중 하나는 필요');
 
-  final IconData icon;
+  /// 아이콘. [leading] 이 없을 때 [Icon] 으로 그린다.
+  final IconData? icon;
+
+  /// 아이콘을 직접 지정할 때. (예: SVG) 있으면 [icon] 대신 이걸 그린다.
+  final Widget? leading;
   final VoidCallback onPressed;
 
   @override
@@ -400,7 +413,7 @@ class _PreviewControlButton extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.s2),
       minimumSize: Size.zero,
       onPressed: onPressed,
-      child: Icon(icon, size: 24, color: AppColors.textPrimary),
+      child: leading ?? Icon(icon, size: 24, color: AppColors.textPrimary),
     );
   }
 }

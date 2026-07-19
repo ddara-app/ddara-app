@@ -101,11 +101,18 @@
   "permissionDialogContent": "설정 > 권한에서 직접 허용해 주세요.",
   "permissionGoToSettings": "설정으로 이동",
 
+  "homeTabGroups": "따라찍기 모임",
+  "@homeTabGroups": {
+    "description": "홈 상단 첫 번째 탭 (모임 목록)"
+  },
+  "homeTabRecentUpdates": "최근 업데이트",
+  "@homeTabRecentUpdates": {
+    "description": "홈 상단 두 번째 탭"
+  },
   "emptyGroupTitle": "아직 참여한 모임이 없어요",
   "emptyGroupDescription": "첫 판을 시작해 친구들에게 보내보세요",
   "groupCreate": "모임 만들기",
   "groupJoin": "모임 참여하기",
-  "groupEnter": "모임 들어가기",
   "groupCountLabel": "현재 모임 개수",
   "groupCountValue": "{count}/{maxCount}개",
   "@groupCountValue": {
@@ -116,6 +123,15 @@
     }
   },
   "groupCountCaption": "모임에 속해 있어요",
+  "updateCountLabel": "친구들의 업데이트",
+  "updateCountValue": "{count}개",
+  "@updateCountValue": {
+    "description": "친구들의 업데이트 개수 표시 (최근 업데이트 탭 대시보드)",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "updateCountCaption": "어서 따라찍기를 시작해봐요",
   "meetingStatusInProgress": "진행 중",
   "meetingStatusCompleted": "종료",
   "meetingMemberOwner": "{name}님",
@@ -255,9 +271,36 @@
   },
   "recordCycleLabel": "따라찍기",
   "recordPhotoLabel": "함께한 사진",
+  "recordSectionTitle": "기록",
+  "recordMyCycleLabel": "나의 따라찍기",
+  "recordGroupCycleLabel": "모임 따라찍기",
   "groupHistoryTitle": "지난 따라찍기",
   "groupHistoryMore": "더보기",
   "groupHistoryEmpty": "지난 따라찍기가 아직 없어요",
+  "groupHistoryFilterAll": "전체보기",
+  "groupHistoryFilterYearMonth": "{year}년 {month}월",
+  "@groupHistoryFilterYearMonth": {
+    "description": "년·월 라벨. (필터 버튼·월 섹션 제목 공용)",
+    "placeholders": {
+      "year": { "type": "int" },
+      "month": { "type": "int" }
+    }
+  },
+  "historyYearLabel": "{year}년",
+  "@historyYearLabel": {
+    "description": "년·월 선택 카드 헤더의 연도 라벨",
+    "placeholders": {
+      "year": { "type": "int" }
+    }
+  },
+  "historyFilterReset": "초기화",
+  "historyMonthLabel": "{month}월",
+  "@historyMonthLabel": {
+    "description": "년·월 선택 카드의 월 셀 라벨",
+    "placeholders": {
+      "month": { "type": "int" }
+    }
+  },
   "historyParticipantCount": "{count}명 참여",
   "@historyParticipantCount": {
     "description": "지난 따라찍기 카드의 참여 인원 수",
@@ -292,6 +335,17 @@
     "description": "따라찍기를 시작한 사람 안내",
     "placeholders": {
       "name": { "type": "String" }
+    }
+  },
+  "startedHeaderCheckUploads": "업로드 친구 확인하기",
+  "@startedHeaderCheckUploads": {
+    "description": "헤더 우상단에서 멤버들의 업로드 현황을 펼쳐 보는 토글 라벨"
+  },
+  "startedHeaderStarterChip": "스타터 · {nickname}",
+  "@startedHeaderStarterChip": {
+    "description": "헤더 우상단 스타터 안내 칩 (스타터 · 닉네임)",
+    "placeholders": {
+      "nickname": { "type": "String" }
     }
   },
   "remainingDeadline": "마감",
@@ -351,6 +405,70 @@
   "photoTakeAction": "촬영하러 가기",
   "@photoTakeAction": {
     "description": "촬영 화면으로 이동하는 알약 버튼"
+  },
+  "photoViewerCommentHint": "댓글을 남겨보세요...",
+  "@photoViewerCommentHint": {
+    "description": "사진 뷰어 댓글 입력 필드 플레이스홀더"
+  },
+  "photoViewerCommentLockedHint": "따라찍기를 이용한 후 댓글을 남길 수 있어요",
+  "@photoViewerCommentLockedHint": {
+    "description": "잠긴(블러+자물쇠) 사진에서 댓글 입력이 비활성화됐을 때의 안내 플레이스홀더"
+  },
+  "photoViewerCommentEmpty": "아직 댓글이 없습니다.",
+  "@photoViewerCommentEmpty": {
+    "description": "사진 뷰어 댓글이 하나도 없을 때 안내 문구"
+  },
+  "photoViewerCommentUnderReview": "신고 접수되어 검토 중인 댓글입니다",
+  "@photoViewerCommentUnderReview": {
+    "description": "신고 접수로 검토 중인 댓글의 내용 자리표시"
+  },
+  "commentMenuEdit": "수정하기",
+  "@commentMenuEdit": {
+    "description": "내 댓글 더보기 메뉴 - 수정"
+  },
+  "commentMenuDelete": "삭제하기",
+  "@commentMenuDelete": {
+    "description": "내 댓글 더보기 메뉴 - 삭제"
+  },
+  "commentMenuReport": "신고하기",
+  "@commentMenuReport": {
+    "description": "상대방 댓글 더보기 메뉴 - 신고"
+  },
+  "commentEditingLabel": "댓글 수정 중",
+  "@commentEditingLabel": {
+    "description": "댓글 수정 모드에서 입력창 위에 뜨는 라벨"
+  },
+  "commentEdited": "수정됨",
+  "@commentEdited": {
+    "description": "수정된 댓글의 시간 옆에 붙는 표시"
+  },
+  "commentReportReasonSexual": "성적 발언",
+  "@commentReportReasonSexual": {
+    "description": "댓글 신고 사유 - 성적 발언"
+  },
+  "commentReportReasonViolence": "폭력·혐오 표현",
+  "@commentReportReasonViolence": {
+    "description": "댓글 신고 사유 - 폭력·혐오 표현"
+  },
+  "commentReportReasonAbuse": "욕설·비방 표현",
+  "@commentReportReasonAbuse": {
+    "description": "댓글 신고 사유 - 욕설·비방 표현"
+  },
+  "commentReportReasonHarassment": "사칭·괴롭힘",
+  "@commentReportReasonHarassment": {
+    "description": "댓글 신고 사유 - 사칭·괴롭힘"
+  },
+  "commentReportReasonEtc": "기타",
+  "@commentReportReasonEtc": {
+    "description": "댓글 신고 사유 - 기타"
+  },
+  "commentDeleteTitle": "이 댓글을 삭제할까요?",
+  "@commentDeleteTitle": {
+    "description": "댓글 삭제 확인 다이얼로그 제목"
+  },
+  "commentDeleteMessage": "삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.",
+  "@commentDeleteMessage": {
+    "description": "댓글 삭제 확인 다이얼로그 본문"
   },
   "cameraPermissionTitle": "카메라 권한이 필요해요",
   "cameraPermissionDescription": "촬영하려면 설정에서 카메라 권한을 허용해주세요.",
@@ -458,6 +576,8 @@
   "blockedUsersUnblockFailed": "차단을 해제하지 못했어요.",
   "blockedPhotoPlaceholder": "차단한 멤버의 사진입니다.",
   "photoUnderReviewPlaceholder": "신고 접수되어\n검토 중인 사진입니다",
+  "photoUnderReviewPlaceholderShort": "신고 접수\n검토중",
+  "blockedCycleTopic": "차단한 멤버의 따라찍기",
   "profileLinkedAccount": "연동 계정",
   "profileLogout": "로그아웃",
   "profileWithdraw": "회원 탈퇴",

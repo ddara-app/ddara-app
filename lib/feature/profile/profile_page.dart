@@ -1,13 +1,14 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
-import 'package:ddara/core/image/image_picker_service.dart';
+import 'package:ddara/feature/profile/image_picker_service.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/util/tap_guard.dart';
-import 'package:ddara/core/widget/permission_dialog.dart';
+import 'package:ddara/core/widget/dialog/permission_dialog.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/widget/profile_header.dart';
 import 'package:ddara/feature/profile/widget/profile_image_source_sheet.dart';
@@ -21,11 +22,22 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// 프로필 화면.
-class ProfilePage extends ConsumerWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends ConsumerState<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    MixpanelManager.instance.track('profile_page_viewed');
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(profileNotifierProvider);
 
@@ -61,6 +73,9 @@ class ProfilePage extends ConsumerWidget {
                     ProfileHeader(
                       name: state.name,
                       imageUrl: state.profileImageUrl,
+                      onEditPressed: () => MixpanelManager.instance.track(
+                        'profile_image_edit_clicked',
+                      ),
                       // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.
                       onImageSourceSelected: tapGuard(
                         state.isImageUploading,

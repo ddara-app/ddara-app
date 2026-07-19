@@ -1,8 +1,9 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
-import 'package:ddara/core/widget/app_dialog.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
@@ -33,6 +34,7 @@ class AccountManagePage extends ConsumerWidget {
       if (!context.mounted) return;
       switch (status) {
         case LogoutStatus.success:
+          MixpanelManager.instance.track('logout_succeeded');
           context.go(RoutePath.login);
         case LogoutStatus.fail:
           Toast.showToast(
@@ -54,6 +56,7 @@ class AccountManagePage extends ConsumerWidget {
       if (!context.mounted) return;
       switch (status) {
         case WithdrawStatus.success:
+          MixpanelManager.instance.track('account_withdraw_succeeded');
           context.go(RoutePath.login);
         case WithdrawStatus.fail:
           Toast.showToast(

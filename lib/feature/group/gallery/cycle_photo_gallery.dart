@@ -1,13 +1,18 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/comment/comment.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/core/widget/photo_viewer.dart';
+import 'package:ddara/core/util/time_ago.dart';
+import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
 import 'package:ddara/feature/group/gallery/widget/photo_report_sheet.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -19,13 +24,29 @@ import 'package:go_router/go_router.dart';
 ///
 /// 스타터의 사진을 멤버들이 따라찍은 결과 사진을 모아 보여준다.
 /// (헤더 + 모임명 + 멤버 사진 그리드)
-class CyclePhotoGallery extends ConsumerWidget {
+class CyclePhotoGallery extends ConsumerStatefulWidget {
   const CyclePhotoGallery({super.key, required this.cycleId});
 
   final int cycleId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CyclePhotoGallery> createState() => _CyclePhotoGalleryState();
+}
+
+class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
+  int get cycleId => widget.cycleId;
+
+  @override
+  void initState() {
+    super.initState();
+    MixpanelManager.instance.track(
+      'gallery_page_viewed',
+      properties: {'cycle_id': cycleId},
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(cyclePhotoGalleryNotifierProvider(cycleId));
     final gallery = state.gallery;
 
@@ -78,6 +99,12 @@ class CyclePhotoGallery extends ConsumerWidget {
     // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
     final starterBlocked = blockedUserIds.contains(cycle.starterUserId);
 
+    // 본인 닉네임. (사진 뷰어에서 내가 단 댓글의 작성자 표기에 쓴다)
+    final myNickname = gallery.members
+        .where((m) => m.userId == myUserId)
+        .map((m) => m.nickname)
+        .firstOrNull;
+
     // 마감된(done) 회차는 사진이 있는 카드만 보여준다. (미업로드 빈 카드는 숨김)
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
 
@@ -128,6 +155,8 @@ class CyclePhotoGallery extends ConsumerWidget {
             imageUri: cycle.starterImageUrl ?? '',
             progress: _toGroupCycle(gallery),
             starterBlocked: starterBlocked,
+            // 모임 페이지와 동일하게 참여 인원(n/총원)을 표시한다.
+            memberCount: gallery.members.length,
             // 스타터 사진 롱프레스 → 신고 메뉴. (본인이 스타터면 띄우지 않는다)
             onReport: iAmStarter
                 ? null
@@ -138,11 +167,33 @@ class CyclePhotoGallery extends ConsumerWidget {
                 ? null
                 : () => showPhotoViewer(
                     context,
-                    image: NetworkImage(cycle.starterImageUrl!),
+                    image: CachedNetworkImageProvider(cycle.starterImageUrl!),
                     aspectRatio:
                         (MediaQuery.of(context).size.width -
                             AppSpacing.s4 * 2) /
                         478,
+                    // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
+                    title: cycle.starterNickname,
+                    body: cycle.topic,
+                    myNickname: myNickname,
+                    // 스타터 사진 댓글은 스타터 shot id 로 등록·조회한다.
+                    onLoadComments: () =>
+                        _loadComments(context, ref, cycle.starterShotId),
+                    onSubmitComment: (content) => _submitComment(
+                      context,
+                      ref,
+                      cycle.starterShotId,
+                      content,
+                    ),
+                    onDeleteComment: (comment) async {
+                      final id = comment.commentId;
+                      if (id == null) return false;
+                      return _deleteComment(ref, id);
+                    },
+                    onEditComment: (comment, newContent) =>
+                        _editComment(ref, comment, newContent),
+                    onReportComment: (comment) =>
+                        _reportComment(context, ref, comment),
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -177,21 +228,26 @@ class CyclePhotoGallery extends ConsumerWidget {
                     member.userId,
                   );
                   // 신고 접수로 검토 중인 사진. (검토 안내 자리표시로 가린다)
-                  final isReported =
-                      member.status.toLowerCase() == 'reported';
+                  final isReported = member.status.toLowerCase() == 'reported';
                   final imageUrl = isBlockedMember || isReported
                       ? null
                       : member.imageUrl;
-                  // 잠긴(블러) 사진은 크게 볼 수 없다.
+                  // 잠긴(블러) 사진. 크게 볼 때도 블러+자물쇠는 유지하지만,
+                  // 뷰어와 댓글에는 접근할 수 있다.
                   final locked = !isDoneCycle && !canSeeAll;
                   final ImageProvider? image = imageUrl == null
                       ? null
-                      : NetworkImage(imageUrl);
-                  // 사진이 있고 잠기지 않았을 때만 탭해서 크게 볼 수 있다.
-                  final canView = image != null && !locked;
+                      : CachedNetworkImageProvider(imageUrl);
+                  // 사진이 있으면(잠겨 있어도) 탭해서 뷰어를 열 수 있다.
+                  final canOpen = image != null;
+                  // 선명하게 볼 수 있는(= Hero 전환·신고 가능) 상태.
+                  final canView = canOpen && !locked;
+                  // 잠긴 사진은 카드가 블러라 Hero 전환을 하지 않는다.
                   final heroTag = canView
                       ? 'gallery-photo-${member.userId}'
                       : null;
+                  // 댓글 등록 대상 shot id. (미업로드면 null → 댓글 불가)
+                  final shotId = member.shotId;
                   final card = MemberPhotoCard(
                     // 본인 카드는 이름 대신 '본인' 으로 표시한다.
                     name: isMe ? '나' : member.nickname,
@@ -199,13 +255,41 @@ class CyclePhotoGallery extends ConsumerWidget {
                     heroTag: heroTag,
                     isBlocked: isBlockedMember,
                     isUnderReview: isReported,
-                    onTap: canView
+                    // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
+                    // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
+                    onTap: canOpen
                         ? () => showPhotoViewer(
                             context,
                             image: image,
                             heroTag: heroTag,
                             // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
                             aspectRatio: cardAspectRatio,
+                            // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
+                            title: member.nickname,
+                            body: cycle.topic,
+                            myNickname: myNickname,
+                            // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
+                            locked: locked,
+                            // 사진에 shot id 가 있으면 댓글을 조회·등록할 수 있다.
+                            // (잠긴 사진은 서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내)
+                            onLoadComments: shotId == null
+                                ? null
+                                : () =>
+                                      _loadComments(context, ref, shotId),
+                            onSubmitComment: shotId == null
+                                ? null
+                                : (content) =>
+                                      _submitComment(context, ref, shotId, content),
+                            // 삭제·수정은 댓글 id 로 처리(대상 사진 shotId 와 무관).
+                            onDeleteComment: (comment) async {
+                              final id = comment.commentId;
+                              if (id == null) return false;
+                              return _deleteComment(ref, id);
+                            },
+                            onEditComment: (comment, newContent) =>
+                                _editComment(ref, comment, newContent),
+                            onReportComment: (comment) =>
+                                _reportComment(context, ref, comment),
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
@@ -233,16 +317,12 @@ class CyclePhotoGallery extends ConsumerWidget {
                   );
 
                   // 타인의 보이는 사진만 신고할 수 있다. (본인·잠김·차단 제외)
-                  final shotId = member.shotId;
                   if (isMe || !canView || shotId == null) return card;
 
                   return _MenuPhotoCard(
                     cardWidth: cardWidth,
                     // 사본은 Hero 태그 충돌을 피해 태그·콜백 없이 만든다.
-                    copy: MemberPhotoCard(
-                      name: member.nickname,
-                      image: image,
-                    ),
+                    copy: MemberPhotoCard(name: member.nickname, image: image),
                     onReport: () => _reportPhoto(context, ref, shotId),
                     child: card,
                   );
@@ -253,6 +333,120 @@ class CyclePhotoGallery extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// [shotId] 사진의 댓글 목록을 조회해 화면 표시용으로 변환한다.
+  /// 실패하면 null 을 반환한다. (차단 유저 제외는 notifier 가 처리)
+  Future<List<PhotoComment>?> _loadComments(
+    BuildContext context,
+    WidgetRef ref,
+    int shotId,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final myUserId = ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId;
+    final comments = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .loadComments(shotId: shotId);
+    if (comments == null) return null;
+
+    return comments
+        .map((comment) => _toPhotoComment(comment, l10n, myUserId))
+        .toList();
+  }
+
+  /// [shotId] 사진에 [content] 댓글을 등록하고, 성공 시 화면에 추가할
+  /// [PhotoComment] 를(작성자·시각 포함), 실패 시 null 을 반환한다.
+  /// (실패 안내는 notifier 가 errorMessage → 토스트로 처리)
+  Future<PhotoComment?> _submitComment(
+    BuildContext context,
+    WidgetRef ref,
+    int shotId,
+    String content,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final myUserId = ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId;
+    final created = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .submitComment(shotId: shotId, content: content);
+    if (created == null) return null;
+
+    return _toPhotoComment(created, l10n, myUserId);
+  }
+
+  /// 도메인 [Comment] 를 뷰어 표시용 [PhotoComment] 로 변환한다.
+  /// 검토 중인 댓글은 내용 대신 자리표시 문구를 넣고, 작성자가 [myUserId] 와
+  /// 같으면 내 댓글로 표시한다. (더보기 메뉴 구성이 달라진다)
+  PhotoComment _toPhotoComment(
+    Comment comment,
+    AppLocalizations l10n,
+    int? myUserId,
+  ) {
+    return PhotoComment(
+      commentId: comment.commentId,
+      nickname: comment.nickname,
+      content: comment.underReview
+          ? l10n.photoViewerCommentUnderReview
+          : (comment.content ?? ''),
+      timeLabel: timeAgoLabel(comment.createdAt, l10n),
+      profileImageUrl: comment.profileImageUrl,
+      isUnderReview: comment.underReview,
+      isMine: myUserId != null && comment.userId == myUserId,
+      // 수정 시각이 있으면 수정된 댓글로 본다.
+      isEdited: comment.updatedAt != null,
+    );
+  }
+
+  /// [commentId] 댓글을 삭제한다. 성공하면 true. (삭제 확인창은 뷰어가 처리)
+  /// 실패 안내는 notifier 가 errorMessage → 토스트로 처리한다.
+  Future<bool> _deleteComment(WidgetRef ref, int commentId) {
+    return ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .deleteComment(commentId: commentId);
+  }
+
+  /// [comment] 를 [newContent] 로 수정하고, 성공 시 갱신된 [PhotoComment] 를
+  /// (내용만 바꿔) 반환한다. 실패·id 없음이면 null. (실패 안내는 토스트)
+  Future<PhotoComment?> _editComment(
+    WidgetRef ref,
+    PhotoComment comment,
+    String newContent,
+  ) async {
+    final id = comment.commentId;
+    if (id == null) return null;
+
+    final content = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .editComment(commentId: id, content: newContent);
+    if (content == null) return null;
+
+    // 수정에 성공했으므로 '수정됨' 표시를 켠다.
+    return comment.copyWith(content: content, isEdited: true);
+  }
+
+  /// 댓글 신고 사유 시트를 띄우고, 확정하면 접수한다.
+  /// 성공 시 완료 토스트를 띄운다. (신고해도 댓글은 그대로 노출 — 관리자 검토 후 처리)
+  /// 실패는 notifier 가 errorMessage → 토스트로 처리한다.
+  Future<void> _reportComment(
+    BuildContext context,
+    WidgetRef ref,
+    PhotoComment comment,
+  ) async {
+    final commentId = comment.commentId;
+    if (commentId == null) return;
+
+    final result = await CommentReportSheet.show(context);
+    if (result == null || !context.mounted) return;
+
+    final success = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .reportComment(
+          commentId: commentId,
+          reason: result.reason,
+          reasonText: result.detail.isEmpty ? null : result.detail,
+        );
+    if (!success || !context.mounted) return;
+
+    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
@@ -294,6 +488,12 @@ class CyclePhotoGallery extends ConsumerWidget {
       // 응답에 시작 시각이 없어 마감 시각으로 채운다. (헤더에서 쓰지 않음)
       startedAt: cycle.deadlineAt,
       deadlineAt: cycle.deadlineAt,
+      // 참여 인원 표시용: 스타터를 제외하고 이번 사이클에 사진을 올린 멤버.
+      // (헤더가 스타터 +1 로 참여자 수를 계산하므로 모임 페이지와 동일하게 맞춘다)
+      uploadedUserIds: gallery.members
+          .where((member) => !member.isStarter && member.uploadedAt != null)
+          .map((member) => member.userId)
+          .toList(),
     );
   }
 }
@@ -328,44 +528,43 @@ class _MenuPhotoCard extends StatefulWidget {
 class _MenuPhotoCardState extends State<_MenuPhotoCard> {
   /// 카드 위치를 메뉴가 따라가게 잇는 링크.
   final LayerLink _link = LayerLink();
-  OverlayEntry? _entry;
 
-  bool get _isOpen => _entry != null;
+  /// 열려 있는 메뉴 라우트. 닫혀 있으면 null.
+  Route<void>? _menuRoute;
 
   void _open() {
-    if (_isOpen) return;
-    _entry = OverlayEntry(builder: (_) => _buildOverlay());
-    Overlay.of(context).insert(_entry!);
-  }
-
-  void _close() {
-    _entry?.remove();
-    _entry = null;
+    if (_menuRoute != null) return;
+    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
+    // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
+    final route = RawDialogRoute<void>(
+      barrierColor: AppColorPrimitives.black60,
+      barrierLabel: AppLocalizations.of(context).commonCancel,
+      transitionDuration: Duration.zero,
+      pageBuilder: (dialogContext, _, _) => _buildOverlay(dialogContext),
+    );
+    _menuRoute = route;
+    Navigator.of(context).push(route).then((_) => _menuRoute = null);
   }
 
   /// 메뉴를 닫은 뒤 신고 콜백을 실행한다.
-  void _select() {
-    _close();
+  void _select(BuildContext dialogContext) {
+    Navigator.of(dialogContext).pop();
     widget.onReport();
   }
 
   @override
   void dispose() {
-    _entry?.remove();
+    // 카드가 사라지면(목록 갱신 등) 열려 있던 메뉴 라우트도 함께 닫는다.
+    final route = _menuRoute;
+    if (route != null && route.isActive) {
+      route.navigator?.removeRoute(route);
+    }
     super.dispose();
   }
 
-  Widget _buildOverlay() {
+  Widget _buildOverlay(BuildContext dialogContext) {
     return Stack(
       children: [
-        // 배경을 살짝 어둡게. 바깥 영역을 탭하면 닫힌다.
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _close,
-            child: const ColoredBox(color: AppColorPrimitives.black60),
-          ),
-        ),
         // 대상 카드 사본을 스크림 위로 띄워 선명하게 유지한다.
         // (원본 위치에 정확히 겹치므로 카드만 떠오른 것처럼 보인다)
         CompositedTransformFollower(
@@ -382,13 +581,13 @@ class _MenuPhotoCardState extends State<_MenuPhotoCard> {
           targetAnchor: Alignment.topLeft,
           followerAnchor: Alignment.bottomLeft,
           offset: const Offset(0, -AppSpacing.s2),
-          child: _menu(),
+          child: _menu(dialogContext),
         ),
       ],
     );
   }
 
-  Widget _menu() {
+  Widget _menu(BuildContext dialogContext) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
@@ -408,7 +607,7 @@ class _MenuPhotoCardState extends State<_MenuPhotoCard> {
           vertical: AppSpacing.s3,
         ),
         minimumSize: Size.zero,
-        onPressed: _select,
+        onPressed: () => _select(dialogContext),
         child: AppText.body(
           AppLocalizations.of(context).report,
           color: AppColors.statusDanger,

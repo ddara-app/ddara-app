@@ -1,6 +1,5 @@
 import 'package:ddara/core/exception/profile_exception.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
-import 'package:flutter/widgets.dart' show NetworkImage;
 import 'package:ddara/core/router/app_router.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
@@ -67,9 +66,8 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
     state = state.copyWith(isImageUploading: true);
     try {
       final url = await ref.read(uploadProfileImageUseCaseProvider)(imagePath);
-      // 서버가 같은 URL 로 덮어쓰는 경우에도 새 이미지가 보이도록 캐시를 비운다.
-      // (URL 이 매번 다르면 캐시에 없어 no-op) 상태 갱신 전에 비워야 재로드된다.
-      await NetworkImage(url).evict();
+      // 새 이미지 바이트는 업로드 단계(Repository)에서 캐시로 심어지므로
+      // (같은 URL 덮어쓰기 대비 메모리 캐시 비움 포함) 바로 상태만 갱신한다.
       state = state.copyWith(isImageUploading: false, profileImageUrl: url);
       // 공유 프로필(홈 AppBar 아바타 등)도 새 이미지로 갱신되도록 재조회를 유도한다.
       ref.invalidate(currentProfileProvider);

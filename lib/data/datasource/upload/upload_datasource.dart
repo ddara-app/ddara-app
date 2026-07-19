@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/network/dto/cycle/presign_response.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 /// 업로드 이미지 재인코딩 포맷. (호출부가 flutter_image_compress 에 의존하지 않도록 래핑)
@@ -81,5 +83,30 @@ class UploadDataSource {
         },
       ),
     );
+  }
+
+  /// 방금 업로드한 [bytes] 를 [imageUrl] 의 이미지 캐시로 미리 심는다(seed).
+  ///
+  /// presigned PUT 은 보낸 바이트가 가공 없이 그대로 S3 에 저장되므로, 표시
+  /// 시점에 같은 바이트를 다시 내려받지 않고 디스크 캐시에서 바로 읽게 된다.
+  /// 같은 URL 을 덮어쓰는 경우(프로필 등) 이전 디코딩 결과가 남지 않도록
+  /// 메모리 캐시도 함께 비운다.
+  /// 실패해도 표시 시점에 네트워크 다운로드로 폴백되므로 예외는 삼킨다.
+  Future<void> seedImageCache(String imageUrl, Uint8List bytes) async {
+    try {
+      await CachedNetworkImageProvider(imageUrl).evict();
+      await DefaultCacheManager().putFile(
+        imageUrl,
+        bytes,
+        fileExtension: 'jpg',
+      );
+    } catch (_) {}
+  }
+
+  /// 업로드를 마쳐 더 이상 쓰지 않는 임시 이미지 파일을 삭제한다. (실패는 무시)
+  Future<void> deleteTempFile(String path) async {
+    try {
+      await File(path).delete();
+    } catch (_) {}
   }
 }
