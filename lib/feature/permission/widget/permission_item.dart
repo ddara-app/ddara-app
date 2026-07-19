@@ -8,13 +8,18 @@ import '../../../core/design_system/theme/app_colors.dart';
 class PermissionItem extends StatelessWidget {
   const PermissionItem({
     super.key,
-    required this.icon,
+    this.icon,
+    this.leading,
     required this.title,
     required this.description,
     required this.onTap,
-  });
+  }) : assert(icon != null || leading != null, 'icon 또는 leading 중 하나는 필요');
 
-  final IconData icon;
+  /// 좌측 아이콘. [leading] 이 없을 때 [Icon] 으로 그린다.
+  final IconData? icon;
+
+  /// 좌측 아이콘을 직접 지정할 때. (예: SVG) 있으면 [icon] 대신 이걸 그린다.
+  final Widget? leading;
   final String title;
   final String description;
   final VoidCallback onTap;
@@ -42,7 +47,8 @@ class PermissionItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: Icon(icon, size: 24, color: AppColors.textPrimary),
+            child:
+                leading ?? Icon(icon, size: 24, color: AppColors.textPrimary),
           ),
           Expanded(
             child: Column(

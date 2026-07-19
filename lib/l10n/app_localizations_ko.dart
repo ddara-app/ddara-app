@@ -561,7 +561,49 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoViewerCommentHint => '댓글을 남겨보세요...';
 
   @override
+  String get photoViewerCommentLockedHint => '따라찍기를 이용한 후 댓글을 남길 수 있어요';
+
+  @override
   String get photoViewerCommentEmpty => '아직 댓글이 없습니다.';
+
+  @override
+  String get photoViewerCommentUnderReview => '신고 접수되어 검토 중인 댓글입니다';
+
+  @override
+  String get commentMenuEdit => '수정하기';
+
+  @override
+  String get commentMenuDelete => '삭제하기';
+
+  @override
+  String get commentMenuReport => '신고하기';
+
+  @override
+  String get commentEditingLabel => '댓글 수정 중';
+
+  @override
+  String get commentEdited => '수정됨';
+
+  @override
+  String get commentReportReasonSexual => '성적 발언';
+
+  @override
+  String get commentReportReasonViolence => '폭력·혐오 표현';
+
+  @override
+  String get commentReportReasonAbuse => '욕설·비방 표현';
+
+  @override
+  String get commentReportReasonHarassment => '사칭·괴롭힘';
+
+  @override
+  String get commentReportReasonEtc => '기타';
+
+  @override
+  String get commentDeleteTitle => '이 댓글을 삭제할까요?';
+
+  @override
+  String get commentDeleteMessage => '삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.';
 
   @override
   String get cameraPermissionTitle => '카메라 권한이 필요해요';

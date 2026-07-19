@@ -9,6 +9,7 @@ import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
+import 'package:ddara/core/widget/icon/reverse_icon.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -371,7 +372,10 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                         onPressed: _toggleFlash,
                       ),
                       _PreviewControlButton(
-                        icon: CupertinoIcons.arrow_2_circlepath,
+                        leading: const ReverseIcon(
+                          size: 24,
+                          color: AppColors.textPrimary,
+                        ),
                         onPressed: _switchCamera,
                       ),
                     ],
@@ -393,9 +397,14 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
 /// 프리뷰 위에 얹는 컨트롤 버튼. (배경 없이 흰색 아이콘만)
 class _PreviewControlButton extends StatelessWidget {
-  const _PreviewControlButton({required this.icon, required this.onPressed});
+  const _PreviewControlButton({this.icon, this.leading, required this.onPressed})
+    : assert(icon != null || leading != null, 'icon 또는 leading 중 하나는 필요');
 
-  final IconData icon;
+  /// 아이콘. [leading] 이 없을 때 [Icon] 으로 그린다.
+  final IconData? icon;
+
+  /// 아이콘을 직접 지정할 때. (예: SVG) 있으면 [icon] 대신 이걸 그린다.
+  final Widget? leading;
   final VoidCallback onPressed;
 
   @override
@@ -404,7 +413,7 @@ class _PreviewControlButton extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.s2),
       minimumSize: Size.zero,
       onPressed: onPressed,
-      child: Icon(icon, size: 24, color: AppColors.textPrimary),
+      child: leading ?? Icon(icon, size: 24, color: AppColors.textPrimary),
     );
   }
 }

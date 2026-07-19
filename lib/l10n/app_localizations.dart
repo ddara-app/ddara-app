@@ -1084,11 +1084,95 @@ abstract class AppLocalizations {
   /// **'댓글을 남겨보세요...'**
   String get photoViewerCommentHint;
 
+  /// 잠긴(블러+자물쇠) 사진에서 댓글 입력이 비활성화됐을 때의 안내 플레이스홀더
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기를 이용한 후 댓글을 남길 수 있어요'**
+  String get photoViewerCommentLockedHint;
+
   /// 사진 뷰어 댓글이 하나도 없을 때 안내 문구
   ///
   /// In ko, this message translates to:
   /// **'아직 댓글이 없습니다.'**
   String get photoViewerCommentEmpty;
+
+  /// 신고 접수로 검토 중인 댓글의 내용 자리표시
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 접수되어 검토 중인 댓글입니다'**
+  String get photoViewerCommentUnderReview;
+
+  /// 내 댓글 더보기 메뉴 - 수정
+  ///
+  /// In ko, this message translates to:
+  /// **'수정하기'**
+  String get commentMenuEdit;
+
+  /// 내 댓글 더보기 메뉴 - 삭제
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제하기'**
+  String get commentMenuDelete;
+
+  /// 상대방 댓글 더보기 메뉴 - 신고
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하기'**
+  String get commentMenuReport;
+
+  /// 댓글 수정 모드에서 입력창 위에 뜨는 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글 수정 중'**
+  String get commentEditingLabel;
+
+  /// 수정된 댓글의 시간 옆에 붙는 표시
+  ///
+  /// In ko, this message translates to:
+  /// **'수정됨'**
+  String get commentEdited;
+
+  /// 댓글 신고 사유 - 성적 발언
+  ///
+  /// In ko, this message translates to:
+  /// **'성적 발언'**
+  String get commentReportReasonSexual;
+
+  /// 댓글 신고 사유 - 폭력·혐오 표현
+  ///
+  /// In ko, this message translates to:
+  /// **'폭력·혐오 표현'**
+  String get commentReportReasonViolence;
+
+  /// 댓글 신고 사유 - 욕설·비방 표현
+  ///
+  /// In ko, this message translates to:
+  /// **'욕설·비방 표현'**
+  String get commentReportReasonAbuse;
+
+  /// 댓글 신고 사유 - 사칭·괴롭힘
+  ///
+  /// In ko, this message translates to:
+  /// **'사칭·괴롭힘'**
+  String get commentReportReasonHarassment;
+
+  /// 댓글 신고 사유 - 기타
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get commentReportReasonEtc;
+
+  /// 댓글 삭제 확인 다이얼로그 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'이 댓글을 삭제할까요?'**
+  String get commentDeleteTitle;
+
+  /// 댓글 삭제 확인 다이얼로그 본문
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.'**
+  String get commentDeleteMessage;
 
   /// No description provided for @cameraPermissionTitle.
   ///

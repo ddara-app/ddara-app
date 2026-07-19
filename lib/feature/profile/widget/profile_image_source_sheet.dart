@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/icon/gallery_icon.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -83,7 +84,10 @@ class ProfileImageSourceSheet extends StatelessWidget {
                     Navigator.of(context).pop(ProfileImageSource.camera),
               ),
               _SourceTile(
-                icon: CupertinoIcons.photo,
+                leading: const GalleryIcon(
+                  size: 24,
+                  color: AppColors.textPrimary,
+                ),
                 label: l10n.profileImageSourceGallery,
                 onTap: () =>
                     Navigator.of(context).pop(ProfileImageSource.gallery),
@@ -107,12 +111,17 @@ class ProfileImageSourceSheet extends StatelessWidget {
 /// 시트 안의 소스 선택 행. 좌측 아이콘 + 라벨로 구성한다.
 class _SourceTile extends StatelessWidget {
   const _SourceTile({
-    required this.icon,
+    this.icon,
+    this.leading,
     required this.label,
     required this.onTap,
-  });
+  }) : assert(icon != null || leading != null, 'icon 또는 leading 중 하나는 필요');
 
-  final IconData icon;
+  /// 좌측 아이콘. [leading] 이 없을 때 [Icon] 으로 그린다.
+  final IconData? icon;
+
+  /// 좌측 아이콘을 직접 지정할 때. (예: SVG) 있으면 [icon] 대신 이걸 그린다.
+  final Widget? leading;
   final String label;
   final VoidCallback onTap;
 
@@ -124,7 +133,7 @@ class _SourceTile extends StatelessWidget {
       onPressed: onTap,
       child: Row(
         children: [
-          Icon(icon, size: 24, color: AppColors.textPrimary),
+          leading ?? Icon(icon, size: 24, color: AppColors.textPrimary),
           const SizedBox(width: AppSpacing.s3),
           AppText.body(label),
         ],

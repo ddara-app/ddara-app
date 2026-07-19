@@ -1,5 +1,6 @@
 import 'package:ddara/core/auth/provider/auth_provider.dart';
 import 'package:ddara/domain/repository/block_repository.dart';
+import 'package:ddara/domain/repository/comment_repository.dart';
 import 'package:ddara/domain/repository/cycle_repository.dart';
 import 'package:ddara/domain/repository/fcm_repository.dart';
 import 'package:ddara/domain/repository/notification_repository.dart';
@@ -11,6 +12,7 @@ import '../../domain/repository/auth_repository.dart';
 import '../../domain/repository/group_repository.dart';
 import '../repository/auth_repository_impl.dart';
 import '../repository/block_repository_impl.dart';
+import '../repository/comment_repository_impl.dart';
 import '../repository/cycle_repository_impl.dart';
 import '../repository/fcm_repository_impl.dart';
 import '../repository/group_repository_impl.dart';
@@ -60,4 +62,8 @@ final blockRepositoryProvider = Provider<BlockRepository>((ref) {
 
 final reportRepositoryProvider = Provider<ReportRepository>((ref) {
   return ReportRepositoryImpl(ref.read(reportDataSourceProvider));
+});
+
+final commentRepositoryProvider = Provider<CommentRepository>((ref) {
+  return CommentRepositoryImpl(ref.read(commentDataSourceProvider));
 });

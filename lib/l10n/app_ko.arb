@@ -421,9 +421,65 @@
   "@photoViewerCommentHint": {
     "description": "사진 뷰어 댓글 입력 필드 플레이스홀더"
   },
+  "photoViewerCommentLockedHint": "따라찍기를 이용한 후 댓글을 남길 수 있어요",
+  "@photoViewerCommentLockedHint": {
+    "description": "잠긴(블러+자물쇠) 사진에서 댓글 입력이 비활성화됐을 때의 안내 플레이스홀더"
+  },
   "photoViewerCommentEmpty": "아직 댓글이 없습니다.",
   "@photoViewerCommentEmpty": {
     "description": "사진 뷰어 댓글이 하나도 없을 때 안내 문구"
+  },
+  "photoViewerCommentUnderReview": "신고 접수되어 검토 중인 댓글입니다",
+  "@photoViewerCommentUnderReview": {
+    "description": "신고 접수로 검토 중인 댓글의 내용 자리표시"
+  },
+  "commentMenuEdit": "수정하기",
+  "@commentMenuEdit": {
+    "description": "내 댓글 더보기 메뉴 - 수정"
+  },
+  "commentMenuDelete": "삭제하기",
+  "@commentMenuDelete": {
+    "description": "내 댓글 더보기 메뉴 - 삭제"
+  },
+  "commentMenuReport": "신고하기",
+  "@commentMenuReport": {
+    "description": "상대방 댓글 더보기 메뉴 - 신고"
+  },
+  "commentEditingLabel": "댓글 수정 중",
+  "@commentEditingLabel": {
+    "description": "댓글 수정 모드에서 입력창 위에 뜨는 라벨"
+  },
+  "commentEdited": "수정됨",
+  "@commentEdited": {
+    "description": "수정된 댓글의 시간 옆에 붙는 표시"
+  },
+  "commentReportReasonSexual": "성적 발언",
+  "@commentReportReasonSexual": {
+    "description": "댓글 신고 사유 - 성적 발언"
+  },
+  "commentReportReasonViolence": "폭력·혐오 표현",
+  "@commentReportReasonViolence": {
+    "description": "댓글 신고 사유 - 폭력·혐오 표현"
+  },
+  "commentReportReasonAbuse": "욕설·비방 표현",
+  "@commentReportReasonAbuse": {
+    "description": "댓글 신고 사유 - 욕설·비방 표현"
+  },
+  "commentReportReasonHarassment": "사칭·괴롭힘",
+  "@commentReportReasonHarassment": {
+    "description": "댓글 신고 사유 - 사칭·괴롭힘"
+  },
+  "commentReportReasonEtc": "기타",
+  "@commentReportReasonEtc": {
+    "description": "댓글 신고 사유 - 기타"
+  },
+  "commentDeleteTitle": "이 댓글을 삭제할까요?",
+  "@commentDeleteTitle": {
+    "description": "댓글 삭제 확인 다이얼로그 제목"
+  },
+  "commentDeleteMessage": "삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.",
+  "@commentDeleteMessage": {
+    "description": "댓글 삭제 확인 다이얼로그 본문"
   },
   "cameraPermissionTitle": "카메라 권한이 필요해요",
   "cameraPermissionDescription": "촬영하려면 설정에서 카메라 권한을 허용해주세요.",
