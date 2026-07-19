@@ -3,6 +3,7 @@ import 'package:ddara/data/datasource/block/block_datasource.dart';
 import 'package:ddara/data/datasource/comment/comment_datasource.dart';
 import 'package:ddara/data/datasource/cycle/cycle_datasource.dart';
 import 'package:ddara/data/datasource/fcm/fcm_datasource.dart';
+import 'package:ddara/data/datasource/feed/feed_datasource.dart';
 import 'package:ddara/data/datasource/notification/notification_datasource.dart';
 import 'package:ddara/data/datasource/profile/profile_datasource.dart';
 import 'package:ddara/data/datasource/report/report_datasource.dart';
@@ -54,4 +55,8 @@ final reportDataSourceProvider = Provider<ReportDataSource>((ref) {
 
 final commentDataSourceProvider = Provider<CommentDataSource>((ref) {
   return CommentDataSource(ref.read(dioProvider));
+});
+
+final feedDataSourceProvider = Provider<FeedDataSource>((ref) {
+  return FeedDataSource(ref.read(dioProvider));
 });
