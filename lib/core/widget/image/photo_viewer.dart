@@ -538,7 +538,7 @@ class _PhotoViewerState extends State<PhotoViewer>
               position: _sheetOffset,
               child: Container(
                 decoration: const BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color: AppColors.bgBase,
                   borderRadius: BorderRadius.vertical(
                     top: Radius.circular(AppRadius.lg),
                   ),
@@ -744,7 +744,10 @@ class _PhotoViewerState extends State<PhotoViewer>
                 controller: _commentController,
                 focusNode: _commentFocusNode,
                 padding: EdgeInsets.zero,
-                decoration: null,
+                // decoration 을 null 로 두면 CupertinoTextField 가 disabled 일 때
+                // 프레임워크 기본 배경(_kDisabledBackground, 다크에서 #050505)을
+                // 칠한다. 투명 decoration 을 넘겨 그 fallback 을 막는다.
+                decoration: const BoxDecoration(),
                 // 잠긴 사진은 입력을 막고 안내 문구를 플레이스홀더로 보여준다.
                 enabled: !locked,
                 placeholder: locked
@@ -763,10 +766,19 @@ class _PhotoViewerState extends State<PhotoViewer>
               ),
             ),
             // 잠긴 사진은 tail 자리에 자물쇠 아이콘을 고정으로 보여준다.
+            // 전송 버튼과 같은 높이를 예약해 입력창 높이를 동일하게 맞춘다.
             if (locked)
               const Padding(
-                padding: EdgeInsets.only(left: AppSpacing.s2),
-                child: LockIcon(size: 20, color: AppColors.textDisabled),
+                padding: EdgeInsets.only(
+                  left: AppSpacing.s2,
+                  right: AppSpacing.s2,
+                ),
+                child: SizedBox(
+                  height: _sendButtonHeight,
+                  child: Center(
+                    child: LockIcon(size: 20, color: AppColors.textDisabled),
+                  ),
+                ),
               )
             // 그 외에는 입력값이 있을 때만 tail(전송) 버튼을 띄운다. 탭하면 등록.
             // (강조색 알약 버튼 + 종이비행기 아이콘 — 피그마 기준)
