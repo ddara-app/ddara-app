@@ -664,7 +664,8 @@ class _PhotoViewerState extends State<PhotoViewer>
                     Transform.translate(
                       offset: Offset(0, -keyboardInset),
                       child: Container(
-                        color: AppColors.bgSurface,
+                        // 입력 바(발 부분)는 시트와 같은 base. (TextField 내부만 surface)
+                        color: AppColors.bgBase,
                         padding: EdgeInsets.only(
                           left: AppSpacing.s4,
                           right: AppSpacing.s4,
@@ -760,8 +761,8 @@ class _PhotoViewerState extends State<PhotoViewer>
           bottom: AppSpacing.s2,
         ),
         decoration: ShapeDecoration(
-          // 잠긴 사진도 입력 영역과 같은 배경으로 통일하고, 비활성은 글자색으로
-          // 구분한다.
+          // 잠금(비활성)일 때만 pill 내부를 surface 로 채운다. 입력 가능할 때는
+          // 투명(뒤의 base 배경이 비침).
           color: locked ? AppColors.bgSurface : null,
           shape: RoundedRectangleBorder(
             side: const BorderSide(width: 1.5, color: AppColors.borderDefault),
