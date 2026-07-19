@@ -48,6 +48,7 @@ class PhotoViewer extends StatefulWidget {
     this.comments = const [],
     this.myNickname,
     this.locked = false,
+    this.onSubmitComment,
   });
 
   /// 크게 보여줄 이미지.
@@ -64,6 +65,12 @@ class PhotoViewer extends StatefulWidget {
 
   /// 본인 닉네임. (내가 작성한 댓글의 작성자 표기에 쓴다)
   final String? myNickname;
+
+  /// 댓글 등록 콜백. 입력한 content 를 받아 등록하고, 성공 시 화면에 추가할
+  /// [PhotoComment] 를, 실패 시 null 을 반환한다. null 이면 입력값을 유지해
+  /// 재시도할 수 있게 한다. (실패 안내는 호출 측에서 처리)
+  /// null 로 두면 API 연동 없이 메모리상에만 쌓는 임시 동작을 한다.
+  final Future<PhotoComment?> Function(String content)? onSubmitComment;
 
   /// 잠긴 사진 여부. true 면 뷰어에서도 블러 + 가운데 자물쇠를 유지한다.
   /// (본인이 아직 업로드하지 않아 타인 사진이 잠긴 경우 — 댓글은 볼 수 있다)
@@ -126,6 +133,9 @@ class _PhotoViewerState extends State<PhotoViewer>
   /// 직전 프레임의 키보드 표시 여부. (키보드가 내려간 순간을 감지하는 데 쓴다)
   bool _keyboardWasVisible = false;
 
+  /// 댓글 등록 요청 진행 중 여부. (연속 전송 방지)
+  bool _submitting = false;
+
   @override
   void initState() {
     super.initState();
@@ -169,22 +179,42 @@ class _PhotoViewerState extends State<PhotoViewer>
     _sheetController.value -= details.primaryDelta! / sheetHeight;
   }
 
-  /// 입력한 댓글을 목록에 추가한다. (메모리상 임시 저장 — API 연동 전)
-  /// TODO: 댓글 등록 API 연동. (작성자 정보 포함)
-  void _submitComment(String text) {
+  /// 입력한 댓글을 등록한다.
+  ///
+  /// [PhotoViewer.onSubmitComment] 가 있으면 서버에 등록하고 성공한 댓글만
+  /// 목록에 추가한다. (실패 시 입력값을 유지해 재시도할 수 있게 한다)
+  /// 콜백이 없으면 메모리상에만 쌓는 임시 동작을 한다.
+  Future<void> _submitComment(String text) async {
     final content = text.trim();
-    if (content.isEmpty) return;
-    setState(() {
-      _comments.add(
+    if (content.isEmpty || _submitting) return;
+
+    final onSubmit = widget.onSubmitComment;
+    if (onSubmit == null) {
+      // API 콜백이 없으면 메모리상에만 추가한다. (임시 동작)
+      _appendComment(
         PhotoComment(
           nickname: widget.myNickname ?? '',
           content: content,
           timeLabel: AppLocalizations.of(context).timeAgoJustNow,
         ),
       );
-    });
+      _commentController.clear();
+      return;
+    }
+
+    setState(() => _submitting = true);
+    final created = await onSubmit(content);
+    if (!mounted) return;
+    setState(() => _submitting = false);
+    // 실패(null)면 입력값을 유지해 재시도할 수 있게 한다.
+    if (created == null) return;
     _commentController.clear();
-    // 새 댓글이 목록에 그려진 다음 프레임에 맨 아래로 스크롤한다.
+    _appendComment(created);
+  }
+
+  /// 댓글을 목록에 추가하고, 다음 프레임에 맨 아래로 스크롤한다.
+  void _appendComment(PhotoComment comment) {
+    setState(() => _comments.add(comment));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_commentScrollController.hasClients) return;
       _commentScrollController.animateTo(
@@ -487,21 +517,26 @@ class _PhotoViewerState extends State<PhotoViewer>
                 placeholderStyle: placeholderStyle,
                 style: placeholderStyle.copyWith(color: AppColors.textPrimary),
                 cursorColor: AppColors.accentDefault,
+                // 서버 400(200자 초과)을 막기 위해 입력 단계에서 제한한다.
+                maxLength: 200,
                 textInputAction: TextInputAction.send,
                 onSubmitted: _submitComment,
               ),
             ),
-            // 입력값이 있을 때만 tail 아이콘을 띄운다.
+            // 입력값이 있을 때만 tail(전송) 아이콘을 띄운다. 탭하면 등록한다.
             ValueListenableBuilder<TextEditingValue>(
               valueListenable: _commentController,
               builder: (context, value, _) {
                 if (value.text.trim().isEmpty) return const SizedBox.shrink();
-                return const Padding(
-                  padding: EdgeInsets.only(left: AppSpacing.s2),
-                  child: Icon(
-                    CupertinoIcons.paperplane_fill,
-                    size: 20,
-                    color: AppColors.textDisabled,
+                return GestureDetector(
+                  onTap: () => _submitComment(_commentController.text),
+                  child: const Padding(
+                    padding: EdgeInsets.only(left: AppSpacing.s2),
+                    child: Icon(
+                      CupertinoIcons.paperplane_fill,
+                      size: 20,
+                      color: AppColors.textDisabled,
+                    ),
                   ),
                 );
               },
@@ -596,6 +631,7 @@ Future<void> showPhotoViewer(
   List<PhotoComment> comments = const [],
   String? myNickname,
   bool locked = false,
+  Future<PhotoComment?> Function(String content)? onSubmitComment,
 }) {
   return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder(
@@ -612,6 +648,7 @@ Future<void> showPhotoViewer(
         comments: comments,
         myNickname: myNickname,
         locked: locked,
+        onSubmitComment: onSubmitComment,
       ),
       transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),

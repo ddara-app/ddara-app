@@ -5,6 +5,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/time_ago.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
@@ -172,6 +173,13 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     title: cycle.starterNickname,
                     body: cycle.topic,
                     myNickname: myNickname,
+                    // 스타터 사진 댓글은 스타터 shot id 로 등록한다.
+                    onSubmitComment: (content) => _submitComment(
+                      context,
+                      ref,
+                      cycle.starterShotId,
+                      content,
+                    ),
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -224,6 +232,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   final heroTag = canView
                       ? 'gallery-photo-${member.userId}'
                       : null;
+                  // 댓글 등록 대상 shot id. (미업로드면 null → 댓글 불가)
+                  final shotId = member.shotId;
                   final card = MemberPhotoCard(
                     // 본인 카드는 이름 대신 '본인' 으로 표시한다.
                     name: isMe ? '나' : member.nickname,
@@ -246,6 +256,12 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                             myNickname: myNickname,
                             // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
                             locked: locked,
+                            // 사진에 shot id 가 있으면 댓글을 등록할 수 있다.
+                            // (잠긴 사진은 서버가 SHOT_LOCKED 로 거부 → 토스트 안내)
+                            onSubmitComment: shotId == null
+                                ? null
+                                : (content) =>
+                                      _submitComment(context, ref, shotId, content),
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
@@ -273,7 +289,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   );
 
                   // 타인의 보이는 사진만 신고할 수 있다. (본인·잠김·차단 제외)
-                  final shotId = member.shotId;
                   if (isMe || !canView || shotId == null) return card;
 
                   return _MenuPhotoCard(
@@ -289,6 +304,29 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
           ),
         ],
       ),
+    );
+  }
+
+  /// [shotId] 사진에 [content] 댓글을 등록하고, 성공 시 화면에 추가할
+  /// [PhotoComment] 를(작성자·시각 포함), 실패 시 null 을 반환한다.
+  /// (실패 안내는 notifier 가 errorMessage → 토스트로 처리)
+  Future<PhotoComment?> _submitComment(
+    BuildContext context,
+    WidgetRef ref,
+    int shotId,
+    String content,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final created = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .submitComment(shotId: shotId, content: content);
+    if (created == null) return null;
+
+    return PhotoComment(
+      nickname: created.nickname,
+      content: created.content,
+      timeLabel: timeAgoLabel(created.createdAt, l10n),
+      profileImageUrl: created.profileImageUrl,
     );
   }
 

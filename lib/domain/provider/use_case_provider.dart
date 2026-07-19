@@ -5,6 +5,7 @@ import 'package:ddara/domain/usecase/block/get_blocked_users_use_case.dart';
 import 'package:ddara/domain/usecase/block/unblock_user_use_case.dart';
 import 'package:ddara/domain/usecase/auth/logout_use_case.dart';
 import 'package:ddara/domain/usecase/auth/signup_use_case.dart';
+import 'package:ddara/domain/usecase/comment/create_comment_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/get_cycle_gallery_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/starter_upload_use_case.dart';
@@ -161,4 +162,8 @@ final unblockUserUseCaseProvider = Provider<UnblockUserUseCase>((ref) {
 
 final reportShotUseCaseProvider = Provider<ReportShotUseCase>((ref) {
   return ReportShotUseCase(ref.read(reportRepositoryProvider));
+});
+
+final createCommentUseCaseProvider = Provider<CreateCommentUseCase>((ref) {
+  return CreateCommentUseCase(ref.read(commentRepositoryProvider));
 });

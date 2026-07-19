@@ -1,5 +1,7 @@
+import 'package:ddara/core/exception/comment_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
+import 'package:ddara/core/model/comment/comment.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
@@ -111,6 +113,39 @@ class CyclePhotoGalleryNotifier
       // NetworkException 및 기타 예기치 못한 오류.
       state = state.copyWith(isLoading: false, errorMessage: '신고하지 못했어요.');
       return false;
+    }
+  }
+
+  /// [shotId] 사진에 댓글을 등록한다. 성공하면 생성된 댓글을, 실패하면
+  /// errorMessage 를 채우고 null 을 반환한다.
+  /// (댓글은 갤러리 화면에 노출되지 않으므로 갤러리를 재조회하지 않는다)
+  Future<Comment?> submitComment({
+    required int shotId,
+    required String content,
+  }) async {
+    final createCommentUseCase = ref.read(createCommentUseCaseProvider);
+
+    try {
+      return await createCommentUseCase(shotId: shotId, content: content);
+    } on InvalidCommentInputException {
+      state = state.copyWith(errorMessage: '댓글 내용을 확인해 주세요.');
+      return null;
+    } on ShotLockedException {
+      state = state.copyWith(errorMessage: '내 인증샷을 올려야 댓글을 달 수 있어요.');
+      return null;
+    } on ShotUnderReviewException {
+      state = state.copyWith(errorMessage: '검토 중인 사진에는 댓글을 달 수 없어요.');
+      return null;
+    } on ShotNotFoundException {
+      state = state.copyWith(errorMessage: '이미 삭제된 사진이에요.');
+      return null;
+    } on NotGroupMemberException {
+      state = state.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.');
+      return null;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(errorMessage: '댓글을 등록하지 못했어요.');
+      return null;
     }
   }
 }
