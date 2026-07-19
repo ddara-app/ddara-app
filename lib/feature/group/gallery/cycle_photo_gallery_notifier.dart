@@ -161,6 +161,32 @@ class CyclePhotoGalleryNotifier
     }
   }
 
+  /// [commentId] 댓글을 [content] 로 수정한다. 성공하면 수정된 내용을,
+  /// 실패하면 errorMessage 를 채우고 null 을 반환한다.
+  Future<String?> editComment({
+    required int commentId,
+    required String content,
+  }) async {
+    final editCommentUseCase = ref.read(editCommentUseCaseProvider);
+
+    try {
+      return await editCommentUseCase(commentId: commentId, content: content);
+    } on InvalidCommentInputException {
+      state = state.copyWith(errorMessage: '댓글 내용을 확인해 주세요.');
+      return null;
+    } on CommentForbiddenException {
+      state = state.copyWith(errorMessage: '내가 작성한 댓글만 수정할 수 있어요.');
+      return null;
+    } on CommentNotFoundException {
+      state = state.copyWith(errorMessage: '이미 삭제된 댓글이에요.');
+      return null;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(errorMessage: '댓글을 수정하지 못했어요.');
+      return null;
+    }
+  }
+
   /// [shotId] 사진에 댓글을 등록한다. 성공하면 생성된 댓글을, 실패하면
   /// errorMessage 를 채우고 null 을 반환한다.
   /// (댓글은 갤러리 화면에 노출되지 않으므로 갤러리를 재조회하지 않는다)

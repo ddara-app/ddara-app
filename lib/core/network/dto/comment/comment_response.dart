@@ -36,3 +36,16 @@ abstract class CommentListResponse with _$CommentListResponse {
   factory CommentListResponse.fromJson(Map<String, dynamic> json) =>
       _$CommentListResponseFromJson(json);
 }
+
+/// `PATCH /api/comments/{commentId}` 응답 DTO. (수정된 내용·시각만 내려온다)
+@freezed
+abstract class CommentUpdateResponse with _$CommentUpdateResponse {
+  const factory CommentUpdateResponse({
+    required int commentId,
+    required String content,
+    required DateTime updatedAt,
+  }) = _CommentUpdateResponse;
+
+  factory CommentUpdateResponse.fromJson(Map<String, dynamic> json) =>
+      _$CommentUpdateResponseFromJson(json);
+}

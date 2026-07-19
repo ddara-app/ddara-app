@@ -7,6 +7,7 @@ import 'package:ddara/domain/usecase/auth/logout_use_case.dart';
 import 'package:ddara/domain/usecase/auth/signup_use_case.dart';
 import 'package:ddara/domain/usecase/comment/create_comment_use_case.dart';
 import 'package:ddara/domain/usecase/comment/delete_comment_use_case.dart';
+import 'package:ddara/domain/usecase/comment/edit_comment_use_case.dart';
 import 'package:ddara/domain/usecase/comment/get_comments_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/get_cycle_gallery_use_case.dart';
@@ -176,4 +177,8 @@ final getCommentsUseCaseProvider = Provider<GetCommentsUseCase>((ref) {
 
 final deleteCommentUseCaseProvider = Provider<DeleteCommentUseCase>((ref) {
   return DeleteCommentUseCase(ref.read(commentRepositoryProvider));
+});
+
+final editCommentUseCaseProvider = Provider<EditCommentUseCase>((ref) {
+  return EditCommentUseCase(ref.read(commentRepositoryProvider));
 });

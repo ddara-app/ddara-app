@@ -188,6 +188,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                       if (id == null) return false;
                       return _deleteComment(ref, id);
                     },
+                    onEditComment: (comment, newContent) =>
+                        _editComment(ref, comment, newContent),
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -274,12 +276,14 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                                 ? null
                                 : (content) =>
                                       _submitComment(context, ref, shotId, content),
-                            // 삭제는 댓글 id 로 처리(대상 사진 shotId 와 무관).
+                            // 삭제·수정은 댓글 id 로 처리(대상 사진 shotId 와 무관).
                             onDeleteComment: (comment) async {
                               final id = comment.commentId;
                               if (id == null) return false;
                               return _deleteComment(ref, id);
                             },
+                            onEditComment: (comment, newContent) =>
+                                _editComment(ref, comment, newContent),
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
@@ -390,6 +394,24 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     return ref
         .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
         .deleteComment(commentId: commentId);
+  }
+
+  /// [comment] 를 [newContent] 로 수정하고, 성공 시 갱신된 [PhotoComment] 를
+  /// (내용만 바꿔) 반환한다. 실패·id 없음이면 null. (실패 안내는 토스트)
+  Future<PhotoComment?> _editComment(
+    WidgetRef ref,
+    PhotoComment comment,
+    String newContent,
+  ) async {
+    final id = comment.commentId;
+    if (id == null) return null;
+
+    final content = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .editComment(commentId: id, content: newContent);
+    if (content == null) return null;
+
+    return comment.copyWith(content: content);
   }
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.

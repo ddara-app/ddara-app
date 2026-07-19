@@ -568,4 +568,273 @@ as List<CommentResponse>,
 
 }
 
+
+/// @nodoc
+mixin _$CommentUpdateResponse {
+
+ int get commentId; String get content; DateTime get updatedAt;
+/// Create a copy of CommentUpdateResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CommentUpdateResponseCopyWith<CommentUpdateResponse> get copyWith => _$CommentUpdateResponseCopyWithImpl<CommentUpdateResponse>(this as CommentUpdateResponse, _$identity);
+
+  /// Serializes this CommentUpdateResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommentUpdateResponse&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.content, content) || other.content == content)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,commentId,content,updatedAt);
+
+@override
+String toString() {
+  return 'CommentUpdateResponse(commentId: $commentId, content: $content, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CommentUpdateResponseCopyWith<$Res>  {
+  factory $CommentUpdateResponseCopyWith(CommentUpdateResponse value, $Res Function(CommentUpdateResponse) _then) = _$CommentUpdateResponseCopyWithImpl;
+@useResult
+$Res call({
+ int commentId, String content, DateTime updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class _$CommentUpdateResponseCopyWithImpl<$Res>
+    implements $CommentUpdateResponseCopyWith<$Res> {
+  _$CommentUpdateResponseCopyWithImpl(this._self, this._then);
+
+  final CommentUpdateResponse _self;
+  final $Res Function(CommentUpdateResponse) _then;
+
+/// Create a copy of CommentUpdateResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? commentId = null,Object? content = null,Object? updatedAt = null,}) {
+  return _then(_self.copyWith(
+commentId: null == commentId ? _self.commentId : commentId // ignore: cast_nullable_to_non_nullable
+as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [CommentUpdateResponse].
+extension CommentUpdateResponsePatterns on CommentUpdateResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CommentUpdateResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CommentUpdateResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CommentUpdateResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _CommentUpdateResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CommentUpdateResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CommentUpdateResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int commentId,  String content,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CommentUpdateResponse() when $default != null:
+return $default(_that.commentId,_that.content,_that.updatedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int commentId,  String content,  DateTime updatedAt)  $default,) {final _that = this;
+switch (_that) {
+case _CommentUpdateResponse():
+return $default(_that.commentId,_that.content,_that.updatedAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int commentId,  String content,  DateTime updatedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _CommentUpdateResponse() when $default != null:
+return $default(_that.commentId,_that.content,_that.updatedAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _CommentUpdateResponse implements CommentUpdateResponse {
+  const _CommentUpdateResponse({required this.commentId, required this.content, required this.updatedAt});
+  factory _CommentUpdateResponse.fromJson(Map<String, dynamic> json) => _$CommentUpdateResponseFromJson(json);
+
+@override final  int commentId;
+@override final  String content;
+@override final  DateTime updatedAt;
+
+/// Create a copy of CommentUpdateResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CommentUpdateResponseCopyWith<_CommentUpdateResponse> get copyWith => __$CommentUpdateResponseCopyWithImpl<_CommentUpdateResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CommentUpdateResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommentUpdateResponse&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.content, content) || other.content == content)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,commentId,content,updatedAt);
+
+@override
+String toString() {
+  return 'CommentUpdateResponse(commentId: $commentId, content: $content, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CommentUpdateResponseCopyWith<$Res> implements $CommentUpdateResponseCopyWith<$Res> {
+  factory _$CommentUpdateResponseCopyWith(_CommentUpdateResponse value, $Res Function(_CommentUpdateResponse) _then) = __$CommentUpdateResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ int commentId, String content, DateTime updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$CommentUpdateResponseCopyWithImpl<$Res>
+    implements _$CommentUpdateResponseCopyWith<$Res> {
+  __$CommentUpdateResponseCopyWithImpl(this._self, this._then);
+
+  final _CommentUpdateResponse _self;
+  final $Res Function(_CommentUpdateResponse) _then;
+
+/// Create a copy of CommentUpdateResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? commentId = null,Object? content = null,Object? updatedAt = null,}) {
+  return _then(_CommentUpdateResponse(
+commentId: null == commentId ? _self.commentId : commentId // ignore: cast_nullable_to_non_nullable
+as int,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
+
 // dart format on

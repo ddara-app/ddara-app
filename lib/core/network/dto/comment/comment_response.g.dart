@@ -42,3 +42,19 @@ _CommentListResponse _$CommentListResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CommentListResponseToJson(
   _CommentListResponse instance,
 ) => <String, dynamic>{'comments': instance.comments};
+
+_CommentUpdateResponse _$CommentUpdateResponseFromJson(
+  Map<String, dynamic> json,
+) => _CommentUpdateResponse(
+  commentId: (json['commentId'] as num).toInt(),
+  content: json['content'] as String,
+  updatedAt: DateTime.parse(json['updatedAt'] as String),
+);
+
+Map<String, dynamic> _$CommentUpdateResponseToJson(
+  _CommentUpdateResponse instance,
+) => <String, dynamic>{
+  'commentId': instance.commentId,
+  'content': instance.content,
+  'updatedAt': instance.updatedAt.toIso8601String(),
+};

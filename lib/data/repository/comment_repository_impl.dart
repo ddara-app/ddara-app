@@ -107,4 +107,39 @@ class CommentRepositoryImpl implements CommentRepository {
       }
     }
   }
+
+  @override
+  Future<String> editComment({
+    required int commentId,
+    required String content,
+  }) async {
+    try {
+      final response = await _commentDataSource.editComment(
+        commentId: commentId,
+        content: content,
+      );
+      return response.content;
+    } on DioException catch (e) {
+      final code = e.response?.data is Map
+          ? CommentErrorCode.fromValue(e.response?.data['code'])
+          : null;
+
+      switch (code) {
+        case CommentErrorCode.invalidInput:
+          // 400 — content 누락, 공백만 입력, 200자 초과
+          throw InvalidCommentInputException();
+
+        case CommentErrorCode.commentForbidden:
+          // 403 — 본인이 작성한 댓글이 아님
+          throw CommentForbiddenException();
+
+        case CommentErrorCode.commentNotFound:
+          // 404 — 댓글 없음
+          throw CommentNotFoundException();
+
+        default:
+          throw NetworkException();
+      }
+    }
+  }
 }

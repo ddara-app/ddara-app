@@ -30,4 +30,17 @@ class CommentDataSource {
   Future<void> deleteComment(int commentId) async {
     await _dio.delete('/api/comments/$commentId');
   }
+
+  /// [commentId] 댓글의 내용을 [content] 로 수정하고, 수정 결과를 반환한다.
+  Future<CommentUpdateResponse> editComment({
+    required int commentId,
+    required String content,
+  }) async {
+    final response = await _dio.patch(
+      '/api/comments/$commentId',
+      data: {'content': content},
+    );
+
+    return CommentUpdateResponse.fromJson(response.data);
+  }
 }
