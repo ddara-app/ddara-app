@@ -221,32 +221,21 @@
   "groupExitConfirmAction": "나가기",
   "groupMembersTitle": "친구들",
   "groupMembersAdd": "추가하기",
-  "memberReportNickname": "닉네임 신고",
-  "memberReportMailSubject": "[따라] 닉네임 신고",
-  "memberReportMailBody": "신고할 닉네임: {nickname}\n\n신고 사유를 작성해 주세요.\n",
-  "@memberReportMailBody": {
-    "description": "닉네임 신고 메일의 본문. (신고 대상 닉네임 포함)",
-    "placeholders": {
-      "nickname": { "type": "String" }
-    }
-  },
-  "memberReportMailFailed": "메일 앱을 열 수 없어요. ({email})",
-  "@memberReportMailFailed": {
-    "description": "닉네임 신고 메일 앱 실행에 실패했을 때 안내",
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  },
-  "photoReport": "신고하기",
-  "photoReportSheetTitle": "신고 사유를 선택해 주세요",
-  "photoReportSheetSubtitle": "신고 내용은 24시간 안에 확인해요",
+  "memberReportUser": "유저 신고",
+  "report": "신고하기",
+  "reportSheetTitle": "신고 사유를 선택해 주세요",
+  "reportSheetSubtitle": "신고 내용은 24시간 안에 확인해요",
+  "reportDetailPlaceholder": "입력해 주세요",
+  "reportSubmitted": "신고를 접수했어요. 24시간 안에 확인할게요",
   "photoReportReasonObscene": "음란물",
   "photoReportReasonViolence": "폭력·혐오",
   "photoReportReasonUnauthorizedFilming": "타인 무단촬영",
   "photoReportReasonImpersonation": "사칭·괴롭힘",
   "photoReportReasonEtc": "기타",
-  "photoReportDetailPlaceholder": "입력해 주세요",
-  "photoReportSubmitted": "신고를 접수했어요. 24시간 안에 확인할게요",
+  "userReportReasonNickname": "부적절한 닉네임(욕설·음란·혐오)",
+  "userReportReasonProfileImage": "부적절한 프로필 사진(음란·혐오)",
+  "userReportReasonHarassment": "사칭·괴롭힘",
+  "userReportReasonEtc": "기타",
   "memberBlock": "차단하기",
   "memberBlockConfirmTitle": "{nickname}님을 차단할까요?",
   "@memberBlockConfirmTitle": {

@@ -12,6 +12,7 @@ import 'package:ddara/feature/group/detail/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';
 import 'package:ddara/feature/group/detail/widget/body/history_photos.dart';
 import 'package:ddara/feature/group/detail/widget/body/members.dart';
+import 'package:ddara/feature/group/detail/widget/body/user_report_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
@@ -21,7 +22,6 @@ import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/widget/toast/toast.dart';
 
@@ -335,7 +335,7 @@ class GroupPage extends ConsumerWidget {
               inviteCode: groupDetail.inviteCode,
               imageUrl: _shareImageUrl,
             ),
-            onReportMember: (member) => _reportMember(context, member.name),
+            onReportMember: (_) => _reportMember(context),
             onBlockMember: (member) => _blockMember(context, ref, member),
           ),
         ),
@@ -383,36 +383,14 @@ class GroupPage extends ConsumerWidget {
     );
   }
 
-  /// 닉네임 신고 수신 주소. (프로필 문의하기와 동일한 팀 메일)
-  static const String _reportEmail = 'ddara.team3@gmail.com';
+  /// 유저 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
+  ///
+  /// TODO: 서버 접수 연결. (유저 신고 API 스펙 대기 — 현재는 완료 토스트만)
+  Future<void> _reportMember(BuildContext context) async {
+    final result = await UserReportSheet.show(context);
+    if (result == null || !context.mounted) return;
 
-  /// 기본 메일 앱으로 닉네임 신고 메일 작성 화면을 띄운다. (제목·본문 미리 채움)
-  Future<void> _reportMember(BuildContext context, String nickname) async {
-    final l10n = AppLocalizations.of(context);
-
-    // mailto 쿼리는 공백을 '+' 가 아닌 '%20' 으로 인코딩해야 메일 앱이 제대로 읽는다.
-    final query =
-        <String, String>{
-              'subject': l10n.memberReportMailSubject,
-              'body': l10n.memberReportMailBody(nickname),
-            }.entries
-            .map(
-              (e) =>
-                  '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
-            )
-            .join('&');
-
-    final mailUri = Uri(scheme: 'mailto', path: _reportEmail, query: query);
-
-    // 메일 앱이 없거나 실행에 실패하면 사용자에게 안내한다.
-    final launched = await launchUrl(mailUri).catchError((_) => false);
-    if (!launched && context.mounted) {
-      Toast.showToast(
-        context,
-        l10n.memberReportMailFailed(_reportEmail),
-        type: ToastType.error,
-      );
-    }
+    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 
   /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
