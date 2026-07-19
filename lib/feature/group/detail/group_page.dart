@@ -335,7 +335,7 @@ class GroupPage extends ConsumerWidget {
               inviteCode: groupDetail.inviteCode,
               imageUrl: _shareImageUrl,
             ),
-            onReportMember: (_) => _reportMember(context),
+            onReportMember: (member) => _reportMember(context, ref, member),
             onBlockMember: (member) => _blockMember(context, ref, member),
           ),
         ),
@@ -384,11 +384,24 @@ class GroupPage extends ConsumerWidget {
   }
 
   /// 유저 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
-  ///
-  /// TODO: 서버 접수 연결. (유저 신고 API 스펙 대기 — 현재는 완료 토스트만)
-  Future<void> _reportMember(BuildContext context) async {
+  /// 성공하면 완료 토스트를 띄운다.
+  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  Future<void> _reportMember(
+    BuildContext context,
+    WidgetRef ref,
+    MemberDisplay member,
+  ) async {
     final result = await UserReportSheet.show(context);
     if (result == null || !context.mounted) return;
+
+    final success = await ref
+        .read(groupPageNotifierProvider(groupId).notifier)
+        .reportMember(
+          userId: member.userId,
+          reason: result.reason,
+          reasonText: result.detail.isEmpty ? null : result.detail,
+        );
+    if (!success || !context.mounted) return;
 
     Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }

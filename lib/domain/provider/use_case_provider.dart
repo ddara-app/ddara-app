@@ -18,6 +18,7 @@ import 'package:ddara/domain/usecase/profile/get_profile_use_case.dart';
 import 'package:ddara/domain/usecase/profile/reset_profile_image_use_case.dart';
 import 'package:ddara/domain/usecase/profile/upload_profile_image_use_case.dart';
 import 'package:ddara/domain/usecase/report/report_shot_use_case.dart';
+import 'package:ddara/domain/usecase/report/report_user_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/provider/repository_provider.dart';
@@ -156,4 +157,8 @@ final unblockUserUseCaseProvider = Provider<UnblockUserUseCase>((ref) {
 
 final reportShotUseCaseProvider = Provider<ReportShotUseCase>((ref) {
   return ReportShotUseCase(ref.read(reportRepositoryProvider));
+});
+
+final reportUserUseCaseProvider = Provider<ReportUserUseCase>((ref) {
+  return ReportUserUseCase(ref.read(reportRepositoryProvider));
 });

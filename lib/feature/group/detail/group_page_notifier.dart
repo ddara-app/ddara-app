@@ -1,7 +1,9 @@
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
+import 'package:ddara/core/exception/report_exception.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/model/report/user_report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -101,6 +103,42 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
       state = state.copyWith(isLoading: false, errorMessage: '모임에서 나가지 못했어요.');
+      return false;
+    }
+  }
+
+  /// [userId] 멤버를 신고한다. 성공하면 true.
+  /// (실패 사유는 errorMessage 로 내려 화면에서 토스트로 안내한다)
+  ///
+  /// 신고해도 화면에 바뀌는 값이 없으므로 로딩 표시·상세 재조회 없이
+  /// 접수만 하고 결과 토스트로 끝낸다.
+  Future<bool> reportMember({
+    required int userId,
+    required UserReportReason reason,
+    String? reasonText,
+  }) async {
+    final reportUserUseCase = ref.read(reportUserUseCaseProvider);
+
+    try {
+      await reportUserUseCase(
+        userId: userId,
+        groupId: arg,
+        reason: reason,
+        reasonText: reasonText,
+      );
+      return true;
+    } on InvalidReportInputException {
+      state = state.copyWith(errorMessage: '신고 내용이 올바르지 않아요.');
+      return false;
+    } on ReportUserNotFoundException {
+      state = state.copyWith(errorMessage: '모임에 없는 사용자예요.');
+      return false;
+    } on NotGroupMemberException {
+      state = state.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.');
+      return false;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(errorMessage: '신고하지 못했어요.');
       return false;
     }
   }
