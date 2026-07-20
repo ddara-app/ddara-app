@@ -8,6 +8,7 @@ import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/time_ago.dart';
+import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
@@ -99,12 +100,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
     final starterBlocked = blockedUserIds.contains(cycle.starterUserId);
 
-    // 본인 닉네임. (사진 뷰어에서 내가 단 댓글의 작성자 표기에 쓴다)
-    final myNickname = gallery.members
-        .where((m) => m.userId == myUserId)
-        .map((m) => m.nickname)
-        .firstOrNull;
-
     // 마감된(done) 회차는 사진이 있는 카드만 보여준다. (미업로드 빈 카드는 숨김)
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
 
@@ -175,7 +170,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
                     title: cycle.starterNickname,
                     body: cycle.topic,
-                    myNickname: myNickname,
                     // 스타터 사진 댓글은 스타터 shot id 로 등록·조회한다.
                     onLoadComments: () =>
                         _loadComments(context, ref, cycle.starterShotId),
@@ -257,7 +251,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     isUnderReview: isReported,
                     // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
                     // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
-                    onTap: canOpen
+                    // (사진이 있으면 shot id 도 함께 오지만, 없으면 열지 않는다)
+                    onTap: canOpen && shotId != null
                         ? () => showPhotoViewer(
                             context,
                             image: image,
@@ -267,19 +262,13 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                             // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
                             title: member.nickname,
                             body: cycle.topic,
-                            myNickname: myNickname,
                             // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
                             locked: locked,
-                            // 사진에 shot id 가 있으면 댓글을 조회·등록할 수 있다.
-                            // (잠긴 사진은 서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내)
-                            onLoadComments: shotId == null
-                                ? null
-                                : () =>
-                                      _loadComments(context, ref, shotId),
-                            onSubmitComment: shotId == null
-                                ? null
-                                : (content) =>
-                                      _submitComment(context, ref, shotId, content),
+                            // 잠긴 사진은 서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내.
+                            onLoadComments: () =>
+                                _loadComments(context, ref, shotId),
+                            onSubmitComment: (content) =>
+                                _submitComment(context, ref, shotId, content),
                             // 삭제·수정은 댓글 id 로 처리(대상 사진 shotId 와 무관).
                             onDeleteComment: (comment) async {
                               final id = comment.commentId;

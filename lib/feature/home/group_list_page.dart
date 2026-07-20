@@ -8,6 +8,7 @@ import 'package:ddara/core/model/feed/feed.dart';
 import 'package:ddara/core/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/time_ago.dart';
+import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
@@ -345,7 +346,6 @@ class _RecentUpdatesView extends ConsumerWidget {
       // 댓글 시트 헤더: 업로더 닉네임 + 따라찍기 주제.
       title: item.nickname,
       body: item.topic,
-      myNickname: state.myNickname,
       locked: item.locked,
       // 댓글을 눌러 들어왔으므로 시트를 연 채로 시작한다.
       openCommentSheet: true,
