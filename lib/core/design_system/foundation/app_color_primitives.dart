@@ -42,6 +42,10 @@ abstract final class AppColorPrimitives {
   static const Color grayscale700 = Color(0xFF5C5D5F);
   static const Color grayscale800 = Color(0xFF454549);
   static const Color grayscale900 = Color(0xFF2D2E32);
+
+  /// [grayscale900] 과 [black](배경) 의 중간. 배경 위에 겨우 드러나는
+  /// 경계선용으로 추가했다.
+  static const Color grayscale950 = Color(0xFF212226);
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF16171B);
 

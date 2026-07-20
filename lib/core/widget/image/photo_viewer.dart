@@ -1,9 +1,11 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment_sheet.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -30,6 +32,8 @@ class PhotoViewer extends StatefulWidget {
     this.title,
     this.body,
     this.comments = const [],
+    this.myNickname = '',
+    this.myProfileImageUrl,
     this.locked = false,
     this.openCommentSheet = false,
   });
@@ -45,6 +49,12 @@ class PhotoViewer extends StatefulWidget {
 
   /// 댓글 시트에 표시할 댓글 목록.
   final List<PhotoComment> comments;
+
+  /// 본인 닉네임. → [PhotoCommentSheet.myNickname]
+  final String myNickname;
+
+  /// 본인 프로필 이미지 URL. → [PhotoCommentSheet.myProfileImageUrl]
+  final String? myProfileImageUrl;
 
   /// 댓글 등록 콜백. → [PhotoCommentSheet.onSubmitComment]
   final Future<PhotoComment?> Function(String content) onSubmitComment;
@@ -151,6 +161,25 @@ class _PhotoViewerState extends State<PhotoViewer>
     _sheetController.animateBack(0, curve: Curves.easeInOut);
   }
 
+  /// 뷰어를 닫는다. 전송하지 못한 댓글이 남아 있으면 먼저 확인창을 띄운다.
+  ///
+  /// 실패한 댓글은 시트 State 에만 있어 뷰어가 pop 되면 함께 사라진다.
+  /// (시트를 닫는 것만으로는 사라지지 않는다) 모르는 새 잃지 않도록 확인받는다.
+  Future<void> _closeViewer() async {
+    if (_sheetKey.currentState?.hasPendingComments ?? false) {
+      final l10n = AppLocalizations.of(context);
+      final confirmed = await AppDialog.show(
+        context,
+        title: l10n.commentPendingLeaveTitle,
+        message: l10n.commentPendingLeaveMessage,
+        // 나가면 댓글이 사라지지만, 삭제 확인창과 마찬가지로 빨간색은 쓰지 않는다.
+        confirmLabel: l10n.commentPendingLeaveConfirm,
+      );
+      if (!confirmed) return;
+    }
+    if (mounted) Navigator.of(context).pop();
+  }
+
   /// 드래그 종료 → 빠르게 내렸거나 절반 아래로 내려갔으면 닫고, 아니면 복귀.
   void _onSheetDragEnd(DragEndDetails details) {
     final velocity = details.primaryVelocity ?? 0;
@@ -165,10 +194,13 @@ class _PhotoViewerState extends State<PhotoViewer>
   Widget build(BuildContext context) {
     // OS 뒤로가기(안드로이드 버튼·iOS 스와이프): 시트가 열려 있으면 시트만
     // 닫고, 닫힌 상태에서 한 번 더 하면 뷰어가 pop 된다.
+    // (pop 은 항상 _closeViewer 를 거쳐야 전송 실패 댓글 확인창을 탈 수 있으므로
+    // canPop 을 false 로 두고 직접 처리한다)
     return PopScope(
-      canPop: !_sheetVisible,
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _closeSheet();
+        if (didPop) return;
+        _sheetVisible ? _closeSheet() : _closeViewer();
       },
       child: Stack(
         children: [
@@ -176,8 +208,7 @@ class _PhotoViewerState extends State<PhotoViewer>
           // (핀치/드래그는 InteractiveViewer 가 처리)
           Positioned.fill(
             child: GestureDetector(
-              onTap: () =>
-                  _sheetVisible ? _closeSheet() : Navigator.of(context).pop(),
+              onTap: () => _sheetVisible ? _closeSheet() : _closeViewer(),
               child: AlignTransition(
                 alignment: _imageAlignment,
                 child: _buildImage(),
@@ -190,7 +221,7 @@ class _PhotoViewerState extends State<PhotoViewer>
               child: Align(
                 alignment: Alignment.topRight,
                 child: CupertinoButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: _closeViewer,
                   child: const Icon(
                     CupertinoIcons.xmark,
                     color: AppColors.textPrimary,
@@ -207,6 +238,8 @@ class _PhotoViewerState extends State<PhotoViewer>
             title: widget.title,
             body: widget.body,
             comments: widget.comments,
+            myNickname: widget.myNickname,
+            myProfileImageUrl: widget.myProfileImageUrl,
             locked: widget.locked,
             loadOnInit: widget.openCommentSheet,
             onSubmitComment: widget.onSubmitComment,
@@ -299,6 +332,8 @@ Future<void> showPhotoViewer(
   String? title,
   String? body,
   List<PhotoComment> comments = const [],
+  String myNickname = '',
+  String? myProfileImageUrl,
   bool locked = false,
   bool openCommentSheet = false,
 }) {
@@ -315,6 +350,8 @@ Future<void> showPhotoViewer(
         title: title,
         body: body,
         comments: comments,
+        myNickname: myNickname,
+        myProfileImageUrl: myProfileImageUrl,
         locked: locked,
         openCommentSheet: openCommentSheet,
         onSubmitComment: onSubmitComment,

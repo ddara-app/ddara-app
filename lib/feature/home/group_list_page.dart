@@ -346,6 +346,9 @@ class _RecentUpdatesView extends ConsumerWidget {
       // 댓글 시트 헤더: 업로더 닉네임 + 따라찍기 주제.
       title: item.nickname,
       body: item.topic,
+      // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
+      myNickname: state.myNickname,
+      myProfileImageUrl: state.myProfileImageUrl,
       locked: item.locked,
       // 댓글을 눌러 들어왔으므로 시트를 연 채로 시작한다.
       openCommentSheet: true,

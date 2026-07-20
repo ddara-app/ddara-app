@@ -1138,6 +1138,66 @@ abstract class AppLocalizations {
   /// **'수정됨'**
   String get commentEdited;
 
+  /// 서버 응답을 기다리는 댓글의 더보기 자리 표시 (버튼 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'전송중'**
+  String get commentSending;
+
+  /// 전송에 실패한 댓글을 다시 보내는 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'재전송'**
+  String get commentRetry;
+
+  /// 전송 실패 댓글의 재전송 확인창 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 다시 전송할까요?'**
+  String get commentRetryTitle;
+
+  /// 전송 실패 댓글을 목록에서 치우는 버튼 (서버 삭제가 아님)
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get commentDiscard;
+
+  /// 전송 실패 댓글 삭제 확인창 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'이 댓글을 삭제할까요?'**
+  String get commentDiscardTitle;
+
+  /// 전송 실패 댓글 삭제 확인창 본문
+  ///
+  /// In ko, this message translates to:
+  /// **'전송하지 못한 댓글은 되돌릴 수 없어요.'**
+  String get commentDiscardMessage;
+
+  /// 전송에 실패한 댓글에서 작성 시각 자리에 대신 뜨는 표시
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get commentSendFailed;
+
+  /// 전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'전송하지 못한 댓글이 있어요'**
+  String get commentPendingLeaveTitle;
+
+  /// 전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 본문
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 나가면 작성한 댓글이 사라져요.'**
+  String get commentPendingLeaveMessage;
+
+  /// 전송 실패 댓글을 버리고 사진 뷰어를 닫는 확인 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'나가기'**
+  String get commentPendingLeaveConfirm;
+
   /// 댓글 신고 사유 - 성적 발언
   ///
   /// In ko, this message translates to:

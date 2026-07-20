@@ -100,6 +100,11 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
     final starterBlocked = blockedUserIds.contains(cycle.starterUserId);
 
+    // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
+    final me = gallery.members
+        .where((m) => m.userId == myUserId)
+        .firstOrNull;
+
     // 마감된(done) 회차는 사진이 있는 카드만 보여준다. (미업로드 빈 카드는 숨김)
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
 
@@ -170,6 +175,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
                     title: cycle.starterNickname,
                     body: cycle.topic,
+                    myNickname: me?.nickname ?? '',
+                    myProfileImageUrl: me?.profileImageUrl,
                     // 스타터 사진 댓글은 스타터 shot id 로 등록·조회한다.
                     onLoadComments: () =>
                         _loadComments(context, ref, cycle.starterShotId),
@@ -262,6 +269,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                             // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
                             title: member.nickname,
                             body: cycle.topic,
+                            myNickname: me?.nickname ?? '',
+                            myProfileImageUrl: me?.profileImageUrl,
                             // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
                             locked: locked,
                             // 잠긴 사진은 서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내.

@@ -22,6 +22,8 @@ class CommentItem extends StatefulWidget {
     this.onEdit,
     this.onDelete,
     this.onReport,
+    this.onRetry,
+    this.onDiscard,
   });
 
   /// 표시할 댓글.
@@ -35,6 +37,13 @@ class CommentItem extends StatefulWidget {
 
   /// 상대 댓글 '신고하기' 콜백.
   final void Function(PhotoComment comment)? onReport;
+
+  /// 전송 실패 댓글 '재전송' 콜백.
+  final void Function(PhotoComment comment)? onRetry;
+
+  /// 전송 실패 댓글 '삭제' 콜백. (확인 다이얼로그에서 확인한 경우에만 호출)
+  /// 서버에 없는 댓글이므로 목록에서 치우기만 한다.
+  final void Function(PhotoComment comment)? onDiscard;
 
   @override
   State<CommentItem> createState() => _CommentItemState();
@@ -68,6 +77,35 @@ class _CommentItemState extends State<CommentItem> {
   ) {
     Navigator.of(dialogContext).pop();
     action?.call(widget.comment);
+  }
+
+  /// 재전송 확인 다이얼로그를 띄우고, 확인하면 재전송 콜백을 부른다.
+  /// (실수로 눌러 다시 보내는 일을 막는다)
+  Future<void> _confirmRetry() async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.commentRetryTitle,
+      confirmLabel: l10n.commentRetry,
+    );
+    if (!confirmed || !mounted) return;
+    widget.onRetry?.call(widget.comment);
+  }
+
+  /// 전송 실패 댓글 삭제 확인 다이얼로그를 띄우고, 확인하면 삭제 콜백을 부른다.
+  /// 서버에 없는 댓글이라 목록에서 치우기만 하지만, 쓴 내용이 그대로 사라지므로
+  /// 확인을 받는다.
+  Future<void> _confirmDiscard() async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.commentDiscardTitle,
+      message: l10n.commentDiscardMessage,
+      // 서버 댓글 삭제와 마찬가지로 빨간색은 쓰지 않는다. (기본 강조색)
+      confirmLabel: l10n.commentMenuDelete,
+    );
+    if (!confirmed || !mounted) return;
+    widget.onDiscard?.call(widget.comment);
   }
 
   /// 메뉴를 닫고 삭제 확인 다이얼로그를 띄운다. 확인하면 삭제 콜백을 부른다.
@@ -178,29 +216,78 @@ class _CommentItemState extends State<CommentItem> {
 
   @override
   Widget build(BuildContext context) {
-    final comment = widget.comment;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
-      child: CommentContent(
-        comment: comment,
-        // 검토 중인 댓글은 더보기 메뉴를 숨긴다. 그 외에는 버튼을 앵커로
-        // 삼아 탭하면 컨텍스트 메뉴를 띄운다.
-        trailing: comment.isUnderReview
-            ? null
-            : CompositedTransformTarget(
-                link: _link,
-                child: AppBarIconButton(
-                  size: 20,
-                  onPressed: _open,
-                  child: const Icon(
-                    CupertinoIcons.ellipsis_vertical,
-                    size: 20,
-                    color: AppColors.textPrimary,
-                  ),
+      child: CommentContent(comment: widget.comment, trailing: _trailing()),
+    );
+  }
+
+  /// 댓글 우측에 붙일 위젯.
+  ///
+  /// 아직 서버에 없는 댓글(전송 중·실패)은 더보기 메뉴 대신 전송 상태를
+  /// 보여준다. 수정·삭제·신고 대상이 될 수 없기 때문이다.
+  /// 검토 중인 댓글은 아무것도 두지 않는다.
+  Widget? _trailing() {
+    final comment = widget.comment;
+    final l10n = AppLocalizations.of(context);
+    // 더보기 버튼은 내부 여백 12 를 갖지만 텍스트에는 없어, 같은 자리에 놓이도록
+    // 우측 여백을 직접 준다. ('전송중'·'재전송' 은 서로 교체되므로 함께 맞춘다)
+    const textPadding = EdgeInsets.only(right: AppSpacing.s4);
+    switch (comment.sendStatus) {
+      case CommentSendStatus.sending:
+        return Padding(
+          padding: textPadding,
+          child: AppText.caption(
+            l10n.commentSending,
+            color: AppColors.textDisabled,
+          ),
+        );
+      case CommentSendStatus.failed:
+        // 재전송 · 삭제. 닉네임 행과 같은 가운뎃점으로 구분한다.
+        return Padding(
+          padding: textPadding,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _confirmRetry,
+                child: AppText.caption(
+                  l10n.commentRetry,
+                  color: AppColors.textAccent,
                 ),
               ),
-      ),
-    );
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s1),
+                child: AppText.caption('·', color: AppColors.textDisabled),
+              ),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _confirmDiscard,
+                child: AppText.caption(
+                  l10n.commentDiscard,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        );
+      case CommentSendStatus.sent:
+        if (comment.isUnderReview) return null;
+        // 버튼을 앵커로 삼아 탭하면 컨텍스트 메뉴를 띄운다.
+        return CompositedTransformTarget(
+          link: _link,
+          child: AppBarIconButton(
+            size: 20,
+            onPressed: _open,
+            child: const Icon(
+              CupertinoIcons.ellipsis_vertical,
+              size: 20,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        );
+    }
   }
 }
 
@@ -249,10 +336,18 @@ class CommentContent extends StatelessWidget {
                     ),
                     child: AppText.caption('·', color: AppColors.textDisabled),
                   ),
-                  AppText.caption(
-                    comment.timeLabel,
-                    color: AppColors.textDisabled,
-                  ),
+                  // 전송에 실패한 댓글은 작성 시각 자리에 '실패' 를 띄운다.
+                  // (아직 서버에 없어 시각이 의미가 없다)
+                  if (comment.sendStatus == CommentSendStatus.failed)
+                    AppText.caption(
+                      AppLocalizations.of(context).commentSendFailed,
+                      color: AppColors.statusDanger,
+                    )
+                  else
+                    AppText.caption(
+                      comment.timeLabel,
+                      color: AppColors.textDisabled,
+                    ),
                   // 수정된 댓글은 시간 옆에 '· 수정됨' 을 덧붙인다.
                   if (comment.isEdited) ...[
                     const Padding(
@@ -266,10 +361,11 @@ class CommentContent extends StatelessWidget {
                   ],
                 ],
               ),
-              // 검토 중인 댓글은 자리표시 문구를 흐린 색으로 보여준다.
+              // 검토 중인 댓글(자리표시 문구)과 아직 서버에 없는 댓글
+              // (전송 중·실패)은 흐린 색으로 보여준다.
               AppText.body(
                 comment.content,
-                color: comment.isUnderReview
+                color: comment.isUnderReview || comment.isPending
                     ? AppColors.textDisabled
                     : AppColors.textPrimary,
                 maxLines: contentMaxLines,
