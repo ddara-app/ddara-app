@@ -584,6 +584,36 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commentEdited => '수정됨';
 
   @override
+  String get commentSending => '전송중';
+
+  @override
+  String get commentRetry => '재전송';
+
+  @override
+  String get commentRetryTitle => '댓글을 다시 전송할까요?';
+
+  @override
+  String get commentDiscard => '삭제';
+
+  @override
+  String get commentDiscardTitle => '이 댓글을 삭제할까요?';
+
+  @override
+  String get commentDiscardMessage => '전송하지 못한 댓글은 되돌릴 수 없어요.';
+
+  @override
+  String get commentSendFailed => '실패';
+
+  @override
+  String get commentPendingLeaveTitle => '전송하지 못한 댓글이 있어요';
+
+  @override
+  String get commentPendingLeaveMessage => '지금 나가면 작성한 댓글이 사라져요.';
+
+  @override
+  String get commentPendingLeaveConfirm => '나가기';
+
+  @override
   String get commentReportReasonSexual => '성적 발언';
 
   @override

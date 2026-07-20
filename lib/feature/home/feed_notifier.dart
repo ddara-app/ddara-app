@@ -28,6 +28,7 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
         feed: feed,
         myUserId: profile?.$1,
         myNickname: profile?.$2 ?? '',
+        myProfileImageUrl: profile?.$3,
       );
     } catch (_) {
       state = state.copyWith(
@@ -37,12 +38,13 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
     }
   }
 
-  /// 내 (userId, 닉네임). 프로필 조회가 실패해도 피드는 보여줘야 하므로
-  /// 실패 시 null 로 대체한다. (내 댓글 구분이 한 번 빠질 뿐 치명적이지 않다)
-  Future<(int, String)?> _loadProfile() async {
+  /// 내 (userId, 닉네임, 프로필 이미지 URL). 프로필 조회가 실패해도 피드는
+  /// 보여줘야 하므로 실패 시 null 로 대체한다.
+  /// (내 댓글 구분이 한 번 빠질 뿐 치명적이지 않다)
+  Future<(int, String, String?)?> _loadProfile() async {
     try {
       final profile = await ref.read(getProfileUseCaseProvider)();
-      return (profile.id, profile.name);
+      return (profile.id, profile.name, profile.profileImageUrl);
     } catch (_) {
       return null;
     }

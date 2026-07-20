@@ -30,6 +30,10 @@ abstract final class AppColors {
   // Border
   static const Color borderDefault = AppColorPrimitives.grayscale800;
   static const Color borderStrong = AppColorPrimitives.grayscale700;
+
+  /// [borderDefault] 보다 약한 경계. 영역을 나누되 시선을 끌지 않아야 하는
+  /// 구분선에 쓴다. (예: 댓글 시트의 헤더·입력 영역 경계)
+  static const Color borderSubtle = AppColorPrimitives.grayscale950;
   static const Color borderSelected = AppColorPrimitives.sky500;
   static const Color borderOnWarm = AppColorPrimitives.cream600;
 

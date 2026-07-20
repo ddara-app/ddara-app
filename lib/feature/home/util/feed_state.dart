@@ -14,6 +14,9 @@ class FeedState {
   /// 내 닉네임. (내가 단 댓글의 작성자 표기에 쓴다)
   final String myNickname;
 
+  /// 내 프로필 이미지 URL. (전송 중 댓글의 아바타에 쓴다) 없으면 null.
+  final String? myProfileImageUrl;
+
   final bool isLoading;
   final String errorMessage;
 
@@ -21,6 +24,7 @@ class FeedState {
     this.feed,
     this.myUserId,
     this.myNickname = '',
+    this.myProfileImageUrl,
     this.isLoading = false,
     this.errorMessage = '',
   });
@@ -29,6 +33,7 @@ class FeedState {
     Feed? feed,
     int? myUserId,
     String? myNickname,
+    String? myProfileImageUrl,
     bool? isLoading,
     String? errorMessage,
   }) {
@@ -36,6 +41,7 @@ class FeedState {
       feed: feed ?? this.feed,
       myUserId: myUserId ?? this.myUserId,
       myNickname: myNickname ?? this.myNickname,
+      myProfileImageUrl: myProfileImageUrl ?? this.myProfileImageUrl,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
     );
