@@ -232,7 +232,7 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
         ..addAll(pending);
     });
     // 시트를 열면 최신 댓글(맨 아래)이 먼저 보이도록 바닥으로 이동한다.
-    if (loaded != null) _scrollCommentsToBottom();
+    if (loaded != null) _scrollToNewest();
   }
 
   /// 댓글 [comment] 를 수정 모드로 전환한다. 입력창에 기존 내용을 채우고
@@ -336,35 +336,15 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
 
   /// 새 댓글을 목록에 추가한다.
   ///
-  /// 먼저 최신 댓글(맨 아래)로 이동한 뒤 시트를 원래 크기로 줄이고, 줄어드는
-  /// 동안에도 계속 바닥에 붙여 최신 댓글이 이어져 보이게 한다.
-  /// (키보드가 떠 있는 동안 잠깐 입력창 뒤에 가려지는 건 허용)
+  /// 최신 댓글(맨 위)로 이동한 뒤 시트를 원래 크기로 줄인다.
+  /// 최상단(0)에 붙어 있으면 시트 크기가 변해도 위치가 흔들리지 않으므로,
+  /// 줄어드는 동안 따로 붙잡아 둘 필요가 없다.
   void _appendComment(PhotoComment comment) {
     setState(() => _comments.add(comment));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 1) 최신 댓글로 이동한다. (현재 크기 — 키보드가 떠 있을 수 있음)
-      if (!_jumpToBottom()) return;
-      // 2) 그다음 시트를 원래 크기로 줄인다.
+      if (!_jumpToNewest()) return;
       _commentFocusNode.unfocus();
-      // 3) 줄어드는 동안(뷰포트 축소로 maxScrollExtent 증가) 계속 바닥에 붙인다.
-      _pinCommentsToBottom();
     });
-  }
-
-  /// 시트가 원래 크기로 줄어드는 동안(약 [PhotoCommentSheet.duration]) 매 프레임
-  /// 목록을 맨 아래로 붙여, 최신 댓글이 계속 바닥에 보이게 한다.
-  /// (프레임 타임스탬프로 시간 측정 — 주사율과 무관)
-  void _pinCommentsToBottom() {
-    Duration? start;
-    void pin(Duration timeStamp) {
-      if (!_jumpToBottom()) return;
-      start ??= timeStamp;
-      if (timeStamp - start! < PhotoCommentSheet.duration) {
-        WidgetsBinding.instance.addPostFrameCallback(pin);
-      }
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback(pin);
   }
 
   /// 수정 모드에서 전송했을 때 대상 댓글 내용을 [content] 로 바꾼다.
@@ -401,22 +381,21 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
     setState(() => _comments.remove(comment));
   }
 
-  /// 댓글 목록을 애니메이션 없이 맨 아래로 옮긴다.
+  /// 댓글 목록을 애니메이션 없이 최신 댓글 쪽으로 옮긴다.
+  /// 최신이 맨 위에 오도록 그리므로 목표는 스크롤 최상단(0)이다.
   ///
   /// 아직 스크롤이 붙지 않았거나 화면에서 사라진 뒤면 아무것도 하지 않고
   /// false 를 반환한다. (프레임 콜백 안에서 호출되므로 매번 확인이 필요하다)
-  bool _jumpToBottom() {
+  bool _jumpToNewest() {
     if (!mounted || !_commentScrollController.hasClients) return false;
-    _commentScrollController.jumpTo(
-      _commentScrollController.position.maxScrollExtent,
-    );
+    _commentScrollController.jumpTo(0);
     return true;
   }
 
-  /// 다음 프레임에 댓글 목록을 맨 아래로 즉시 이동한다.
+  /// 다음 프레임에 댓글 목록을 최신 댓글 쪽으로 즉시 이동한다.
   /// (시트 오픈 시 최신 댓글을 먼저 보여주는 데 쓴다)
-  void _scrollCommentsToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _jumpToBottom());
+  void _scrollToNewest() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _jumpToNewest());
   }
 
   @override
@@ -552,8 +531,10 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
         top: AppSpacing.s2,
         bottom: AppSpacing.s2,
       ),
+      // 최신 댓글이 맨 위에 오도록 역순으로 그린다.
+      // (_comments 자체는 오래된 것 → 최신 순서를 유지한다)
       children: [
-        for (final comment in _comments)
+        for (final comment in _comments.reversed)
           CommentItem(
             comment: comment,
             onEdit: _startEditComment,
