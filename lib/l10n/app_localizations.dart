@@ -1054,6 +1054,42 @@ abstract class AppLocalizations {
   /// **'20자 이내로 입력해 주세요'**
   String get starterConceptLengthError;
 
+  /// 스타터 랜덤 지정 슬롯머신 화면 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터 정하기'**
+  String get randomStarterTitle;
+
+  /// 슬롯머신 공개 모션 다시 재생 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 보기'**
+  String get randomStarterReplay;
+
+  /// 슬롯머신 결과로 공개된 스타터 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 스타터는 {name}님이에요!'**
+  String randomStarterResultTitle(String name);
+
+  /// 스타터 공개 결과 아래 보조 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'첫 판을 시작해 친구들에게 보내보세요'**
+  String get randomStarterResultSubtitle;
+
+  /// 스타터가 멤버 목록에 없는 등 인자가 유효하지 않을 때 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터 정보를 불러오지 못했어요'**
+  String get randomStarterLoadFailed;
+
+  /// 모임 메뉴의 임시 테스트 진입 버튼 — 서버 API 연동 시 제거
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터 룰렛 (테스트)'**
+  String get randomStarterTestEntry;
+
   /// No description provided for @followerCameraTitle.
   ///
   /// In ko, this message translates to:

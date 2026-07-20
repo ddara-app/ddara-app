@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
@@ -17,6 +19,7 @@ import 'package:ddara/feature/group/detail/widget/body/user_report_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
+import 'package:ddara/feature/group/random_starter/random_starter_page.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -153,6 +156,14 @@ class GroupPage extends ConsumerWidget {
       context: context,
       builder: (sheetContext) => CupertinoActionSheet(
         actions: [
+          // TODO: 테스트용 임시 진입 — 스타터 랜덤 지정 API 연동 시 제거.
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(sheetContext).pop();
+              _openRandomStarterTest(context, ref);
+            },
+            child: AppText.title(l10n.randomStarterTestEntry),
+          ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(sheetContext).pop();
@@ -176,6 +187,25 @@ class GroupPage extends ConsumerWidget {
           onPressed: () => Navigator.of(sheetContext).pop(),
           child: AppText.title(l10n.commonCancel),
         ),
+      ),
+    );
+  }
+
+  /// 테스트용 스타터 룰렛 진입. 서버의 스타터 랜덤 지정 API가 아직 없어
+  /// 멤버 중 한 명을 클라이언트에서 임의로 뽑아 전달한다.
+  /// (API 연동 시 이 메서드와 메뉴 항목을 제거하고 서버 지정 값으로 대체)
+  void _openRandomStarterTest(BuildContext context, WidgetRef ref) {
+    final detail = ref.read(groupPageNotifierProvider(groupId)).groupDetail;
+    final members = detail?.members ?? const [];
+    if (members.isEmpty) return;
+
+    final starter = members[Random().nextInt(members.length)];
+    context.push(
+      RoutePath.randomStarter,
+      extra: RandomStarterArgs(
+        groupId: groupId,
+        starterUserId: starter.userId,
+        members: members,
       ),
     );
   }

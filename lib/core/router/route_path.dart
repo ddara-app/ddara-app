@@ -13,6 +13,7 @@ class RoutePath {
   static const follower = '/group/follower';
   static const historyList = '/group/history';
   static const starter = '/group/starter';
+  static const randomStarter = '/group/random-starter';
   static const followerCamera = '/group/camera';
   static const profile = '/profile';
   static const accountManage = '/profile/account';
