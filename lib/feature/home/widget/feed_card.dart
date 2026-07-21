@@ -10,8 +10,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// 최근 업데이트 카드. (모임 카드와 같은 껍데기에 회차 주제·업로더 닉네임을 얹는다)
 ///
 /// 잠긴 사진([FeedItem.locked])은 블러 처리되고 가운데에 자물쇠가 표시된다.
-/// 카드 상단에는 댓글 상태를 얹는다 — 보여줄 댓글이 있으면 최신 댓글 미리보기를,
-/// 없으면 첫 댓글을 유도하는 댓글 버튼을 보여준다.
+/// 카드 상단에는 댓글 상태를 얹는다 — 보여줄 댓글이 있으면 가장 최신 댓글
+/// 하나의 미리보기를, 없으면 첫 댓글을 유도하는 댓글 버튼을 보여준다.
 class FeedCard extends StatelessWidget {
   const FeedCard({
     super.key,
@@ -55,50 +55,48 @@ class FeedCard extends StatelessWidget {
     final hasPhoto = !item.imageUnderReview && item.imageUrl != null;
     if (!hasPhoto) return null;
 
-    // 차단한 유저의 댓글은 빼고 앞에서부터 보여준다.
-    final visibleComments = item.latestComments
+    // 차단한 유저의 댓글은 건너뛰고 가장 최신 댓글 하나만 보여준다.
+    // (최신 댓글이 차단한 멤버의 것이면 그다음 댓글이 올라온다)
+    final latestComment = item.latestComments
         .where((comment) => !blockedUserIds.contains(comment.userId))
-        .toList();
+        .firstOrNull;
 
     // 보여줄 댓글이 없으면(댓글이 아직 없거나, 전부 차단한 유저의 댓글이면)
     // 첫 댓글을 유도하는 버튼을 대신 띄운다.
-    if (visibleComments.isEmpty) {
+    if (latestComment == null) {
       return Align(
         alignment: Alignment.centerRight,
         child: _CommentButton(onTap: onCommentTap),
       );
     }
 
-    return _CommentPreview(comments: visibleComments, onTap: onCommentTap);
+    return _CommentPreview(comment: latestComment, onTap: onCommentTap);
   }
 }
 
-/// 카드 상단의 최신 댓글 미리보기. (알약 하나가 댓글 하나)
+/// 카드 상단의 최신 댓글 미리보기. (가장 최신 댓글 하나를 알약으로)
 class _CommentPreview extends StatelessWidget {
-  const _CommentPreview({required this.comments, required this.onTap});
+  const _CommentPreview({required this.comment, required this.onTap});
 
-  final List<FeedComment> comments;
+  final FeedComment comment;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpacing.s1,
-        children: [
-          for (final comment in comments)
-            _CommentPill(
-              // 검토 중인 댓글은 내용 대신 자리표시 문구를 보여준다.
-              content: comment.underReview
-                  ? l10n.photoViewerCommentUnderReview
-                  : (comment.content ?? ''),
-            ),
-        ],
+    // 자리(topAction)가 카드 폭을 꽉 채우므로, 알약이 내용만큼만
+    // 커지도록 좌측으로 정렬해 둔다.
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: onTap,
+        child: _CommentPill(
+          // 검토 중인 댓글은 내용 대신 자리표시 문구를 보여준다.
+          content: comment.underReview
+              ? l10n.photoViewerCommentUnderReview
+              : (comment.content ?? ''),
+        ),
       ),
     );
   }
@@ -129,7 +127,7 @@ class _CommentPill extends StatelessWidget {
       child: Row(
         // 내용이 짧으면 알약도 짧게, 길면 카드 폭까지만 늘어난다.
         mainAxisSize: MainAxisSize.min,
-        spacing: AppSpacing.s1,
+        spacing: AppSpacing.s2,
         children: [
           // 피드 응답에 댓글 작성자의 프로필 이미지 URL 이 없어 기본 아바타로 둔다.
           const ProfileAvatar(size: 24),
