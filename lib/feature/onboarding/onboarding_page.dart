@@ -1,8 +1,9 @@
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/component/logo.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/logo/logo.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/core/widget/page_indicator.dart';
+import 'package:ddara/core/design_system/component/indicator/page_indicator.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:ddara/feature/onboarding/provider/onboarding_provider.dart';
 import 'package:ddara/feature/onboarding/widget/onboarding_first_page.dart';
@@ -26,6 +27,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   int _index = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _trackStepViewed(0);
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -45,7 +52,16 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     );
   }
 
+  // step 은 사용자에게 보이는 순서 그대로 1부터 센다.
+  void _trackStepViewed(int index) {
+    MixpanelManager.instance.track(
+      'onboarding_step_viewed(${index + 1})',
+      properties: {'step': index + 1},
+    );
+  }
+
   Future<void> _start() async {
+    MixpanelManager.instance.track('onboarding_completed');
     // 온보딩 완료 플래그 저장 → 다음 실행부터는 노출되지 않는다.
     await ref.read(onboardingControllerProvider).complete();
     // 캐싱된 onboardingSeenProvider 를 무효화해 즉시 최신 값(true)을 읽도록 한다.
@@ -88,8 +104,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         // 스와이프 비활성화 → 버튼으로만 페이지 이동.
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: _pageCount,
-                        onPageChanged: (index) =>
-                            setState(() => _index = index),
+                        onPageChanged: (index) {
+                          _trackStepViewed(index);
+                          setState(() => _index = index);
+                        },
                         itemBuilder: (_, index) {
                           switch (index) {
                             case 0:

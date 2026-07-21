@@ -145,6 +145,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get permissionGoToSettings => '설정으로 이동';
 
   @override
+  String get homeTabGroups => '따라찍기 모임';
+
+  @override
+  String get homeTabRecentUpdates => '최근 업데이트';
+
+  @override
   String get emptyGroupTitle => '아직 참여한 모임이 없어요';
 
   @override
@@ -157,9 +163,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupJoin => '모임 참여하기';
 
   @override
-  String get groupEnter => '모임 들어가기';
-
-  @override
   String get groupCountLabel => '현재 모임 개수';
 
   @override
@@ -169,6 +172,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get groupCountCaption => '모임에 속해 있어요';
+
+  @override
+  String get updateCountLabel => '친구들의 업데이트';
+
+  @override
+  String updateCountValue(int count) {
+    return '$count개';
+  }
+
+  @override
+  String get updateCountCaption => '어서 따라찍기를 시작해봐요';
 
   @override
   String get meetingStatusInProgress => '진행 중';
@@ -314,6 +328,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupMenuEditNickname => '닉네임 수정';
 
   @override
+  String get groupMenuReport => '모임 신고';
+
+  @override
   String get groupMenuExit => '모임 나가기';
 
   @override
@@ -362,6 +379,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoReportReasonEtc => '기타';
 
   @override
+  String get groupReportReasonInappropriate => '부적절한 모임 이름·이미지';
+
+  @override
+  String get groupReportReasonEtc => '기타';
+
+  @override
   String get userReportReasonNickname => '부적절한 닉네임(욕설·음란·혐오)';
 
   @override
@@ -393,10 +416,22 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get memberBlockFailedToast => '차단하지 못했어요.';
+
+  @override
   String get recordCycleLabel => '따라찍기';
 
   @override
   String get recordPhotoLabel => '함께한 사진';
+
+  @override
+  String get recordSectionTitle => '기록';
+
+  @override
+  String get recordMyCycleLabel => '나의 따라찍기';
+
+  @override
+  String get recordGroupCycleLabel => '모임 따라찍기';
 
   @override
   String get groupHistoryTitle => '지난 따라찍기';
@@ -406,6 +441,27 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get groupHistoryEmpty => '지난 따라찍기가 아직 없어요';
+
+  @override
+  String get groupHistoryFilterAll => '전체보기';
+
+  @override
+  String groupHistoryFilterYearMonth(int year, int month) {
+    return '$year년 $month월';
+  }
+
+  @override
+  String historyYearLabel(int year) {
+    return '$year년';
+  }
+
+  @override
+  String get historyFilterReset => '초기화';
+
+  @override
+  String historyMonthLabel(int month) {
+    return '$month월';
+  }
 
   @override
   String historyParticipantCount(int count) {
@@ -430,6 +486,14 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String startedHeaderStarter(String name) {
     return '$name님이 시작했어요';
+  }
+
+  @override
+  String get startedHeaderCheckUploads => '업로드 친구 확인하기';
+
+  @override
+  String startedHeaderStarterChip(String nickname) {
+    return '스타터 · $nickname';
   }
 
   @override
@@ -503,6 +567,81 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get photoTakeAction => '촬영하러 가기';
+
+  @override
+  String get photoViewerCommentHint => '댓글을 남겨보세요...';
+
+  @override
+  String get photoViewerCommentLockedHint => '따라찍기를 이용한 후 댓글을 남길 수 있어요';
+
+  @override
+  String get photoViewerCommentEmpty => '아직 댓글이 없습니다.';
+
+  @override
+  String get commentMenuEdit => '수정하기';
+
+  @override
+  String get commentMenuDelete => '삭제하기';
+
+  @override
+  String get commentMenuReport => '신고하기';
+
+  @override
+  String get commentEditingLabel => '댓글 수정 중';
+
+  @override
+  String get commentEdited => '수정됨';
+
+  @override
+  String get commentSending => '전송중';
+
+  @override
+  String get commentRetry => '재전송';
+
+  @override
+  String get commentRetryTitle => '댓글을 다시 전송할까요?';
+
+  @override
+  String get commentDiscard => '삭제';
+
+  @override
+  String get commentDiscardTitle => '이 댓글을 삭제할까요?';
+
+  @override
+  String get commentDiscardMessage => '전송하지 못한 댓글은 되돌릴 수 없어요.';
+
+  @override
+  String get commentSendFailed => '실패';
+
+  @override
+  String get commentPendingLeaveTitle => '전송하지 못한 댓글이 있어요';
+
+  @override
+  String get commentPendingLeaveMessage => '지금 나가면 작성한 댓글이 사라져요.';
+
+  @override
+  String get commentPendingLeaveConfirm => '나가기';
+
+  @override
+  String get commentReportReasonSexual => '성적 발언';
+
+  @override
+  String get commentReportReasonViolence => '폭력·혐오 표현';
+
+  @override
+  String get commentReportReasonAbuse => '욕설·비방 표현';
+
+  @override
+  String get commentReportReasonHarassment => '사칭·괴롭힘';
+
+  @override
+  String get commentReportReasonEtc => '기타';
+
+  @override
+  String get commentDeleteTitle => '이 댓글을 삭제할까요?';
+
+  @override
+  String get commentDeleteMessage => '삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.';
 
   @override
   String get cameraPermissionTitle => '카메라 권한이 필요해요';
@@ -703,6 +842,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get photoUnderReviewPlaceholder => '신고 접수되어\n검토 중인 사진입니다';
+
+  @override
+  String get photoUnderReviewPlaceholderShort => '신고 접수\n검토중';
+
+  @override
+  String get blockedCycleTopic => '차단한 멤버의 따라찍기';
 
   @override
   String get profileLinkedAccount => '연동 계정';

@@ -1,10 +1,5 @@
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
 import 'package:ddara/core/model/group/group_list.dart';
-import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
-import 'package:ddara/core/widget/effect/bottom_scrim.dart';
-import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
-import 'package:ddara/core/widget/empty_thumbnail.dart';
+import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -28,90 +23,15 @@ class MeetingCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final cycle = group.currentCycle;
 
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      minimumSize: Size.zero,
-      onPressed: onTap,
-      // 디자인 기준 186×245 비율. 폭은 열에 맞춰 stretch 되고 높이는 비율로 따라간다.
-      child: AspectRatio(
-        aspectRatio: 186 / 245,
-        child: Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: ShapeDecoration(
-            color: AppColors.bgSurfaceAlt,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-            ),
-          ),
-          child: Stack(
-            children: [
-              // 대표 이미지(모임 썸네일). 없거나 로드 실패면 갤러리 아이콘.
-              // 하단 스크림 구간(heightFactor 0.4)에 맞춰 아래로 갈수록 흐려진다.
-              // 차단·신고 검토 중이면 사진 대신 안내 자리표시. (차단이 우선)
-              Positioned.fill(
-                child: thumbnailBlocked
-                    ? const BlockedPhotoPlaceholder()
-                    : group.thumbnailUnderReview
-                    ? BlockedPhotoPlaceholder(
-                        message: AppLocalizations.of(
-                          context,
-                        ).photoUnderReviewPlaceholder,
-                      )
-                    : ProgressiveBlurImage(
-                        sharpUntil: 0.6,
-                        builder: (_) => group.thumbnailUrl != null
-                            ? Image.network(
-                                group.thumbnailUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) =>
-                                    const EmptyThumbnail(),
-                              )
-                            : const EmptyThumbnail(),
-                      ),
-              ),
-              // 하단 스크림. (텍스트 가독성 + 하단 경계를 배경과 자연스럽게 잇기)
-              const BottomScrim(),
-              // 상단: 마감까지 남은 시간 (진행 중인 사이클이 있을 때만)
-              if (cycle != null)
-                Positioned(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s3,
-                  right: AppSpacing.s3,
-                  child: AppText.caption(
-                    _remainingLabel(l10n, cycle.deadlineAt),
-                    color: AppColors.textPrimary,
-                    textAlign: TextAlign.right,
-                  ),
-                ),
-              // 하단: 이름 · 멤버 요약 (가독성은 위의 스크림 레이어가 담당)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.s3,
-                    vertical: AppSpacing.s3,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: AppSpacing.s1,
-                    children: [
-                      AppText.title(
-                        group.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      AppText.caption(_memberSummary(l10n, group)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return PhotoCardShell(
+      imageUrl: group.thumbnailUrl,
+      title: group.name,
+      subtitle: _memberSummary(l10n, group),
+      // 상단: 마감까지 남은 시간 (진행 중인 사이클이 있을 때만)
+      topLabel: cycle != null ? _remainingLabel(l10n, cycle.deadlineAt) : null,
+      blocked: thumbnailBlocked,
+      underReview: group.thumbnailUnderReview,
+      onTap: onTap,
     );
   }
 }

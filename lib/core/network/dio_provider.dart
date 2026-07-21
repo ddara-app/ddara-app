@@ -1,6 +1,7 @@
 import 'package:ddara/core/local/provider/local_provider.dart';
 import 'package:ddara/core/local/storage_key.dart';
 import 'package:ddara/core/network/auth_interceptor.dart';
+import 'package:ddara/core/network/performance_interceptor.dart';
 import 'package:ddara/core/router/app_router.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/data/provider/repository_provider.dart';
@@ -25,6 +26,10 @@ final Provider<Dio> dioProvider = Provider<Dio>((ref) {
   final retryDio = Dio(_baseOptions());
 
   final storage = ref.read(secureStorageProvider);
+
+  // AuthInterceptor 보다 먼저 등록한다. 401 재시도 경로에서도 원요청의 metric 이
+  // 원래 응답(401)으로 결정적으로 종료되도록 하기 위함이다.
+  dio.interceptors.add(PerformanceInterceptor());
 
   dio.interceptors.add(
     AuthInterceptor(

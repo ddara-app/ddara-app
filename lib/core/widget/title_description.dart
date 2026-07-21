@@ -1,5 +1,5 @@
-import 'package:ddara/core/designsystem/component/text/app_text.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/widgets.dart';
 
 /// 화면 상단의 "큰 제목 + 설명" 한 묶음.

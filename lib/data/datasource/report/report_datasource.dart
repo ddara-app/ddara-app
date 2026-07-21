@@ -11,12 +11,58 @@ class ReportDataSource {
     required int shotId,
     required String reasonCode,
     String? reasonText,
+  }) {
+    return _report(
+      targetType: 'SHOT',
+      targetId: shotId,
+      reasonCode: reasonCode,
+      reasonText: reasonText,
+    );
+  }
+
+  /// 댓글(COMMENT)을 신고한다. (응답 본문 없음)
+  Future<void> reportComment({
+    required int commentId,
+    required String reasonCode,
+    String? reasonText,
+  }) {
+    return _report(
+      targetType: 'COMMENT',
+      targetId: commentId,
+      reasonCode: reasonCode,
+      reasonText: reasonText,
+    );
+  }
+
+  /// 모임(GROUP)을 신고한다. (응답 본문 없음)
+  ///
+  /// 대상 모임은 targetId 로 보내고, body 의 groupId 필드는 보내지 않는다.
+  /// (groupId 는 USER 신고에서 '대상이 속한 모임'을 뜻하는 별도 필드다)
+  Future<void> reportGroup({
+    required int groupId,
+    required String reasonCode,
+    String? reasonText,
+  }) {
+    return _report(
+      targetType: 'GROUP',
+      targetId: groupId,
+      reasonCode: reasonCode,
+      reasonText: reasonText,
+    );
+  }
+
+  /// 신고 접수 공통 요청. (targetType 으로 사진·댓글 등을 구분)
+  Future<void> _report({
+    required String targetType,
+    required int targetId,
+    required String reasonCode,
+    String? reasonText,
   }) async {
     await _dio.post(
       _baseUrl,
       data: {
-        'targetType': 'SHOT',
-        'targetId': shotId,
+        'targetType': targetType,
+        'targetId': targetId,
         'reasonCode': reasonCode,
         'reasonText': reasonText,
       },

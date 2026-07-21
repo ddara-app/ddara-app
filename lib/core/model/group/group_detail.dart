@@ -39,5 +39,7 @@ abstract class GroupCycle with _$GroupCycle {
     required String status,
     required DateTime startedAt,
     required DateTime deadlineAt,
+    // 이번 사이클에 사진을 올린 멤버 userId 목록. (미제출 프로필을 흐리게 표시하는 데 사용)
+    @Default(<int>[]) List<int> uploadedUserIds,
   }) = _GroupCycle;
 }

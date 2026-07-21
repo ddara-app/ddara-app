@@ -1,5 +1,5 @@
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/feature/group/detail/widget/header/empty_header.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
@@ -14,6 +14,7 @@ class GroupHeader extends StatelessWidget {
     super.key,
     this.imageUri,
     required this.progress,
+    required this.memberCount,
     required this.navigateToStart,
     required this.onTakePhoto,
     this.canStart = true,
@@ -25,6 +26,9 @@ class GroupHeader extends StatelessWidget {
 
   /// 진행 중인 따라찍기(사이클). null 이면 진행 중이 아니라 빈 상태로 본다.
   final GroupCycle? progress;
+
+  /// 모임 총원. (헤더의 참여 인원 표시 'n/총원'에 사용)
+  final int memberCount;
 
   /// 빈 상태에서 '스타터 시작하기' 버튼을 눌렀을 때 실행할 콜백.
   final VoidCallback navigateToStart;
@@ -68,6 +72,7 @@ class GroupHeader extends StatelessWidget {
           imageUri: cycle.starterImageUrl ?? "",
           progress: cycle,
           starterBlocked: starterBlocked,
+          memberCount: memberCount,
         ),
         const SizedBox(height: AppSpacing.s5),
         // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로

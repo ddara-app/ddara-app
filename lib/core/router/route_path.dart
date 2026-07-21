@@ -11,6 +11,7 @@ class RoutePath {
   static const inviteLanding = '/group/join/landing';
   static const joinGroup = '/group/join/confirm';
   static const follower = '/group/follower';
+  static const historyList = '/group/history';
   static const starter = '/group/starter';
   static const followerCamera = '/group/camera';
   static const profile = '/profile';

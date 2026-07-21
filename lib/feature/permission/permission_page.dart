@@ -1,10 +1,13 @@
-import 'package:ddara/core/deeplink/pending_invite.dart';
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/router/pending_invite.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/core/widget/permission_dialog.dart';
+import 'package:ddara/core/widget/dialog/permission_dialog.dart';
+import 'package:ddara/core/widget/icon/gallery_icon.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/feature/permission/permission_request_recovery.dart';
 import 'package:ddara/feature/permission/widget/permission_item.dart';
@@ -46,11 +49,17 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
         permission.requestCamera,
         permission.cameraStatus,
       );
-      await awaitPermission(
+      _trackPermissionResult('camera', cameraResult);
+      final notificationResult = await awaitPermission(
         permission.requestNotification,
         permission.notificationStatus,
       );
-      await awaitPermission(permission.requestPhotos, permission.photosStatus);
+      _trackPermissionResult('notification', notificationResult);
+      final photosResult = await awaitPermission(
+        permission.requestPhotos,
+        permission.photosStatus,
+      );
+      _trackPermissionResult('photos', photosResult);
 
       if (!mounted) return;
 
@@ -83,6 +92,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
 
   /// 권한을 요청하고, 영구 거부 상태면 설정 이동 안내를 띄운다.
   Future<void> _request(
+    String permissionKey,
     String permissionName,
     Future<PermissionResult> Function() request,
     Future<PermissionResult> Function() readStatus,
@@ -92,6 +102,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
     try {
       final permission = ref.read(permissionServiceProvider);
       final result = await awaitPermission(request, readStatus);
+      _trackPermissionResult(permissionKey, result);
       if (result != PermissionResult.permanentlyDenied) return;
       if (!mounted) return;
 
@@ -103,6 +114,15 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// 권한 요청 결과(허용/거부/영구거부)를 Mixpanel 로 전송한다.
+  /// permission: camera·notification·photos, result: PermissionResult.name.
+  void _trackPermissionResult(String permission, PermissionResult result) {
+    MixpanelManager.instance.track(
+      'permission_result',
+      properties: {'permission': permission, 'result': result.name},
+    );
   }
 
   @override
@@ -145,6 +165,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                 title: l10n.permissionCamera,
                 description: l10n.permissionCameraDescription,
                 onTap: () => _request(
+                  'camera',
                   l10n.permissionCamera,
                   permission.requestCamera,
                   permission.cameraStatus,
@@ -158,16 +179,21 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                 title: l10n.permissionNotification,
                 description: l10n.permissionNotificationDescription,
                 onTap: () => _request(
+                  'notification',
                   l10n.permissionNotification,
                   permission.requestNotification,
                   permission.notificationStatus,
                 ),
               ),
               PermissionItem(
-                icon: CupertinoIcons.photo,
+                leading: const GalleryIcon(
+                  size: 24,
+                  color: AppColors.textPrimary,
+                ),
                 title: l10n.permissionStorage,
                 description: l10n.permissionStorageDescription,
                 onTap: () => _request(
+                  'photos',
                   l10n.permissionStorage,
                   permission.requestPhotos,
                   permission.photosStatus,

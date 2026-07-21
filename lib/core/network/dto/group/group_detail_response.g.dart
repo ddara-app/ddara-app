@@ -70,6 +70,11 @@ _GroupCycleResponse _$GroupCycleResponseFromJson(Map<String, dynamic> json) =>
       status: json['status'] as String,
       startedAt: DateTime.parse(json['startedAt'] as String),
       deadlineAt: DateTime.parse(json['deadlineAt'] as String),
+      uploadedUserIds:
+          (json['uploadedUserIds'] as List<dynamic>?)
+              ?.map((e) => (e as num).toInt())
+              .toList() ??
+          const <int>[],
     );
 
 Map<String, dynamic> _$GroupCycleResponseToJson(_GroupCycleResponse instance) =>
@@ -84,4 +89,5 @@ Map<String, dynamic> _$GroupCycleResponseToJson(_GroupCycleResponse instance) =>
       'status': instance.status,
       'startedAt': instance.startedAt.toIso8601String(),
       'deadlineAt': instance.deadlineAt.toIso8601String(),
+      'uploadedUserIds': instance.uploadedUserIds,
     };

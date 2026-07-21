@@ -1,4 +1,4 @@
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -129,7 +129,7 @@ class _ModeButton extends StatelessWidget {
         child: AnimatedDefaultTextStyle(
           duration: _duration,
           curve: Curves.easeInOut,
-          style: AppTypography.caption.copyWith(
+          style: AppTypography.label.copyWith(
             color: selected ? AppColors.accentDefault : AppColors.textTertiary,
           ),
           child: Text(label),

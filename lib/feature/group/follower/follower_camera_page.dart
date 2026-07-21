@@ -1,11 +1,12 @@
-import 'package:ddara/core/designsystem/component/appbar/app_bar.dart';
-import 'package:ddara/core/designsystem/component/loading/app_loading_overlay.dart';
-import 'package:ddara/core/widget/app_dialog.dart';
+import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
     as group_detail;
-import 'package:ddara/feature/group/follower/follower_camera.dart';
-import 'package:ddara/feature/group/follower/follower_photo_check.dart';
+import 'package:ddara/feature/group/follower/widget/follower_camera.dart';
+import 'package:ddara/feature/group/follower/widget/follower_photo_check.dart';
 import 'package:ddara/feature/group/follower/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -36,6 +37,15 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
   String? _capturedPath;
 
   @override
+  void initState() {
+    super.initState();
+    MixpanelManager.instance.track(
+      'follower_page_viewed',
+      properties: {'cycle_id': widget.cycleId},
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final capturedPath = _capturedPath;
     final l10n = AppLocalizations.of(context);
@@ -53,6 +63,10 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
 
       final cycleId = next.uploadedCycleId;
       if (prev?.uploadedCycleId == null && cycleId != null) {
+        MixpanelManager.instance.track(
+          'follower_photo_posted',
+          properties: {'cycle_id': cycleId},
+        );
         // 스택 아래의 갤러리를 새로고침한 뒤 촬영 화면을 닫아 그 갤러리로 돌아간다.
         // (pushReplacement 로 갤러리를 새로 쌓으면 중복·미갱신 문제가 생긴다)
         ref.invalidate(cyclePhotoGalleryNotifierProvider(cycleId));

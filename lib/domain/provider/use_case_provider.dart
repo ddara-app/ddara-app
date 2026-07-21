@@ -5,7 +5,12 @@ import 'package:ddara/domain/usecase/block/get_blocked_users_use_case.dart';
 import 'package:ddara/domain/usecase/block/unblock_user_use_case.dart';
 import 'package:ddara/domain/usecase/auth/logout_use_case.dart';
 import 'package:ddara/domain/usecase/auth/signup_use_case.dart';
+import 'package:ddara/domain/usecase/comment/create_comment_use_case.dart';
+import 'package:ddara/domain/usecase/comment/delete_comment_use_case.dart';
+import 'package:ddara/domain/usecase/comment/edit_comment_use_case.dart';
+import 'package:ddara/domain/usecase/comment/get_comments_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
+import 'package:ddara/domain/usecase/feed/get_feed_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/get_cycle_gallery_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/starter_upload_use_case.dart';
 import 'package:ddara/domain/usecase/group/create_group_use_case.dart';
@@ -17,6 +22,8 @@ import 'package:ddara/domain/usecase/profile/get_notification_settings_use_case.
 import 'package:ddara/domain/usecase/profile/get_profile_use_case.dart';
 import 'package:ddara/domain/usecase/profile/reset_profile_image_use_case.dart';
 import 'package:ddara/domain/usecase/profile/upload_profile_image_use_case.dart';
+import 'package:ddara/domain/usecase/report/report_comment_use_case.dart';
+import 'package:ddara/domain/usecase/report/report_group_use_case.dart';
 import 'package:ddara/domain/usecase/report/report_shot_use_case.dart';
 import 'package:ddara/domain/usecase/report/report_user_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +33,7 @@ import '../usecase/group/change_nickname_use_case.dart';
 import '../usecase/group/exit_group_use_case.dart';
 import '../usecase/group/get_group_detail_use_case.dart';
 import '../usecase/group/get_history_cycles_use_case.dart';
+import '../usecase/group/get_history_list_use_case.dart';
 import '../usecase/group/get_invite_group_use_case.dart';
 import '../usecase/group/join_group_use_case.dart';
 
@@ -79,6 +87,10 @@ final getHistoryCyclesUseCaseProvider = Provider<GetHistoryCyclesUseCase>((
   ref,
 ) {
   return GetHistoryCyclesUseCase(ref.read(groupRepositoryProvider));
+});
+
+final getHistoryListUseCaseProvider = Provider<GetHistoryListUseCase>((ref) {
+  return GetHistoryListUseCase(ref.read(groupRepositoryProvider));
 });
 
 final changeNicknameUseCaseProvider = Provider<ChangeNicknameUseCase>((ref) {
@@ -159,6 +171,34 @@ final reportShotUseCaseProvider = Provider<ReportShotUseCase>((ref) {
   return ReportShotUseCase(ref.read(reportRepositoryProvider));
 });
 
+final reportCommentUseCaseProvider = Provider<ReportCommentUseCase>((ref) {
+  return ReportCommentUseCase(ref.read(reportRepositoryProvider));
+});
+
 final reportUserUseCaseProvider = Provider<ReportUserUseCase>((ref) {
   return ReportUserUseCase(ref.read(reportRepositoryProvider));
+});
+
+final reportGroupUseCaseProvider = Provider<ReportGroupUseCase>((ref) {
+  return ReportGroupUseCase(ref.read(reportRepositoryProvider));
+});
+
+final createCommentUseCaseProvider = Provider<CreateCommentUseCase>((ref) {
+  return CreateCommentUseCase(ref.read(commentRepositoryProvider));
+});
+
+final getCommentsUseCaseProvider = Provider<GetCommentsUseCase>((ref) {
+  return GetCommentsUseCase(ref.read(commentRepositoryProvider));
+});
+
+final deleteCommentUseCaseProvider = Provider<DeleteCommentUseCase>((ref) {
+  return DeleteCommentUseCase(ref.read(commentRepositoryProvider));
+});
+
+final editCommentUseCaseProvider = Provider<EditCommentUseCase>((ref) {
+  return EditCommentUseCase(ref.read(commentRepositoryProvider));
+});
+
+final getFeedUseCaseProvider = Provider<GetFeedUseCase>((ref) {
+  return GetFeedUseCase(ref.read(feedRepositoryProvider));
 });

@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:ddara/core/auth/apple_auth_service.dart';
+import 'package:ddara/core/auth/apple/apple_auth_service.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
-import 'package:ddara/core/auth/google_auth_service.dart';
-import 'package:ddara/core/auth/kakao_auth_service.dart';
+import 'package:ddara/core/auth/google/google_auth_service.dart';
+import 'package:ddara/core/auth/kakao/kakao_auth_service.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/domain/repository/auth_repository.dart';
 import 'package:ddara/domain/repository/profile_repository.dart';

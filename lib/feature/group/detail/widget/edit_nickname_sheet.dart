@@ -1,8 +1,8 @@
-import 'package:ddara/core/designsystem/component/button/app_button.dart';
-import 'package:ddara/core/designsystem/design_system.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/exception/group_change_nickname_error_code.dart';
-import 'package:ddara/core/widget/draggable_sheet.dart';
-import 'package:ddara/feature/group/widget/set_nickname.dart';
+import 'package:ddara/core/widget/bottom_sheet/draggable_sheet.dart';
+import 'package:ddara/core/widget/set_nickname.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 

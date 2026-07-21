@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -13,10 +14,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/deeplink/deep_link_service.dart';
+import 'core/analytics/mixpanel_manager.dart';
+import 'core/invite/deep_link_service.dart';
 import 'l10n/app_localizations.dart';
-import 'core/deeplink/pending_invite.dart';
-import 'core/designsystem/theme/app_theme.dart';
+import 'core/router/pending_invite.dart';
+import 'core/design_system/theme/app_theme.dart';
 import 'core/local/fresh_install_guard.dart';
 import 'core/local/provider/local_provider.dart';
 import 'core/network/dio_provider.dart';
@@ -38,6 +40,7 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: '.env');
     KakaoSdk.init(nativeAppKey: dotenv.get("KAKAO_NATIVE_APP_KEY"));
+    await MixpanelManager.init();
     await _initCrashReporting();
     _registerFcmBackgroundHandler();
     SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayStyle);
@@ -63,7 +66,7 @@ Future<void> main() async {
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
-/// Firebase 초기화 + Crashlytics 에러 보고 연결.
+/// Firebase 초기화 + Crashlytics 에러 보고 연결 + Performance 수집 설정.
 ///
 /// Doze 복귀 직후 Play Services 불안정 등으로 초기화가 멈추거나 실패해도 앱은
 /// 계속 실행한다. (Crashlytics 없이 동작 — 스플래시만 붙잡지 않는다)
@@ -81,6 +84,12 @@ Future<void> _initCrashReporting() async {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       return true;
     };
+
+    // 디버그 빌드의 성능 데이터가 콘솔 지표를 오염시키지 않도록
+    // Performance 수집은 릴리스 빌드에서만 켠다.
+    await FirebasePerformance.instance.setPerformanceCollectionEnabled(
+      kReleaseMode,
+    );
   } catch (_) {
     // Firebase 초기화 실패·지연은 무시하고 진행한다.
   }

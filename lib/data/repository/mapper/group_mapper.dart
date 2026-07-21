@@ -3,6 +3,7 @@ import 'package:ddara/core/model/group/change_nickname.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/model/group/invite_group.dart';
 import 'package:ddara/core/model/group/join_group.dart';
 import 'package:ddara/core/network/dto/group/create_group_response.dart';
@@ -74,6 +75,7 @@ extension GroupDetailMapper on GroupDetailResponse {
               status: cycle.status,
               startedAt: cycle.startedAt,
               deadlineAt: cycle.deadlineAt,
+              uploadedUserIds: cycle.uploadedUserIds,
             ),
       createdAt: createdAt,
     );
@@ -87,7 +89,8 @@ extension ChangeNickNameMapper on ChangeNickNameResponse {
 }
 
 extension HistoryCyclesMapper on HistoryCyclesResponse {
-  HistoryCycles toDomain() {
+  /// 모임 페이지 프리뷰용. (통계·참가자 목록은 버리고 카드에 필요한 필드만)
+  HistoryCycles toGroupHistory() {
     return HistoryCycles(
       cycles: cycles
           .map(
@@ -98,6 +101,38 @@ extension HistoryCyclesMapper on HistoryCyclesResponse {
               thumbnailUnderReview: cycle.thumbnailUnderReview,
               starterUserId: cycle.starterUserId,
               participantCount: cycle.participantCount,
+              date: cycle.date,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  /// 더보기 화면용. (통계 + 참가자 목록까지 포함)
+  /// 서버가 stats 를 안 주면 0/0 으로 채운다.
+  HistoryList toHistoryList() {
+    return HistoryList(
+      stats: HistoryStats(
+        myCount: stats?.myCount ?? 0,
+        totalCount: stats?.totalCount ?? 0,
+      ),
+      cycles: cycles
+          .map(
+            (cycle) => HistoryListCycle(
+              cycleId: cycle.cycleId,
+              topic: cycle.topic,
+              thumbnailUrl: cycle.thumbnailUrl,
+              thumbnailUnderReview: cycle.thumbnailUnderReview,
+              starterUserId: cycle.starterUserId,
+              participantCount: cycle.participantCount,
+              participants: cycle.participants
+                  .map(
+                    (participant) => HistoryParticipant(
+                      userId: participant.userId,
+                      profileImageUrl: participant.profileImageUrl,
+                    ),
+                  )
+                  .toList(),
               date: cycle.date,
             ),
           )
