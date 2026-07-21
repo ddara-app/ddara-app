@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'dart:ui' show lerpDouble;
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -464,30 +465,40 @@ class _RecentUpdatesView extends ConsumerWidget {
     return success;
   }
 
-  /// 댓글 신고 사유 시트를 띄우고, 확정하면 접수한다.
-  /// 성공 시 완료 토스트를 띄운다. (즉시 UI 변화는 없고, 다음 목록 조회부터
-  /// 내가 신고한(reportedByMe) 댓글로 걸러져 보이지 않는다)
-  Future<void> _reportComment(
+  /// 댓글 신고 사유 시트를 띄우고, 확정하면 즉시 true 를 반환해 시트가
+  /// 댓글을 바로 지우게 한다. (낙관적 — 접수는 백그라운드로 진행)
+  /// 접수 성공 시 완료 토스트를, 실패 시 notifier 가 errorMessage → 토스트로
+  /// 안내한다. (실패하면 서버에 신고가 남지 않았으므로 다음 목록 조회 때
+  /// 댓글이 되살아난다)
+  Future<bool> _reportComment(
     BuildContext context,
     WidgetRef ref,
     PhotoComment comment,
   ) async {
     final commentId = comment.commentId;
-    if (commentId == null) return;
+    if (commentId == null) return false;
 
     final result = await CommentReportSheet.show(context);
-    if (result == null || !context.mounted) return;
+    if (result == null || !context.mounted) return false;
 
-    final success = await ref
-        .read(feedNotifierProvider.notifier)
-        .reportComment(
-          commentId: commentId,
-          reason: result.reason,
-          reasonText: result.detail.isEmpty ? null : result.detail,
-        );
-    if (!success || !context.mounted) return;
-
-    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
+    // 접수 결과를 기다리지 않는다. (확정 즉시 댓글을 지우는 낙관적 처리)
+    unawaited(
+      ref
+          .read(feedNotifierProvider.notifier)
+          .reportComment(
+            commentId: commentId,
+            reason: result.reason,
+            reasonText: result.detail.isEmpty ? null : result.detail,
+          )
+          .then((success) {
+            if (!success || !context.mounted) return;
+            Toast.showToast(
+              context,
+              AppLocalizations.of(context).reportSubmitted,
+            );
+          }),
+    );
+    return true;
   }
 }
 

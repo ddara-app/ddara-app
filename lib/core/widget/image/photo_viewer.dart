@@ -71,7 +71,7 @@ class PhotoViewer extends StatefulWidget {
   final Future<bool> Function(PhotoComment comment) onDeleteComment;
 
   /// 상대 댓글 신고 콜백. → [PhotoCommentSheet.onReportComment]
-  final void Function(PhotoComment comment) onReportComment;
+  final Future<bool> Function(PhotoComment comment) onReportComment;
 
   /// 상대 댓글 작성자 차단 콜백. → [PhotoCommentSheet.onBlockComment]
   final Future<bool> Function(PhotoComment comment) onBlockComment;
@@ -331,7 +331,7 @@ Future<void> showPhotoViewer(
   required Future<PhotoComment?> Function(PhotoComment comment, String newContent)
   onEditComment,
   required Future<bool> Function(PhotoComment comment) onDeleteComment,
-  required void Function(PhotoComment comment) onReportComment,
+  required Future<bool> Function(PhotoComment comment) onReportComment,
   required Future<bool> Function(PhotoComment comment) onBlockComment,
   Object? heroTag,
   double? aspectRatio,
