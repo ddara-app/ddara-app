@@ -328,6 +328,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupMenuEditNickname => '닉네임 수정';
 
   @override
+  String get groupMenuReport => '모임 신고';
+
+  @override
   String get groupMenuExit => '모임 나가기';
 
   @override
@@ -376,6 +379,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoReportReasonEtc => '기타';
 
   @override
+  String get groupReportReasonInappropriate => '부적절한 모임 이름·이미지';
+
+  @override
+  String get groupReportReasonEtc => '기타';
+
+  @override
   String get userReportReasonNickname => '부적절한 닉네임(욕설·음란·혐오)';
 
   @override
@@ -405,6 +414,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String memberBlockedToast(String nickname) {
     return '$nickname님을 차단했어요.';
   }
+
+  @override
+  String get memberBlockFailedToast => '차단하지 못했어요.';
 
   @override
   String get recordCycleLabel => '따라찍기';

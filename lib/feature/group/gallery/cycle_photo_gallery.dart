@@ -8,6 +8,7 @@ import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/time_ago.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
@@ -157,10 +158,19 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             starterBlocked: starterBlocked,
             // 모임 페이지와 동일하게 참여 인원(n/총원)을 표시한다.
             memberCount: gallery.members.length,
-            // 스타터 사진 롱프레스 → 신고 메뉴. (본인이 스타터면 띄우지 않는다)
+            // 스타터 사진 롱프레스 → 신고·차단 메뉴. (본인이 스타터면 띄우지
+            // 않는다)
             onReport: iAmStarter
                 ? null
                 : () => _reportPhoto(context, ref, cycle.starterShotId),
+            onBlock: iAmStarter
+                ? null
+                : () => _blockUser(
+                    context,
+                    ref,
+                    userId: cycle.starterUserId,
+                    nickname: cycle.starterNickname,
+                  ),
             // 스타터 대표 사진 탭 → 헤더에서 보이던 프레임 그대로 크게 보여준다.
             // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
             onImageTap: (cycle.starterImageUrl ?? '').isEmpty
@@ -195,6 +205,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                         _editComment(ref, comment, newContent),
                     onReportComment: (comment) =>
                         _reportComment(context, ref, comment),
+                    onBlockComment: (comment) =>
+                        _blockCommentAuthor(context, ref, comment),
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -288,6 +300,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                                 _editComment(ref, comment, newContent),
                             onReportComment: (comment) =>
                                 _reportComment(context, ref, comment),
+                            onBlockComment: (comment) =>
+                                _blockCommentAuthor(context, ref, comment),
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
@@ -314,14 +328,32 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     isLocked: locked,
                   );
 
-                  // 타인의 보이는 사진만 신고할 수 있다. (본인·잠김·차단 제외)
+                  // 타인의 보이는 사진만 신고·차단할 수 있다. (본인·잠김·차단 제외)
                   if (isMe || !canView || shotId == null) return card;
 
+                  final l10n = AppLocalizations.of(context);
                   return _MenuPhotoCard(
                     cardWidth: cardWidth,
                     // 사본은 Hero 태그 충돌을 피해 태그·콜백 없이 만든다.
                     copy: MemberPhotoCard(name: member.nickname, image: image),
-                    onReport: () => _reportPhoto(context, ref, shotId),
+                    // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
+                    actions: [
+                      (
+                        label: l10n.memberBlock,
+                        color: AppColors.statusDanger,
+                        onSelect: () => _blockUser(
+                          context,
+                          ref,
+                          userId: member.userId,
+                          nickname: member.nickname,
+                        ),
+                      ),
+                      (
+                        label: l10n.report,
+                        color: AppColors.statusDanger,
+                        onSelect: () => _reportPhoto(context, ref, shotId),
+                      ),
+                    ],
                     child: card,
                   );
                 },
@@ -381,6 +413,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   ) {
     return PhotoComment(
       commentId: comment.commentId,
+      userId: comment.userId,
       nickname: comment.nickname,
       content: comment.underReview
           ? l10n.photoViewerCommentUnderReview
@@ -447,6 +480,48 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 
+  /// [userId] 유저(멤버·스타터·댓글 작성자 공용)를 차단한다. 먼저 확인
+  /// 다이얼로그를 띄우고, 확인 시에만 진행한다. 성공하면 차단이 반영된
+  /// (사진 가림) 갤러리를 다시 조회하고 완료 토스트를 띄운 뒤 true 를
+  /// 반환한다. (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  Future<bool> _blockUser(
+    BuildContext context,
+    WidgetRef ref, {
+    required int userId,
+    required String nickname,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.memberBlockConfirmTitle(nickname),
+      message: l10n.memberBlockConfirmMessage,
+      confirmLabel: l10n.memberBlockConfirmAction,
+      confirmColor: AppColors.statusDanger,
+      confirmLabelColor: AppColors.textPrimary,
+    );
+    if (!confirmed || !context.mounted) return false;
+
+    final success = await ref
+        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .blockMember(userId);
+    if (!success || !context.mounted) return false;
+
+    Toast.showToast(context, l10n.memberBlockedToast(nickname));
+    return true;
+  }
+
+  /// 댓글 작성자를 차단한다. ([_blockUser] 의 댓글용 래퍼 — 뷰어 댓글 시트의
+  /// onBlockComment 콜백으로 연결되며, 성공 시 시트가 목록을 재조회한다)
+  Future<bool> _blockCommentAuthor(
+    BuildContext context,
+    WidgetRef ref,
+    PhotoComment comment,
+  ) {
+    final userId = comment.userId;
+    if (userId == null) return Future.value(false);
+    return _blockUser(context, ref, userId: userId, nickname: comment.nickname);
+  }
+
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공 시 검토 상태가 반영된 갤러리를 다시 조회하고 완료 토스트를 띄운다.
   /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
@@ -496,7 +571,10 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   }
 }
 
-/// 롱프레스하면 카드 위쪽에 '신고하기' 메뉴(오버레이)를 띄우는 사진 카드 래퍼.
+/// 롱프레스 메뉴의 항목 하나. (라벨 + 글자색 + 선택 콜백)
+typedef _MenuAction = ({String label, Color? color, VoidCallback onSelect});
+
+/// 롱프레스하면 카드 위쪽에 컨텍스트 메뉴(오버레이)를 띄우는 사진 카드 래퍼.
 ///
 /// 멤버 아바타 메뉴와 동일하게 배경을 블러 + 살짝 어둡게 하고, 대상 카드
 /// 사본을 스크림 위로 띄운 채 메뉴를 보여준다. 바깥을 탭하면 닫힌다.
@@ -505,7 +583,7 @@ class _MenuPhotoCard extends StatefulWidget {
     required this.child,
     required this.copy,
     required this.cardWidth,
-    required this.onReport,
+    required this.actions,
   });
 
   final Widget child;
@@ -516,8 +594,8 @@ class _MenuPhotoCard extends StatefulWidget {
   /// 사본에 적용할 카드 폭. (오버레이에는 그리드 제약이 없어 직접 지정)
   final double cardWidth;
 
-  /// 메뉴에서 '신고하기'를 선택했을 때.
-  final VoidCallback onReport;
+  /// 메뉴에 나열할 항목들. (위에서부터 순서대로)
+  final List<_MenuAction> actions;
 
   @override
   State<_MenuPhotoCard> createState() => _MenuPhotoCardState();
@@ -544,10 +622,10 @@ class _MenuPhotoCardState extends State<_MenuPhotoCard> {
     Navigator.of(context).push(route).then((_) => _menuRoute = null);
   }
 
-  /// 메뉴를 닫은 뒤 신고 콜백을 실행한다.
-  void _select(BuildContext dialogContext) {
+  /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
+  void _select(BuildContext dialogContext, VoidCallback onSelect) {
     Navigator.of(dialogContext).pop();
-    widget.onReport();
+    onSelect();
   }
 
   @override
@@ -587,6 +665,7 @@ class _MenuPhotoCardState extends State<_MenuPhotoCard> {
 
   Widget _menu(BuildContext dialogContext) {
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -599,16 +678,29 @@ class _MenuPhotoCardState extends State<_MenuPhotoCard> {
           ),
         ],
       ),
-      child: CupertinoButton(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s4,
-          vertical: AppSpacing.s3,
-        ),
-        minimumSize: Size.zero,
-        onPressed: () => _select(dialogContext),
-        child: AppText.body(
-          AppLocalizations.of(context).report,
-          color: AppColors.statusDanger,
+      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < widget.actions.length; i++) ...[
+              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
+              CupertinoButton(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s4,
+                  vertical: AppSpacing.s3,
+                ),
+                minimumSize: Size.zero,
+                onPressed: () =>
+                    _select(dialogContext, widget.actions[i].onSelect),
+                child: AppText.body(
+                  widget.actions[i].label,
+                  color: widget.actions[i].color,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

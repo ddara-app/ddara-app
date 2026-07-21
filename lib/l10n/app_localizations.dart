@@ -682,6 +682,12 @@ abstract class AppLocalizations {
   /// **'닉네임 수정'**
   String get groupMenuEditNickname;
 
+  /// No description provided for @groupMenuReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 신고'**
+  String get groupMenuReport;
+
   /// No description provided for @groupMenuExit.
   ///
   /// In ko, this message translates to:
@@ -778,6 +784,18 @@ abstract class AppLocalizations {
   /// **'기타'**
   String get photoReportReasonEtc;
 
+  /// No description provided for @groupReportReasonInappropriate.
+  ///
+  /// In ko, this message translates to:
+  /// **'부적절한 모임 이름·이미지'**
+  String get groupReportReasonInappropriate;
+
+  /// No description provided for @groupReportReasonEtc.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get groupReportReasonEtc;
+
   /// No description provided for @userReportReasonNickname.
   ///
   /// In ko, this message translates to:
@@ -831,6 +849,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{nickname}님을 차단했어요.'**
   String memberBlockedToast(String nickname);
+
+  /// No description provided for @memberBlockFailedToast.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단하지 못했어요.'**
+  String get memberBlockFailedToast;
 
   /// No description provided for @recordCycleLabel.
   ///

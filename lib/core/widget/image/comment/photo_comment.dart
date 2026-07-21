@@ -17,6 +17,7 @@ class PhotoComment {
     required this.content,
     required this.timeLabel,
     this.commentId,
+    this.userId,
     this.profileImageUrl,
     this.isUnderReview = false,
     this.isMine = false,
@@ -26,6 +27,10 @@ class PhotoComment {
 
   /// 서버 댓글 id. 삭제·수정 대상 식별에 쓴다. (API 연동 전 임시 댓글은 null)
   final int? commentId;
+
+  /// 작성자 서버 id. 작성자 차단 대상 식별에 쓴다.
+  /// (아직 서버에 없는 전송 중 댓글은 null)
+  final int? userId;
 
   /// 작성자 닉네임.
   final String nickname;
@@ -64,6 +69,7 @@ class PhotoComment {
   }) {
     return PhotoComment(
       commentId: commentId,
+      userId: userId,
       nickname: nickname,
       content: content ?? this.content,
       timeLabel: timeLabel,

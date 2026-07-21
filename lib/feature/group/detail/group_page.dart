@@ -15,6 +15,7 @@ import 'package:ddara/feature/group/detail/widget/body/history_photos.dart';
 import 'package:ddara/feature/group/detail/widget/body/members.dart';
 import 'package:ddara/feature/group/detail/widget/body/user_report_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
+import 'package:ddara/feature/group/detail/widget/group_report_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
@@ -164,6 +165,17 @@ class GroupPage extends ConsumerWidget {
             isDestructiveAction: true,
             onPressed: () {
               Navigator.of(sheetContext).pop();
+              _reportGroup(context, ref);
+            },
+            child: AppText.title(
+              l10n.groupMenuReport,
+              color: AppColors.statusDanger,
+            ),
+          ),
+          CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.of(sheetContext).pop();
               _exitGroup(context, ref);
             },
             child: AppText.title(
@@ -178,6 +190,24 @@ class GroupPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// 모임 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
+  /// 성공 시 완료 토스트를 띄운다. (신고해도 모임은 그대로 노출 — 관리자 검토
+  /// 후 처리, 실패 시 notifier 가 errorMessage → 토스트로 처리)
+  Future<void> _reportGroup(BuildContext context, WidgetRef ref) async {
+    final result = await GroupReportSheet.show(context);
+    if (result == null || !context.mounted) return;
+
+    final success = await ref
+        .read(groupPageNotifierProvider(groupId).notifier)
+        .reportGroup(
+          reason: result.reason,
+          reasonText: result.detail.isEmpty ? null : result.detail,
+        );
+    if (!success || !context.mounted) return;
+
+    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 
   /// 닉네임 수정 바텀시트를 띄우고, 입력을 받으면 변경을 요청한다.

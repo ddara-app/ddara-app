@@ -27,6 +27,7 @@ class PhotoViewer extends StatefulWidget {
     required this.onEditComment,
     required this.onDeleteComment,
     required this.onReportComment,
+    required this.onBlockComment,
     this.heroTag,
     this.aspectRatio,
     this.title,
@@ -71,6 +72,9 @@ class PhotoViewer extends StatefulWidget {
 
   /// 상대 댓글 신고 콜백. → [PhotoCommentSheet.onReportComment]
   final void Function(PhotoComment comment) onReportComment;
+
+  /// 상대 댓글 작성자 차단 콜백. → [PhotoCommentSheet.onBlockComment]
+  final Future<bool> Function(PhotoComment comment) onBlockComment;
 
   /// 잠긴 사진 여부. true 면 뷰어에서도 블러 + 가운데 자물쇠를 유지한다.
   /// (본인이 아직 업로드하지 않아 타인 사진이 잠긴 경우 — 댓글은 볼 수 있다)
@@ -247,6 +251,7 @@ class _PhotoViewerState extends State<PhotoViewer>
             onEditComment: widget.onEditComment,
             onDeleteComment: widget.onDeleteComment,
             onReportComment: widget.onReportComment,
+            onBlockComment: widget.onBlockComment,
           ),
         ],
       ),
@@ -327,6 +332,7 @@ Future<void> showPhotoViewer(
   onEditComment,
   required Future<bool> Function(PhotoComment comment) onDeleteComment,
   required void Function(PhotoComment comment) onReportComment,
+  required Future<bool> Function(PhotoComment comment) onBlockComment,
   Object? heroTag,
   double? aspectRatio,
   String? title,
@@ -359,6 +365,7 @@ Future<void> showPhotoViewer(
         onEditComment: onEditComment,
         onDeleteComment: onDeleteComment,
         onReportComment: onReportComment,
+        onBlockComment: onBlockComment,
       ),
       transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),

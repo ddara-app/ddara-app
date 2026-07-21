@@ -1,3 +1,4 @@
+import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/comment_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
@@ -113,6 +114,37 @@ class CyclePhotoGalleryNotifier
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
       state = state.copyWith(isLoading: false, errorMessage: '신고하지 못했어요.');
+      return false;
+    }
+  }
+
+  /// [userId] 멤버를 차단한다. 성공하면 true, 실패하면 errorMessage 를 채우고
+  /// false 를 반환한다. 요청 시작~완료까지 isLoading 을 true 로 두고, 성공 시
+  /// 차단이 반영된(사진 가림) 갤러리를 다시 조회한다.
+  Future<bool> blockMember(int userId) async {
+    if (state.isLoading) return false;
+
+    state = state.copyWith(isLoading: true);
+    final blockUserUseCase = ref.read(blockUserUseCaseProvider);
+
+    try {
+      await blockUserUseCase(userId);
+      // 차단 결과를 반영하기 위해 갤러리를 다시 조회한다.
+      // (isLoading 은 _loadGallery 가 내린다)
+      await _loadGallery(arg);
+      return true;
+    } on InvalidBlockInputException {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '자기 자신은 차단할 수 없어요.',
+      );
+      return false;
+    } on BlockTargetNotFoundException {
+      state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 사용자예요.');
+      return false;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(isLoading: false, errorMessage: '차단하지 못했어요.');
       return false;
     }
   }
