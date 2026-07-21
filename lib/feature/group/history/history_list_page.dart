@@ -2,6 +2,7 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/history_list.dart';
+import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/feature/group/history/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/history/util/history_list_state.dart';
 import 'package:ddara/feature/group/history/widget/history_month_section.dart';
@@ -27,6 +28,9 @@ class HistoryListPage extends ConsumerStatefulWidget {
 }
 
 class _HistoryListPageState extends ConsumerState<HistoryListPage> {
+  /// 한 번에 화면에 드러내는 월 섹션 개수. (클라이언트 사이드 페이징 단위)
+  static const _sectionPageSize = 4;
+
   /// 년·월 선택 카드 표시 여부. (필터 버튼 탭으로 토글)
   bool _pickerVisible = false;
 
@@ -49,25 +53,33 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       ),
       child: SafeArea(
         bottom: false,
-        child: SingleChildScrollView(
-          // 본문 여백: 상 s7, 좌우 s4.
-          padding: const EdgeInsets.only(
-            top: AppSpacing.s7,
-            left: AppSpacing.s4,
-            right: AppSpacing.s4,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: AppSpacing.s7,
-            children: [
-              // 조회 전(로딩)엔 통계가 없어 0/0 으로 보여준다.
-              RecordSection(
-                myCount: state.historyList?.stats.myCount ?? 0,
-                totalCount: state.historyList?.stats.totalCount ?? 0,
-              ),
-              _filterSection(l10n),
-              ..._monthSections(l10n, state),
-            ],
+        // 전량 받아둔 사이클을 월 섹션 단위 청크로만 그린다.
+        // (docs/client_side_paging.md)
+        child: LazyRevealList(
+          items: _groupedSections(state),
+          pageSize: _sectionPageSize,
+          // 필터가 바뀌면 목록이 새로 조회되므로 첫 페이지부터 다시 드러낸다.
+          resetKey: (_selectedYear, _selectedMonth),
+          builder: (context, visibleSections) => SingleChildScrollView(
+            // 본문 여백: 상 s7, 좌우 s4.
+            padding: const EdgeInsets.only(
+              top: AppSpacing.s7,
+              left: AppSpacing.s4,
+              right: AppSpacing.s4,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpacing.s7,
+              children: [
+                // 조회 전(로딩)엔 통계가 없어 0/0 으로 보여준다.
+                RecordSection(
+                  myCount: state.historyList?.stats.myCount ?? 0,
+                  totalCount: state.historyList?.stats.totalCount ?? 0,
+                ),
+                _filterSection(l10n),
+                ..._monthSections(l10n, state, visibleSections),
+              ],
+            ),
           ),
         ),
       ),
@@ -123,9 +135,12 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
   }
 
   /// 년·월 섹션 목록. (조회 전엔 로딩/에러, 결과 없으면 빈 안내)
-  List<Widget> _monthSections(AppLocalizations l10n, HistoryListState state) {
-    final cycles = state.historyList?.cycles;
-    if (cycles == null) {
+  List<Widget> _monthSections(
+    AppLocalizations l10n,
+    HistoryListState state,
+    List<_MonthSection> sections,
+  ) {
+    if (state.historyList == null) {
       return [
         SizedBox(
           width: double.infinity,
@@ -137,7 +152,7 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
     }
 
     // 필터링은 서버(year·month 쿼리)가 처리하므로 받은 목록을 그대로 보여준다.
-    if (cycles.isEmpty) {
+    if (sections.isEmpty) {
       return [
         SizedBox(
           width: double.infinity,
@@ -149,24 +164,34 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       ];
     }
 
-    // 년·월 단위로 묶는다. (목록 순서 유지)
+    // 년·월 필터 중엔 제목을 숨기고, 전체보기에서 올해 섹션은 월만 표시한다.
+    final currentYear = DateTime.now().year;
+    return [
+      for (final section in sections)
+        HistoryMonthSection(
+          year: section.year,
+          month: section.month,
+          cycles: section.cycles,
+          blockedUserIds: state.blockedUserIds,
+          showTitle: _selectedMonth == null,
+          showYear: section.year != currentYear,
+        ),
+    ];
+  }
+
+  /// 사이클을 년·월 단위 섹션으로 묶는다. (목록 순서 유지 · 조회 전엔 빈 목록)
+  List<_MonthSection> _groupedSections(HistoryListState state) {
+    final cycles = state.historyList?.cycles;
+    if (cycles == null) return const [];
+
     final grouped = <(int, int), List<HistoryListCycle>>{};
     for (final cycle in cycles) {
       final d = cycle.date.toLocal();
       grouped.putIfAbsent((d.year, d.month), () => []).add(cycle);
     }
-    // 년·월 필터 중엔 제목을 숨기고, 전체보기에서 올해 섹션은 월만 표시한다.
-    final currentYear = DateTime.now().year;
     return [
       for (final entry in grouped.entries)
-        HistoryMonthSection(
-          year: entry.key.$1,
-          month: entry.key.$2,
-          cycles: entry.value,
-          blockedUserIds: state.blockedUserIds,
-          showTitle: _selectedMonth == null,
-          showYear: entry.key.$1 != currentYear,
-        ),
+        (year: entry.key.$1, month: entry.key.$2, cycles: entry.value),
     ];
   }
 
@@ -193,3 +218,6 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
         .applyFilter(year: _selectedYear, month: _selectedMonth);
   }
 }
+
+/// 년·월로 묶은 사이클 섹션. (클라이언트 사이드 페이징의 청크 단위)
+typedef _MonthSection = ({int year, int month, List<HistoryListCycle> cycles});
