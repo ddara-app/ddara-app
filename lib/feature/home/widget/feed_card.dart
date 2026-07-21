@@ -83,8 +83,6 @@ class _CommentPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     // 자리(topAction)가 카드 폭을 꽉 채우므로, 알약이 내용만큼만
     // 커지도록 좌측으로 정렬해 둔다.
     return Align(
@@ -93,10 +91,7 @@ class _CommentPreview extends StatelessWidget {
         onTap: onTap,
         child: _CommentPill(
           profileImageUrl: comment.profileImageUrl,
-          // 검토 중인 댓글은 내용 대신 자리표시 문구를 보여준다.
-          content: comment.underReview
-              ? l10n.photoViewerCommentUnderReview
-              : (comment.content ?? ''),
+          content: comment.content ?? '',
         ),
       ),
     );
