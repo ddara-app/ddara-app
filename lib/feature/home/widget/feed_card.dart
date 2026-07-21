@@ -92,6 +92,7 @@ class _CommentPreview extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: _CommentPill(
+          profileImageUrl: comment.profileImageUrl,
           // 검토 중인 댓글은 내용 대신 자리표시 문구를 보여준다.
           content: comment.underReview
               ? l10n.photoViewerCommentUnderReview
@@ -104,9 +105,12 @@ class _CommentPreview extends StatelessWidget {
 
 /// 댓글 한 줄을 담는 알약. (좌: 작성자 아바타 · 우: 내용 한 줄)
 class _CommentPill extends StatelessWidget {
-  const _CommentPill({required this.content});
+  const _CommentPill({required this.content, this.profileImageUrl});
 
   final String content;
+
+  /// 작성자 프로필 이미지 URL. null·빈 값이면 기본 아바타.
+  final String? profileImageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -129,8 +133,7 @@ class _CommentPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: AppSpacing.s2,
         children: [
-          // 피드 응답에 댓글 작성자의 프로필 이미지 URL 이 없어 기본 아바타로 둔다.
-          const ProfileAvatar(size: 24),
+          ProfileAvatar(size: 24, imageUrl: profileImageUrl),
           Flexible(
             child: AppText.caption(
               content,

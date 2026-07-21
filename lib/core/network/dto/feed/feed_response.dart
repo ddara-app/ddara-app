@@ -57,6 +57,8 @@ abstract class FeedCommentResponse with _$FeedCommentResponse {
   const factory FeedCommentResponse({
     required int userId,
     required String nickname,
+    // 작성자 프로필 이미지 URL. 미등록이면 null.
+    String? profileImageUrl,
     // 댓글 내용. 검토 중이면 null.
     required String? content,
     @Default(false) bool underReview,

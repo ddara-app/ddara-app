@@ -42,6 +42,7 @@ extension FeedCommentMapper on FeedCommentResponse {
     return FeedComment(
       userId: userId,
       nickname: nickname,
+      profileImageUrl: profileImageUrl,
       content: content,
       underReview: underReview,
     );

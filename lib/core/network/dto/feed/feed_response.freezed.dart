@@ -614,7 +614,8 @@ as DateTime,
 /// @nodoc
 mixin _$FeedCommentResponse {
 
- int get userId; String get nickname;// 댓글 내용. 검토 중이면 null.
+ int get userId; String get nickname;// 작성자 프로필 이미지 URL. 미등록이면 null.
+ String? get profileImageUrl;// 댓글 내용. 검토 중이면 null.
  String? get content; bool get underReview;
 /// Create a copy of FeedCommentResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -628,16 +629,16 @@ $FeedCommentResponseCopyWith<FeedCommentResponse> get copyWith => _$FeedCommentR
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedCommentResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedCommentResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,nickname,content,underReview);
+int get hashCode => Object.hash(runtimeType,userId,nickname,profileImageUrl,content,underReview);
 
 @override
 String toString() {
-  return 'FeedCommentResponse(userId: $userId, nickname: $nickname, content: $content, underReview: $underReview)';
+  return 'FeedCommentResponse(userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, underReview: $underReview)';
 }
 
 
@@ -648,7 +649,7 @@ abstract mixin class $FeedCommentResponseCopyWith<$Res>  {
   factory $FeedCommentResponseCopyWith(FeedCommentResponse value, $Res Function(FeedCommentResponse) _then) = _$FeedCommentResponseCopyWithImpl;
 @useResult
 $Res call({
- int userId, String nickname, String? content, bool underReview
+ int userId, String nickname, String? profileImageUrl, String? content, bool underReview
 });
 
 
@@ -665,11 +666,12 @@ class _$FeedCommentResponseCopyWithImpl<$Res>
 
 /// Create a copy of FeedCommentResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? nickname = null,Object? content = freezed,Object? underReview = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = freezed,Object? underReview = null,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
-as String,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String?,underReview: null == underReview ? _self.underReview : underReview // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
@@ -756,10 +758,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String nickname,  String? content,  bool underReview)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FeedCommentResponse() when $default != null:
-return $default(_that.userId,_that.nickname,_that.content,_that.underReview);case _:
+return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview);case _:
   return orElse();
 
 }
@@ -777,10 +779,10 @@ return $default(_that.userId,_that.nickname,_that.content,_that.underReview);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String nickname,  String? content,  bool underReview)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview)  $default,) {final _that = this;
 switch (_that) {
 case _FeedCommentResponse():
-return $default(_that.userId,_that.nickname,_that.content,_that.underReview);case _:
+return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -797,10 +799,10 @@ return $default(_that.userId,_that.nickname,_that.content,_that.underReview);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String nickname,  String? content,  bool underReview)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview)?  $default,) {final _that = this;
 switch (_that) {
 case _FeedCommentResponse() when $default != null:
-return $default(_that.userId,_that.nickname,_that.content,_that.underReview);case _:
+return $default(_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview);case _:
   return null;
 
 }
@@ -812,11 +814,13 @@ return $default(_that.userId,_that.nickname,_that.content,_that.underReview);cas
 @JsonSerializable()
 
 class _FeedCommentResponse implements FeedCommentResponse {
-  const _FeedCommentResponse({required this.userId, required this.nickname, required this.content, this.underReview = false});
+  const _FeedCommentResponse({required this.userId, required this.nickname, this.profileImageUrl, required this.content, this.underReview = false});
   factory _FeedCommentResponse.fromJson(Map<String, dynamic> json) => _$FeedCommentResponseFromJson(json);
 
 @override final  int userId;
 @override final  String nickname;
+// 작성자 프로필 이미지 URL. 미등록이면 null.
+@override final  String? profileImageUrl;
 // 댓글 내용. 검토 중이면 null.
 @override final  String? content;
 @override@JsonKey() final  bool underReview;
@@ -834,16 +838,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedCommentResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedCommentResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,nickname,content,underReview);
+int get hashCode => Object.hash(runtimeType,userId,nickname,profileImageUrl,content,underReview);
 
 @override
 String toString() {
-  return 'FeedCommentResponse(userId: $userId, nickname: $nickname, content: $content, underReview: $underReview)';
+  return 'FeedCommentResponse(userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, underReview: $underReview)';
 }
 
 
@@ -854,7 +858,7 @@ abstract mixin class _$FeedCommentResponseCopyWith<$Res> implements $FeedComment
   factory _$FeedCommentResponseCopyWith(_FeedCommentResponse value, $Res Function(_FeedCommentResponse) _then) = __$FeedCommentResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, String nickname, String? content, bool underReview
+ int userId, String nickname, String? profileImageUrl, String? content, bool underReview
 });
 
 
@@ -871,11 +875,12 @@ class __$FeedCommentResponseCopyWithImpl<$Res>
 
 /// Create a copy of FeedCommentResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? nickname = null,Object? content = freezed,Object? underReview = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = freezed,Object? underReview = null,}) {
   return _then(_FeedCommentResponse(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
-as String,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String?,underReview: null == underReview ? _self.underReview : underReview // ignore: cast_nullable_to_non_nullable
 as bool,
   ));

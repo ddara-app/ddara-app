@@ -50,6 +50,12 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
     }
   }
 
+  /// 피드를 다시 조회한다. (당겨서 새로고침)
+  ///
+  /// 피드가 이미 로드된 상태에서 실패하면 errorMessage 가 채워져 화면의
+  /// listen 이 토스트로 안내하고, 보던 피드는 유지된다.
+  Future<void> refresh() => _load();
+
   /// 에러 메시지를 소비한 뒤(토스트로 노출 후) 다시 비운다.
   /// 같은 에러가 이후 상태 변경 때 재노출되는 것을 막는다.
   void clearError() {
