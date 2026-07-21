@@ -10,6 +10,7 @@ import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/time_ago.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
+import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
@@ -472,8 +473,22 @@ class _CardGridView<T> extends StatelessWidget {
   /// 카드 생성자. (탭마다 카드에 담는 내용이 달라 주입받는다)
   final Widget Function(BuildContext context, T item) cardBuilder;
 
+  /// 한 번에 화면에 드러내는 카드 개수. (클라이언트 사이드 페이징 단위 —
+  /// 좌/우 열에 절반씩 나뉘므로 지그재그 5행 분량이다)
+  static const _cardPageSize = 10;
+
   @override
   Widget build(BuildContext context) {
+    // 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
+    return LazyRevealList(
+      items: items,
+      pageSize: _cardPageSize,
+      builder: (context, visibleItems) => _grid(visibleItems),
+    );
+  }
+
+  /// 지그재그 그리드 본문. ([visibleItems] 만 카드로 만든다)
+  Widget _grid(List<T> visibleItems) {
     return LayoutBuilder(
       // 콘텐츠가 화면에 들어가면 스크롤 없음, 카드가 많아지면 스크롤로
       // 전환되도록 뷰포트 높이를 최소 높이로 강제한다. (프로필과 동일 패턴)
@@ -509,8 +524,8 @@ class _CardGridView<T> extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: AppSpacing.s3,
                     children: [
-                      for (var i = 0; i < items.length; i += 2)
-                        cardBuilder(context, items[i]),
+                      for (var i = 0; i < visibleItems.length; i += 2)
+                        cardBuilder(context, visibleItems[i]),
                     ],
                   ),
                 ),
@@ -522,8 +537,8 @@ class _CardGridView<T> extends StatelessWidget {
                     children: [
                       // 지그재그 오프셋용 고정 위젯. (내용은 탭별로 주입)
                       dashboard,
-                      for (var i = 1; i < items.length; i += 2)
-                        cardBuilder(context, items[i]),
+                      for (var i = 1; i < visibleItems.length; i += 2)
+                        cardBuilder(context, visibleItems[i]),
                     ],
                   ),
                 ),

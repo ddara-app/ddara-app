@@ -7,6 +7,7 @@ import 'package:ddara/core/widget/image/comment/comment_editing_banner.dart';
 import 'package:ddara/core/widget/image/comment/comment_input_field.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment_item.dart';
+import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -109,6 +110,9 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
   /// 스크롤에 붙어 반응해야 하므로 시트 애니메이션보다 짧게 둔다.
   static const _dividerFadeDuration = Duration(milliseconds: 150);
 
+  /// 한 번에 화면에 드러내는 댓글 개수. (클라이언트 사이드 페이징 단위)
+  static const _commentPageSize = 20;
+
   /// 화면에 표시 중인 댓글 목록. 전달받은 목록으로 시작해, [reload] 로 서버
   /// 목록을 받아 교체하고, 등록·수정·삭제 결과를 반영한다.
   late final List<PhotoComment> _comments = [...widget.comments];
@@ -136,6 +140,10 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
   /// 댓글 목록이 맨 위에서 벗어났는지 여부.
   /// (헤더 아래 구분선을 스크롤된 동안에만 보여주는 데 쓴다)
   bool _bodyScrolled = false;
+
+  /// 목록 교체 세대. [reload] 로 목록을 갈아끼울 때마다 1씩 늘어, 노출 개수를
+  /// 첫 페이지로 되돌리는 신호([LazyRevealList.resetKey])로 쓴다.
+  int _listGeneration = 0;
 
   /// 수정 중인 댓글. null 이면 새 댓글 입력 모드, 있으면 그 댓글을 수정하는
   /// 모드다. (입력창 위에 대상 댓글을 보여주고, 전송 시 등록 대신 수정한다)
@@ -230,6 +238,9 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
         ..clear()
         ..addAll(loaded)
         ..addAll(pending);
+      // 재조회로 목록이 바뀌고 스크롤도 맨 위로 돌아가므로 첫 페이지부터
+      // 다시 드러낸다.
+      _listGeneration++;
     });
     // 시트를 열면 최신 댓글(맨 아래)이 먼저 보이도록 바닥으로 이동한다.
     if (loaded != null) _scrollToNewest();
@@ -519,31 +530,36 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
         ),
       );
     }
-    return ListView(
-      controller: _commentScrollController,
-      // 가장자리에서 더 당겨지는 바운스(overscroll)를 막고 끝에서 멈춘다.
-      physics: const ClampingScrollPhysics(),
-      // 오른쪽은 s2. 아이콘 버튼 내부 여백 12를 더해 아이콘이 화면 끝에서
-      // s5(20) 떨어지도록 맞춘다.
-      padding: const EdgeInsets.only(
-        left: AppSpacing.s4,
-        right: AppSpacing.s2,
-        top: AppSpacing.s2,
-        bottom: AppSpacing.s2,
+    // 최신 댓글이 맨 위에 오도록 역순으로 넘긴다. (첫 페이지 = 최신 댓글들.
+    // _comments 자체는 오래된 것 → 최신 순서를 유지한다)
+    final displayComments = _comments.reversed.toList();
+    // 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
+    return LazyRevealList(
+      items: displayComments,
+      pageSize: _commentPageSize,
+      resetKey: _listGeneration,
+      builder: (context, visibleComments) => ListView.builder(
+        controller: _commentScrollController,
+        // 가장자리에서 더 당겨지는 바운스(overscroll)를 막고 끝에서 멈춘다.
+        physics: const ClampingScrollPhysics(),
+        // 오른쪽은 s2. 아이콘 버튼 내부 여백 12를 더해 아이콘이 화면 끝에서
+        // s5(20) 떨어지도록 맞춘다.
+        padding: const EdgeInsets.only(
+          left: AppSpacing.s4,
+          right: AppSpacing.s2,
+          top: AppSpacing.s2,
+          bottom: AppSpacing.s2,
+        ),
+        itemCount: visibleComments.length,
+        itemBuilder: (context, index) => CommentItem(
+          comment: visibleComments[index],
+          onEdit: _startEditComment,
+          onDelete: _handleDeleteComment,
+          onReport: widget.onReportComment,
+          onRetry: _retryComment,
+          onDiscard: _discardComment,
+        ),
       ),
-      // 최신 댓글이 맨 위에 오도록 역순으로 그린다.
-      // (_comments 자체는 오래된 것 → 최신 순서를 유지한다)
-      children: [
-        for (final comment in _comments.reversed)
-          CommentItem(
-            comment: comment,
-            onEdit: _startEditComment,
-            onDelete: _handleDeleteComment,
-            onReport: widget.onReportComment,
-            onRetry: _retryComment,
-            onDiscard: _discardComment,
-          ),
-      ],
     );
   }
 
