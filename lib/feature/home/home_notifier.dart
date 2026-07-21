@@ -25,6 +25,26 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     }
   }
 
+  /// 모임 목록·차단 목록을 다시 조회한다. (당겨서 새로고침)
+  ///
+  /// 이미 목록을 보고 있는 상태라, 실패해도 화면을 에러로 바꾸지 않고 보던
+  /// 목록을 유지한다. (초기 조회 실패는 build 의 _load 가 처리하고, 사용자는
+  /// 다시 당겨 재시도할 수 있다)
+  Future<void> refresh() async {
+    final getGroupListUseCase = ref.read(getGroupListUseCaseProvider);
+
+    try {
+      final groupList = await getGroupListUseCase();
+      final blockedUserIds = await _loadBlockedUserIds();
+      state = state.copyWith(
+        groups: groupList.groups,
+        blockedUserIds: blockedUserIds,
+      );
+    } catch (_) {
+      // 보던 목록을 유지한다.
+    }
+  }
+
   /// 내가 차단한 사용자 userId 집합을 조회한다.
   ///
   /// 차단 목록 조회가 실패해도 화면(홈)을 막지 않도록, 실패 시 빈 집합으로
