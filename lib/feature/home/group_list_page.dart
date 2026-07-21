@@ -465,7 +465,8 @@ class _RecentUpdatesView extends ConsumerWidget {
   }
 
   /// 댓글 신고 사유 시트를 띄우고, 확정하면 접수한다.
-  /// 성공 시 완료 토스트를 띄운다. (신고해도 댓글은 그대로 노출 — 관리자 검토 후 처리)
+  /// 성공 시 완료 토스트를 띄운다. (즉시 UI 변화는 없고, 다음 목록 조회부터
+  /// 내가 신고한(reportedByMe) 댓글로 걸러져 보이지 않는다)
   Future<void> _reportComment(
     BuildContext context,
     WidgetRef ref,

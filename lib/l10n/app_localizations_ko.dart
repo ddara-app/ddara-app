@@ -578,9 +578,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoViewerCommentEmpty => '아직 댓글이 없습니다.';
 
   @override
-  String get photoViewerCommentUnderReview => '신고 접수되어 검토 중인 댓글입니다';
-
-  @override
   String get commentMenuEdit => '수정하기';
 
   @override

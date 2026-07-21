@@ -71,6 +71,7 @@ _FeedCommentResponse _$FeedCommentResponseFromJson(Map<String, dynamic> json) =>
       profileImageUrl: json['profileImageUrl'] as String?,
       content: json['content'] as String?,
       underReview: json['underReview'] as bool? ?? false,
+      reportedByMe: json['reportedByMe'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$FeedCommentResponseToJson(
@@ -81,4 +82,5 @@ Map<String, dynamic> _$FeedCommentResponseToJson(
   'profileImageUrl': instance.profileImageUrl,
   'content': instance.content,
   'underReview': instance.underReview,
+  'reportedByMe': instance.reportedByMe,
 };

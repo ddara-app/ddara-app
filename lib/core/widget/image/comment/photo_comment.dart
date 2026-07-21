@@ -34,7 +34,7 @@ class PhotoComment {
   /// 작성자 닉네임.
   final String nickname;
 
-  /// 댓글 내용. (검토 중인 댓글이면 호출 측에서 자리표시 문구를 넣어 전달)
+  /// 댓글 내용.
   final String content;
 
   /// 작성 시각 라벨. (예: '3분 전' — 호출 측에서 포맷해 전달)
