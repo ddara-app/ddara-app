@@ -98,8 +98,11 @@ class PhotoCommentSheet extends StatefulWidget {
   /// 하며, true 일 때 목록에서 해당 댓글을 제거한다.
   final Future<bool> Function(PhotoComment comment) onDeleteComment;
 
-  /// 상대 댓글 더보기 메뉴 - '신고하기' 콜백.
-  final void Function(PhotoComment comment) onReportComment;
+  /// 상대 댓글 더보기 메뉴 - '신고하기' 콜백. 사유 시트까지 호출 측이 처리하고,
+  /// 사유를 확정하면(서버 응답을 기다리지 않고) 즉시 true 를 반환해야 한다.
+  /// true 일 때 해당 댓글을 목록에서 바로 제거한다. (낙관적 — 접수 실패 안내는
+  /// 호출 측 토스트가 맡고, 그 경우 다음 목록 조회 때 댓글이 되살아난다)
+  final Future<bool> Function(PhotoComment comment) onReportComment;
 
   /// 상대 댓글 더보기 메뉴 - '차단하기' 콜백. 확인 다이얼로그·차단 요청까지
   /// 호출 측이 처리하고, 차단에 성공하면 true 를 반환해야 한다. true 일 때
@@ -447,6 +450,15 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
     await reload();
   }
 
+  /// 댓글 신고 콜백을 호출하고, 신고가 확정되면(true) 목록에서 즉시 제거한다.
+  /// (낙관적 — 접수는 백그라운드로 진행되고, 실패하면 호출 측이 에러 토스트를
+  /// 띄우며 다음 목록 조회 때 댓글이 되살아난다)
+  Future<void> _handleReportComment(PhotoComment comment) async {
+    final reported = await widget.onReportComment(comment);
+    if (!mounted || !reported) return;
+    setState(() => _comments.remove(comment));
+  }
+
   /// 댓글 목록을 애니메이션 없이 최신 댓글 쪽으로 옮긴다.
   /// 최신이 맨 위에 오도록 그리므로 목표는 스크롤 최상단(0)이다.
   ///
@@ -718,7 +730,7 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
           comment: visibleComments[index],
           onEdit: _startEditComment,
           onDelete: _handleDeleteComment,
-          onReport: widget.onReportComment,
+          onReport: _handleReportComment,
           onBlock: _handleBlockComment,
           onRetry: _retryComment,
           onDiscard: _discardComment,

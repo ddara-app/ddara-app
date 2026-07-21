@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
@@ -404,8 +406,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   }
 
   /// 도메인 [Comment] 를 뷰어 표시용 [PhotoComment] 로 변환한다.
-  /// 검토 중인 댓글은 내용 대신 자리표시 문구를 넣고, 작성자가 [myUserId] 와
-  /// 같으면 내 댓글로 표시한다. (더보기 메뉴 구성이 달라진다)
+  /// 작성자가 [myUserId] 와 같으면 내 댓글로 표시한다. (더보기 메뉴 구성이
+  /// 달라진다)
   PhotoComment _toPhotoComment(
     Comment comment,
     AppLocalizations l10n,
@@ -415,12 +417,9 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       commentId: comment.commentId,
       userId: comment.userId,
       nickname: comment.nickname,
-      content: comment.underReview
-          ? l10n.photoViewerCommentUnderReview
-          : (comment.content ?? ''),
+      content: comment.content ?? '',
       timeLabel: timeAgoLabel(comment.createdAt, l10n),
       profileImageUrl: comment.profileImageUrl,
-      isUnderReview: comment.underReview,
       isMine: myUserId != null && comment.userId == myUserId,
       // 수정 시각이 있으면 수정된 댓글로 본다.
       isEdited: comment.updatedAt != null,
@@ -454,30 +453,40 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     return comment.copyWith(content: content, isEdited: true);
   }
 
-  /// 댓글 신고 사유 시트를 띄우고, 확정하면 접수한다.
-  /// 성공 시 완료 토스트를 띄운다. (신고해도 댓글은 그대로 노출 — 관리자 검토 후 처리)
-  /// 실패는 notifier 가 errorMessage → 토스트로 처리한다.
-  Future<void> _reportComment(
+  /// 댓글 신고 사유 시트를 띄우고, 확정하면 즉시 true 를 반환해 시트가
+  /// 댓글을 바로 지우게 한다. (낙관적 — 접수는 백그라운드로 진행)
+  /// 접수 성공 시 완료 토스트를, 실패 시 notifier 가 errorMessage → 토스트로
+  /// 안내한다. (실패하면 서버에 신고가 남지 않았으므로 다음 목록 조회 때
+  /// 댓글이 되살아난다)
+  Future<bool> _reportComment(
     BuildContext context,
     WidgetRef ref,
     PhotoComment comment,
   ) async {
     final commentId = comment.commentId;
-    if (commentId == null) return;
+    if (commentId == null) return false;
 
     final result = await CommentReportSheet.show(context);
-    if (result == null || !context.mounted) return;
+    if (result == null || !context.mounted) return false;
 
-    final success = await ref
-        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
-        .reportComment(
-          commentId: commentId,
-          reason: result.reason,
-          reasonText: result.detail.isEmpty ? null : result.detail,
-        );
-    if (!success || !context.mounted) return;
-
-    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
+    // 접수 결과를 기다리지 않는다. (확정 즉시 댓글을 지우는 낙관적 처리)
+    unawaited(
+      ref
+          .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+          .reportComment(
+            commentId: commentId,
+            reason: result.reason,
+            reasonText: result.detail.isEmpty ? null : result.detail,
+          )
+          .then((success) {
+            if (!success || !context.mounted) return;
+            Toast.showToast(
+              context,
+              AppLocalizations.of(context).reportSubmitted,
+            );
+          }),
+    );
+    return true;
   }
 
   /// [userId] 유저(멤버·스타터·댓글 작성자 공용)를 차단한다. 먼저 확인

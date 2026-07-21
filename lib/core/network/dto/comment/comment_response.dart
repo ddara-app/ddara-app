@@ -5,8 +5,8 @@ part 'comment_response.g.dart';
 
 /// 댓글 DTO. (`POST` 단건 응답과 `GET` 목록의 각 항목에 공용으로 쓴다)
 ///
-/// POST 응답에는 [underReview]·[updatedAt] 키가 없으므로 각각 false·null 로
-/// 기본 처리한다. [content] 는 검토 중(underReview)인 댓글이면 null 로 온다.
+/// POST 응답에는 [underReview]·[reportedByMe]·[updatedAt] 키가 없으므로 각각
+/// false·false·null 로 기본 처리한다.
 @freezed
 abstract class CommentResponse with _$CommentResponse {
   const factory CommentResponse({
@@ -15,9 +15,11 @@ abstract class CommentResponse with _$CommentResponse {
     required String nickname,
     // 프로필 이미지 URL. 없으면 null.
     required String? profileImageUrl,
-    // 댓글 내용. 검토 중이면 null.
     required String? content,
+    // 신고 접수로 검토 중인 댓글인지 여부.
     @Default(false) bool underReview,
+    // 내가 신고한 댓글인지 여부.
+    @Default(false) bool reportedByMe,
     required DateTime createdAt,
     DateTime? updatedAt,
   }) = _CommentResponse;

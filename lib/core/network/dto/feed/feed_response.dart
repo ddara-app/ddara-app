@@ -62,6 +62,8 @@ abstract class FeedCommentResponse with _$FeedCommentResponse {
     // 댓글 내용. 검토 중이면 null.
     required String? content,
     @Default(false) bool underReview,
+    // 내가 신고한 댓글인지 여부.
+    @Default(false) bool reportedByMe,
   }) = _FeedCommentResponse;
 
   factory FeedCommentResponse.fromJson(Map<String, dynamic> json) =>

@@ -3,7 +3,6 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/feed/feed.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
-import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -55,13 +54,19 @@ class FeedCard extends StatelessWidget {
     final hasPhoto = !item.imageUnderReview && item.imageUrl != null;
     if (!hasPhoto) return null;
 
-    // 차단한 유저의 댓글은 건너뛰고 가장 최신 댓글 하나만 보여준다.
-    // (최신 댓글이 차단한 멤버의 것이면 그다음 댓글이 올라온다)
+    // 차단한 유저의 댓글, 검토 중(underReview)이거나 내가 신고한
+    // (reportedByMe) 댓글은 건너뛰고 가장 최신 댓글 하나만 보여준다.
+    // (걸러진 댓글이 최신이면 그다음 댓글이 올라온다)
     final latestComment = item.latestComments
-        .where((comment) => !blockedUserIds.contains(comment.userId))
+        .where(
+          (comment) =>
+              !blockedUserIds.contains(comment.userId) &&
+              !comment.underReview &&
+              !comment.reportedByMe,
+        )
         .firstOrNull;
 
-    // 보여줄 댓글이 없으면(댓글이 아직 없거나, 전부 차단한 유저의 댓글이면)
+    // 보여줄 댓글이 없으면(댓글이 아직 없거나, 전부 걸러졌으면)
     // 첫 댓글을 유도하는 버튼을 대신 띄운다.
     if (latestComment == null) {
       return Align(
@@ -83,8 +88,6 @@ class _CommentPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     // 자리(topAction)가 카드 폭을 꽉 채우므로, 알약이 내용만큼만
     // 커지도록 좌측으로 정렬해 둔다.
     return Align(
@@ -93,10 +96,7 @@ class _CommentPreview extends StatelessWidget {
         onTap: onTap,
         child: _CommentPill(
           profileImageUrl: comment.profileImageUrl,
-          // 검토 중인 댓글은 내용 대신 자리표시 문구를 보여준다.
-          content: comment.underReview
-              ? l10n.photoViewerCommentUnderReview
-              : (comment.content ?? ''),
+          content: comment.content ?? '',
         ),
       ),
     );

@@ -237,7 +237,6 @@ class _CommentItemState extends State<CommentItem> {
   ///
   /// 아직 서버에 없는 댓글(전송 중·실패)은 더보기 메뉴 대신 전송 상태를
   /// 보여준다. 수정·삭제·신고 대상이 될 수 없기 때문이다.
-  /// 검토 중인 댓글은 아무것도 두지 않는다.
   Widget? _trailing() {
     final comment = widget.comment;
     final l10n = AppLocalizations.of(context);
@@ -284,7 +283,6 @@ class _CommentItemState extends State<CommentItem> {
           ),
         );
       case CommentSendStatus.sent:
-        if (comment.isUnderReview) return null;
         // 버튼을 앵커로 삼아 탭하면 컨텍스트 메뉴를 띄운다.
         return CompositedTransformTarget(
           link: _link,
@@ -372,11 +370,10 @@ class CommentContent extends StatelessWidget {
                   ],
                 ],
               ),
-              // 검토 중인 댓글(자리표시 문구)과 아직 서버에 없는 댓글
-              // (전송 중·실패)은 흐린 색으로 보여준다.
+              // 아직 서버에 없는 댓글(전송 중·실패)은 흐린 색으로 보여준다.
               AppText.body(
                 comment.content,
-                color: comment.isUnderReview || comment.isPending
+                color: comment.isPending
                     ? AppColors.textDisabled
                     : AppColors.textPrimary,
                 maxLines: contentMaxLines,

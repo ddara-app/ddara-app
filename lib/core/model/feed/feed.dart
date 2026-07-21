@@ -54,6 +54,9 @@ abstract class FeedComment with _$FeedComment {
     String? profileImageUrl,
     // 댓글 내용. 신고 접수로 검토 중(underReview)이면 null.
     required String? content,
+    // 신고 접수로 검토 중인 댓글인지 여부. (검토 중인 댓글은 미리보기에서 숨긴다)
     @Default(false) bool underReview,
+    // 내가 신고한 댓글인지 여부. (내가 신고한 댓글은 미리보기에서 숨긴다)
+    @Default(false) bool reportedByMe,
   }) = _FeedComment;
 }

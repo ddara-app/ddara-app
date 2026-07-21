@@ -45,6 +45,7 @@ extension FeedCommentMapper on FeedCommentResponse {
       profileImageUrl: profileImageUrl,
       content: content,
       underReview: underReview,
+      reportedByMe: reportedByMe,
     );
   }
 }

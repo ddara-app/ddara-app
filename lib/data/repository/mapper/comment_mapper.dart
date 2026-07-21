@@ -10,6 +10,7 @@ extension CommentMapper on CommentResponse {
       profileImageUrl: profileImageUrl,
       content: content,
       underReview: underReview,
+      reportedByMe: reportedByMe,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

@@ -422,10 +422,6 @@
   "@photoViewerCommentEmpty": {
     "description": "사진 뷰어 댓글이 하나도 없을 때 안내 문구"
   },
-  "photoViewerCommentUnderReview": "신고 접수되어 검토 중인 댓글입니다",
-  "@photoViewerCommentUnderReview": {
-    "description": "신고 접수로 검토 중인 댓글의 내용 자리표시"
-  },
   "commentMenuEdit": "수정하기",
   "@commentMenuEdit": {
     "description": "내 댓글 더보기 메뉴 - 수정"
