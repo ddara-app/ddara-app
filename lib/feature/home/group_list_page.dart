@@ -8,6 +8,7 @@ import 'package:ddara/core/model/feed/feed.dart';
 import 'package:ddara/core/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/time_ago.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
@@ -356,7 +357,9 @@ class _RecentUpdatesView extends ConsumerWidget {
       onLoadComments: () async {
         final comments = await notifier.loadComments(
           shotId: item.shotId,
-          blockedUserIds: blockedUserIds,
+          // 뷰어가 열린 동안 차단이 늘 수 있어(댓글 작성자 차단), 위젯에
+          // 캡처된 집합 대신 조회 시점의 최신 차단 목록을 읽는다.
+          blockedUserIds: ref.read(homeNotifierProvider).blockedUserIds,
         );
         if (comments == null || !context.mounted) return null;
         final l10n = AppLocalizations.of(context);
@@ -394,7 +397,48 @@ class _RecentUpdatesView extends ConsumerWidget {
         return comment.copyWith(content: content, isEdited: true);
       },
       onReportComment: (comment) => _reportComment(context, ref, comment),
+      onBlockComment: (comment) => _blockCommentAuthor(context, ref, comment),
     );
+  }
+
+  /// 댓글 작성자를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만
+  /// 진행한다. 성공하면 차단이 카드·댓글 필터에 반영되도록 홈을 다시 조회하고
+  /// 완료 토스트를 띄운 뒤 true 를 반환한다. (true 면 댓글 시트가 목록을
+  /// 재조회해 차단한 유저의 댓글을 걷어낸다)
+  Future<bool> _blockCommentAuthor(
+    BuildContext context,
+    WidgetRef ref,
+    PhotoComment comment,
+  ) async {
+    final userId = comment.userId;
+    if (userId == null) return false;
+
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.memberBlockConfirmTitle(comment.nickname),
+      message: l10n.memberBlockConfirmMessage,
+      confirmLabel: l10n.memberBlockConfirmAction,
+      confirmColor: AppColors.statusDanger,
+      confirmLabelColor: AppColors.textPrimary,
+    );
+    if (!confirmed || !context.mounted) return false;
+
+    final success = await ref
+        .read(homeNotifierProvider.notifier)
+        .blockUser(userId);
+    if (!context.mounted) return success;
+
+    if (success) {
+      Toast.showToast(context, l10n.memberBlockedToast(comment.nickname));
+    } else {
+      Toast.showToast(
+        context,
+        l10n.memberBlockFailedToast,
+        type: ToastType.error,
+      );
+    }
+    return success;
   }
 
   /// 댓글 신고 사유 시트를 띄우고, 확정하면 접수한다.
@@ -433,6 +477,7 @@ PhotoComment _toPhotoComment(
 ) {
   return PhotoComment(
     commentId: comment.commentId,
+    userId: comment.userId,
     nickname: comment.nickname,
     content: comment.underReview
         ? l10n.photoViewerCommentUnderReview

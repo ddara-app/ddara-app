@@ -832,6 +832,12 @@ abstract class AppLocalizations {
   /// **'{nickname}님을 차단했어요.'**
   String memberBlockedToast(String nickname);
 
+  /// No description provided for @memberBlockFailedToast.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단하지 못했어요.'**
+  String get memberBlockFailedToast;
+
   /// No description provided for @recordCycleLabel.
   ///
   /// In ko, this message translates to:

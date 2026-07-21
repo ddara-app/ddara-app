@@ -205,6 +205,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                         _editComment(ref, comment, newContent),
                     onReportComment: (comment) =>
                         _reportComment(context, ref, comment),
+                    onBlockComment: (comment) =>
+                        _blockCommentAuthor(context, ref, comment),
                   ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
@@ -298,6 +300,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                                 _editComment(ref, comment, newContent),
                             onReportComment: (comment) =>
                                 _reportComment(context, ref, comment),
+                            onBlockComment: (comment) =>
+                                _blockCommentAuthor(context, ref, comment),
                           )
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
@@ -409,6 +413,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   ) {
     return PhotoComment(
       commentId: comment.commentId,
+      userId: comment.userId,
       nickname: comment.nickname,
       content: comment.underReview
           ? l10n.photoViewerCommentUnderReview
@@ -475,11 +480,11 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 
-  /// [userId] 유저(멤버·스타터 공용)를 차단한다. 먼저 확인 다이얼로그를
-  /// 띄우고, 확인 시에만 진행한다. 성공하면 차단이 반영된(사진 가림) 갤러리를
-  /// 다시 조회하고 완료 토스트를 띄운다.
-  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
-  Future<void> _blockUser(
+  /// [userId] 유저(멤버·스타터·댓글 작성자 공용)를 차단한다. 먼저 확인
+  /// 다이얼로그를 띄우고, 확인 시에만 진행한다. 성공하면 차단이 반영된
+  /// (사진 가림) 갤러리를 다시 조회하고 완료 토스트를 띄운 뒤 true 를
+  /// 반환한다. (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  Future<bool> _blockUser(
     BuildContext context,
     WidgetRef ref, {
     required int userId,
@@ -494,14 +499,27 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       confirmColor: AppColors.statusDanger,
       confirmLabelColor: AppColors.textPrimary,
     );
-    if (!confirmed || !context.mounted) return;
+    if (!confirmed || !context.mounted) return false;
 
     final success = await ref
         .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
         .blockMember(userId);
-    if (!success || !context.mounted) return;
+    if (!success || !context.mounted) return false;
 
     Toast.showToast(context, l10n.memberBlockedToast(nickname));
+    return true;
+  }
+
+  /// 댓글 작성자를 차단한다. ([_blockUser] 의 댓글용 래퍼 — 뷰어 댓글 시트의
+  /// onBlockComment 콜백으로 연결되며, 성공 시 시트가 목록을 재조회한다)
+  Future<bool> _blockCommentAuthor(
+    BuildContext context,
+    WidgetRef ref,
+    PhotoComment comment,
+  ) {
+    final userId = comment.userId;
+    if (userId == null) return Future.value(false);
+    return _blockUser(context, ref, userId: userId, nickname: comment.nickname);
   }
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.

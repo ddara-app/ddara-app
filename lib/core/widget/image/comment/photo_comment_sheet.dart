@@ -31,6 +31,7 @@ class PhotoCommentSheet extends StatefulWidget {
     required this.onEditComment,
     required this.onDeleteComment,
     required this.onReportComment,
+    required this.onBlockComment,
     this.title,
     this.body,
     this.comments = const [],
@@ -99,6 +100,11 @@ class PhotoCommentSheet extends StatefulWidget {
 
   /// 상대 댓글 더보기 메뉴 - '신고하기' 콜백.
   final void Function(PhotoComment comment) onReportComment;
+
+  /// 상대 댓글 더보기 메뉴 - '차단하기' 콜백. 확인 다이얼로그·차단 요청까지
+  /// 호출 측이 처리하고, 차단에 성공하면 true 를 반환해야 한다. true 일 때
+  /// 목록을 재조회해 차단한 유저의 댓글을 걷어낸다. (조회 필터는 호출 측 담당)
+  final Future<bool> Function(PhotoComment comment) onBlockComment;
 
   @override
   State<PhotoCommentSheet> createState() => PhotoCommentSheetState();
@@ -433,6 +439,14 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
     setState(() => _comments.remove(comment));
   }
 
+  /// 댓글 작성자 차단 콜백을 호출하고, 차단에 성공하면 목록을 재조회한다.
+  /// (차단한 유저의 댓글은 호출 측 조회 필터가 걸러내므로 목록에서 사라진다)
+  Future<void> _handleBlockComment(PhotoComment comment) async {
+    final blocked = await widget.onBlockComment(comment);
+    if (!mounted || !blocked) return;
+    await reload();
+  }
+
   /// 댓글 목록을 애니메이션 없이 최신 댓글 쪽으로 옮긴다.
   /// 최신이 맨 위에 오도록 그리므로 목표는 스크롤 최상단(0)이다.
   ///
@@ -705,6 +719,7 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
           onEdit: _startEditComment,
           onDelete: _handleDeleteComment,
           onReport: widget.onReportComment,
+          onBlock: _handleBlockComment,
           onRetry: _retryComment,
           onDiscard: _discardComment,
         ),

@@ -407,6 +407,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get memberBlockFailedToast => '차단하지 못했어요.';
+
+  @override
   String get recordCycleLabel => '따라찍기';
 
   @override

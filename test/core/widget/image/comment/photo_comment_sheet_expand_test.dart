@@ -37,6 +37,7 @@ Future<void> pumpSheet(
             onEditComment: (_, _) async => null,
             onDeleteComment: (_) async => false,
             onReportComment: (_) {},
+            onBlockComment: (_) async => false,
             comments: comments,
           ),
         ],
