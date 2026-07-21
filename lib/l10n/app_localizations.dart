@@ -682,6 +682,12 @@ abstract class AppLocalizations {
   /// **'닉네임 수정'**
   String get groupMenuEditNickname;
 
+  /// No description provided for @groupMenuReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 신고'**
+  String get groupMenuReport;
+
   /// No description provided for @groupMenuExit.
   ///
   /// In ko, this message translates to:
@@ -777,6 +783,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'기타'**
   String get photoReportReasonEtc;
+
+  /// No description provided for @groupReportReasonInappropriate.
+  ///
+  /// In ko, this message translates to:
+  /// **'부적절한 모임 이름·이미지'**
+  String get groupReportReasonInappropriate;
+
+  /// No description provided for @groupReportReasonEtc.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get groupReportReasonEtc;
 
   /// No description provided for @userReportReasonNickname.
   ///
