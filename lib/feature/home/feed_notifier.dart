@@ -181,7 +181,7 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
   }
 
   /// [commentId] 댓글을 신고한다. 성공하면 true, 실패하면 errorMessage 를
-  /// 채우고 false 를 반환한다. (신고해도 댓글은 그대로 노출 — 재조회하지 않는다)
+  /// 채우고 false 를 반환한다.
   Future<bool> reportComment({
     required int commentId,
     required CommentReportReason reason,
@@ -195,6 +195,9 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
         reason: reason,
         reasonText: reasonText,
       );
+      // 신고한(reportedByMe) 댓글이 카드 미리보기에서도 걸러지도록 피드를
+      // 다시 조회한다. (실패해도 접수는 성공했으므로 결과는 그대로 돌려준다)
+      await _refreshFeed();
       return true;
     } on InvalidReportInputException {
       state = state.copyWith(errorMessage: '신고 내용이 올바르지 않아요.');
@@ -212,10 +215,10 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
     }
   }
 
-  /// 피드만 조용히 다시 조회한다. (댓글 수 갱신용)
+  /// 피드만 조용히 다시 조회한다. (댓글 수·미리보기 갱신용)
   ///
   /// 실패해도 이미 보이는 피드를 지우거나 에러를 띄우지 않는다. 유발한 동작
-  /// (댓글 등록·삭제)은 이미 성공했고, 카운트가 한 박자 늦을 뿐이다.
+  /// (댓글 등록·삭제·신고)은 이미 성공했고, 반영이 한 박자 늦을 뿐이다.
   Future<void> _refreshFeed() async {
     try {
       final feed = await ref.read(getFeedUseCaseProvider)();

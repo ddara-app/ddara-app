@@ -7,6 +7,7 @@ import 'package:ddara/core/model/report/comment_report_reason.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
+import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CyclePhotoGalleryNotifier
@@ -132,6 +133,9 @@ class CyclePhotoGalleryNotifier
       // 차단 결과를 반영하기 위해 갤러리를 다시 조회한다.
       // (isLoading 은 _loadGallery 가 내린다)
       await _loadGallery(arg);
+      // 홈(그룹 썸네일·피드 필터)에도 차단이 반영되도록 재조회시킨다.
+      // (홈이 스택에 남아 있으면 즉시, 없으면 다음 진입 때 반영)
+      ref.invalidate(homeNotifierProvider);
       return true;
     } on InvalidBlockInputException {
       state = state.copyWith(
