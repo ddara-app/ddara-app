@@ -128,8 +128,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       SocialLoginButton(
                         label: l10n.loginKakao,
                         iconPath: 'assets/images/ic_kakao.svg',
-                        backgroundColor: const Color(0xFFFEE500),
-                        foregroundColor: const Color(0xFF000000),
+                        backgroundColor: AppColorPrimitives.kakaoYellow,
+                        foregroundColor: AppColorPrimitives.black,
                         onPressed: isLoading
                             ? null
                             : () => _onSocialLogin(SocialLoginType.kakao),
@@ -137,8 +137,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       SocialLoginButton(
                         label: l10n.loginGoogle,
                         iconPath: 'assets/images/ic_google.svg',
-                        backgroundColor: AppColors.textPrimary,
-                        foregroundColor: const Color(0xFF000000),
+                        backgroundColor: AppColorPrimitives.white,
+                        foregroundColor: AppColorPrimitives.black,
                         onPressed: isLoading
                             ? null
                             : () => _onSocialLogin(SocialLoginType.google),
@@ -148,8 +148,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         SocialLoginButton(
                           label: l10n.loginApple,
                           iconPath: 'assets/images/ic_apple_logo_.svg',
-                          backgroundColor: const Color(0xFFFFFFFF),
-                          foregroundColor: const Color(0xFF000000),
+                          backgroundColor: AppColorPrimitives.white,
+                          foregroundColor: AppColorPrimitives.black,
                           onPressed: isLoading
                               ? null
                               : () => _onSocialLogin(SocialLoginType.apple),
