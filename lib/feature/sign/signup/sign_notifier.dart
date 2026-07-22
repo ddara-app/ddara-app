@@ -4,7 +4,8 @@ import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/sign/signup/util/sign_up_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SignNotifier extends FamilyNotifier<SignUpPageState, SocialLoginType> {
+class SignNotifier
+    extends AutoDisposeFamilyNotifier<SignUpPageState, SocialLoginType> {
   @override
   SignUpPageState build(SocialLoginType social) {
     return SignUpPageState(social: social);
