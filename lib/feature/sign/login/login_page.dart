@@ -90,14 +90,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.s4,
+                    ),
                     clipBehavior: Clip.antiAlias,
                     decoration: const BoxDecoration(),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 10,
+                      spacing: AppSpacing.s2,
                       children: [
                         const LogoLarge(),
                         AppText.title(
@@ -112,7 +114,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                 // 소셜 로그인 영역
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.s4,
+                    0,
+                    AppSpacing.s4,
+                    AppSpacing.s4,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
