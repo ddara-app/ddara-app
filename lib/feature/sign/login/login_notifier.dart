@@ -27,7 +27,7 @@ class LoginNotifier extends Notifier<LoginState> {
       case SocialLoginType.kakao:
         kakaoAuthService.signInWithKakao(
           (token) => _login(token, social),
-          (message) => state = LoginFail(message),
+          (message) => state = LoginFail(LoginErrorType.unknown, message),
         );
       case SocialLoginType.apple:
         try {
@@ -35,7 +35,7 @@ class LoginNotifier extends Notifier<LoginState> {
           // idToken 이 null 이면 사용자가 취소한 것 → 아무 처리도 하지 않는다.
           if (idToken != null) await _login(idToken, social);
         } catch (e) {
-          state = LoginFail('$e');
+          state = LoginFail(LoginErrorType.unknown, '$e');
         }
     }
   }
@@ -52,9 +52,9 @@ class LoginNotifier extends Notifier<LoginState> {
         state = LoginSuccess();
       }
     } on UnauthorizedException {
-      state = LoginFail('Unauthorized');
+      state = LoginFail(LoginErrorType.unauthorized);
     } on NetworkException {
-      state = LoginFail('Network error');
+      state = LoginFail(LoginErrorType.network);
     }
   }
 }

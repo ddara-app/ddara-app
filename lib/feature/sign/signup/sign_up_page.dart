@@ -6,6 +6,8 @@ import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/sign/signup/provider/notifier_provider.dart';
 import 'package:ddara/feature/sign/signup/terms_page.dart';
+import 'package:ddara/feature/sign/signup/util/sign_up_page_state.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,6 +35,16 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     );
   }
 
+  /// 실패 사유(enum)를 사용자 노출 문구로 매핑한다.
+  String _signUpErrorMessage(AppLocalizations l10n, SignUpErrorType type) {
+    return switch (type) {
+      SignUpErrorType.invalidInput => l10n.signUpErrorInvalidInput,
+      SignUpErrorType.invalidToken => l10n.signUpErrorInvalidToken,
+      SignUpErrorType.unsupportedProvider =>
+        l10n.signUpErrorUnsupportedProvider,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final social = GoRouterState.of(context).extra as SocialLoginType;
@@ -50,11 +62,15 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
         return;
       }
 
-      // errorMessage 가 새로 바뀐 경우에만 토스트. (finally 의 isLoading 갱신처럼
-      // 같은 메시지로 상태가 재통지될 때 토스트가 중복되는 것을 막는다)
-      final errorMessage = next.errorMessage;
-      if (errorMessage.isNotEmpty && prev?.errorMessage != errorMessage) {
-        Toast.showToast(context, errorMessage, type: ToastType.error);
+      // error 가 새로 바뀐 경우에만 토스트. (finally 의 isLoading 갱신처럼
+      // 같은 사유로 상태가 재통지될 때 토스트가 중복되는 것을 막는다)
+      final error = next.error;
+      if (error != null && prev?.error != error) {
+        Toast.showToast(
+          context,
+          _signUpErrorMessage(AppLocalizations.of(context), error),
+          type: ToastType.error,
+        );
       }
     });
 

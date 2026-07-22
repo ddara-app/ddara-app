@@ -36,6 +36,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     MixpanelManager.instance.track('login_page_viewed');
   }
 
+  /// 실패 사유(enum)를 사용자 노출 문구로 매핑한다.
+  String _loginErrorMessage(AppLocalizations l10n, LoginErrorType type) {
+    return switch (type) {
+      LoginErrorType.unauthorized => l10n.loginErrorUnauthorized,
+      LoginErrorType.network => l10n.loginErrorNetwork,
+      LoginErrorType.unknown => l10n.loginErrorUnknown,
+    };
+  }
+
   void _onSocialLogin(SocialLoginType type) {
     _lastAttempted = type;
     MixpanelManager.instance.track(
@@ -67,12 +76,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           );
           context.push(RoutePath.signup, extra: next.social);
 
-        case LoginFail(message: final message):
+        case LoginFail(:final type, :final debugMessage):
           MixpanelManager.instance.track(
             'login_failed',
-            properties: {'provider': _lastAttempted?.name, 'reason': message},
+            properties: {
+              'provider': _lastAttempted?.name,
+              'reason': debugMessage ?? type.name,
+            },
           );
-          Toast.showToast(context, message, type: ToastType.error);
+          Toast.showToast(
+            context,
+            _loginErrorMessage(l10n, type),
+            type: ToastType.error,
+          );
 
         default:
           break;

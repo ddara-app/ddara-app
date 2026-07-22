@@ -14,8 +14,14 @@ final class SignupRequired extends LoginState {
   SignupRequired(this.social);
 }
 
-final class LoginFail extends LoginState {
-  final String message;
+/// 로그인 실패 사유. 사용자 노출 문구는 페이지에서 l10n 으로 매핑한다.
+enum LoginErrorType { unauthorized, network, unknown }
 
-  LoginFail(this.message);
+final class LoginFail extends LoginState {
+  final LoginErrorType type;
+
+  /// 분석·로깅용 상세 사유. 사용자에게 노출하지 않는다.
+  final String? debugMessage;
+
+  LoginFail(this.type, [this.debugMessage]);
 }

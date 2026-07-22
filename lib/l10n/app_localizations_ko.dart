@@ -60,6 +60,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginViewPolicies => '이용약관과 개인정보 처리방침 확인';
 
   @override
+  String get loginErrorUnauthorized => '로그인 인증에 실패했어요. 다시 시도해 주세요.';
+
+  @override
+  String get loginErrorNetwork => '네트워크 연결을 확인해 주세요.';
+
+  @override
+  String get loginErrorUnknown => '로그인에 실패했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get termsTitle => '약관에 동의해 주세요';
 
   @override
@@ -88,6 +97,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get policyYouthTitle => '청소년 보호정책';
+
+  @override
+  String get signUpErrorInvalidInput => '입력값을 확인해 주세요.';
+
+  @override
+  String get signUpErrorInvalidToken => '소셜 토큰이 만료되었거나 유효하지 않습니다.';
+
+  @override
+  String get signUpErrorUnsupportedProvider => '지원하지 않는 로그인 방식입니다.';
 
   @override
   String get permissionPageTitle => '권한 안내';
