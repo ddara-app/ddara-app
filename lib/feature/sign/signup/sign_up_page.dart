@@ -5,7 +5,7 @@ import 'package:ddara/core/design_system/component/loading/app_loading_overlay.d
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/sign/signup/provider/notifier_provider.dart';
-import 'package:ddara/feature/sign/signup/step/terms_page.dart';
+import 'package:ddara/feature/sign/signup/terms_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
