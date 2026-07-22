@@ -51,7 +51,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       'login_attempted',
       properties: {'provider': type.name},
     );
-    ref.read(loginNotifierProvider.notifier).socialLogin(context, type);
+    ref.read(loginNotifierProvider.notifier).socialLogin(type);
   }
 
   @override

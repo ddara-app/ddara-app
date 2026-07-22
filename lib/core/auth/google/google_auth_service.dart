@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -59,10 +58,7 @@ class GoogleAuthService {
     }
   }
 
-  Future<bool> signInWithGoogle(
-    BuildContext context,
-    Function(String) login,
-  ) async {
+  Future<bool> signInWithGoogle(Function(String) login) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -71,10 +67,8 @@ class GoogleAuthService {
 
       _currentUser = googleUser;
 
-      if (context.mounted) {
-        final auth = await googleUser.authentication;
-        login(auth.accessToken!);
-      }
+      final auth = await googleUser.authentication;
+      login(auth.accessToken!);
 
       return true;
     } catch (_) {
