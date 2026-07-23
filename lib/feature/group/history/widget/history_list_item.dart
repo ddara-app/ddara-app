@@ -93,7 +93,7 @@ class HistoryListItem extends StatelessWidget {
       decoration: ShapeDecoration(
         color: AppColors.bgSurface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
       ),
       child: _thumbnailContent(context),
