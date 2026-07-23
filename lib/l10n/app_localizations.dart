@@ -292,6 +292,12 @@ abstract class AppLocalizations {
   /// **'지원하지 않는 로그인 방식입니다.'**
   String get signUpErrorUnsupportedProvider;
 
+  /// 회원가입 실패 토스트 - 알 수 없는 오류
+  ///
+  /// In ko, this message translates to:
+  /// **'회원가입에 실패했어요. 잠시 후 다시 시도해 주세요.'**
+  String get signUpErrorUnknown;
+
   /// No description provided for @permissionPageTitle.
   ///
   /// In ko, this message translates to:

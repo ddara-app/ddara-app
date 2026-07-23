@@ -1,7 +1,7 @@
 import 'package:ddara/core/model/auth/social_login_type.dart';
 
 /// 회원가입 실패 사유. 사용자 노출 문구는 페이지에서 l10n 으로 매핑한다.
-enum SignUpErrorType { invalidInput, invalidToken, unsupportedProvider }
+enum SignUpErrorType { invalidInput, invalidToken, unsupportedProvider, unknown }
 
 class SignUpPageState {
   final SocialLoginType social;

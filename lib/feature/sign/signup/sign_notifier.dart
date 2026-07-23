@@ -32,6 +32,10 @@ class SignNotifier
       state = state.copyWith(error: SignUpErrorType.invalidToken);
     } on UnsupportedProviderException {
       state = state.copyWith(error: SignUpErrorType.unsupportedProvider);
+    } catch (_) {
+      // 예상 밖 예외가 조용히 전파되어 사용자 피드백 없이 끝나는 것을
+      // 방지하는 폴백.
+      state = state.copyWith(error: SignUpErrorType.unknown);
     } finally {
       // 로딩만 내린다. error 를 여기서 지우면 catch 가 채운 사유가 사라진다.
       state = state.copyWith(isLoading: false);

@@ -42,6 +42,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       SignUpErrorType.invalidToken => l10n.signUpErrorInvalidToken,
       SignUpErrorType.unsupportedProvider =>
         l10n.signUpErrorUnsupportedProvider,
+      SignUpErrorType.unknown => l10n.signUpErrorUnknown,
     };
   }
 

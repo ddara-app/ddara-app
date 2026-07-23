@@ -48,6 +48,10 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       state = LoginFail(social, LoginErrorType.unauthorized);
     } on NetworkException {
       state = LoginFail(social, LoginErrorType.network);
+    } catch (e) {
+      // 예상 밖 예외(서버 5xx 매핑 예외·파싱 오류 등)로 LoginLoading 에
+      // 고착되어 로딩 오버레이가 화면을 영구히 막는 것을 방지하는 폴백.
+      state = LoginFail(social, LoginErrorType.unknown, '$e');
     }
   }
 }

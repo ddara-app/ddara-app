@@ -108,6 +108,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get signUpErrorUnsupportedProvider => '지원하지 않는 로그인 방식입니다.';
 
   @override
+  String get signUpErrorUnknown => '회원가입에 실패했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get permissionPageTitle => '권한 안내';
 
   @override
