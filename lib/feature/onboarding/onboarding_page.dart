@@ -6,9 +6,7 @@ import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/design_system/component/indicator/page_indicator.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:ddara/feature/onboarding/provider/onboarding_provider.dart';
-import 'package:ddara/feature/onboarding/widget/onboarding_first_page.dart';
-import 'package:ddara/feature/onboarding/widget/onboarding_second_page.dart';
-import 'package:ddara/feature/onboarding/widget/onboarding_third_page.dart';
+import 'package:ddara/feature/onboarding/widget/onboarding_step_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,10 +19,16 @@ class OnboardingPage extends ConsumerStatefulWidget {
 }
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
-  static const _pageCount = 3;
-
   final _controller = PageController();
   int _index = 0;
+
+  /// 온보딩 스텝 문구 목록. 스텝 수는 이 목록 길이로 파생된다.
+  /// (제목은 l10n 이라 build 시점에 구성)
+  List<({String title, String body})> _steps(AppLocalizations l10n) => [
+    (title: l10n.onboardingFirstTitle, body: l10n.onboardingFirstBody),
+    (title: l10n.onboardingSecondTitle, body: l10n.onboardingSecondBody),
+    (title: l10n.onboardingThirdTitle, body: l10n.onboardingThirdBody),
+  ];
 
   @override
   void initState() {
@@ -79,8 +83,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   void _snapToPage(int target) {
+    final lastIndex = _steps(AppLocalizations.of(context)).length - 1;
     _controller.animateToPage(
-      target.clamp(0, _pageCount - 1),
+      target.clamp(0, lastIndex),
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
@@ -109,7 +114,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isLastPage = _index == _pageCount - 1;
+    final steps = _steps(l10n);
+    final isLastPage = _index == steps.length - 1;
 
     return PopScope(
       // 첫 스텝에선 시스템 뒤로가기로 앱을 종료하고, 그 외에는 가로채 이전 스텝으로 되돌린다.
@@ -142,21 +148,15 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         height: 120,
                         child: PageView.builder(
                           controller: _controller,
-                          itemCount: _pageCount,
+                          itemCount: steps.length,
                           onPageChanged: (index) {
                             _trackStepViewed(index);
                             setState(() => _index = index);
                           },
-                          itemBuilder: (_, index) {
-                            switch (index) {
-                              case 0:
-                                return const OnboardingFirstPage();
-                              case 1:
-                                return const OnboardingSecondPage();
-                              default:
-                                return const OnboardingThirdPage();
-                            }
-                          },
+                          itemBuilder: (_, index) => OnboardingStepContent(
+                            title: steps[index].title,
+                            description: steps[index].body,
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppSpacing.s6),
