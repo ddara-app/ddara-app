@@ -109,7 +109,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final permission = ref.read(permissionServiceProvider);
+    final permission = ref.watch(permissionServiceProvider);
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
