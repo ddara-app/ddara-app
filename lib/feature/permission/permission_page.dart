@@ -135,17 +135,13 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
         showBackButton: false,
       ),
       child: SafeArea(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
+        child: Padding(
           padding: const EdgeInsets.only(
             top: AppSpacing.s2,
             left: AppSpacing.s4,
             right: AppSpacing.s4,
             bottom: AppSpacing.s4,
           ),
-          clipBehavior: Clip.antiAlias,
-          decoration: const BoxDecoration(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,

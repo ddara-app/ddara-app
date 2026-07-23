@@ -4,7 +4,6 @@ import '../../../core/design_system/component/icon/app_icon.dart';
 import '../../../core/design_system/component/surface/app_surface.dart';
 import '../../../core/design_system/component/text/app_text.dart';
 import '../../../core/design_system/foundation/app_icons.dart';
-import '../../../core/design_system/foundation/app_radius.dart';
 import '../../../core/design_system/foundation/app_spacing.dart';
 import '../../../core/design_system/theme/app_colors.dart';
 
@@ -40,20 +39,13 @@ class PermissionItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: AppSpacing.s3,
         children: [
-          // 좌측 아이콘 (임시 — 추후 권한별 아이콘으로 교체)
-          Container(
-            width: _iconBoxSize,
-            height: _iconBoxSize,
-            // 자식을 40 박스에 꽉 채우지 않고 가운데 정렬한다.
-            // (SVG 아이콘은 tight 제약을 받으면 박스 크기로 확대된다)
-            alignment: Alignment.center,
-            clipBehavior: Clip.antiAlias,
-            decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
+          // 좌측 아이콘. (배경 박스 디자인이 생기면 배경 토큰과 함께
+          // Container 로 되살릴 것)
+          SizedBox.square(
+            dimension: _iconBoxSize,
+            child: Center(
+              child: AppIcon(icon, size: 24, color: AppColors.textPrimary),
             ),
-            child: AppIcon(icon, size: 24, color: AppColors.textPrimary),
           ),
           Expanded(
             child: Column(
