@@ -196,6 +196,24 @@ abstract class AppLocalizations {
   /// **'이용약관과 개인정보 처리방침 확인'**
   String get loginViewPolicies;
 
+  /// 로그인 실패 토스트 - 인증 실패
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 인증에 실패했어요. 다시 시도해 주세요.'**
+  String get loginErrorUnauthorized;
+
+  /// 로그인 실패 토스트 - 네트워크 오류
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결을 확인해 주세요.'**
+  String get loginErrorNetwork;
+
+  /// 로그인 실패 토스트 - 알 수 없는 오류
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인에 실패했어요. 잠시 후 다시 시도해 주세요.'**
+  String get loginErrorUnknown;
+
   /// 약관 동의 화면 제목
   ///
   /// In ko, this message translates to:
@@ -255,6 +273,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'청소년 보호정책'**
   String get policyYouthTitle;
+
+  /// 회원가입 실패 토스트 - 잘못된 입력값
+  ///
+  /// In ko, this message translates to:
+  /// **'입력값을 확인해 주세요.'**
+  String get signUpErrorInvalidInput;
+
+  /// 회원가입 실패 토스트 - 소셜 토큰 만료·무효
+  ///
+  /// In ko, this message translates to:
+  /// **'소셜 토큰이 만료되었거나 유효하지 않습니다.'**
+  String get signUpErrorInvalidToken;
+
+  /// 회원가입 실패 토스트 - 미지원 소셜 provider
+  ///
+  /// In ko, this message translates to:
+  /// **'지원하지 않는 로그인 방식입니다.'**
+  String get signUpErrorUnsupportedProvider;
+
+  /// 회원가입 실패 토스트 - 알 수 없는 오류
+  ///
+  /// In ko, this message translates to:
+  /// **'회원가입에 실패했어요. 잠시 후 다시 시도해 주세요.'**
+  String get signUpErrorUnknown;
 
   /// No description provided for @permissionPageTitle.
   ///

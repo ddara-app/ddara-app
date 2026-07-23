@@ -1,40 +1,47 @@
+import 'package:ddara/core/auth/social_auth_result.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class KakaoAuthService {
   // 카카오 로그인
-  Future<void> signInWithKakao(
-    Function(String) login,
-    Function(String) errorFunc,
-  ) async {
-    if (await isKakaoTalkInstalled()) {
-      try {
-        OAuthToken token = await UserApi.instance.loginWithKakaoTalk();
-        login(token.accessToken);
-      } catch (error) {
-        errorFunc('$error');
-
-        // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
-        // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
-        if (error is PlatformException && error.code == 'CANCELED') {
-          return;
-        }
-        // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
-        try {
-          OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-          login(token.accessToken);
-        } catch (_) {
-          // 로그인 실패 — 위에서 errorFunc 로 이미 안내했으므로 추가 처리 없음.
-        }
-      }
-    } else {
-      try {
-        OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-        login(token.accessToken);
-      } catch (_) {
-        // 로그인 실패 — 사용자가 취소한 경우 포함. 상태 변화 없이 종료한다.
-      }
+  Future<SocialAuthResult> signInWithKakao() async {
+    if (!await isKakaoTalkInstalled()) {
+      return _signInWithKakaoAccount();
     }
+
+    try {
+      final token = await UserApi.instance.loginWithKakaoTalk();
+      return SocialAuthSuccess(token.accessToken);
+    } catch (error) {
+      // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
+      // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 취소로 처리 (예: 뒤로 가기)
+      if (_isCancelled(error)) return const SocialAuthCancelled();
+
+      // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
+      return _signInWithKakaoAccount();
+    }
+  }
+
+  /// 카카오계정(웹) 로그인.
+  Future<SocialAuthResult> _signInWithKakaoAccount() async {
+    try {
+      final token = await UserApi.instance.loginWithKakaoAccount();
+      return SocialAuthSuccess(token.accessToken);
+    } catch (error) {
+      if (_isCancelled(error)) return const SocialAuthCancelled();
+      return SocialAuthFailure('$error');
+    }
+  }
+
+  /// 사용자의 의도적인 로그인 취소인지 판별한다.
+  /// (카카오톡 앱 뒤로 가기 · 계정 로그인 웹 화면에서 동의 거부/닫기)
+  bool _isCancelled(Object error) {
+    if (error is PlatformException && error.code == 'CANCELED') return true;
+    if (error is KakaoAuthException &&
+        error.error == AuthErrorCause.accessDenied) {
+      return true;
+    }
+    return false;
   }
 
   Future<String?> getKakaoAccessToken() async {

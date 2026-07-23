@@ -4,10 +4,11 @@ import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/sign/signup/util/sign_up_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SignNotifier extends FamilyNotifier<SignUpPageState, SocialLoginType> {
+class SignNotifier
+    extends AutoDisposeFamilyNotifier<SignUpPageState, SocialLoginType> {
   @override
   SignUpPageState build(SocialLoginType social) {
-    return SignUpPageState(social: social);
+    return const SignUpPageState();
   }
 
   void termsAgreedChanged(bool agreed) {
@@ -16,24 +17,30 @@ class SignNotifier extends FamilyNotifier<SignUpPageState, SocialLoginType> {
 
   Future<void> signUp() async {
     // 처리 중 재진입(중복 제출) 방지.
-    if (state.isLoading) return;
+    if (state.submit is SignUpLoading) return;
 
-    // 새 제출 시작 시 이전 에러를 지운다. (성공/실패 결과는 아래에서 채운다)
-    state = state.copyWith(isLoading: true, errorMessage: "");
+    state = state.copyWith(submit: const SignUpLoading());
 
     try {
-      await ref.read(signUpUseCaseProvider)(state.social, state.termsAgreed);
+      await ref.read(signUpUseCaseProvider)(arg, state.termsAgreed);
 
-      state = state.copyWith(isSuccess: true);
+      state = state.copyWith(submit: const SignUpSuccess());
     } on TypeMisMatchException {
-      state = state.copyWith(errorMessage: "입력값을 확인해 주세요.");
+      state = state.copyWith(
+        submit: const SignUpError(SignUpErrorType.invalidInput),
+      );
     } on UnauthorizedTokenException {
-      state = state.copyWith(errorMessage: "소셜 토큰이 만료되었거나 유효하지 않습니다.");
+      state = state.copyWith(
+        submit: const SignUpError(SignUpErrorType.invalidToken),
+      );
     } on UnsupportedProviderException {
-      state = state.copyWith(errorMessage: "지원하지 않는 로그인 방식입니다.");
-    } finally {
-      // 로딩만 내린다. errorMessage 를 여기서 지우면 catch 가 채운 메시지가 사라진다.
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(
+        submit: const SignUpError(SignUpErrorType.unsupportedProvider),
+      );
+    } catch (_) {
+      // 예상 밖 예외가 조용히 전파되어 사용자 피드백 없이 끝나는 것을
+      // 방지하는 폴백.
+      state = state.copyWith(submit: const SignUpError(SignUpErrorType.unknown));
     }
   }
 }

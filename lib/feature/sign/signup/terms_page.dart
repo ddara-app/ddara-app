@@ -6,7 +6,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/design_system/component/checkbox/app_checkbox.dart';
 import 'package:ddara/core/widget/title_description.dart';
-import 'package:ddara/feature/profile/policy/policy_viewer_page.dart';
+import 'package:ddara/core/widget/policy/policy_viewer_page.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
@@ -70,7 +70,12 @@ class _TermsPageState extends State<TermsPage> {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      padding: const EdgeInsets.only(top: 8, left: 20, right: 20, bottom: 16),
+      padding: const EdgeInsets.only(
+        top: AppSpacing.s2,
+        left: AppSpacing.s4,
+        right: AppSpacing.s4,
+        bottom: AppSpacing.s4,
+      ),
       clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(),
       child: Column(
@@ -81,7 +86,7 @@ class _TermsPageState extends State<TermsPage> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 24,
+            spacing: AppSpacing.s6,
             children: [
               // 헤더
               TitleDescription(
@@ -92,8 +97,8 @@ class _TermsPageState extends State<TermsPage> {
               // 동의 목록 카드
               AppSurface(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
+                  horizontal: AppSpacing.s4,
+                  vertical: AppSpacing.s1,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -106,10 +111,12 @@ class _TermsPageState extends State<TermsPage> {
                       alignment: Alignment.centerLeft,
                       onPressed: () => _toggleAll(!_allAgreed),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.s4,
+                        ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 12,
+                          spacing: AppSpacing.s3,
                           children: [
                             AppCheckbox(
                               value: _allAgreed,
@@ -222,10 +229,10 @@ class _TermItem extends StatelessWidget {
             alignment: Alignment.centerLeft,
             onPressed: () => onChanged(!value),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 12,
+                spacing: AppSpacing.s3,
                 children: [
                   AppCheckbox(value: value, onChanged: onChanged),
                   Expanded(child: AppText.body(label)),
@@ -238,7 +245,10 @@ class _TermItem extends StatelessWidget {
         // 약관 상세보기. 탭 시 약관 내용 페이지로 이동.
         if (onDetailTap != null)
           CupertinoButton(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+            padding: const EdgeInsets.symmetric(
+              vertical: AppSpacing.s4,
+              horizontal: AppSpacing.s3,
+            ),
             onPressed: onDetailTap,
             child: const Icon(
               CupertinoIcons.chevron_forward,
