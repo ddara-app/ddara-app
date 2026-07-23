@@ -18,7 +18,7 @@ import '../../feature/group_join/landing/invite_landing_page.dart';
 import '../../feature/home/home_page.dart';
 import '../../feature/notification/notification_page.dart';
 import '../../feature/onboarding/onboarding_page.dart';
-import '../../feature/onboarding/provider/onboarding_provider.dart';
+import '../../feature/onboarding/provider/notifier_provider.dart';
 import '../../feature/permission/permission_page.dart';
 import '../../feature/profile/account/account_manage_page.dart';
 import '../../feature/profile/blocked/blocked_users_page.dart';

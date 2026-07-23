@@ -27,7 +27,7 @@ import 'core/notification/provider/fcm_token_sync.dart';
 import 'core/router/app_router.dart';
 import 'core/router/route_path.dart';
 import 'data/provider/repository_provider.dart';
-import 'feature/onboarding/provider/onboarding_provider.dart';
+import 'feature/onboarding/provider/notifier_provider.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
