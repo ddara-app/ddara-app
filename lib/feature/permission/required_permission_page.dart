@@ -84,7 +84,11 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
     return CupertinoPageScaffold(
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
+          padding: const EdgeInsets.only(
+            left: AppSpacing.s4,
+            right: AppSpacing.s4,
+            bottom: AppSpacing.s4,
+          ),
           child: Column(
             children: [
               Expanded(

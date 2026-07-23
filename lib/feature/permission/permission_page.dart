@@ -139,26 +139,27 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
           width: double.infinity,
           height: double.infinity,
           padding: const EdgeInsets.only(
-            top: 8,
-            left: 20,
-            right: 20,
-            bottom: 16,
+            top: AppSpacing.s2,
+            left: AppSpacing.s4,
+            right: AppSpacing.s4,
+            bottom: AppSpacing.s4,
           ),
           clipBehavior: Clip.antiAlias,
           decoration: const BoxDecoration(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 12,
             children: [
               // 헤더
               TitleDescription(
                 title: l10n.permissionHeaderTitle,
                 description: l10n.permissionHeaderDescription,
               ),
+              const SizedBox(height: AppSpacing.s9),
 
               // 필수 접근 권한
               SectionLabel(l10n.permissionSectionRequired),
+              const SizedBox(height: AppSpacing.s3),
               PermissionItem(
                 icon: AppIcons.cameraDefault,
                 title: l10n.permissionCamera,
@@ -170,9 +171,11 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                   permission.cameraStatus,
                 ),
               ),
+              const SizedBox(height: AppSpacing.s7),
 
               // 선택 접근 권한
               SectionLabel(l10n.permissionSectionOptional),
+              const SizedBox(height: AppSpacing.s3),
               PermissionItem(
                 icon: AppIcons.bell,
                 title: l10n.permissionNotification,
@@ -184,6 +187,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                   permission.notificationStatus,
                 ),
               ),
+              const SizedBox(height: AppSpacing.s3),
               PermissionItem(
                 icon: AppIcons.galleryDefault,
                 title: l10n.permissionStorage,
