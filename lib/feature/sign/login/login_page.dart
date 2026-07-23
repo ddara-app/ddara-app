@@ -52,7 +52,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isLoading = ref.watch(loginNotifierProvider) is LoginLoading;
+    // 로딩 여부만 구독해 그 외 상태 변화(성공·실패 등)로 인한 rebuild 를 막는다.
+    // (성공·실패 처리는 아래 ref.listen 이 담당)
+    final isLoading = ref.watch(
+      loginNotifierProvider.select((s) => s is LoginLoading),
+    );
 
     ref.listen(loginNotifierProvider, (previous, next) {
       switch (next) {
