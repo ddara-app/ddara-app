@@ -5,7 +5,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/design_system/component/indicator/page_indicator.dart';
 import 'package:ddara/l10n/app_localizations.dart';
-import 'package:ddara/feature/onboarding/provider/onboarding_provider.dart';
+import 'package:ddara/feature/onboarding/provider/notifier_provider.dart';
 import 'package:ddara/feature/onboarding/widget/onboarding_step_content.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,11 +105,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   Future<void> _start() async {
     MixpanelManager.instance.track('onboarding_completed');
-    // 온보딩 완료 플래그 저장 → 다음 실행부터는 노출되지 않는다.
-    await ref.read(onboardingControllerProvider).complete();
-    // 캐싱된 onboardingSeenProvider 를 무효화해 즉시 최신 값(true)을 읽도록 한다.
-    // (이게 없으면 로그아웃 등으로 라우터가 재생성될 때 stale false 로 온보딩이 다시 뜬다)
-    ref.invalidate(onboardingSeenProvider);
+    await ref.read(onboardingSeenProvider.notifier).complete();
     if (!mounted) return;
 
     context.go(RoutePath.login);
