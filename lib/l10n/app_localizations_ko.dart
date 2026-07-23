@@ -151,8 +151,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get requiredPermissionTitle => '필수 권한을 허용해 주세요';
 
   @override
-  String get requiredPermissionDescription =>
-      '필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.';
+  String get requiredPermissionDescription => '카메라 권한이 있어야 따라찍기를 할 수 있어요';
 
   @override
   String permissionDialogTitle(String permissionName) {
