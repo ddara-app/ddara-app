@@ -7,7 +7,7 @@ import 'package:ddara/core/design_system/component/indicator/page_indicator.dart
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:ddara/feature/onboarding/provider/onboarding_provider.dart';
 import 'package:ddara/feature/onboarding/widget/onboarding_step_content.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,6 +19,10 @@ class OnboardingPage extends ConsumerStatefulWidget {
 }
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
+  /// 스텝 제목·설명이 좌우로 전환되는 영역의 고정 높이.
+  /// (문구 길이가 달라도 로고·인디케이터가 움직이지 않도록 고정)
+  static const _swipeAreaHeight = 120.0;
+
   final _controller = PageController();
   int _index = 0;
 
@@ -124,8 +128,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         if (didPop) return;
         _goPrevious();
       },
-      child: Scaffold(
-        body: SafeArea(
+      child: CupertinoPageScaffold(
+        child: SafeArea(
           child: GestureDetector(
             // 빈 여백 터치도 잡아 화면 전체를 스와이프 영역으로 만든다.
             behavior: HitTestBehavior.opaque,
@@ -145,7 +149,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                       const SizedBox(height: AppSpacing.s6),
                       // 제목·설명만 좌우로 스와이프되는 영역 (고정 높이)
                       SizedBox(
-                        height: 120,
+                        height: _swipeAreaHeight,
                         child: PageView.builder(
                           controller: _controller,
                           itemCount: steps.length,
@@ -166,7 +170,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.s4),
                   child: AppButton(
                     label: isLastPage
                         ? l10n.onboardingStart
