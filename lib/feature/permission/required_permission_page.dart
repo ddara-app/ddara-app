@@ -4,7 +4,7 @@ import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/dialog/permission_dialog.dart';
 import 'package:ddara/core/widget/title_description.dart';
-import 'package:ddara/feature/permission/permission_request_recovery.dart';
+import 'package:ddara/feature/permission/util/permission_request_recovery.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
