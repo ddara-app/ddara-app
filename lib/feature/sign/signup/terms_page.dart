@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/divider/app_divider.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -250,8 +251,8 @@ class _TermItem extends StatelessWidget {
               horizontal: AppSpacing.s3,
             ),
             onPressed: onDetailTap,
-            child: const Icon(
-              CupertinoIcons.chevron_forward,
+            child: const AppIcon(
+              AppIcons.chevronForward,
               size: 20,
               color: AppColors.textSecondary,
             ),

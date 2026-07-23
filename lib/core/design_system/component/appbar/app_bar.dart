@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
+import 'package:ddara/core/design_system/foundation/app_icons.dart';
 import 'package:ddara/core/design_system/foundation/app_spacing.dart';
 import 'package:ddara/core/design_system/theme/app_colors.dart';
 import 'package:ddara/core/design_system/theme/app_theme.dart';
@@ -7,7 +9,6 @@ import 'package:ddara/core/design_system/theme/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 // 이 파일의 클래스 이름이 Material 의 AppBar 와 같으므로 별칭으로 가져온다.
 import 'package:flutter/material.dart' as material;
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// AppBar 아이콘 버튼 한 변 크기. (아이콘 24 + 내부 여백 12×2)
 const double _buttonSize = 48;
@@ -99,14 +100,10 @@ class AppBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
             child: Transform.translate(
               offset: const Offset(-_backGlyphOpticalOffset, 0),
               // 커스텀 chevron SVG. (테스트용 — Material rounded 아이콘과 비교 중)
-              child: SvgPicture.asset(
-                'assets/images/ic_chevron_left.svg',
-                width: _iconSize,
-                height: _iconSize,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.textPrimary,
-                  BlendMode.srcIn,
-                ),
+              child: const AppIcon(
+                AppIcons.back,
+                size: _iconSize,
+                color: AppColors.textPrimary,
               ),
             ),
           )

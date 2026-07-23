@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -106,7 +106,7 @@ class HistoryListItem extends StatelessWidget {
       return const ColoredBox(
         color: AppColors.bgSurfaceAlt,
         child: Center(
-          child: LockIcon(size: 32, color: AppColors.bgSurface),
+          child: AppIcon(AppIcons.lock, size: 32, color: AppColors.bgSurface),
         ),
       );
     }

@@ -1,5 +1,6 @@
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/invite/kakao_share_service.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
@@ -9,7 +10,6 @@ import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// 모임 초대 공유 BottomSheet.
 ///
@@ -145,18 +145,14 @@ class InviteShareSheet extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _CircleAction(
-                        icon: SvgPicture.asset(
-                          'assets/images/ic_kakao.svg',
-                          width: 24,
-                          height: 24,
-                        ),
-                        backgroundColor: const Color(0xFFFEE500), // 카카오 옐로
+                        icon: const AppIcon(AppIcons.kakao, size: 24),
+                        backgroundColor: AppColorPrimitives.kakaoYellow,
                         label: l10n.inviteShareKakao,
                         onTap: () => _onKakaoShare(context),
                       ),
                       _CircleAction(
-                        icon: const Icon(
-                          CupertinoIcons.doc_on_clipboard,
+                        icon: const AppIcon(
+                          AppIcons.copy,
                           size: 24,
                           color: AppColors.textPrimary,
                         ),
@@ -164,8 +160,8 @@ class InviteShareSheet extends StatelessWidget {
                         onTap: () => _onCopyCode(context),
                       ),
                       _CircleAction(
-                        icon: const Icon(
-                          CupertinoIcons.ellipsis,
+                        icon: const AppIcon(
+                          AppIcons.more,
                           size: 24,
                           color: AppColors.textPrimary,
                         ),

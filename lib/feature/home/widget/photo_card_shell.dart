@@ -1,12 +1,12 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -125,7 +125,7 @@ class PhotoCardShell extends StatelessWidget {
               // 잠금: 가운데 자물쇠.
               if (locked)
                 const Center(
-                  child: LockIcon(size: 32, color: AppColors.textPrimary),
+                  child: AppIcon(AppIcons.lock, size: 32, color: AppColors.textPrimary),
                 ),
               // 상단 우측 라벨. (모임 카드의 남은 시간 등)
               if (topLabel != null)

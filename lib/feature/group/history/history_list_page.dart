@@ -1,4 +1,5 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/history_list.dart';
@@ -122,10 +123,8 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
         spacing: AppSpacing.s1,
         children: [
           AppText.headlineMedium(label),
-          Icon(
-            _pickerVisible
-                ? CupertinoIcons.chevron_up
-                : CupertinoIcons.chevron_down,
+          AppIcon(
+            _pickerVisible ? AppIcons.chevronUp : AppIcons.chevronDown,
             size: 24,
             color: AppColors.textPrimary,
           ),

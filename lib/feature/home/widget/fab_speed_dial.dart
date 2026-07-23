@@ -28,6 +28,7 @@
 import 'dart:math' as math;
 
 import 'package:ddara/core/design_system/component/button/app_pill_button.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -247,8 +248,8 @@ class _SpeedDialFabState extends State<SpeedDialFab>
   /// 메인 FAB. [rotate] 면 진행에 맞춰 + 가 × 로 45° 회전한다.
   /// 제자리(페이지) FAB 는 rotate=false(정지된 +), Overlay 의 FAB 는 rotate=true.
   Widget _buildMainFab({required bool rotate}) {
-    Widget icon = const Icon(
-      CupertinoIcons.add,
+    Widget icon = const AppIcon(
+      AppIcons.add,
       color: AppColors.textOnAccent,
       size: 28,
     );

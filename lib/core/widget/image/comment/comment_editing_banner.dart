@@ -1,3 +1,4 @@
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
@@ -40,8 +41,8 @@ class CommentEditingBanner extends StatelessWidget {
               GestureDetector(
                 onTap: onCancel,
                 behavior: HitTestBehavior.opaque,
-                child: const Icon(
-                  CupertinoIcons.xmark,
+                child: const AppIcon(
+                  AppIcons.close,
                   size: 20,
                   color: AppColors.textSecondary,
                 ),

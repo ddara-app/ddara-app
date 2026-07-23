@@ -7,7 +7,6 @@ import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/permission_dialog.dart';
-import 'package:ddara/core/widget/icon/gallery_icon.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/feature/permission/permission_request_recovery.dart';
 import 'package:ddara/feature/permission/widget/permission_item.dart';
@@ -161,7 +160,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
               // 필수 접근 권한
               SectionLabel(l10n.permissionSectionRequired),
               PermissionItem(
-                icon: CupertinoIcons.camera,
+                icon: AppIcons.cameraDefault,
                 title: l10n.permissionCamera,
                 description: l10n.permissionCameraDescription,
                 onTap: () => _request(
@@ -175,7 +174,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
               // 선택 접근 권한
               SectionLabel(l10n.permissionSectionOptional),
               PermissionItem(
-                icon: CupertinoIcons.bell,
+                icon: AppIcons.bell,
                 title: l10n.permissionNotification,
                 description: l10n.permissionNotificationDescription,
                 onTap: () => _request(
@@ -186,10 +185,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                 ),
               ),
               PermissionItem(
-                leading: const GalleryIcon(
-                  size: 24,
-                  color: AppColors.textPrimary,
-                ),
+                icon: AppIcons.galleryDefault,
                 title: l10n.permissionStorage,
                 description: l10n.permissionStorageDescription,
                 onTap: () => _request(

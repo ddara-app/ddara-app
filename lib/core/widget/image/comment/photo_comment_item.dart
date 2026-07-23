@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
@@ -289,8 +290,8 @@ class _CommentItemState extends State<CommentItem> {
           child: AppBarIconButton(
             size: 20,
             onPressed: _open,
-            child: const Icon(
-              CupertinoIcons.ellipsis_vertical,
+            child: const AppIcon(
+              AppIcons.moreVertical,
               size: 20,
               color: AppColors.textPrimary,
             ),

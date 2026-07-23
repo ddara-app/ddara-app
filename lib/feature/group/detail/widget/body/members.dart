@@ -1,3 +1,4 @@
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
@@ -320,8 +321,8 @@ class _AddMemberButton extends StatelessWidget {
       child: const SizedBox(
         width: _circleSize,
         height: _circleSize,
-        child: Icon(
-          CupertinoIcons.add,
+        child: AppIcon(
+          AppIcons.add,
           size: 28,
           color: AppColors.textPrimary,
         ),

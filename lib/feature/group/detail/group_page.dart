@@ -1,6 +1,7 @@
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
@@ -106,8 +107,8 @@ class GroupPage extends ConsumerWidget {
           trailing: AppBarIconButton(
             // 상세 로딩·나가기·닉네임 변경이 진행되는 동안 메뉴 재진입을 차단한다.
             onPressed: tapGuard(state.isLoading, () => _showMenu(context, ref)),
-            child: const Icon(
-              CupertinoIcons.ellipsis_vertical,
+            child: const AppIcon(
+              AppIcons.moreVertical,
               size: 24,
               color: AppColors.textPrimary,
             ),
