@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/feature/profile/widget/profile_image_source_sheet.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -100,8 +101,8 @@ class _EditImageButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(749.25),
           ),
         ),
-        child: const Icon(
-          CupertinoIcons.add,
+        child: const AppIcon(
+          AppIcons.add,
           size: 18,
           color: AppColors.textOnAccent,
         ),

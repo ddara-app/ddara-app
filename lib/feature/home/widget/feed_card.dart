@@ -1,10 +1,10 @@
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/feed/feed.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// 최근 업데이트 카드. (모임 카드와 같은 껍데기에 회차 주제·업로더 닉네임을 얹는다)
 ///
@@ -168,11 +168,7 @@ class _CommentButton extends StatelessWidget {
           color: AppColors.overlayScrim,
           shape: BoxShape.circle,
         ),
-        child: SvgPicture.asset(
-          'assets/images/ic_comment.svg',
-          width: 16,
-          height: 16,
-        ),
+        child: const AppIcon(AppIcons.comment, size: 16),
       ),
     );
   }

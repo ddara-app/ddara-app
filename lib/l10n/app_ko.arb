@@ -109,7 +109,7 @@
   },
 
   "permissionPageTitle": "권한 안내",
-  "permissionHeaderTitle": "ddara 권한 안내",
+  "permissionHeaderTitle": "이런 권한이 필요해요",
   "permissionHeaderDescription": "꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요",
   "permissionSectionRequired": "필수 접근 권한",
   "permissionSectionOptional": "선택 접근 권한",
@@ -121,7 +121,7 @@
   "permissionStorageDescription": "앨범에서 사진을 올릴 때 사용해요",
   "permissionPhotos": "사진",
   "requiredPermissionTitle": "필수 권한을 허용해 주세요",
-  "requiredPermissionDescription": "필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.",
+  "requiredPermissionDescription": "카메라 권한이 있어야 따라찍기를 할 수 있어요",
   "permissionDialogTitle": "{permissionName} 권한이 필요해요",
   "@permissionDialogTitle": {
     "placeholders": { "permissionName": { "type": "String" } }

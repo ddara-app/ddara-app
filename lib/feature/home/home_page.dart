@@ -1,7 +1,9 @@
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/logo/logo.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
+import 'package:ddara/core/design_system/foundation/app_icons.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/feature/home/empty_group_page.dart';
@@ -11,7 +13,6 @@ import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -59,11 +60,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBarIconButton(
-              child: SvgPicture.asset(
-                'assets/images/ic_bell.svg',
-                width: 24,
-                height: 24,
-              ),
+              child: const AppIcon(AppIcons.bell, size: 24),
               onPressed: () => context.push(RoutePath.notification),
             ),
             AppBarIconButton(

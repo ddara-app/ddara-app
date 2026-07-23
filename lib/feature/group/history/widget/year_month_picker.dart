@@ -1,4 +1,5 @@
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -77,20 +78,20 @@ class YearMonthPicker extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _arrowButton(CupertinoIcons.chevron_left, onPrevYear),
+          _arrowButton(AppIcons.chevronLeft, onPrevYear),
           AppText.headlineMedium(l10n.historyYearLabel(year)),
-          _arrowButton(CupertinoIcons.chevron_right, onNextYear),
+          _arrowButton(AppIcons.chevronRight, onNextYear),
         ],
       ),
     );
   }
 
   /// 연도 이동 화살표 버튼. (아이콘 24)
-  Widget _arrowButton(IconData icon, VoidCallback onTap) {
+  Widget _arrowButton(AppIconData icon, VoidCallback onTap) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Icon(icon, size: 24, color: AppColors.textPrimary),
+      child: AppIcon(icon, size: 24, color: AppColors.textPrimary),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
@@ -11,7 +12,6 @@ import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// 모임에 따라찍기가 시작된 뒤 상단에 보여주는 헤더. ([EmptyHeader] 의 반대 상태)
 ///
@@ -347,14 +347,10 @@ class _StartedHeaderState extends State<StartedHeader> {
                       ),
                       if (widget.memberCount != null) ...[
                         AppText.caption('·', color: AppColors.textPrimary),
-                        SvgPicture.asset(
-                          'assets/images/ic_people.svg',
-                          width: 14,
-                          height: 14,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.textPrimary,
-                            BlendMode.srcIn,
-                          ),
+                        const AppIcon(
+                          AppIcons.people,
+                          size: 14,
+                          color: AppColors.textPrimary,
                         ),
                         AppText.caption(
                           '${widget.progress.uploadedUserIds.length + 1}'
@@ -460,8 +456,8 @@ class _StartedHeaderState extends State<StartedHeader> {
             borderRadius: BorderRadius.circular(AppRadius.full),
           ),
         ),
-        child: Icon(
-          _expanded ? CupertinoIcons.chevron_up : CupertinoIcons.chevron_down,
+        child: AppIcon(
+          _expanded ? AppIcons.chevronUp : AppIcons.chevronDown,
           size: 24,
           color: AppColors.textPrimary,
         ),

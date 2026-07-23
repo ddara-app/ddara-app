@@ -1,13 +1,12 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment_sheet.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// 이미지를 전체 화면으로 크게 보여주는 뷰어.
 ///
@@ -226,8 +225,8 @@ class _PhotoViewerState extends State<PhotoViewer>
                 alignment: Alignment.topRight,
                 child: CupertinoButton(
                   onPressed: _closeViewer,
-                  child: const Icon(
-                    CupertinoIcons.xmark,
+                  child: const AppIcon(
+                    AppIcons.close,
                     color: AppColors.textPrimary,
                   ),
                 ),
@@ -276,7 +275,7 @@ class _PhotoViewerState extends State<PhotoViewer>
                 imageFilter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: rawPicture,
               ),
-              const LockIcon(size: 48, color: AppColors.textPrimary),
+              const AppIcon(AppIcons.lock, size: 48, color: AppColors.textPrimary),
             ],
           )
         : rawPicture;
@@ -309,11 +308,7 @@ class _PhotoViewerState extends State<PhotoViewer>
                   color: AppColors.overlayScrim,
                   shape: BoxShape.circle,
                 ),
-                child: SvgPicture.asset(
-                  'assets/images/ic_comment.svg',
-                  width: 24,
-                  height: 24,
-                ),
+                child: const AppIcon(AppIcons.comment, size: 24),
               ),
             ),
           ),

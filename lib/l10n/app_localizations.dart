@@ -307,7 +307,7 @@ abstract class AppLocalizations {
   /// No description provided for @permissionHeaderTitle.
   ///
   /// In ko, this message translates to:
-  /// **'ddara 권한 안내'**
+  /// **'이런 권한이 필요해요'**
   String get permissionHeaderTitle;
 
   /// No description provided for @permissionHeaderDescription.
@@ -379,7 +379,7 @@ abstract class AppLocalizations {
   /// No description provided for @requiredPermissionDescription.
   ///
   /// In ko, this message translates to:
-  /// **'필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.'**
+  /// **'카메라 권한이 있어야 따라찍기를 할 수 있어요'**
   String get requiredPermissionDescription;
 
   /// No description provided for @permissionDialogTitle.
