@@ -7,16 +7,26 @@ import 'package:ddara/core/design_system/theme/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 // 이 파일의 클래스 이름이 Material 의 AppBar 와 같으므로 별칭으로 가져온다.
 import 'package:flutter/material.dart' as material;
+import 'package:flutter_svg/flutter_svg.dart';
 
-/// AppBar 아이콘 버튼 한 변 크기. (CupertinoButton 기본 최소 크기 = 44)
-const double _buttonSize = kMinInteractiveDimensionCupertino;
+/// AppBar 아이콘 버튼 한 변 크기. (아이콘 24 + 내부 여백 12×2)
+const double _buttonSize = 48;
 
 /// AppBar 아이콘 크기. (leading·trailing 공통 스펙)
 const double _iconSize = 24;
 
-/// 아이콘(24)이 버튼(44) 안에서 가운데 정렬되며 생기는 한쪽 여백.
+/// 아이콘(24)이 버튼(48) 안에서 가운데 정렬되며 생기는 한쪽 여백(12).
 /// leading/trailing 슬롯 여백에서 이만큼 빼서 아이콘을 본문 패딩에 정렬한다.
+/// (슬롯 4 + 내부 여백 12 = 아이콘 왼쪽 끝 16 = s4)
 const double _iconInset = (_buttonSize - _iconSize) / 2;
+
+/// 뒤로가기 chevron 글리프의 광학 보정값.
+///
+/// `arrow_back_ios_new` 는 획 폭이 24px 박스보다 좁아 박스 중앙에 그려지므로,
+/// 박스를 s4 에 정렬해도 **보이는 획**은 그보다 오른쪽에서 시작한다. 글리프를
+/// 이만큼 왼쪽으로 당겨 획 시작점이 s4 에 오도록 맞춘다. (실기기에서 획
+/// 시작점을 재서 조정할 것 — 터치 영역에는 영향 없음)
+const double _backGlyphOpticalOffset = 5;
 
 /// 앱 공통 상단 바. ([CupertinoPageScaffold.navigationBar] 에 사용)
 ///
@@ -28,7 +38,7 @@ const double _iconInset = (_buttonSize - _iconSize) / 2;
 /// MaterialApp(ThemeData) 이 없는 앱이라 `Theme.of` 는 라이트 폴백을
 /// 반환한다 — 색·정렬·높이 등 테마 유래 값은 전부 명시적으로 지정한다.
 ///
-/// 아이콘 스펙은 leading(뒤로가기)·trailing 동일: 아이콘 24 · 터치 영역 44.
+/// 아이콘 스펙은 leading(뒤로가기)·trailing 동일: 아이콘 24 · 터치 영역 48.
 /// trailing 에는 [AppBarIconButton] 을 사용해야 여백 보정이 맞아떨어진다.
 ///
 /// - 기본: 좌측 뒤로가기 버튼 + 가운데 제목.
@@ -85,11 +95,19 @@ class AppBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
     final backButton = showBackButton
         ? AppBarIconButton(
             onPressed: onBack ?? () => Navigator.of(context).maybePop(),
-            // iOS풍 chevron(‹) 모양의 Material 아이콘.
-            child: const Icon(
-              material.Icons.arrow_back_ios_new,
-              size: _iconSize,
-              color: AppColors.textPrimary,
+            // 글리프의 광학 여백만큼 왼쪽으로 당겨 보이는 획을 s4 에 정렬한다.
+            child: Transform.translate(
+              offset: const Offset(-_backGlyphOpticalOffset, 0),
+              // 커스텀 chevron SVG. (테스트용 — Material rounded 아이콘과 비교 중)
+              child: SvgPicture.asset(
+                'assets/images/ic_chevron_left.svg',
+                width: _iconSize,
+                height: _iconSize,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.textPrimary,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
           )
         : null;
@@ -205,7 +223,7 @@ class AppBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
 
 /// [AppBar] 좌우에 쓰는 공통 아이콘 버튼.
 ///
-/// 스펙은 leading·trailing 동일: **아이콘 24 · 터치 영역 44(기본 최소 크기)**.
+/// 스펙은 leading·trailing 동일: **아이콘 24 · 터치 영역 48**.
 /// 아이콘이 버튼 안에서 가운데 정렬되며 생기는 여백은 [AppBar] 가 슬롯
 /// 여백에서 보정하므로, 이 버튼을 써야 아이콘이 본문 패딩과 정렬된다.
 class AppBarIconButton extends StatelessWidget {
@@ -226,7 +244,7 @@ class AppBarIconButton extends StatelessWidget {
   /// 아이콘 콘텐츠 한 변 크기. 기본 24. (예외: 홈 프로필 아바타 32)
   final double size;
 
-  /// true 면 버튼이 콘텐츠 크기에 딱 맞는다. (최소 44 해제 → 내부 여백 없음)
+  /// true 면 버튼이 콘텐츠 크기에 딱 맞는다. (최소 크기 해제 → 내부 여백 없음)
   /// 프로필 아바타처럼 콘텐츠 자체가 시각적 버튼일 때 사용한다.
   final bool hugContent;
 
@@ -239,7 +257,8 @@ class AppBarIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
-      minimumSize: hugContent ? Size.zero : null,
+      // 기본 최소 크기(44) 대신 디자인 스펙(_buttonSize = 48)을 적용한다.
+      minimumSize: hugContent ? Size.zero : const Size.square(_buttonSize),
       onPressed: onPressed,
       child: SizedBox.square(
         dimension: size,
