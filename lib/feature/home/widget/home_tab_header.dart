@@ -1,0 +1,129 @@
+import 'dart:ui' show lerpDouble;
+
+import 'package:ddara/core/design_system/design_system.dart';
+import 'package:flutter/cupertino.dart';
+
+/// 홈 탭(페이지) 개수.
+const int homeTabCount = 2;
+
+/// 탭 터치 시 페이지 이동 애니메이션 시간.
+const Duration _tabSwitchDuration = Duration(milliseconds: 300);
+
+/// 탭 인디케이터 두께.
+const double _indicatorHeight = 3;
+
+/// 좌측 정렬 탭 헤더 (라벨 + 밑줄 인디케이터).
+///
+/// 고정 프레임 애니메이션 대신 [PageView] 의 스크롤 진행도(0.0~1.0)를 매 프레임
+/// 읽어 라벨 색과 인디케이터 위치·폭을 보간한다. 그래서 손가락 드래그를
+/// 그대로 따라오고, 탭 터치 시에도 페이지 이동과 완전히 동기화된다.
+class HomeTabHeader extends StatelessWidget {
+  const HomeTabHeader({
+    super.key,
+    required this.controller,
+    required this.labels,
+    required this.currentIndex,
+  });
+
+  /// 본문 [PageView] 와 공유하는 컨트롤러. (진행도 소스)
+  final PageController controller;
+
+  /// 탭 라벨 목록. (표시 순서 = 페이지 순서)
+  final List<String> labels;
+
+  /// 현재 선택된 탭 인덱스. (컨트롤러 치수 미확정 시 진행도 대체값)
+  final int currentIndex;
+
+  /// PageView 의 현재 페이지 값(스와이프 진행도 포함).
+  /// 첫 레이아웃 전(치수 미확정)에는 선택 인덱스로 대체한다.
+  double get _currentPage {
+    final hasPage = controller.hasClients && controller.position.haveDimensions;
+    return hasPage ? controller.page! : currentIndex.toDouble();
+  }
+
+  void _onTabTap(int index) {
+    if (index == currentIndex) return;
+    controller.animateToPage(
+      index,
+      duration: _tabSwitchDuration,
+      // 빠르게 출발해 부드럽게 감속 착지.
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      // PageController 가 스크롤마다 notify 하므로 진행도를 프레임 단위로 반영.
+      animation: controller,
+      builder: (context, _) {
+        final page = _currentPage;
+        final t = page.clamp(0.0, 1.0);
+
+        // 라벨별 실제 렌더링 폭. (인디케이터 위치·폭 보간의 기준)
+        final textScaler = MediaQuery.textScalerOf(context);
+        final widths = [
+          for (final label in labels) _labelWidth(label, textScaler),
+        ];
+        // 각 라벨의 시작 x 좌표. (Row 간격 s4 반영)
+        final lefts = [0.0, widths[0] + AppSpacing.s4];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              spacing: AppSpacing.s4,
+              children: [
+                for (var i = 0; i < labels.length; i++)
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _onTabTap(i),
+                    child: Text(
+                      labels[i],
+                      style: AppTypography.label.copyWith(
+                        // 진행도에 비례해 회색↔흰색을 섞어 드래그를 따라온다.
+                        color: Color.lerp(
+                          AppColors.textTertiary,
+                          AppColors.textPrimary,
+                          (1 - (page - i).abs()).clamp(0.0, 1.0),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.s3),
+            // 선택 라벨 아래로 미끄러지는 인디케이터. 위치·폭을 진행도로 보간한다.
+            SizedBox(
+              height: _indicatorHeight,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: lerpDouble(lefts[0], lefts[1], t)!,
+                    width: lerpDouble(widths[0], widths[1], t)!,
+                    top: 0,
+                    bottom: 0,
+                    child: const ColoredBox(color: AppColors.textPrimary),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// [AppTypography.label] 스타일 기준 라벨의 렌더링 폭.
+  double _labelWidth(String label, TextScaler textScaler) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: AppTypography.label),
+      textDirection: TextDirection.ltr,
+      textScaler: textScaler,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    return width;
+  }
+}

@@ -6,9 +6,9 @@ import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
-/// 참여한 모임이 하나도 없을 때 보여주는 빈 상태 화면.
-class EmptyGroupPage extends StatelessWidget {
-  const EmptyGroupPage({super.key});
+/// 참여한 모임이 하나도 없을 때 보여주는 빈 상태 본문.
+class EmptyGroupView extends StatelessWidget {
+  const EmptyGroupView({super.key});
 
   @override
   Widget build(BuildContext context) {

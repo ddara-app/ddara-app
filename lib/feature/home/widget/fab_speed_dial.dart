@@ -46,8 +46,6 @@ const double _itemRise = 20;
 /// 다이얼(FAB·메뉴) 위치. 제자리 FAB 와 Overlay 의 × 가 동일 좌표를 쓰도록 공유.
 const double _dialInset = AppSpacing.s5;
 
-/// 메인 FAB 지름.
-const double _fabSize = 56;
 
 /// Speed-dial 메뉴 항목 하나. (라벨·강조 여부·탭 동작)
 class SpeedDialAction {
@@ -69,6 +67,9 @@ class SpeedDialAction {
 /// 백드롭·메뉴·×는 루트 Overlay 에 띄워 AppBar 를 포함한 화면 전체를 덮는다.
 class SpeedDialFab extends StatefulWidget {
   const SpeedDialFab({super.key, required this.actions});
+
+  /// 메인 FAB 지름. (홈 그리드가 FAB 에 가리지 않는 하단 패딩 계산에 참조)
+  static const double size = 56;
 
   /// 펼쳤을 때 위→아래로 나열할 액션. (아래 항목일수록 먼저 솟는다)
   final List<SpeedDialAction> actions;
@@ -266,8 +267,8 @@ class _SpeedDialFabState extends State<SpeedDialFab>
     return GestureDetector(
       onTap: _toggle,
       child: Container(
-        width: _fabSize,
-        height: _fabSize,
+        width: SpeedDialFab.size,
+        height: SpeedDialFab.size,
         alignment: Alignment.center,
         decoration: const BoxDecoration(
           color: AppColors.accentDefault,

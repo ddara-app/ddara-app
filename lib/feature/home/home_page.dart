@@ -6,8 +6,8 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/foundation/app_icons.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
-import 'package:ddara/feature/home/empty_group_page.dart';
-import 'package:ddara/feature/home/group_list_page.dart';
+import 'package:ddara/feature/home/widget/empty_group_view.dart';
+import 'package:ddara/feature/home/widget/home_tabs_view.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
@@ -88,11 +88,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       return Center(child: AppText.body(state.errorMessage));
     }
     if (state.groups.isNotEmpty) {
-      return GroupListPage(
+      return HomeTabsView(
         groups: state.groups,
         blockedUserIds: state.blockedUserIds,
       );
     }
-    return const EmptyGroupPage();
+    return const EmptyGroupView();
   }
 }
