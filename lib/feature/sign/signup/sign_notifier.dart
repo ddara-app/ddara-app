@@ -8,7 +8,7 @@ class SignNotifier
     extends AutoDisposeFamilyNotifier<SignUpPageState, SocialLoginType> {
   @override
   SignUpPageState build(SocialLoginType social) {
-    return SignUpPageState(social: social);
+    return const SignUpPageState();
   }
 
   void termsAgreedChanged(bool agreed) {
@@ -17,28 +17,30 @@ class SignNotifier
 
   Future<void> signUp() async {
     // 처리 중 재진입(중복 제출) 방지.
-    if (state.isLoading) return;
+    if (state.submit is SignUpLoading) return;
 
-    // 새 제출 시작 시 이전 에러를 지운다. (성공/실패 결과는 아래에서 채운다)
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(submit: const SignUpLoading());
 
     try {
-      await ref.read(signUpUseCaseProvider)(state.social, state.termsAgreed);
+      await ref.read(signUpUseCaseProvider)(arg, state.termsAgreed);
 
-      state = state.copyWith(isSuccess: true);
+      state = state.copyWith(submit: const SignUpSuccess());
     } on TypeMisMatchException {
-      state = state.copyWith(error: SignUpErrorType.invalidInput);
+      state = state.copyWith(
+        submit: const SignUpError(SignUpErrorType.invalidInput),
+      );
     } on UnauthorizedTokenException {
-      state = state.copyWith(error: SignUpErrorType.invalidToken);
+      state = state.copyWith(
+        submit: const SignUpError(SignUpErrorType.invalidToken),
+      );
     } on UnsupportedProviderException {
-      state = state.copyWith(error: SignUpErrorType.unsupportedProvider);
+      state = state.copyWith(
+        submit: const SignUpError(SignUpErrorType.unsupportedProvider),
+      );
     } catch (_) {
       // 예상 밖 예외가 조용히 전파되어 사용자 피드백 없이 끝나는 것을
       // 방지하는 폴백.
-      state = state.copyWith(error: SignUpErrorType.unknown);
-    } finally {
-      // 로딩만 내린다. error 를 여기서 지우면 catch 가 채운 사유가 사라진다.
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(submit: const SignUpError(SignUpErrorType.unknown));
     }
   }
 }

@@ -10,7 +10,7 @@ import '../../../domain/provider/use_case_provider.dart';
 class LoginNotifier extends AutoDisposeNotifier<LoginState> {
   @override
   LoginState build() {
-    return Idle();
+    return const LoginIdle();
   }
 
   Future<void> socialLogin(SocialLoginType social) async {
@@ -29,7 +29,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       case SocialAuthSuccess(:final token):
         await _login(token, social);
       case SocialAuthCancelled():
-        state = Idle();
+        state = const LoginIdle();
       case SocialAuthFailure(:final debugMessage):
         state = LoginFail(social, LoginErrorType.unknown, debugMessage);
     }

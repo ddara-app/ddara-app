@@ -53,25 +53,28 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     final notifier = ref.read(signNotifierProvider(social).notifier);
 
     ref.listen(signNotifierProvider(social), (prev, next) {
-      if (prev?.isSuccess == false && next.isSuccess) {
-        MixpanelManager.instance.track(
-          'signup_succeeded',
-          properties: {'provider': social.name},
-        );
-        // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
-        routeAfterAuth(ref, GoRouter.of(context));
-        return;
-      }
+      // 제출 상태가 바뀐 경우만 처리. (termsAgreed 변경 같은 입력값 갱신으로
+      // 같은 submit 이 재통지될 때 성공 라우팅·토스트가 중복되는 것을 막는다)
+      if (prev?.submit == next.submit) return;
 
-      // error 가 새로 바뀐 경우에만 토스트. (finally 의 isLoading 갱신처럼
-      // 같은 사유로 상태가 재통지될 때 토스트가 중복되는 것을 막는다)
-      final error = next.error;
-      if (error != null && prev?.error != error) {
-        Toast.showToast(
-          context,
-          _signUpErrorMessage(AppLocalizations.of(context), error),
-          type: ToastType.error,
-        );
+      switch (next.submit) {
+        case SignUpSuccess():
+          MixpanelManager.instance.track(
+            'signup_succeeded',
+            properties: {'provider': social.name},
+          );
+          // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
+          routeAfterAuth(ref, GoRouter.of(context));
+
+        case SignUpError(:final type):
+          Toast.showToast(
+            context,
+            _signUpErrorMessage(AppLocalizations.of(context), type),
+            type: ToastType.error,
+          );
+
+        default:
+          break;
       }
     });
 
@@ -89,7 +92,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             ),
 
             // 회원가입 처리 중 로딩 오버레이 (입력 차단 + 인디케이터)
-            if (state.isLoading) const AppLoadingOverlay(),
+            if (state.submit is SignUpLoading) const AppLoadingOverlay(),
           ],
         ),
       ),
