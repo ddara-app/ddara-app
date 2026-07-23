@@ -120,8 +120,8 @@ class PhotoCardShell extends StatelessWidget {
                         builder: (_) => _image(imageUrl),
                       ),
               ),
-              // 하단 스크림. (텍스트 가독성 + 하단 경계를 배경과 자연스럽게 잇기)
-              const BottomScrim(),
+              // 하단 스크림. (텍스트 가독성 확보)
+              const BottomScrim(color: AppColorPrimitives.pureBlack),
               // 잠금: 가운데 자물쇠.
               if (locked)
                 const Center(
