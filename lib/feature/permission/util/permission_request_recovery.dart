@@ -91,8 +91,17 @@ mixin PermissionRequestRecovery<T extends StatefulWidget>
       if (resume.isCompleted) return;
       try {
         resume.complete(await readStatus());
-      } catch (_) {
-        if (!resume.isCompleted) resume.complete(PermissionResult.denied);
+      } catch (error) {
+        // 일시 오류(플랫폼 채널 등)와 실제 거부를 구분하기 위해 한 번 재시도한다.
+        try {
+          final result = await readStatus();
+          if (!resume.isCompleted) resume.complete(result);
+        } catch (retryError) {
+          // 재시도도 실패하면 거부로 간주한다. (허용이었는데 조회만 실패한
+          // 경우를 구분할 수 없으므로, 추적을 위해 로그를 남긴다)
+          debugPrint('[Permission] resume 상태 조회 실패: $error / 재시도: $retryError');
+          if (!resume.isCompleted) resume.complete(PermissionResult.denied);
+        }
       }
     };
 
