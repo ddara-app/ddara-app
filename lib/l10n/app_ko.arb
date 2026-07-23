@@ -109,7 +109,7 @@
   },
 
   "permissionPageTitle": "권한 안내",
-  "permissionHeaderTitle": "ddara 권한 안내",
+  "permissionHeaderTitle": "이런 권한이 필요해요",
   "permissionHeaderDescription": "꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요",
   "permissionSectionRequired": "필수 접근 권한",
   "permissionSectionOptional": "선택 접근 권한",

@@ -307,7 +307,7 @@ abstract class AppLocalizations {
   /// No description provided for @permissionHeaderTitle.
   ///
   /// In ko, this message translates to:
-  /// **'ddara 권한 안내'**
+  /// **'이런 권한이 필요해요'**
   String get permissionHeaderTitle;
 
   /// No description provided for @permissionHeaderDescription.

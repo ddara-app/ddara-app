@@ -114,7 +114,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get permissionPageTitle => '권한 안내';
 
   @override
-  String get permissionHeaderTitle => 'ddara 권한 안내';
+  String get permissionHeaderTitle => '이런 권한이 필요해요';
 
   @override
   String get permissionHeaderDescription =>
