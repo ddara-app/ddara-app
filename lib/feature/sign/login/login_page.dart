@@ -26,10 +26,6 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  /// 성공·실패 상태에는 소셜 타입 정보가 없어, 마지막으로 시도한
-  /// 소셜 타입을 기억해 결과 이벤트의 provider 프로퍼티로 사용한다.
-  SocialLoginType? _lastAttempted;
-
   @override
   void initState() {
     super.initState();
@@ -46,7 +42,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _onSocialLogin(SocialLoginType type) {
-    _lastAttempted = type;
     MixpanelManager.instance.track(
       'login_attempted',
       properties: {'provider': type.name},
@@ -61,10 +56,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     ref.listen(loginNotifierProvider, (previous, next) {
       switch (next) {
-        case LoginSuccess():
+        case LoginSuccess(:final social):
           MixpanelManager.instance.track(
             'login_succeeded',
-            properties: {'provider': _lastAttempted?.name},
+            properties: {'provider': social.name},
           );
           // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
           routeAfterAuth(ref, GoRouter.of(context));
@@ -76,11 +71,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           );
           context.push(RoutePath.signup, extra: next.social);
 
-        case LoginFail(:final type, :final debugMessage):
+        case LoginFail(:final social, :final type, :final debugMessage):
           MixpanelManager.instance.track(
             'login_failed',
             properties: {
-              'provider': _lastAttempted?.name,
+              'provider': social.name,
               'reason': debugMessage ?? type.name,
             },
           );

@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:ddara/core/auth/apple/apple_credential_storage.dart';
+import 'package:ddara/core/auth/social_auth_result.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -35,10 +36,19 @@ class AppleAuthService {
   /// 최초 1회만 내려오는 애플 이름/이메일의 Keychain 백업 저장소.
   final AppleCredentialStorage _credentialStorage = AppleCredentialStorage();
 
-  /// 애플 로그인 후 백엔드로 보낼 Firebase ID Token 을 반환한다.
-  /// 사용자가 취소하면 null 을 반환하고, 그 외 오류는 예외를 그대로 던진다.
-  Future<String?> signInWithApple() {
-    return Platform.isIOS ? _signInOnIOS() : _signInOnAndroid();
+  /// 애플 로그인 후 백엔드로 보낼 Firebase ID Token 을 결과로 반환한다.
+  Future<SocialAuthResult> signInWithApple() async {
+    try {
+      final idToken = Platform.isIOS
+          ? await _signInOnIOS()
+          : await _signInOnAndroid();
+
+      // null 이면 사용자가 취소한 것.
+      if (idToken == null) return const SocialAuthCancelled();
+      return SocialAuthSuccess(idToken);
+    } catch (e) {
+      return SocialAuthFailure('$e');
+    }
   }
 
   /// iOS: 애플 네이티브 흐름 → Firebase 자격증명 교환.

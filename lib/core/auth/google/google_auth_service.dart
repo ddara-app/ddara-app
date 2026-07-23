@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ddara/core/auth/social_auth_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -58,21 +59,23 @@ class GoogleAuthService {
     }
   }
 
-  Future<bool> signInWithGoogle(Function(String) login) async {
+  Future<SocialAuthResult> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      // null 이면 사용자가 취소했거나 실패한 것 → 아무 처리도 하지 않는다.
-      if (googleUser == null) return false;
+      // null 이면 사용자가 계정 선택을 취소한 것.
+      if (googleUser == null) return const SocialAuthCancelled();
 
       _currentUser = googleUser;
 
       final auth = await googleUser.authentication;
-      login(auth.accessToken!);
-
-      return true;
-    } catch (_) {
-      return false;
+      final accessToken = auth.accessToken;
+      if (accessToken == null) {
+        return const SocialAuthFailure('google accessToken is null');
+      }
+      return SocialAuthSuccess(accessToken);
+    } catch (e) {
+      return SocialAuthFailure('$e');
     }
   }
 
