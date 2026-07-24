@@ -8,10 +8,22 @@ import 'package:ddara/feature/home/util/feed_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FeedNotifier extends AutoDisposeNotifier<FeedState> {
+  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
+  /// (홈 진입 직후 로그아웃 등으로 폐기된 뒤 응답이 도착하면 StateError)
+  bool _disposed = false;
+
   @override
   FeedState build() {
+    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
+    ref.onDispose(() => _disposed = true);
     _load();
     return const FeedState(isLoading: true);
+  }
+
+  /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
+  void _update(FeedState Function(FeedState state) updater) {
+    if (_disposed) return;
+    state = updater(state);
   }
 
   /// 최근 업데이트 피드와 내 프로필을 조회해 state 에 담는다.
@@ -23,20 +35,24 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
       // size 는 생략해 서버 기본값(최신 30개)을 따른다.
       final feed = await getFeedUseCase();
       final profile = await _loadProfile();
-      state = state.copyWith(
-        isLoading: false,
-        feed: feed,
-        myUserId: profile?.$1,
-        myNickname: profile?.$2 ?? '',
-        myProfileImageUrl: profile?.$3,
-        // 이전 실패 흔적을 지운다. (에러 → 새로고침 성공 직후
-        // 이전 메시지가 토스트로 재노출되는 것을 방지)
-        errorMessage: '',
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          feed: feed,
+          myUserId: profile?.$1,
+          myNickname: profile?.$2 ?? '',
+          myProfileImageUrl: profile?.$3,
+          // 이전 실패 흔적을 지운다. (에러 → 새로고침 성공 직후
+          // 이전 메시지가 토스트로 재노출되는 것을 방지)
+          errorMessage: '',
+        ),
       );
     } catch (_) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '최근 업데이트를 불러오지 못했어요.',
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorMessage: '최근 업데이트를 불러오지 못했어요.',
+        ),
       );
     }
   }
@@ -63,7 +79,7 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
   /// 같은 에러가 이후 상태 변경 때 재노출되는 것을 막는다.
   void clearError() {
     if (state.errorMessage.isEmpty) return;
-    state = state.copyWith(errorMessage: '');
+    _update((s) => s.copyWith(errorMessage: ''));
   }
 
   /// [shotId] 사진의 댓글 목록을 조회한다. 성공하면 ([blockedUserIds] 유저의
@@ -81,14 +97,14 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
           .where((comment) => !blockedUserIds.contains(comment.userId))
           .toList();
     } on ShotNotFoundException {
-      state = state.copyWith(errorMessage: '이미 삭제된 사진이에요.');
+      _update((s) => s.copyWith(errorMessage: '이미 삭제된 사진이에요.'));
       return null;
     } on NotGroupMemberException {
-      state = state.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.');
+      _update((s) => s.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.'));
       return null;
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(errorMessage: '댓글을 불러오지 못했어요.');
+      _update((s) => s.copyWith(errorMessage: '댓글을 불러오지 못했어요.'));
       return null;
     }
   }
@@ -113,23 +129,23 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
       await _refreshFeed();
       return created;
     } on InvalidCommentInputException {
-      state = state.copyWith(errorMessage: '댓글 내용을 확인해 주세요.');
+      _update((s) => s.copyWith(errorMessage: '댓글 내용을 확인해 주세요.'));
       return null;
     } on ShotLockedException {
-      state = state.copyWith(errorMessage: '내 인증샷을 올려야 댓글을 달 수 있어요.');
+      _update((s) => s.copyWith(errorMessage: '내 인증샷을 올려야 댓글을 달 수 있어요.'));
       return null;
     } on ShotUnderReviewException {
-      state = state.copyWith(errorMessage: '검토 중인 사진에는 댓글을 달 수 없어요.');
+      _update((s) => s.copyWith(errorMessage: '검토 중인 사진에는 댓글을 달 수 없어요.'));
       return null;
     } on ShotNotFoundException {
-      state = state.copyWith(errorMessage: '이미 삭제된 사진이에요.');
+      _update((s) => s.copyWith(errorMessage: '이미 삭제된 사진이에요.'));
       return null;
     } on NotGroupMemberException {
-      state = state.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.');
+      _update((s) => s.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.'));
       return null;
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(errorMessage: '댓글을 등록하지 못했어요.');
+      _update((s) => s.copyWith(errorMessage: '댓글을 등록하지 못했어요.'));
       return null;
     }
   }
@@ -145,14 +161,14 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
       await _refreshFeed();
       return true;
     } on CommentForbiddenException {
-      state = state.copyWith(errorMessage: '내가 작성한 댓글만 삭제할 수 있어요.');
+      _update((s) => s.copyWith(errorMessage: '내가 작성한 댓글만 삭제할 수 있어요.'));
       return false;
     } on CommentNotFoundException {
-      state = state.copyWith(errorMessage: '이미 삭제된 댓글이에요.');
+      _update((s) => s.copyWith(errorMessage: '이미 삭제된 댓글이에요.'));
       return false;
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(errorMessage: '댓글을 삭제하지 못했어요.');
+      _update((s) => s.copyWith(errorMessage: '댓글을 삭제하지 못했어요.'));
       return false;
     }
   }
@@ -168,17 +184,17 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
     try {
       return await editCommentUseCase(commentId: commentId, content: content);
     } on InvalidCommentInputException {
-      state = state.copyWith(errorMessage: '댓글 내용을 확인해 주세요.');
+      _update((s) => s.copyWith(errorMessage: '댓글 내용을 확인해 주세요.'));
       return null;
     } on CommentForbiddenException {
-      state = state.copyWith(errorMessage: '내가 작성한 댓글만 수정할 수 있어요.');
+      _update((s) => s.copyWith(errorMessage: '내가 작성한 댓글만 수정할 수 있어요.'));
       return null;
     } on CommentNotFoundException {
-      state = state.copyWith(errorMessage: '이미 삭제된 댓글이에요.');
+      _update((s) => s.copyWith(errorMessage: '이미 삭제된 댓글이에요.'));
       return null;
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(errorMessage: '댓글을 수정하지 못했어요.');
+      _update((s) => s.copyWith(errorMessage: '댓글을 수정하지 못했어요.'));
       return null;
     }
   }
@@ -203,17 +219,17 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
       await _refreshFeed();
       return true;
     } on InvalidReportInputException {
-      state = state.copyWith(errorMessage: '신고 내용이 올바르지 않아요.');
+      _update((s) => s.copyWith(errorMessage: '신고 내용이 올바르지 않아요.'));
       return false;
     } on ShotNotFoundException {
-      state = state.copyWith(errorMessage: '이미 삭제된 댓글이에요.');
+      _update((s) => s.copyWith(errorMessage: '이미 삭제된 댓글이에요.'));
       return false;
     } on NotGroupMemberException {
-      state = state.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.');
+      _update((s) => s.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.'));
       return false;
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(errorMessage: '신고하지 못했어요.');
+      _update((s) => s.copyWith(errorMessage: '신고하지 못했어요.'));
       return false;
     }
   }
@@ -225,7 +241,7 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
   Future<void> _refreshFeed() async {
     try {
       final feed = await ref.read(getFeedUseCaseProvider)();
-      state = state.copyWith(feed: feed);
+      _update((s) => s.copyWith(feed: feed));
     } catch (_) {
       // 무시. (다음 진입 때 갱신된다)
     }

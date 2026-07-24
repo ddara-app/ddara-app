@@ -3,10 +3,22 @@ import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomeNotifier extends AutoDisposeNotifier<HomeState> {
+  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
+  /// (홈 진입 직후 로그아웃 등으로 폐기된 뒤 응답이 도착하면 StateError)
+  bool _disposed = false;
+
   @override
   HomeState build() {
+    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
+    ref.onDispose(() => _disposed = true);
     _load();
     return const HomeState(isLoading: true);
+  }
+
+  /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
+  void _update(HomeState Function(HomeState state) updater) {
+    if (_disposed) return;
+    state = updater(state);
   }
 
   Future<void> _load() async {
@@ -15,15 +27,19 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     try {
       final groupList = await getGroupListUseCase();
       final blockedUserIds = await _loadBlockedUserIds();
-      state = state.copyWith(
-        isLoading: false,
-        groups: groupList.groups,
-        blockedUserIds: blockedUserIds,
-        // 이전 실패 흔적을 지운다. (에러 → 재조회 성공 시 에러 화면 잔존 방지)
-        errorMessage: '',
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          groups: groupList.groups,
+          blockedUserIds: blockedUserIds,
+          // 이전 실패 흔적을 지운다. (에러 → 재조회 성공 시 에러 화면 잔존 방지)
+          errorMessage: '',
+        ),
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false, errorMessage: '목록을 불러오지 못했어요.');
+      _update(
+        (s) => s.copyWith(isLoading: false, errorMessage: '목록을 불러오지 못했어요.'),
+      );
     }
   }
 
@@ -53,11 +69,13 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     try {
       final groupList = await getGroupListUseCase();
       final blockedUserIds = await _loadBlockedUserIds();
-      state = state.copyWith(
-        groups: groupList.groups,
-        blockedUserIds: blockedUserIds,
-        // 이전 실패 흔적을 지운다. (S-1: 성공 후 stale 에러 잔존 방지)
-        errorMessage: '',
+      _update(
+        (s) => s.copyWith(
+          groups: groupList.groups,
+          blockedUserIds: blockedUserIds,
+          // 이전 실패 흔적을 지운다. (S-1: 성공 후 stale 에러 잔존 방지)
+          errorMessage: '',
+        ),
       );
     } catch (_) {
       // 보던 목록을 유지한다.
