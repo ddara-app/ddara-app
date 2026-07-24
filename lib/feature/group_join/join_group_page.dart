@@ -95,7 +95,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
     final nicknameError =
         validateNickname(l10n, state.nickname) ??
         (state.errorCode == GroupJoinErrorCode.duplicateGroupNickname
-            ? GroupJoinErrorCode.duplicateGroupNickname.message
+            ? GroupJoinErrorCode.duplicateGroupNickname.message(l10n)
             : null);
 
     // 스텝별 다음 진행 가능 조건.
@@ -121,7 +121,11 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
       // 닉네임 중복은 입력 필드 인라인으로 보여주므로 토스트에서 제외.
       if (errorCode != null &&
           errorCode != GroupJoinErrorCode.duplicateGroupNickname) {
-        Toast.showToast(context, errorCode.message, type: ToastType.error);
+        Toast.showToast(
+          context,
+          errorCode.message(l10n),
+          type: ToastType.error,
+        );
       }
     });
 

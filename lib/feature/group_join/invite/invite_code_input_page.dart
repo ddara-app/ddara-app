@@ -72,7 +72,7 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
     final errorCode = state.errorCode;
     final codeErrorText =
         errorCode != null && _inlineErrorCodes.contains(errorCode)
-        ? errorCode.message
+        ? errorCode.message(l10n)
         : null;
 
     ref.listen(inviteCodeInputNotifierProvider, (prev, next) {
@@ -90,7 +90,11 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
 
       // 인라인(errorText)으로 보여주는 코드는 토스트에서 제외.
       if (errorCode != null && !_inlineErrorCodes.contains(errorCode)) {
-        Toast.showToast(context, errorCode.message, type: ToastType.error);
+        Toast.showToast(
+          context,
+          errorCode.message(l10n),
+          type: ToastType.error,
+        );
       }
     });
 
@@ -128,7 +132,10 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
               AppButton(
                 label: l10n.groupJoin,
                 // 조회 요청이 진행되는 동안 중복 탭을 차단한다.
-                onPressed: tapGuard(state.isLoading, () => notifier.joinGroup()),
+                onPressed: tapGuard(
+                  state.isLoading,
+                  () => notifier.joinGroup(),
+                ),
               ),
             ],
           ),
