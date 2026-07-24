@@ -12,15 +12,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// 알림 설정 화면.
-class NotificationSettings extends ConsumerStatefulWidget {
-  const NotificationSettings({super.key});
+class NotificationSettingsPage extends ConsumerStatefulWidget {
+  const NotificationSettingsPage({super.key});
 
   @override
-  ConsumerState<NotificationSettings> createState() =>
-      _NotificationSettingsState();
+  ConsumerState<NotificationSettingsPage> createState() =>
+      _NotificationSettingsPageState();
 }
 
-class _NotificationSettingsState extends ConsumerState<NotificationSettings>
+class _NotificationSettingsPageState
+    extends ConsumerState<NotificationSettingsPage>
     with WidgetsBindingObserver {
   @override
   void initState() {
