@@ -7,7 +7,7 @@ import 'package:ddara/core/model/group/invite_group.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group_join/confirm/join_confirm.dart';
+import 'package:ddara/feature/group_join/widget/join_confirm.dart';
 import 'package:ddara/feature/group_join/provider/notifier_provider.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
