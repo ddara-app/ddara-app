@@ -2,7 +2,7 @@ import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
-import 'package:ddara/feature/profile/image_picker_service.dart';
+import 'package:ddara/feature/profile/util/image_picker_service.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -196,8 +196,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     };
     if (picked == null) return; // 선택·촬영 취소
 
+    if (!context.mounted) return;
+
     // 프로필로 쓸 영역만 원형으로 잘라낸다. (아바타가 원형)
-    final cropped = await picker.cropToCircle(picked.path);
+    final cropped = await picker.cropToCircle(
+      picked.path,
+      title: AppLocalizations.of(context).profileImageCropTitle,
+    );
     if (cropped == null) return; // 크롭 취소
     if (!context.mounted) return;
 

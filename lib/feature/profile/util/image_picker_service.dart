@@ -46,13 +46,14 @@ class ImagePickerService {
   ///
   /// 크롭 UI 에 원형 마스크를 씌워 원 안 영역만 이동/확대해 지정한다. 원형이라
   /// 코너가 투명해지므로 투명도를 보존하도록 PNG 로 출력한다.
-  /// 취소·실패 시 null 을 반환한다.
+  /// 취소·실패 시 null 을 반환한다. [title] 은 네이티브 크롭 UI 의 툴바
+  /// 제목으로, 호출부에서 l10n 값을 넘긴다.
   ///
   /// 크롭 결과는 별도 파일로 생성되므로, 성공·취소와 무관하게 크롭을 마치면
   /// 피커가 만든 원본 사본([sourcePath])은 임시 파일이 쌓이지 않도록 삭제한다.
   Future<XFile?> cropToCircle(
     String sourcePath, {
-    String title = '사진 편집',
+    required String title,
   }) async {
     try {
       final CroppedFile? cropped = await _cropper.cropImage(

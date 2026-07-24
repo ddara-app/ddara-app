@@ -967,6 +967,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get profileImageCropTitle => '사진 편집';
+
+  @override
   String get profileImageSourceTitle => '프로필 사진 변경';
 
   @override

@@ -695,6 +695,7 @@
       "email": { "type": "String" }
     }
   },
+  "profileImageCropTitle": "사진 편집",
   "profileImageSourceTitle": "프로필 사진 변경",
   "profileImageSourceCamera": "사진 촬영",
   "profileImageSourceGallery": "갤러리에서 선택",

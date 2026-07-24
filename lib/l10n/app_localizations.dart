@@ -1849,6 +1849,12 @@ abstract class AppLocalizations {
   /// **'메일 앱을 열 수 없어요. ({email})'**
   String profileContactMailFailed(String email);
 
+  /// No description provided for @profileImageCropTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 편집'**
+  String get profileImageCropTitle;
+
   /// No description provided for @profileImageSourceTitle.
   ///
   /// In ko, this message translates to:
