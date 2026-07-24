@@ -44,10 +44,8 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
             name: profile.name,
             profileImageUrl: profile.profileImageUrl,
             joinedAt: profile.createdAt,
-            // 서버 provider 코드('KAKAO')를 한글 표시명('카카오')으로 변환한다.
-            linkedAccount:
-                SocialLoginType.fromValue(profile.provider)?.label ??
-                profile.provider,
+            // 표시명 변환은 화면 책임 — 상태에는 원본 enum 만 둔다.
+            provider: SocialLoginType.fromValue(profile.provider),
           ),
         ),
       );

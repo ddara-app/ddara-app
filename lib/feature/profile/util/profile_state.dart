@@ -1,3 +1,5 @@
+import 'package:ddara/core/model/auth/social_login_type.dart';
+
 /// 로그아웃 진행 상태.
 enum LogoutStatus {
   /// 대기(미진행).
@@ -59,7 +61,7 @@ final class ProfileLoaded extends ProfileLoadState {
     required this.name,
     this.profileImageUrl,
     this.joinedAt,
-    this.linkedAccount = '',
+    this.provider,
   });
 
   /// 사용자 이름(닉네임).
@@ -71,8 +73,9 @@ final class ProfileLoaded extends ProfileLoadState {
   /// 가입일.
   final DateTime? joinedAt;
 
-  /// 연동된 소셜 계정 이름. (예: '카카오')
-  final String linkedAccount;
+  /// 연동된 소셜 계정. 표시명(label) 변환은 화면이 담당한다.
+  /// (서버가 알 수 없는 provider 코드를 주면 null)
+  final SocialLoginType? provider;
 
   ProfileLoaded copyWith({
     String? profileImageUrl,
@@ -85,7 +88,7 @@ final class ProfileLoaded extends ProfileLoadState {
           ? null
           : (profileImageUrl ?? this.profileImageUrl),
       joinedAt: joinedAt,
-      linkedAccount: linkedAccount,
+      provider: provider,
     );
   }
 }

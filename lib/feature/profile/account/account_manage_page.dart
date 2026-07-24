@@ -104,7 +104,8 @@ class AccountManagePage extends ConsumerWidget {
                           // 이 화면은 프로필(로드 완료) 화면에서만 진입하지만,
                           // 타입상 로드 전이면 빈 값으로 표시한다.
                           value: switch (state.load) {
-                            final ProfileLoaded loaded => loaded.linkedAccount,
+                            final ProfileLoaded loaded =>
+                              loaded.provider?.label ?? '',
                             _ => '',
                           },
                         ),
