@@ -12,7 +12,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
     ref.onDispose(() => _disposed = true);
     _load();
-    return const HomeState(isLoading: true);
+    return const HomeLoading();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
@@ -21,6 +21,10 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     state = updater(state);
   }
 
+  /// 모임 목록·차단 목록을 조회해 상태를 확정한다.
+  ///
+  /// 실패 시: 이미 목록을 보고 있으면(재조회) 보던 목록을 유지하고,
+  /// 아직 로드 전이면 본문 에러로 전환한다.
   Future<void> _load() async {
     final getGroupListUseCase = ref.read(getGroupListUseCaseProvider);
 
@@ -28,17 +32,14 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       final groupList = await getGroupListUseCase();
       final blockedUserIds = await _loadBlockedUserIds();
       _update(
-        (s) => s.copyWith(
-          isLoading: false,
+        (_) => HomeLoaded(
           groups: groupList.groups,
           blockedUserIds: blockedUserIds,
-          // 이전 실패 흔적을 지운다. (에러 → 재조회 성공 시 에러 화면 잔존 방지)
-          errorMessage: '',
         ),
       );
     } catch (_) {
       _update(
-        (s) => s.copyWith(isLoading: false, errorMessage: '목록을 불러오지 못했어요.'),
+        (s) => s is HomeLoaded ? s : const HomeLoadError('목록을 불러오지 못했어요.'),
       );
     }
   }
@@ -59,28 +60,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   }
 
   /// 모임 목록·차단 목록을 다시 조회한다. (당겨서 새로고침)
-  ///
-  /// 이미 목록을 보고 있는 상태라, 실패해도 화면을 에러로 바꾸지 않고 보던
-  /// 목록을 유지한다. (초기 조회 실패는 build 의 _load 가 처리하고, 사용자는
-  /// 다시 당겨 재시도할 수 있다)
-  Future<void> refresh() async {
-    final getGroupListUseCase = ref.read(getGroupListUseCaseProvider);
-
-    try {
-      final groupList = await getGroupListUseCase();
-      final blockedUserIds = await _loadBlockedUserIds();
-      _update(
-        (s) => s.copyWith(
-          groups: groupList.groups,
-          blockedUserIds: blockedUserIds,
-          // 이전 실패 흔적을 지운다. (S-1: 성공 후 stale 에러 잔존 방지)
-          errorMessage: '',
-        ),
-      );
-    } catch (_) {
-      // 보던 목록을 유지한다.
-    }
-  }
+  /// 실패 시 보던 목록 유지는 [_load] 가 처리한다.
+  Future<void> refresh() => _load();
 
   /// 내가 차단한 사용자 userId 집합을 조회한다.
   ///

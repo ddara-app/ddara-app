@@ -30,7 +30,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _trackHomeViewed(HomeState state) {
     if (_viewTracked) return;
     // 아직 어떤 화면인지 확정되지 않았으므로 보류.
-    if (state.isLoading || state.errorMessage.isNotEmpty) return;
+    if (state is! HomeLoaded) return;
     _viewTracked = true;
     MixpanelManager.instance.track(
       'home_viewed',
@@ -81,18 +81,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   /// 조회 결과에 따라 화면을 분기한다.
   /// 로딩 → 인디케이터 / 에러 → 안내 / 모임 없음 → 빈 상태 / 있으면 목록.
   Widget _body(HomeState state) {
-    if (state.isLoading) {
-      return const Center(child: CupertinoActivityIndicator());
-    }
-    if (state.errorMessage.isNotEmpty) {
-      return Center(child: AppText.body(state.errorMessage));
-    }
-    if (state.groups.isNotEmpty) {
-      return HomeTabsView(
-        groups: state.groups,
-        blockedUserIds: state.blockedUserIds,
-      );
-    }
-    return const EmptyGroupView();
+    return switch (state) {
+      HomeLoading() => const Center(child: CupertinoActivityIndicator()),
+      HomeLoadError(:final message) => Center(child: AppText.body(message)),
+      HomeLoaded(:final groups, :final blockedUserIds) => groups.isNotEmpty
+          ? HomeTabsView(groups: groups, blockedUserIds: blockedUserIds)
+          : const EmptyGroupView(),
+    };
   }
 }

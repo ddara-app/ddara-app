@@ -12,6 +12,7 @@ import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/home/util/feed_state.dart';
+import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment_mapper.dart';
 import 'package:ddara/feature/home/util/refresh_with_min_duration.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
@@ -40,11 +41,11 @@ class RecentUpdatesView extends ConsumerWidget {
     final state = ref.watch(feedNotifierProvider);
 
     // 댓글 등 액션 실패를 토스트로 안내한다.
-    // (초기 조회 실패는 본문에 표시되므로 피드가 로드된 뒤의 에러만 다룬다)
+    // (초기 조회 실패는 FeedLoadError 본문이 표시하므로 여기선 제외된다)
     ref.listen(feedNotifierProvider, (prev, next) {
-      if (next.feed != null && next.errorMessage.isNotEmpty) {
-        Toast.showToast(context, next.errorMessage, type: ToastType.error);
-        ref.read(feedNotifierProvider.notifier).clearError();
+      if (next is FeedLoaded && next.actionError != null) {
+        Toast.showToast(context, next.actionError!, type: ToastType.error);
+        ref.read(feedNotifierProvider.notifier).clearActionError();
       }
     });
 
@@ -53,14 +54,10 @@ class RecentUpdatesView extends ConsumerWidget {
       () => ref.read(feedNotifierProvider.notifier).refresh(),
     );
 
-    final feed = state.feed;
-    // 조회 완료 전: 로딩 인디케이터 또는 에러 메시지. (홈 본문과 같은 분기)
-    if (feed == null) {
-      if (state.errorMessage.isEmpty) {
-        return const Center(child: CupertinoActivityIndicator());
-      }
+    return switch (state) {
+      FeedLoading() => const Center(child: CupertinoActivityIndicator()),
       // 최초 조회 실패 화면에서도 당겨서 재시도할 수 있게 한다.
-      return CustomScrollView(
+      FeedLoadError(:final message) => CustomScrollView(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
@@ -68,21 +65,30 @@ class RecentUpdatesView extends ConsumerWidget {
           CupertinoSliverRefreshControl(onRefresh: onRefresh),
           SliverFillRemaining(
             hasScrollBody: false,
-            child: Center(child: AppText.body(state.errorMessage)),
+            child: Center(child: AppText.body(message)),
           ),
         ],
-      );
-    }
+      ),
+      FeedLoaded() => _grid(context, ref, state, onRefresh),
+    };
+  }
 
+  /// 로드 완료 상태의 카드 그리드.
+  Widget _grid(
+    BuildContext context,
+    WidgetRef ref,
+    FeedLoaded state,
+    Future<void> Function() onRefresh,
+  ) {
     // 차단한 멤버가 올린 사진은 목록에서 아예 뺀다. (자리표시로도 남기지 않는다)
-    final items = feed.items
+    final items = state.feed.items
         .where((item) => !blockedUserIds.contains(item.userId))
         .toList();
 
     return CardGridView(
       items: items,
       dashboard: HomeDashboard.updateCount(
-        count: feed.updateCount,
+        count: state.feed.updateCount,
         pageIndex: 1,
         pageCount: homeTabCount,
       ),
@@ -107,7 +113,7 @@ class RecentUpdatesView extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     FeedItem item,
-    FeedState state,
+    FeedLoaded state,
   ) {
     final imageUrl = item.imageUrl;
     if (imageUrl == null) return;
@@ -127,11 +133,14 @@ class RecentUpdatesView extends ConsumerWidget {
       // 댓글을 눌러 들어왔으므로 시트를 연 채로 시작한다.
       openCommentSheet: true,
       onLoadComments: () async {
+        // 뷰어가 열린 동안 차단이 늘 수 있어(댓글 작성자 차단), 위젯에
+        // 캡처된 집합 대신 조회 시점의 최신 차단 목록을 읽는다.
+        final homeState = ref.read(homeNotifierProvider);
         final comments = await notifier.loadComments(
           shotId: item.shotId,
-          // 뷰어가 열린 동안 차단이 늘 수 있어(댓글 작성자 차단), 위젯에
-          // 캡처된 집합 대신 조회 시점의 최신 차단 목록을 읽는다.
-          blockedUserIds: ref.read(homeNotifierProvider).blockedUserIds,
+          blockedUserIds: homeState is HomeLoaded
+              ? homeState.blockedUserIds
+              : blockedUserIds,
         );
         if (comments == null || !context.mounted) return null;
         final l10n = AppLocalizations.of(context);

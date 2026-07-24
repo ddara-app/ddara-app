@@ -14,7 +14,7 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
     _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
     ref.onDispose(() => _disposed = true);
     _load();
-    return const FeedState(isLoading: true);
+    return const FeedLoading();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
@@ -25,6 +25,9 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
 
   /// 최근 업데이트 피드와 내 프로필을 조회해 state 에 담는다.
   /// (내 id·닉네임은 댓글 시트에서 내 댓글을 구분·표기하는 데 쓴다)
+  ///
+  /// 실패 시: 피드를 이미 보고 있으면(재조회) 토스트용 actionError 로,
+  /// 아직 로드 전이면 본문 에러로 전환한다.
   Future<void> _load() async {
     final getFeedUseCase = ref.read(getFeedUseCaseProvider);
 
@@ -33,23 +36,18 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
       final feed = await getFeedUseCase();
       final profile = await _loadProfile();
       _update(
-        (s) => s.copyWith(
-          isLoading: false,
+        (_) => FeedLoaded(
           feed: feed,
           myUserId: profile?.$1,
           myNickname: profile?.$2 ?? '',
           myProfileImageUrl: profile?.$3,
-          // 이전 실패 흔적을 지운다. (에러 → 새로고침 성공 직후
-          // 이전 메시지가 토스트로 재노출되는 것을 방지)
-          errorMessage: '',
         ),
       );
     } catch (_) {
       _update(
-        (s) => s.copyWith(
-          isLoading: false,
-          errorMessage: '최근 업데이트를 불러오지 못했어요.',
-        ),
+        (s) => s is FeedLoaded
+            ? s.copyWith(actionError: '최근 업데이트를 불러오지 못했어요.')
+            : const FeedLoadError('최근 업데이트를 불러오지 못했어요.'),
       );
     }
   }
@@ -67,21 +65,18 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
   }
 
   /// 피드를 다시 조회한다. (당겨서 새로고침)
-  ///
-  /// 피드가 이미 로드된 상태에서 실패하면 errorMessage 가 채워져 화면의
-  /// listen 이 토스트로 안내하고, 보던 피드는 유지된다.
   Future<void> refresh() => _load();
 
-  /// 에러 메시지를 소비한 뒤(토스트로 노출 후) 다시 비운다.
+  /// 액션 에러를 소비한 뒤(토스트로 노출 후) 다시 비운다.
   /// 같은 에러가 이후 상태 변경 때 재노출되는 것을 막는다.
-  void clearError() {
-    if (state.errorMessage.isEmpty) return;
-    _update((s) => s.copyWith(errorMessage: ''));
+  void clearActionError() {
+    _update((s) => s is FeedLoaded ? s.copyWith(clearActionError: true) : s);
   }
 
   @override
   void onCommentError(String message) {
-    _update((s) => s.copyWith(errorMessage: message));
+    // 댓글 액션은 피드가 떠 있어야만 가능하므로 Loaded 외 상태에선 무시한다.
+    _update((s) => s is FeedLoaded ? s.copyWith(actionError: message) : s);
   }
 
   /// 등록·삭제·신고 성공 시 댓글 수·미리보기가 반영되도록 피드를 다시 조회한다.
@@ -95,7 +90,7 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
   Future<void> _refreshFeed() async {
     try {
       final feed = await ref.read(getFeedUseCaseProvider)();
-      _update((s) => s.copyWith(feed: feed));
+      _update((s) => s is FeedLoaded ? s.copyWith(feed: feed) : s);
     } catch (_) {
       // 무시. (다음 진입 때 갱신된다)
     }
