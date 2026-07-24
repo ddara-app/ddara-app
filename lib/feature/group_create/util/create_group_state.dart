@@ -27,6 +27,8 @@ class CreateGroupState {
     bool? isLoading,
     int? createGroupId,
     GroupCreateError? errorCode,
+    // errorCode 를 null 로 되돌린다. (입력 변경·요청 시작 시 이전 에러 해제용)
+    bool clearErrorCode = false,
   }) {
     return CreateGroupState(
       groupName: groupName ?? this.groupName,
@@ -34,7 +36,7 @@ class CreateGroupState {
       nickname: nickname ?? this.nickname,
       isLoading: isLoading ?? this.isLoading,
       createGroupId: createGroupId ?? this.createGroupId,
-      errorCode: errorCode ?? this.errorCode,
+      errorCode: clearErrorCode ? null : (errorCode ?? this.errorCode),
     );
   }
 }
