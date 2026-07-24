@@ -1,6 +1,7 @@
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/bottom_sheet/sheet_scaffold.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -45,61 +46,31 @@ class ProfileImageSourceSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.s5,
-            AppSpacing.s3,
-            AppSpacing.s5,
-            AppSpacing.s5,
+    return SheetScaffold(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppText.headlineMedium(l10n.profileImageSourceTitle),
+          const SizedBox(height: AppSpacing.s3),
+          _SourceTile(
+            icon: AppIcons.cameraDefault,
+            label: l10n.profileImageSourceCamera,
+            onTap: () => Navigator.of(context).pop(ProfileImageSource.camera),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 드래그 핸들
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: AppSpacing.s4),
-                  decoration: const ShapeDecoration(
-                    color: AppColors.borderStrong,
-                    shape: StadiumBorder(),
-                  ),
-                ),
-              ),
-              AppText.headlineMedium(l10n.profileImageSourceTitle),
-              const SizedBox(height: AppSpacing.s3),
-              _SourceTile(
-                icon: AppIcons.cameraDefault,
-                label: l10n.profileImageSourceCamera,
-                onTap: () =>
-                    Navigator.of(context).pop(ProfileImageSource.camera),
-              ),
-              _SourceTile(
-                icon: AppIcons.galleryDefault,
-                label: l10n.profileImageSourceGallery,
-                onTap: () =>
-                    Navigator.of(context).pop(ProfileImageSource.gallery),
-              ),
-              // 등록된 이미지가 있을 때만 기본 이미지로 되돌리기를 제시한다.
-              if (showReset)
-                _SourceTile(
-                  icon: AppIcons.personCropCircle,
-                  label: l10n.profileImageSourceReset,
-                  onTap: () =>
-                      Navigator.of(context).pop(ProfileImageSource.reset),
-                ),
-            ],
+          _SourceTile(
+            icon: AppIcons.galleryDefault,
+            label: l10n.profileImageSourceGallery,
+            onTap: () => Navigator.of(context).pop(ProfileImageSource.gallery),
           ),
-        ),
+          // 등록된 이미지가 있을 때만 기본 이미지로 되돌리기를 제시한다.
+          if (showReset)
+            _SourceTile(
+              icon: AppIcons.personCropCircle,
+              label: l10n.profileImageSourceReset,
+              onTap: () => Navigator.of(context).pop(ProfileImageSource.reset),
+            ),
+        ],
       ),
     );
   }
