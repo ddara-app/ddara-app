@@ -52,8 +52,9 @@ class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
         state.nickname,
       );
 
-      _update((s) => s.copyWith(isLoading: false));
-      _update((s) => s.copyWith(createGroupId: createGroup.groupId));
+      _update(
+        (s) => s.copyWith(isLoading: false, createGroupId: createGroup.groupId),
+      );
     } on InvalidGroupNameException {
       _update(
         (s) => s.copyWith(
