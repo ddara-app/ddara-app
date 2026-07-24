@@ -5,13 +5,12 @@ import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/comment/comment.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/core/util/time_ago.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
+import 'package:ddara/core/widget/image/comment/photo_comment_mapper.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
@@ -382,7 +381,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     if (comments == null) return null;
 
     return comments
-        .map((comment) => _toPhotoComment(comment, l10n, myUserId))
+        .map((comment) => toPhotoComment(comment, l10n, myUserId))
         .toList();
   }
 
@@ -402,28 +401,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         .submitComment(shotId: shotId, content: content);
     if (created == null) return null;
 
-    return _toPhotoComment(created, l10n, myUserId);
-  }
-
-  /// 도메인 [Comment] 를 뷰어 표시용 [PhotoComment] 로 변환한다.
-  /// 작성자가 [myUserId] 와 같으면 내 댓글로 표시한다. (더보기 메뉴 구성이
-  /// 달라진다)
-  PhotoComment _toPhotoComment(
-    Comment comment,
-    AppLocalizations l10n,
-    int? myUserId,
-  ) {
-    return PhotoComment(
-      commentId: comment.commentId,
-      userId: comment.userId,
-      nickname: comment.nickname,
-      content: comment.content ?? '',
-      timeLabel: timeAgoLabel(comment.createdAt, l10n),
-      profileImageUrl: comment.profileImageUrl,
-      isMine: myUserId != null && comment.userId == myUserId,
-      // 수정 시각이 있으면 수정된 댓글로 본다.
-      isEdited: comment.updatedAt != null,
-    );
+    return toPhotoComment(created, l10n, myUserId);
   }
 
   /// [commentId] 댓글을 삭제한다. 성공하면 true. (삭제 확인창은 뷰어가 처리)

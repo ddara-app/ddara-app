@@ -12,7 +12,7 @@ import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/home/util/feed_state.dart';
-import 'package:ddara/feature/home/util/photo_comment_mapper.dart';
+import 'package:ddara/core/widget/image/comment/photo_comment_mapper.dart';
 import 'package:ddara/feature/home/util/refresh_with_min_duration.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/feed_card.dart';
