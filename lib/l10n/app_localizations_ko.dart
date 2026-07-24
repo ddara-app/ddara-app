@@ -912,6 +912,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedUsersUnblock => '차단 해제';
 
   @override
+  String blockedUsersUnblockConfirmTitle(String name) {
+    return '$name님의 차단을 해제할까요?';
+  }
+
+  @override
+  String get blockedUsersUnblockConfirmBody => '이 멤버의 사진이 다시 보이게 됩니다.';
+
+  @override
+  String get blockedUsersUnblockConfirmAction => '해제하기';
+
+  @override
   String get blockedUsersUnblockedToast => '차단을 해제했어요.';
 
   @override

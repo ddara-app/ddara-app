@@ -4,6 +4,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/block/blocked_users.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/profile/blocked/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/blocked/util/blocked_users_state.dart';
@@ -67,17 +68,30 @@ class BlockedUsersPage extends ConsumerWidget {
       itemCount: users.length,
       itemBuilder: (context, index) => _BlockedUserTile(
         user: users[index],
-        onUnblock: () => _unblock(context, ref, users[index].userId),
+        onUnblock: () => _unblock(context, ref, users[index]),
       ),
     );
   }
 
-  /// 차단을 해제하고 결과를 토스트로 안내한다. (성공 시 목록은 notifier 가 재조회)
-  Future<void> _unblock(BuildContext context, WidgetRef ref, int userId) async {
+  /// 확인 다이얼로그를 띄우고, 확인 시에만 차단을 해제한 뒤 결과를 토스트로
+  /// 안내한다. (성공 시 목록은 notifier 가 재조회)
+  Future<void> _unblock(
+    BuildContext context,
+    WidgetRef ref,
+    BlockedUser user,
+  ) async {
     final l10n = AppLocalizations.of(context);
+    final ok = await AppDialog.show(
+      context,
+      title: l10n.blockedUsersUnblockConfirmTitle(user.name),
+      message: l10n.blockedUsersUnblockConfirmBody,
+      confirmLabel: l10n.blockedUsersUnblockConfirmAction,
+    );
+    if (!ok || !context.mounted) return;
+
     final success = await ref
         .read(blockedUsersNotifierProvider.notifier)
-        .unblock(userId);
+        .unblock(user.userId);
     if (!context.mounted) return;
 
     Toast.showToast(

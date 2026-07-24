@@ -666,6 +666,14 @@
   "blockedUsersEmpty": "차단한 유저가 없어요",
   "blockedUsersLoadFailed": "차단 목록을 불러오지 못했어요.",
   "blockedUsersUnblock": "차단 해제",
+  "blockedUsersUnblockConfirmTitle": "{name}님의 차단을 해제할까요?",
+  "@blockedUsersUnblockConfirmTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "blockedUsersUnblockConfirmBody": "이 멤버의 사진이 다시 보이게 됩니다.",
+  "blockedUsersUnblockConfirmAction": "해제하기",
   "blockedUsersUnblockedToast": "차단을 해제했어요.",
   "blockedUsersUnblockFailed": "차단을 해제하지 못했어요.",
   "blockedPhotoPlaceholder": "차단한 멤버의 사진입니다.",

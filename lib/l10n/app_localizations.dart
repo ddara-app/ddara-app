@@ -1747,6 +1747,24 @@ abstract class AppLocalizations {
   /// **'차단 해제'**
   String get blockedUsersUnblock;
 
+  /// No description provided for @blockedUsersUnblockConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}님의 차단을 해제할까요?'**
+  String blockedUsersUnblockConfirmTitle(String name);
+
+  /// No description provided for @blockedUsersUnblockConfirmBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 멤버의 사진이 다시 보이게 됩니다.'**
+  String get blockedUsersUnblockConfirmBody;
+
+  /// No description provided for @blockedUsersUnblockConfirmAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제하기'**
+  String get blockedUsersUnblockConfirmAction;
+
   /// No description provided for @blockedUsersUnblockedToast.
   ///
   /// In ko, this message translates to:
