@@ -37,7 +37,9 @@ class InviteCodeInputNotifier
     );
   }
 
-  Future<void> joinGroup() async {
+  /// 초대 코드로 모임 정보를 조회한다. (실제 참여는 다음 화면의
+  /// JoinGroupNotifier.joinGroup 이 담당 — 이 메서드는 코드 유효성 확인·조회다)
+  Future<void> fetchInviteGroup() async {
     if (state.isLoading) return;
 
     // 조회 시작 시 이전 결과·에러를 함께 비운다. 조회 성공 화면(참여 확인)에서

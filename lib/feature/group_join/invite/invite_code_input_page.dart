@@ -134,7 +134,7 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
                 // 조회 요청이 진행되는 동안 중복 탭을 차단한다.
                 onPressed: tapGuard(
                   state.isLoading,
-                  () => notifier.joinGroup(),
+                  () => notifier.fetchInviteGroup(),
                 ),
               ),
             ],
