@@ -1,5 +1,3 @@
-import 'dart:async' show unawaited;
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/comment/comment_action_error.dart';
@@ -10,13 +8,12 @@ import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
+import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
-import 'package:ddara/core/widget/image/comment/photo_comment_mapper.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
-import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
 import 'package:ddara/feature/group/gallery/widget/photo_report_sheet.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -189,39 +186,33 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
             onImageTap: (cycle.starterImageUrl ?? '').isEmpty
                 ? null
-                : () => showPhotoViewer(
-                    context,
-                    image: CachedNetworkImageProvider(cycle.starterImageUrl!),
-                    aspectRatio:
-                        (MediaQuery.of(context).size.width -
-                            AppSpacing.s4 * 2) /
-                        478,
-                    // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
-                    title: cycle.starterNickname,
-                    body: cycle.topic,
-                    myNickname: me?.nickname ?? '',
-                    myProfileImageUrl: me?.profileImageUrl,
+                : () {
                     // 스타터 사진 댓글은 스타터 shot id 로 등록·조회한다.
-                    onLoadComments: () =>
-                        _loadComments(context, ref, cycle.starterShotId),
-                    onSubmitComment: (content) => _submitComment(
+                    final handlers = _commentHandlers(
                       context,
                       ref,
                       cycle.starterShotId,
-                      content,
-                    ),
-                    onDeleteComment: (comment) async {
-                      final id = comment.commentId;
-                      if (id == null) return false;
-                      return _deleteComment(ref, id);
-                    },
-                    onEditComment: (comment, newContent) =>
-                        _editComment(ref, comment, newContent),
-                    onReportComment: (comment) =>
-                        _reportComment(context, ref, comment),
-                    onBlockComment: (comment) =>
-                        _blockCommentAuthor(context, ref, comment),
-                  ),
+                    );
+                    showPhotoViewer(
+                      context,
+                      image: CachedNetworkImageProvider(cycle.starterImageUrl!),
+                      aspectRatio:
+                          (MediaQuery.of(context).size.width -
+                              AppSpacing.s4 * 2) /
+                          478,
+                      // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
+                      title: cycle.starterNickname,
+                      body: cycle.topic,
+                      myNickname: me?.nickname ?? '',
+                      myProfileImageUrl: me?.profileImageUrl,
+                      onLoadComments: handlers.onLoadComments,
+                      onSubmitComment: handlers.onSubmitComment,
+                      onDeleteComment: handlers.onDeleteComment,
+                      onEditComment: handlers.onEditComment,
+                      onReportComment: handlers.onReportComment,
+                      onBlockComment: handlers.onBlockComment,
+                    );
+                  },
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
           const SizedBox(height: AppSpacing.s6),
@@ -286,37 +277,34 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
                     // (사진이 있으면 shot id 도 함께 오지만, 없으면 열지 않는다)
                     onTap: canOpen && shotId != null
-                        ? () => showPhotoViewer(
-                            context,
-                            image: image,
-                            heroTag: heroTag,
-                            // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
-                            aspectRatio: cardAspectRatio,
-                            // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
-                            title: member.nickname,
-                            body: cycle.topic,
-                            myNickname: me?.nickname ?? '',
-                            myProfileImageUrl: me?.profileImageUrl,
-                            // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
-                            locked: locked,
-                            // 잠긴 사진은 서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내.
-                            onLoadComments: () =>
-                                _loadComments(context, ref, shotId),
-                            onSubmitComment: (content) =>
-                                _submitComment(context, ref, shotId, content),
-                            // 삭제·수정은 댓글 id 로 처리(대상 사진 shotId 와 무관).
-                            onDeleteComment: (comment) async {
-                              final id = comment.commentId;
-                              if (id == null) return false;
-                              return _deleteComment(ref, id);
-                            },
-                            onEditComment: (comment, newContent) =>
-                                _editComment(ref, comment, newContent),
-                            onReportComment: (comment) =>
-                                _reportComment(context, ref, comment),
-                            onBlockComment: (comment) =>
-                                _blockCommentAuthor(context, ref, comment),
-                          )
+                        ? () {
+                            final handlers = _commentHandlers(
+                              context,
+                              ref,
+                              shotId,
+                            );
+                            showPhotoViewer(
+                              context,
+                              image: image,
+                              heroTag: heroTag,
+                              // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
+                              aspectRatio: cardAspectRatio,
+                              // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
+                              title: member.nickname,
+                              body: cycle.topic,
+                              myNickname: me?.nickname ?? '',
+                              myProfileImageUrl: me?.profileImageUrl,
+                              // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
+                              // (서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내)
+                              locked: locked,
+                              onLoadComments: handlers.onLoadComments,
+                              onSubmitComment: handlers.onSubmitComment,
+                              onDeleteComment: handlers.onDeleteComment,
+                              onEditComment: handlers.onEditComment,
+                              onReportComment: handlers.onReportComment,
+                              onBlockComment: handlers.onBlockComment,
+                            );
+                          }
                         : null,
                     // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
                     // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
@@ -379,105 +367,21 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     );
   }
 
-  /// [shotId] 사진의 댓글 목록을 조회해 화면 표시용으로 변환한다.
-  /// 실패하면 null 을 반환한다. (차단 유저 제외는 notifier 가 처리)
-  Future<List<PhotoComment>?> _loadComments(
+  /// [shotId] 사진용 댓글 시트 배선. (조회·등록·삭제·수정·신고는 공용 배선,
+  /// 차단 유저 필터는 notifier 가 자체 처리하므로 blockedUserIds 는 기본값)
+  CommentSheetHandlers _commentHandlers(
     BuildContext context,
     WidgetRef ref,
     int shotId,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final myUserId = ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId;
-    final comments = await ref
-        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
-        .loadComments(shotId: shotId);
-    if (comments == null) return null;
-
-    return comments
-        .map((comment) => toPhotoComment(comment, l10n, myUserId))
-        .toList();
-  }
-
-  /// [shotId] 사진에 [content] 댓글을 등록하고, 성공 시 화면에 추가할
-  /// [PhotoComment] 를(작성자·시각 포함), 실패 시 null 을 반환한다.
-  /// (실패 안내는 notifier 가 errorMessage → 토스트로 처리)
-  Future<PhotoComment?> _submitComment(
-    BuildContext context,
-    WidgetRef ref,
-    int shotId,
-    String content,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final myUserId = ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId;
-    final created = await ref
-        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
-        .submitComment(shotId: shotId, content: content);
-    if (created == null) return null;
-
-    return toPhotoComment(created, l10n, myUserId);
-  }
-
-  /// [commentId] 댓글을 삭제한다. 성공하면 true. (삭제 확인창은 뷰어가 처리)
-  /// 실패 안내는 notifier 가 errorMessage → 토스트로 처리한다.
-  Future<bool> _deleteComment(WidgetRef ref, int commentId) {
-    return ref
-        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
-        .deleteComment(commentId: commentId);
-  }
-
-  /// [comment] 를 [newContent] 로 수정하고, 성공 시 갱신된 [PhotoComment] 를
-  /// (내용만 바꿔) 반환한다. 실패·id 없음이면 null. (실패 안내는 토스트)
-  Future<PhotoComment?> _editComment(
-    WidgetRef ref,
-    PhotoComment comment,
-    String newContent,
-  ) async {
-    final id = comment.commentId;
-    if (id == null) return null;
-
-    final content = await ref
-        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
-        .editComment(commentId: id, content: newContent);
-    if (content == null) return null;
-
-    // 수정에 성공했으므로 '수정됨' 표시를 켠다.
-    return comment.copyWith(content: content, isEdited: true);
-  }
-
-  /// 댓글 신고 사유 시트를 띄우고, 확정하면 즉시 true 를 반환해 시트가
-  /// 댓글을 바로 지우게 한다. (낙관적 — 접수는 백그라운드로 진행)
-  /// 접수 성공 시 완료 토스트를, 실패 시 notifier 가 errorMessage → 토스트로
-  /// 안내한다. (실패하면 서버에 신고가 남지 않았으므로 다음 목록 조회 때
-  /// 댓글이 되살아난다)
-  Future<bool> _reportComment(
-    BuildContext context,
-    WidgetRef ref,
-    PhotoComment comment,
-  ) async {
-    final commentId = comment.commentId;
-    if (commentId == null) return false;
-
-    final result = await CommentReportSheet.show(context);
-    if (result == null || !context.mounted) return false;
-
-    // 접수 결과를 기다리지 않는다. (확정 즉시 댓글을 지우는 낙관적 처리)
-    unawaited(
-      ref
-          .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
-          .reportComment(
-            commentId: commentId,
-            reason: result.reason,
-            reasonText: result.detail.isEmpty ? null : result.detail,
-          )
-          .then((success) {
-            if (!success || !context.mounted) return;
-            Toast.showToast(
-              context,
-              AppLocalizations.of(context).reportSubmitted,
-            );
-          }),
+  ) {
+    return CommentSheetHandlers(
+      context: context,
+      notifier: ref.read(cyclePhotoGalleryNotifierProvider(cycleId).notifier),
+      shotId: shotId,
+      myUserId: () =>
+          ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId,
+      onBlockComment: (comment) => _blockCommentAuthor(context, ref, comment),
     );
-    return true;
   }
 
   /// [userId] 유저(멤버·스타터·댓글 작성자 공용)를 차단한다. 먼저 확인

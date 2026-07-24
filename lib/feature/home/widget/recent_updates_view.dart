@@ -1,21 +1,18 @@
-import 'dart:async' show unawaited;
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/feed/feed.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
+import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/gallery/widget/comment_report_sheet.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/home/util/feed_state.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
-import 'package:ddara/core/widget/image/comment/photo_comment_mapper.dart';
-import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/feed_card.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
@@ -130,10 +127,25 @@ class RecentUpdatesView extends ConsumerWidget {
     final imageUrl = item.imageUrl;
     if (imageUrl == null) return;
 
-    final notifier = ref.read(feedNotifierProvider.notifier);
     // 내 프로필(공유 캐시 currentProfileProvider). 아직 조회 전이면 null —
     // 내 댓글 구분·작성자 표기가 빠질 뿐 뷰어 동작에는 지장 없다.
     final profile = ref.read(currentProfileProvider).valueOrNull;
+    final handlers = CommentSheetHandlers(
+      context: context,
+      notifier: ref.read(feedNotifierProvider.notifier),
+      shotId: item.shotId,
+      myUserId: () => profile?.id,
+      // 뷰어가 열린 동안 차단이 늘 수 있어(댓글 작성자 차단), 위젯에
+      // 캡처된 집합 대신 조회 시점의 최신 차단 목록을 읽는다.
+      blockedUserIds: () {
+        final homeState = ref.read(homeNotifierProvider);
+        return homeState is HomeLoaded
+            ? homeState.blockedUserIds
+            : blockedUserIds;
+      },
+      onBlockComment: (comment) => _blockCommentAuthor(context, ref, comment),
+    );
+
     showPhotoViewer(
       context,
       image: CachedNetworkImageProvider(imageUrl),
@@ -147,53 +159,12 @@ class RecentUpdatesView extends ConsumerWidget {
       locked: item.locked,
       // 댓글을 눌러 들어왔으므로 시트를 연 채로 시작한다.
       openCommentSheet: true,
-      onLoadComments: () async {
-        // 뷰어가 열린 동안 차단이 늘 수 있어(댓글 작성자 차단), 위젯에
-        // 캡처된 집합 대신 조회 시점의 최신 차단 목록을 읽는다.
-        final homeState = ref.read(homeNotifierProvider);
-        final comments = await notifier.loadComments(
-          shotId: item.shotId,
-          blockedUserIds: homeState is HomeLoaded
-              ? homeState.blockedUserIds
-              : blockedUserIds,
-        );
-        if (comments == null || !context.mounted) return null;
-        final l10n = AppLocalizations.of(context);
-        return comments
-            .map((comment) => toPhotoComment(comment, l10n, profile?.id))
-            .toList();
-      },
-      onSubmitComment: (content) async {
-        final created = await notifier.submitComment(
-          shotId: item.shotId,
-          content: content,
-        );
-        if (created == null || !context.mounted) return null;
-        return toPhotoComment(
-          created,
-          AppLocalizations.of(context),
-          profile?.id,
-        );
-      },
-      // 삭제·수정은 댓글 id 로 처리한다. (대상 사진 shotId 와 무관)
-      onDeleteComment: (comment) async {
-        final id = comment.commentId;
-        if (id == null) return false;
-        return notifier.deleteComment(commentId: id);
-      },
-      onEditComment: (comment, newContent) async {
-        final id = comment.commentId;
-        if (id == null) return null;
-        final content = await notifier.editComment(
-          commentId: id,
-          content: newContent,
-        );
-        if (content == null) return null;
-        // 수정에 성공했으므로 '수정됨' 표시를 켠다.
-        return comment.copyWith(content: content, isEdited: true);
-      },
-      onReportComment: (comment) => _reportComment(context, ref, comment),
-      onBlockComment: (comment) => _blockCommentAuthor(context, ref, comment),
+      onLoadComments: handlers.onLoadComments,
+      onSubmitComment: handlers.onSubmitComment,
+      onDeleteComment: handlers.onDeleteComment,
+      onEditComment: handlers.onEditComment,
+      onReportComment: handlers.onReportComment,
+      onBlockComment: handlers.onBlockComment,
     );
   }
 
@@ -237,39 +208,4 @@ class RecentUpdatesView extends ConsumerWidget {
     return success;
   }
 
-  /// 댓글 신고 사유 시트를 띄우고, 확정하면 즉시 true 를 반환해 시트가
-  /// 댓글을 바로 지우게 한다. (낙관적 — 접수는 백그라운드로 진행)
-  /// 접수 성공 시 완료 토스트를, 실패 시 notifier 가 errorMessage → 토스트로
-  /// 안내한다. (실패하면 서버에 신고가 남지 않았으므로 다음 목록 조회 때
-  /// 댓글이 되살아난다)
-  Future<bool> _reportComment(
-    BuildContext context,
-    WidgetRef ref,
-    PhotoComment comment,
-  ) async {
-    final commentId = comment.commentId;
-    if (commentId == null) return false;
-
-    final result = await CommentReportSheet.show(context);
-    if (result == null || !context.mounted) return false;
-
-    // 접수 결과를 기다리지 않는다. (확정 즉시 댓글을 지우는 낙관적 처리)
-    unawaited(
-      ref
-          .read(feedNotifierProvider.notifier)
-          .reportComment(
-            commentId: commentId,
-            reason: result.reason,
-            reasonText: result.detail.isEmpty ? null : result.detail,
-          )
-          .then((success) {
-            if (!success || !context.mounted) return;
-            Toast.showToast(
-              context,
-              AppLocalizations.of(context).reportSubmitted,
-            );
-          }),
-    );
-    return true;
-  }
 }
