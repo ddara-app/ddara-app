@@ -49,10 +49,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     // 조회 이벤트는 상태 변화 콜백에서 전송한다. (build 는 순수하게 유지)
     ref.listen(homeNotifierProvider, (_, next) => _trackHomeViewed(next));
     // 서버 프로필의 이미지 URL. (조회 전·미등록이면 null → 기본 아바타)
-    final profileImageUrl = ref
-        .watch(currentProfileProvider)
-        .valueOrNull
-        ?.profileImageUrl;
+    // 이미지 URL 만 select 해 닉네임 등 다른 프로필 변경에는 rebuild 하지 않는다.
+    final profileImageUrl = ref.watch(
+      currentProfileProvider.select((v) => v.valueOrNull?.profileImageUrl),
+    );
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
