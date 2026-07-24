@@ -1,6 +1,7 @@
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
@@ -77,59 +78,42 @@ class AccountManagePage extends ConsumerWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: LayoutBuilder(
-          // 콘텐츠가 화면에 들어가면 스크롤 없음, 큰 글자 설정 등에서는
-          // 스크롤로 전환되도록 뷰포트 높이를 최소 높이로 강제한다.
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s4,
-                  right: AppSpacing.s4,
-                  // 하단 Safe Area 까지 배경을 잇되, 마지막 항목이 홈
-                  // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
-                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ProfileSection(
-                      label: l10n.profileSectionAccount,
-                      children: [
-                        ProfileRow(
-                          label: l10n.profileLinkedAccount,
-                          // 이 화면은 프로필(로드 완료) 화면에서만 진입하지만,
-                          // 타입상 로드 전이면 빈 값으로 표시한다.
-                          value: switch (state.load) {
-                            final ProfileLoaded loaded =>
-                              loaded.provider?.label ?? '',
-                            _ => '',
-                          },
-                        ),
-                        ProfileRow(
-                          label: l10n.profileLogout,
-                          // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
-                          onTap: tapGuard(
-                            _isAccountActionRunning(state),
-                            () => _confirmLogout(context, ref),
-                          ),
-                        ),
-                        ProfileRow(
-                          label: l10n.profileWithdraw,
-                          onTap: tapGuard(
-                            _isAccountActionRunning(state),
-                            () => _confirmWithdraw(context, ref),
-                          ),
-                        ),
-                      ],
+        child: ScrollablePageBody(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ProfileSection(
+                label: l10n.profileSectionAccount,
+                children: [
+                  ProfileRow(
+                    label: l10n.profileLinkedAccount,
+                    // 이 화면은 프로필(로드 완료) 화면에서만 진입하지만,
+                    // 타입상 로드 전이면 빈 값으로 표시한다.
+                    value: switch (state.load) {
+                      final ProfileLoaded loaded =>
+                        loaded.provider?.label ?? '',
+                      _ => '',
+                    },
+                  ),
+                  ProfileRow(
+                    label: l10n.profileLogout,
+                    // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
+                    onTap: tapGuard(
+                      _isAccountActionRunning(state),
+                      () => _confirmLogout(context, ref),
                     ),
-                  ],
-                ),
+                  ),
+                  ProfileRow(
+                    label: l10n.profileWithdraw,
+                    onTap: tapGuard(
+                      _isAccountActionRunning(state),
+                      () => _confirmWithdraw(context, ref),
+                    ),
+                  ),
+                ],
               ),
-            ),
+            ],
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/policy/policy_viewer_page.dart';
 import 'package:ddara/feature/profile/widget/profile_section.dart';
@@ -41,44 +42,25 @@ class TermsPolicyPage extends StatelessWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: LayoutBuilder(
-          // 콘텐츠가 화면에 들어가면 스크롤 없음, 큰 글자 설정 등에서는
-          // 스크롤로 전환되도록 뷰포트 높이를 최소 높이로 강제한다.
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s4,
-                  right: AppSpacing.s4,
-                  // 하단 Safe Area 까지 배경을 잇되, 마지막 항목이 홈
-                  // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
-                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: AppSpacing.s5,
-                  children: [
-                    ProfileSection(
-                      label: l10n.termsPolicyTitle,
-                      children: [
-                        for (final policy in _policies(l10n))
-                          ProfileRow(
-                            label: policy.title,
-                            trailing: const ProfileChevron(),
-                            onTap: () => context.push(
-                              RoutePath.policyViewer,
-                              extra: policy,
-                            ),
-                          ),
-                      ],
+        child: ScrollablePageBody(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpacing.s5,
+            children: [
+              ProfileSection(
+                label: l10n.termsPolicyTitle,
+                children: [
+                  for (final policy in _policies(l10n))
+                    ProfileRow(
+                      label: policy.title,
+                      trailing: const ProfileChevron(),
+                      onTap: () =>
+                          context.push(RoutePath.policyViewer, extra: policy),
                     ),
-                  ],
-                ),
+                ],
               ),
-            ),
+            ],
           ),
         ),
       ),

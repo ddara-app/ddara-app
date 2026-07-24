@@ -50,7 +50,10 @@ class ImagePickerService {
   ///
   /// 크롭 결과는 별도 파일로 생성되므로, 성공·취소와 무관하게 크롭을 마치면
   /// 피커가 만든 원본 사본([sourcePath])은 임시 파일이 쌓이지 않도록 삭제한다.
-  Future<XFile?> cropToCircle(String sourcePath, {String title = '사진 편집'}) async {
+  Future<XFile?> cropToCircle(
+    String sourcePath, {
+    String title = '사진 편집',
+  }) async {
     try {
       final CroppedFile? cropped = await _cropper.cropImage(
         sourcePath: sourcePath,
