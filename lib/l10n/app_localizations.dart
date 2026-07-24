@@ -586,6 +586,30 @@ abstract class AppLocalizations {
   /// **'100자 이하로 입력해주세요'**
   String get groupCreateIntroLengthError;
 
+  /// No description provided for @groupCreateErrorInvalidName.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 이름을 확인해주세요.'**
+  String get groupCreateErrorInvalidName;
+
+  /// No description provided for @groupCreateErrorUnauthorized.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인이 만료되었어요. 다시 로그인해 주세요.'**
+  String get groupCreateErrorUnauthorized;
+
+  /// No description provided for @groupCreateErrorLimitExceeded.
+  ///
+  /// In ko, this message translates to:
+  /// **'만들 수 있는 모임 개수(최대 20개)를 초과했어요.'**
+  String get groupCreateErrorLimitExceeded;
+
+  /// No description provided for @groupCreateErrorUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결이 불안정해요.'**
+  String get groupCreateErrorUnknown;
+
   /// No description provided for @groupJoinErrorInvalidInput.
   ///
   /// In ko, this message translates to:

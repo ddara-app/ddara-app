@@ -270,6 +270,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupCreateIntroLengthError => '100자 이하로 입력해주세요';
 
   @override
+  String get groupCreateErrorInvalidName => '모임 이름을 확인해주세요.';
+
+  @override
+  String get groupCreateErrorUnauthorized => '로그인이 만료되었어요. 다시 로그인해 주세요.';
+
+  @override
+  String get groupCreateErrorLimitExceeded => '만들 수 있는 모임 개수(최대 20개)를 초과했어요.';
+
+  @override
+  String get groupCreateErrorUnknown => '네트워크 연결이 불안정해요.';
+
+  @override
   String get groupJoinErrorInvalidInput => '입력값이 올바르지 않아요.';
 
   @override
