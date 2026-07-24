@@ -1,10 +1,9 @@
 import 'package:ddara/core/exception/group_create_error.dart';
+import 'package:ddara/core/exception/group_exception.dart';
+import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group_create/util/create_group_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../core/exception/group_exception.dart';
-import '../../core/exception/login_exception.dart';
 
 class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
   /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
