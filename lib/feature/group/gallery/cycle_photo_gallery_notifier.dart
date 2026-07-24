@@ -43,16 +43,10 @@ class CyclePhotoGalleryNotifier
         errorMessage: '해당 모임의 멤버가 아니에요.',
       );
     } on GroupNotFoundException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '존재하지 않는 사이클이에요.',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 사이클이에요.');
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '사진을 불러오지 못했어요.',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: '사진을 불러오지 못했어요.');
     }
   }
 
@@ -126,11 +120,16 @@ class CyclePhotoGalleryNotifier
   Future<bool> blockMember(int userId) async {
     if (state.isLoading) return false;
 
+    // 차단 API 가 모임 맥락(groupId)을 요구한다. 갤러리가 로드되기 전에는
+    // 차단 진입점(멤버 카드)이 없으므로 사실상 도달하지 않는다.
+    final groupId = state.gallery?.groupId;
+    if (groupId == null) return false;
+
     state = state.copyWith(isLoading: true);
     final blockUserUseCase = ref.read(blockUserUseCaseProvider);
 
     try {
-      await blockUserUseCase(userId);
+      await blockUserUseCase(userId, groupId: groupId);
       // 차단 결과를 반영하기 위해 갤러리를 다시 조회한다.
       // (isLoading 은 _loadGallery 가 내린다)
       await _loadGallery(arg);

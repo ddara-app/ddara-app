@@ -188,7 +188,7 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
     final blockUserUseCase = ref.read(blockUserUseCaseProvider);
 
     try {
-      await blockUserUseCase(userId);
+      await blockUserUseCase(userId, groupId: arg);
       // 차단 결과를 반영하기 위해 상세를 다시 조회한다. (isLoading 은 _load 가 내린다)
       await _load(arg);
       return true;

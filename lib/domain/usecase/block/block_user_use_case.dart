@@ -5,7 +5,7 @@ class BlockUserUseCase {
 
   BlockUserUseCase(this._blockRepository);
 
-  Future<void> call(int userId) async {
-    await _blockRepository.blockUser(userId);
+  Future<void> call(int userId, {required int groupId}) async {
+    await _blockRepository.blockUser(userId, groupId: groupId);
   }
 }
