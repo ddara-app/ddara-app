@@ -1717,6 +1717,12 @@ abstract class AppLocalizations {
   /// **'차단한 유저가 없어요'**
   String get blockedUsersEmpty;
 
+  /// No description provided for @blockedUsersLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단 목록을 불러오지 못했어요.'**
+  String get blockedUsersLoadFailed;
+
   /// No description provided for @blockedUsersUnblock.
   ///
   /// In ko, this message translates to:

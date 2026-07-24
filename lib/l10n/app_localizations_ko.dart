@@ -897,6 +897,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedUsersEmpty => '차단한 유저가 없어요';
 
   @override
+  String get blockedUsersLoadFailed => '차단 목록을 불러오지 못했어요.';
+
+  @override
   String get blockedUsersUnblock => '차단 해제';
 
   @override

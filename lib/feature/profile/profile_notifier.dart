@@ -54,7 +54,7 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
         (s) => s.copyWith(
           isLoading: false,
           appVersion: appVersion,
-          errorMessage: '사용자를 찾을 수 없어요.',
+          loadError: ProfileLoadError.userNotFound,
         ),
       );
     } catch (_) {
@@ -63,7 +63,7 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
         (s) => s.copyWith(
           isLoading: false,
           appVersion: appVersion,
-          errorMessage: '프로필 정보를 불러오지 못했어요.',
+          loadError: ProfileLoadError.loadFailed,
         ),
       );
     }

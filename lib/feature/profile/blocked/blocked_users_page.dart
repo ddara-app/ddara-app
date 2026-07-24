@@ -48,8 +48,8 @@ class BlockedUsersPage extends ConsumerWidget {
 
     final blockedUsers = state.blockedUsers;
     if (blockedUsers == null) {
-      // 조회 실패. (errorMessage 는 notifier 가 채운다)
-      return Center(child: AppText.body(state.errorMessage));
+      // 조회 실패. (로딩이 끝났는데 목록이 없으면 실패로 본다)
+      return Center(child: AppText.body(l10n.blockedUsersLoadFailed));
     }
 
     final users = blockedUsers.users;

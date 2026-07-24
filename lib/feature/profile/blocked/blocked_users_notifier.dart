@@ -32,9 +32,8 @@ class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState> {
       _update((s) => s.copyWith(isLoading: false, blockedUsers: blockedUsers));
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      _update(
-        (s) => s.copyWith(isLoading: false, errorMessage: '차단 목록을 불러오지 못했어요.'),
-      );
+      // (blockedUsers 가 null 로 남아 화면이 조회 실패 안내를 표시한다)
+      _update((s) => s.copyWith(isLoading: false));
     }
   }
 

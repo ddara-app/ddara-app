@@ -28,6 +28,15 @@ enum WithdrawStatus {
   fail,
 }
 
+/// 프로필 조회 실패 종류. (사용자 노출 문구는 화면에서 l10n 으로 매핑한다)
+enum ProfileLoadError {
+  /// 사용자를 찾을 수 없음. (탈퇴 등)
+  userNotFound,
+
+  /// 네트워크 등 그 외 조회 실패.
+  loadFailed,
+}
+
 /// 프로필 화면 상태.
 ///
 /// 사용자 이름·가입일·앱 버전·연동 계정 등 서버에서 내려받는 정보와
@@ -54,8 +63,8 @@ class ProfileState {
   /// 프로필 이미지 업로드 진행 여부. (중복 탭 방지 + 진행 표시)
   final bool isImageUploading;
 
-  /// 프로필 정보 로딩 실패 메시지. (없으면 빈 문자열)
-  final String errorMessage;
+  /// 프로필 정보 로딩 실패 종류. (없으면 null — 문구 매핑은 화면 담당)
+  final ProfileLoadError? loadError;
 
   /// 로그아웃 진행 상태.
   final LogoutStatus logoutStatus;
@@ -71,7 +80,7 @@ class ProfileState {
     this.linkedAccount = '',
     this.isLoading = false,
     this.isImageUploading = false,
-    this.errorMessage = '',
+    this.loadError,
     this.logoutStatus = LogoutStatus.idle,
     this.withdrawStatus = WithdrawStatus.idle,
   });
@@ -86,7 +95,7 @@ class ProfileState {
     String? linkedAccount,
     bool? isLoading,
     bool? isImageUploading,
-    String? errorMessage,
+    ProfileLoadError? loadError,
     LogoutStatus? logoutStatus,
     WithdrawStatus? withdrawStatus,
   }) {
@@ -100,7 +109,7 @@ class ProfileState {
       linkedAccount: linkedAccount ?? this.linkedAccount,
       isLoading: isLoading ?? this.isLoading,
       isImageUploading: isImageUploading ?? this.isImageUploading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      loadError: loadError ?? this.loadError,
       logoutStatus: logoutStatus ?? this.logoutStatus,
       withdrawStatus: withdrawStatus ?? this.withdrawStatus,
     );
