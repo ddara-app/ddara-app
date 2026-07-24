@@ -2,6 +2,7 @@ import 'package:ddara/core/design_system/component/text_field/app_text_field.dar
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/feature/group_create/provider/notifier_provider.dart';
+import 'package:ddara/feature/group_create/util/create_group_state.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,12 +32,6 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
 
   void _onTextChanged() => setState(() {});
 
-  /// 모임 이름 최대 길이.
-  static const _nameMaxLength = 20;
-
-  /// 모임 소개 최대 길이.
-  static const _introMaxLength = 100;
-
   @override
   void dispose() {
     _nameController.removeListener(_onTextChanged);
@@ -52,12 +47,14 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
     final l10n = AppLocalizations.of(context);
 
     // 이름이 최대 길이를 초과하면 에러 문구, 아니면 null.
-    final nameError = _nameController.text.length > _nameMaxLength
+    final nameError =
+        _nameController.text.length > CreateGroupState.nameMaxLength
         ? l10n.groupCreateNameLengthError
         : null;
 
     // 소개가 최대 길이를 초과하면 에러 문구, 아니면 null.
-    final introError = _introController.text.length > _introMaxLength
+    final introError =
+        _introController.text.length > CreateGroupState.introMaxLength
         ? l10n.groupCreateIntroLengthError
         : null;
 

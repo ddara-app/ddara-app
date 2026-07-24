@@ -51,10 +51,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
 
     // 스텝별 다음 진행 가능 조건.
     final canSubmit = switch (_step) {
-      0 =>
-        state.groupName.trim().isNotEmpty &&
-            state.groupName.length <= 20 &&
-            state.description.length <= 100,
+      0 => state.isNameStepValid,
       _ => state.nickname.isNotEmpty && nicknameError == null,
     };
 
