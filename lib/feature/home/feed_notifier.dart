@@ -29,6 +29,9 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState> {
         myUserId: profile?.$1,
         myNickname: profile?.$2 ?? '',
         myProfileImageUrl: profile?.$3,
+        // 이전 실패 흔적을 지운다. (에러 → 새로고침 성공 직후
+        // 이전 메시지가 토스트로 재노출되는 것을 방지)
+        errorMessage: '',
       );
     } catch (_) {
       state = state.copyWith(

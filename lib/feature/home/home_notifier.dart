@@ -19,6 +19,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
         isLoading: false,
         groups: groupList.groups,
         blockedUserIds: blockedUserIds,
+        // 이전 실패 흔적을 지운다. (에러 → 재조회 성공 시 에러 화면 잔존 방지)
+        errorMessage: '',
       );
     } catch (_) {
       state = state.copyWith(isLoading: false, errorMessage: '목록을 불러오지 못했어요.');
@@ -54,6 +56,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       state = state.copyWith(
         groups: groupList.groups,
         blockedUserIds: blockedUserIds,
+        // 이전 실패 흔적을 지운다. (S-1: 성공 후 stale 에러 잔존 방지)
+        errorMessage: '',
       );
     } catch (_) {
       // 보던 목록을 유지한다.
