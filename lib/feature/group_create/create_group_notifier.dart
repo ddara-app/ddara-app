@@ -81,6 +81,13 @@ class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
         (s) =>
             s.copyWith(isLoading: false, errorCode: GroupCreateError.unknown),
       );
+    } catch (_) {
+      // 매핑되지 않은 예외(응답 파싱 실패 등)에도 isLoading 을 반드시 내려,
+      // tapGuard 로 비활성화된 버튼이 영구 잠기지 않게 한다.
+      _update(
+        (s) =>
+            s.copyWith(isLoading: false, errorCode: GroupCreateError.unknown),
+      );
     }
   }
 }
