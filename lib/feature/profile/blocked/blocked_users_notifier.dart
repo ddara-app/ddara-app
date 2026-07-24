@@ -4,12 +4,24 @@ import 'package:ddara/feature/profile/blocked/util/blocked_users_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState> {
+  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
+  /// (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+  bool _disposed = false;
+
   @override
   BlockedUsersState build() {
+    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
+    ref.onDispose(() => _disposed = true);
     // 진입 시 차단 목록을 조회한다. (build 는 동기라 fire-and-forget)
     _load();
 
     return const BlockedUsersState(isLoading: true);
+  }
+
+  /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
+  void _update(BlockedUsersState Function(BlockedUsersState state) updater) {
+    if (_disposed) return;
+    state = updater(state);
   }
 
   Future<void> _load() async {
@@ -17,12 +29,11 @@ class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState> {
 
     try {
       final blockedUsers = await getBlockedUsersUseCase();
-      state = state.copyWith(isLoading: false, blockedUsers: blockedUsers);
+      _update((s) => s.copyWith(isLoading: false, blockedUsers: blockedUsers));
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '차단 목록을 불러오지 못했어요.',
+      _update(
+        (s) => s.copyWith(isLoading: false, errorMessage: '차단 목록을 불러오지 못했어요.'),
       );
     }
   }
@@ -32,7 +43,7 @@ class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState> {
   Future<bool> unblock(int userId) async {
     if (state.isLoading) return false;
 
-    state = state.copyWith(isLoading: true);
+    _update((s) => s.copyWith(isLoading: true));
     final unblockUserUseCase = ref.read(unblockUserUseCaseProvider);
 
     try {
@@ -45,7 +56,7 @@ class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState> {
       return true;
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(isLoading: false);
+      _update((s) => s.copyWith(isLoading: false));
       return false;
     }
   }
