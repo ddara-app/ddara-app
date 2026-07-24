@@ -1,7 +1,7 @@
 import 'package:ddara/core/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
-import 'package:ddara/feature/home/util/refresh_with_min_duration.dart';
+import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
 import 'package:ddara/feature/home/widget/home_tab_header.dart';
