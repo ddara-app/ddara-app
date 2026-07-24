@@ -4,6 +4,7 @@ import 'package:ddara/core/router/app_router.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -57,8 +58,9 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
           loadError: ProfileLoadError.userNotFound,
         ),
       );
-    } catch (_) {
+    } catch (e) {
       // NetworkException 및 기타 예기치 못한 오류.
+      debugPrint('[Profile] 조회 실패: $e');
       _update(
         (s) => s.copyWith(
           isLoading: false,
@@ -69,9 +71,16 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
     }
   }
 
+  /// 앱 버전 문자열. 조회가 `_load` 의 try 밖에서 실행되므로, 여기서 실패를
+  /// 삼키지 않으면 상태가 isLoading 인 채 고정된다 — 실패 시 빈 값으로 대체.
   Future<String> _getAppVersion() async {
-    final info = await PackageInfo.fromPlatform();
-    return 'v${info.version}';
+    try {
+      final info = await PackageInfo.fromPlatform();
+      return 'v${info.version}';
+    } catch (e) {
+      debugPrint('[Profile] 앱 버전 조회 실패: $e');
+      return '';
+    }
   }
 
   /// 프로필 이미지를 업로드하고, 성공 시 새 이미지 URL로 상태를 갱신한다.

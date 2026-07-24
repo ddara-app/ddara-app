@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ddara/core/design_system/theme/app_colors.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/widgets.dart' show Color;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -34,8 +35,9 @@ class ImagePickerService {
   Future<XFile?> _pick(ImageSource source) async {
     try {
       return await _picker.pickImage(source: source);
-    } catch (_) {
+    } catch (e) {
       // 권한 영구 거부·플랫폼 오류 등은 삼키고 미선택으로 처리한다.
+      debugPrint('[ImagePicker] 선택 실패: $e');
       return null;
     }
   }
@@ -85,7 +87,8 @@ class ImagePickerService {
         ],
       );
       return cropped == null ? null : XFile(cropped.path);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[ImagePicker] 크롭 실패: $e');
       return null;
     } finally {
       try {

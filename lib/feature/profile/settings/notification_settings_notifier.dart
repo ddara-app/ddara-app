@@ -3,6 +3,7 @@ import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/profile/settings/util/notification_settings_state.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NotificationSettingsNotifier
@@ -56,8 +57,9 @@ class NotificationSettingsNotifier
       if (allowAll != settings.allowAll) {
         await _persist();
       }
-    } catch (_) {
+    } catch (e) {
       // 조회 실패 시 기본값(모두 true)을 유지하되 권한만 반영한다.
+      debugPrint('[NotificationSettings] 조회 실패: $e');
       _update(
         (s) =>
             s.copyWith(isLoading: false, permissionGranted: permissionGranted),
@@ -159,8 +161,9 @@ class NotificationSettingsNotifier
           memberJoin: saved.memberJoin,
         ),
       );
-    } catch (_) {
-      // 저장 실패는 조용히 무시한다. (다음 변경/재진입 시 다시 시도)
+    } catch (e) {
+      // 저장 실패는 화면에 반영하지 않는다. (다음 변경/재진입 시 다시 시도)
+      debugPrint('[NotificationSettings] 저장 실패: $e');
     }
   }
 }
