@@ -1,5 +1,5 @@
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -115,7 +115,7 @@ class _LockTail extends StatelessWidget {
       child: SizedBox(
         height: CommentInputField._sendButtonHeight,
         child: Center(
-          child: LockIcon(size: 20, color: AppColors.textDisabled),
+          child: AppIcon(AppIcons.lock, size: 20, color: AppColors.textDisabled),
         ),
       ),
     );
@@ -154,8 +154,8 @@ class _SendButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadius.full),
                 ),
               ),
-              child: const Icon(
-                CupertinoIcons.arrow_up,
+              child: const AppIcon(
+                AppIcons.arrowUp,
                 size: 24,
                 color: AppColors.textPrimary,
               ),

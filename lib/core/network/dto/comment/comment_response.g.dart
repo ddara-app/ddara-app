@@ -14,6 +14,7 @@ _CommentResponse _$CommentResponseFromJson(Map<String, dynamic> json) =>
       profileImageUrl: json['profileImageUrl'] as String?,
       content: json['content'] as String?,
       underReview: json['underReview'] as bool? ?? false,
+      reportedByMe: json['reportedByMe'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] == null
           ? null
@@ -28,6 +29,7 @@ Map<String, dynamic> _$CommentResponseToJson(_CommentResponse instance) =>
       'profileImageUrl': instance.profileImageUrl,
       'content': instance.content,
       'underReview': instance.underReview,
+      'reportedByMe': instance.reportedByMe,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };

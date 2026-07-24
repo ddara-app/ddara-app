@@ -21,6 +21,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commonCancel => '취소';
 
   @override
+  String get commonRetry => '다시 시도';
+
+  @override
   String get onboardingFirstTitle => '한 장 찍으면 인증샷이 시작';
 
   @override
@@ -60,6 +63,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginViewPolicies => '이용약관과 개인정보 처리방침 확인';
 
   @override
+  String get loginErrorUnauthorized => '로그인 인증에 실패했어요. 다시 시도해 주세요.';
+
+  @override
+  String get loginErrorNetwork => '네트워크 연결을 확인해 주세요.';
+
+  @override
+  String get loginErrorUnknown => '로그인에 실패했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get termsTitle => '약관에 동의해 주세요';
 
   @override
@@ -90,10 +102,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get policyYouthTitle => '청소년 보호정책';
 
   @override
+  String get signUpErrorInvalidInput => '입력값을 확인해 주세요.';
+
+  @override
+  String get signUpErrorInvalidToken => '소셜 토큰이 만료되었거나 유효하지 않습니다.';
+
+  @override
+  String get signUpErrorUnsupportedProvider => '지원하지 않는 로그인 방식입니다.';
+
+  @override
+  String get signUpErrorUnknown => '회원가입에 실패했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get permissionPageTitle => '권한 안내';
 
   @override
-  String get permissionHeaderTitle => 'ddara 권한 안내';
+  String get permissionHeaderTitle => '이런 권한이 필요해요';
 
   @override
   String get permissionHeaderDescription =>
@@ -130,8 +154,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get requiredPermissionTitle => '필수 권한을 허용해 주세요';
 
   @override
-  String get requiredPermissionDescription =>
-      '필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.';
+  String get requiredPermissionDescription => '카메라 권한이 있어야 따라찍기를 할 수 있어요';
 
   @override
   String permissionDialogTitle(String permissionName) {
@@ -149,6 +172,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get homeTabRecentUpdates => '최근 업데이트';
+
+  @override
+  String get homeLoadFailed => '목록을 불러오지 못했어요.';
+
+  @override
+  String get feedLoadFailed => '최근 업데이트를 불러오지 못했어요.';
 
   @override
   String get emptyGroupTitle => '아직 참여한 모임이 없어요';
@@ -241,6 +270,42 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupCreateIntroLengthError => '100자 이하로 입력해주세요';
 
   @override
+  String get groupCreateErrorInvalidName => '모임 이름을 확인해주세요.';
+
+  @override
+  String get groupCreateErrorUnauthorized => '로그인이 만료되었어요. 다시 로그인해 주세요.';
+
+  @override
+  String get groupCreateErrorLimitExceeded => '만들 수 있는 모임 개수(최대 20개)를 초과했어요.';
+
+  @override
+  String get groupCreateErrorUnknown => '네트워크 연결이 불안정해요.';
+
+  @override
+  String get groupJoinErrorInvalidInput => '입력값이 올바르지 않아요.';
+
+  @override
+  String get groupJoinErrorInvalidCode => '유효하지 않은 초대 코드예요.';
+
+  @override
+  String get groupJoinErrorGroupNotFound => '존재하지 않는 초대 코드예요.';
+
+  @override
+  String get groupJoinErrorAlreadyJoined => '이미 참여 중인 모임이에요.';
+
+  @override
+  String get groupJoinErrorGroupFull => '이미 꽉 찬 모임이에요. 만든 친구에게 물어봐 주세요.';
+
+  @override
+  String get groupJoinErrorLimitExceeded => '참여할 수 있는 모임 개수를 초과했어요.';
+
+  @override
+  String get groupJoinErrorDuplicateNickname => '이미 누가 쓰고 있어요. 다른 이름은 어때요?';
+
+  @override
+  String get groupJoinErrorUnknown => '네트워크 연결이 불안정해요.';
+
+  @override
   String get groupJoinTitle => '모임 참여';
 
   @override
@@ -328,6 +393,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupMenuEditNickname => '닉네임 수정';
 
   @override
+  String get groupMenuReport => '모임 신고';
+
+  @override
   String get groupMenuExit => '모임 나가기';
 
   @override
@@ -376,6 +444,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoReportReasonEtc => '기타';
 
   @override
+  String get groupReportReasonInappropriate => '부적절한 모임 이름·이미지';
+
+  @override
+  String get groupReportReasonEtc => '기타';
+
+  @override
   String get userReportReasonNickname => '부적절한 닉네임(욕설·음란·혐오)';
 
   @override
@@ -405,6 +479,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String memberBlockedToast(String nickname) {
     return '$nickname님을 차단했어요.';
   }
+
+  @override
+  String get memberBlockFailedToast => '차단하지 못했어요.';
 
   @override
   String get recordCycleLabel => '따라찍기';
@@ -586,9 +663,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoViewerCommentEmpty => '아직 댓글이 없습니다.';
 
   @override
-  String get photoViewerCommentUnderReview => '신고 접수되어 검토 중인 댓글입니다';
-
-  @override
   String get commentMenuEdit => '수정하기';
 
   @override
@@ -623,6 +697,48 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get commentSendFailed => '실패';
+
+  @override
+  String get commentErrorPhotoDeleted => '이미 삭제된 사진이에요.';
+
+  @override
+  String get commentErrorNotGroupMember => '해당 모임의 멤버가 아니에요.';
+
+  @override
+  String get commentErrorLoadFailed => '댓글을 불러오지 못했어요.';
+
+  @override
+  String get commentErrorInvalidInput => '댓글 내용을 확인해 주세요.';
+
+  @override
+  String get commentErrorPhotoLocked => '내 인증샷을 올려야 댓글을 달 수 있어요.';
+
+  @override
+  String get commentErrorPhotoUnderReview => '검토 중인 사진에는 댓글을 달 수 없어요.';
+
+  @override
+  String get commentErrorSubmitFailed => '댓글을 등록하지 못했어요.';
+
+  @override
+  String get commentErrorDeleteForbidden => '내가 작성한 댓글만 삭제할 수 있어요.';
+
+  @override
+  String get commentErrorAlreadyDeleted => '이미 삭제된 댓글이에요.';
+
+  @override
+  String get commentErrorDeleteFailed => '댓글을 삭제하지 못했어요.';
+
+  @override
+  String get commentErrorEditForbidden => '내가 작성한 댓글만 수정할 수 있어요.';
+
+  @override
+  String get commentErrorEditFailed => '댓글을 수정하지 못했어요.';
+
+  @override
+  String get commentErrorInvalidReport => '신고 내용이 올바르지 않아요.';
+
+  @override
+  String get commentErrorReportFailed => '신고하지 못했어요.';
 
   @override
   String get commentPendingLeaveTitle => '전송하지 못한 댓글이 있어요';
@@ -828,6 +944,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profileAccountManage => '계정 관리';
 
   @override
+  String get profileErrorUserNotFound => '사용자를 찾을 수 없어요.';
+
+  @override
+  String get profileLoadFailed => '프로필 정보를 불러오지 못했어요.';
+
+  @override
   String get profileSectionManage => '관리';
 
   @override
@@ -840,7 +962,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedUsersEmpty => '차단한 유저가 없어요';
 
   @override
+  String get blockedUsersLoadFailed => '차단 목록을 불러오지 못했어요.';
+
+  @override
+  String blockedUsersNicknameDate(String nickname, String date) {
+    return '$nickname · $date 차단';
+  }
+
+  @override
+  String get blockedUsersNotice =>
+      '차단한 멤버의 사진은 내 화면에서만 보이지 않습니다.\n상대방에게는 차단 사실이 알려지지 않아요.';
+
+  @override
   String get blockedUsersUnblock => '차단 해제';
+
+  @override
+  String blockedUsersUnblockConfirmTitle(String name) {
+    return '$name님의 차단을 해제할까요?';
+  }
+
+  @override
+  String get blockedUsersUnblockConfirmBody => '이 멤버의 사진이 다시 보이게 됩니다.';
+
+  @override
+  String get blockedUsersUnblockConfirmAction => '해제하기';
 
   @override
   String get blockedUsersUnblockedToast => '차단을 해제했어요.';
@@ -896,6 +1041,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String profileContactMailFailed(String email) {
     return '메일 앱을 열 수 없어요. ($email)';
   }
+
+  @override
+  String get profileImageCropTitle => '사진 편집';
 
   @override
   String get profileImageSourceTitle => '프로필 사진 변경';

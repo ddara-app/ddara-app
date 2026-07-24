@@ -45,10 +45,17 @@ class BottomScrim extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.6, 1.0],
+                  // 시작 구간을 ease-in(제곱 곡선)으로 촘촘히 샘플링해, 스크림
+                  // 상단 경계에서 기울기가 0으로 출발한다 — 경계 띠(Mach band)가
+                  // 보이지 않고 자연스럽게 스며든다. (0.55 지점 0.38 을 지나
+                  // 하단에서 maxAlpha 도달)
+                  stops: const [0.0, 0.15, 0.3, 0.45, 0.55, 1.0],
                   colors: [
                     color.withValues(alpha: 0),
-                    color.withValues(alpha: 0.85 * maxAlpha),
+                    color.withValues(alpha: 0.03 * maxAlpha),
+                    color.withValues(alpha: 0.11 * maxAlpha),
+                    color.withValues(alpha: 0.25 * maxAlpha),
+                    color.withValues(alpha: 0.38 * maxAlpha),
                     color.withValues(alpha: maxAlpha),
                   ],
                 ),

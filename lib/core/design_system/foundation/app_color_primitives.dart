@@ -85,6 +85,14 @@ abstract final class AppColorPrimitives {
   static const Color red800 = Color(0xFF832525);
   static const Color red900 = Color(0xFF641D1D);
 
+  // Brand
+  /// 카카오 로그인 버튼 배경. (카카오 브랜드 가이드 고정색 — 테마와 무관)
+  static const Color kakaoYellow = Color(0xFFFEE500);
+
+  /// 소셜 로그인 버튼 라벨. (브랜드 가이드 기준 순수 검정 —
+  /// 앱 표준 [black](0xFF16171B)과 달리 밝은 브랜드 배경 위에서만 쓴다)
+  static const Color pureBlack = Color(0xFF000000);
+
   // Alpha
   static const Color white20 = Color(0x33FFFFFF);
   static const Color white40 = Color(0x66FFFFFF);

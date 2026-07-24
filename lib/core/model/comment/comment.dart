@@ -13,10 +13,11 @@ abstract class Comment with _$Comment {
     required String nickname,
     // 작성자 프로필 이미지 URL. 없으면 null.
     required String? profileImageUrl,
-    // 댓글 내용. 신고 접수로 검토 중(underReview)이면 null.
     required String? content,
-    // 신고 접수로 검토 중인 댓글인지 여부.
+    // 신고 접수로 검토 중인 댓글인지 여부. (검토 중인 댓글은 목록에서 숨긴다)
     @Default(false) bool underReview,
+    // 내가 신고한 댓글인지 여부. (내가 신고한 댓글은 목록에서 숨긴다)
+    @Default(false) bool reportedByMe,
     required DateTime createdAt,
     // 수정 시각. 수정된 적 없으면 null.
     DateTime? updatedAt,

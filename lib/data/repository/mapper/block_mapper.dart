@@ -9,6 +9,7 @@ extension BlockListMapper on BlockListResponse {
             (block) => BlockedUser(
               userId: block.userId,
               name: block.name,
+              blockedNickname: block.blockedNickname,
               blockedAt: block.blockedAt,
             ),
           )

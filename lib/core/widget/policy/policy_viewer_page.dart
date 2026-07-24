@@ -4,7 +4,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:go_router/go_router.dart';
 
 /// [PolicyViewerPage] 에 넘기는 인자. (제목 + 마크다운 에셋 경로)
@@ -21,7 +21,8 @@ class PolicyViewerArgs {
 /// 마크다운 정책 문서를 보여주는 공용 뷰어.
 ///
 /// 약관·개인정보·운영정책·청소년 보호정책 등 4종을 [PolicyViewerArgs] 의
-/// 에셋 경로만 바꿔 같은 화면으로 표시한다.
+/// 에셋 경로만 바꿔 같은 화면으로 표시한다. sign(가입 약관)·profile(약관 및
+/// 정책 메뉴) 두 feature 가 함께 쓰므로 core 에 둔다.
 class PolicyViewerPage extends StatelessWidget {
   const PolicyViewerPage({super.key, required this.args});
 

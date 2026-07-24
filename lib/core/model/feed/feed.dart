@@ -50,8 +50,13 @@ abstract class FeedComment with _$FeedComment {
   const factory FeedComment({
     required int userId,
     required String nickname,
+    // 작성자 프로필 이미지 URL. 미등록이면 null. (기본 아바타 표시)
+    String? profileImageUrl,
     // 댓글 내용. 신고 접수로 검토 중(underReview)이면 null.
     required String? content,
+    // 신고 접수로 검토 중인 댓글인지 여부. (검토 중인 댓글은 미리보기에서 숨긴다)
     @Default(false) bool underReview,
+    // 내가 신고한 댓글인지 여부. (내가 신고한 댓글은 미리보기에서 숨긴다)
+    @Default(false) bool reportedByMe,
   }) = _FeedComment;
 }

@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/bottom_sheet/invite_share_sheet.dart';
@@ -17,6 +19,7 @@ import 'package:ddara/feature/group/detail/widget/body/history_photos.dart';
 import 'package:ddara/feature/group/detail/widget/body/members.dart';
 import 'package:ddara/feature/group/detail/widget/body/user_report_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
+import 'package:ddara/feature/group/detail/widget/group_report_sheet.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
 import 'package:ddara/feature/group/random_starter/random_starter_page.dart';
@@ -108,8 +111,8 @@ class GroupPage extends ConsumerWidget {
           trailing: AppBarIconButton(
             // 상세 로딩·나가기·닉네임 변경이 진행되는 동안 메뉴 재진입을 차단한다.
             onPressed: tapGuard(state.isLoading, () => _showMenu(context, ref)),
-            child: const Icon(
-              CupertinoIcons.ellipsis_vertical,
+            child: const AppIcon(
+              AppIcons.moreVertical,
               size: 24,
               color: AppColors.textPrimary,
             ),
@@ -175,6 +178,17 @@ class GroupPage extends ConsumerWidget {
             isDestructiveAction: true,
             onPressed: () {
               Navigator.of(sheetContext).pop();
+              _reportGroup(context, ref);
+            },
+            child: AppText.title(
+              l10n.groupMenuReport,
+              color: AppColors.statusDanger,
+            ),
+          ),
+          CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.of(sheetContext).pop();
               _exitGroup(context, ref);
             },
             child: AppText.title(
@@ -208,6 +222,24 @@ class GroupPage extends ConsumerWidget {
         members: members,
       ),
     );
+  }
+
+  /// 모임 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
+  /// 성공 시 완료 토스트를 띄운다. (신고해도 모임은 그대로 노출 — 관리자 검토
+  /// 후 처리, 실패 시 notifier 가 errorMessage → 토스트로 처리)
+  Future<void> _reportGroup(BuildContext context, WidgetRef ref) async {
+    final result = await GroupReportSheet.show(context);
+    if (result == null || !context.mounted) return;
+
+    final success = await ref
+        .read(groupPageNotifierProvider(groupId).notifier)
+        .reportGroup(
+          reason: result.reason,
+          reasonText: result.detail.isEmpty ? null : result.detail,
+        );
+    if (!success || !context.mounted) return;
+
+    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
   }
 
   /// 닉네임 수정 바텀시트를 띄우고, 입력을 받으면 변경을 요청한다.
@@ -268,12 +300,9 @@ class GroupPage extends ConsumerWidget {
     }
 
     // 최상단에서 아래로 당기면 상세·히스토리를 다시 조회한다.
-    // 조회가 아무리 빨리 끝나도 인디케이터를 최소 1초는 상단에 고정했다가
-    // 풀어, 새로고침이 일어났음을 인지할 수 있게 한다.
-    Future<void> onRefresh() => Future.wait([
-      ref.read(groupPageNotifierProvider(groupId).notifier).refresh(),
-      Future<void>.delayed(const Duration(seconds: 1)),
-    ]);
+    Future<void> onRefresh() => refreshWithMinDuration(
+      () => ref.read(groupPageNotifierProvider(groupId).notifier).refresh(),
+    );
 
     // 당겨서 새로고침에 필요한 상단 overscroll(바운스)을 허용하고, 콘텐츠가
     // 화면보다 짧아도 당길 수 있도록 AlwaysScrollable 을 부모로 둔다.

@@ -11,6 +11,7 @@ abstract final class AppSpacing {
   static const double s6 = 24;
   static const double s7 = 28;
   static const double s8 = 32;
+  static const double s9 = 36;
 
   /// Pill 형태 등 완전히 채우는 간격.
   static const double full = 999;

@@ -23,11 +23,14 @@ class InviteCodeInputState {
     GroupJoinErrorCode? errorCode,
     // errorCode 를 null 로 되돌린다. (입력 변경 시 에러 해제용)
     bool clearErrorCode = false,
+    // inviteGroup 을 null 로 되돌린다. (조회 시작·입력 변경 시, 재조회가
+    // "prev==null → next!=null" 전환을 다시 트리거할 수 있게 한다)
+    bool clearInviteGroup = false,
   }) {
     return InviteCodeInputState(
       inviteCode: inviteCode ?? this.inviteCode,
       isLoading: isLoading ?? this.isLoading,
-      inviteGroup: inviteGroup ?? this.inviteGroup,
+      inviteGroup: clearInviteGroup ? null : (inviteGroup ?? this.inviteGroup),
       errorCode: clearErrorCode ? null : (errorCode ?? this.errorCode),
     );
   }

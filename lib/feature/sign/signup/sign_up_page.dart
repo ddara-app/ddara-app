@@ -5,7 +5,9 @@ import 'package:ddara/core/design_system/component/loading/app_loading_overlay.d
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/sign/signup/provider/notifier_provider.dart';
-import 'package:ddara/feature/sign/signup/step/terms_page.dart';
+import 'package:ddara/feature/sign/signup/terms_page.dart';
+import 'package:ddara/feature/sign/signup/util/sign_up_page_state.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,6 +35,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     );
   }
 
+  /// 실패 사유(enum)를 사용자 노출 문구로 매핑한다.
+  String _signUpErrorMessage(AppLocalizations l10n, SignUpErrorType type) {
+    return switch (type) {
+      SignUpErrorType.invalidInput => l10n.signUpErrorInvalidInput,
+      SignUpErrorType.invalidToken => l10n.signUpErrorInvalidToken,
+      SignUpErrorType.unsupportedProvider =>
+        l10n.signUpErrorUnsupportedProvider,
+      SignUpErrorType.unknown => l10n.signUpErrorUnknown,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final social = GoRouterState.of(context).extra as SocialLoginType;
@@ -40,21 +53,28 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     final notifier = ref.read(signNotifierProvider(social).notifier);
 
     ref.listen(signNotifierProvider(social), (prev, next) {
-      if (prev?.isSuccess == false && next.isSuccess) {
-        MixpanelManager.instance.track(
-          'signup_succeeded',
-          properties: {'provider': social.name},
-        );
-        // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
-        routeAfterAuth(ref, GoRouter.of(context));
-        return;
-      }
+      // 제출 상태가 바뀐 경우만 처리. (termsAgreed 변경 같은 입력값 갱신으로
+      // 같은 submit 이 재통지될 때 성공 라우팅·토스트가 중복되는 것을 막는다)
+      if (prev?.submit == next.submit) return;
 
-      // errorMessage 가 새로 바뀐 경우에만 토스트. (finally 의 isLoading 갱신처럼
-      // 같은 메시지로 상태가 재통지될 때 토스트가 중복되는 것을 막는다)
-      final errorMessage = next.errorMessage;
-      if (errorMessage.isNotEmpty && prev?.errorMessage != errorMessage) {
-        Toast.showToast(context, errorMessage, type: ToastType.error);
+      switch (next.submit) {
+        case SignUpSuccess():
+          MixpanelManager.instance.track(
+            'signup_succeeded',
+            properties: {'provider': social.name},
+          );
+          // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
+          routeAfterAuth(ref, GoRouter.of(context));
+
+        case SignUpError(:final type):
+          Toast.showToast(
+            context,
+            _signUpErrorMessage(AppLocalizations.of(context), type),
+            type: ToastType.error,
+          );
+
+        default:
+          break;
       }
     });
 
@@ -72,7 +92,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             ),
 
             // 회원가입 처리 중 로딩 오버레이 (입력 차단 + 인디케이터)
-            if (state.isLoading) const AppLoadingOverlay(),
+            if (state.submit is SignUpLoading) const AppLoadingOverlay(),
           ],
         ),
       ),

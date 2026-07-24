@@ -16,8 +16,9 @@ T _$identity<T>(T value) => value;
 mixin _$CommentResponse {
 
  int get commentId; int get userId; String get nickname;// 프로필 이미지 URL. 없으면 null.
- String? get profileImageUrl;// 댓글 내용. 검토 중이면 null.
- String? get content; bool get underReview; DateTime get createdAt; DateTime? get updatedAt;
+ String? get profileImageUrl; String? get content;// 신고 접수로 검토 중인 댓글인지 여부.
+ bool get underReview;// 내가 신고한 댓글인지 여부.
+ bool get reportedByMe; DateTime get createdAt; DateTime? get updatedAt;
 /// Create a copy of CommentResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +31,16 @@ $CommentResponseCopyWith<CommentResponse> get copyWith => _$CommentResponseCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommentResponse&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommentResponse&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview)&&(identical(other.reportedByMe, reportedByMe) || other.reportedByMe == reportedByMe)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,commentId,userId,nickname,profileImageUrl,content,underReview,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,commentId,userId,nickname,profileImageUrl,content,underReview,reportedByMe,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'CommentResponse(commentId: $commentId, userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, underReview: $underReview, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'CommentResponse(commentId: $commentId, userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, underReview: $underReview, reportedByMe: $reportedByMe, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -50,7 +51,7 @@ abstract mixin class $CommentResponseCopyWith<$Res>  {
   factory $CommentResponseCopyWith(CommentResponse value, $Res Function(CommentResponse) _then) = _$CommentResponseCopyWithImpl;
 @useResult
 $Res call({
- int commentId, int userId, String nickname, String? profileImageUrl, String? content, bool underReview, DateTime createdAt, DateTime? updatedAt
+ int commentId, int userId, String nickname, String? profileImageUrl, String? content, bool underReview, bool reportedByMe, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -67,7 +68,7 @@ class _$CommentResponseCopyWithImpl<$Res>
 
 /// Create a copy of CommentResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? commentId = null,Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = freezed,Object? underReview = null,Object? createdAt = null,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? commentId = null,Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = freezed,Object? underReview = null,Object? reportedByMe = null,Object? createdAt = null,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 commentId: null == commentId ? _self.commentId : commentId // ignore: cast_nullable_to_non_nullable
 as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -75,6 +76,7 @@ as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nu
 as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String?,underReview: null == underReview ? _self.underReview : underReview // ignore: cast_nullable_to_non_nullable
+as bool,reportedByMe: null == reportedByMe ? _self.reportedByMe : reportedByMe // ignore: cast_nullable_to_non_nullable
 as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
@@ -162,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  bool reportedByMe,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CommentResponse() when $default != null:
-return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.reportedByMe,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -183,10 +185,10 @@ return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUr
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  bool reportedByMe,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _CommentResponse():
-return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.reportedByMe,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +205,10 @@ return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUr
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int commentId,  int userId,  String nickname,  String? profileImageUrl,  String? content,  bool underReview,  bool reportedByMe,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CommentResponse() when $default != null:
-return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUrl,_that.content,_that.underReview,_that.reportedByMe,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -218,7 +220,7 @@ return $default(_that.commentId,_that.userId,_that.nickname,_that.profileImageUr
 @JsonSerializable()
 
 class _CommentResponse implements CommentResponse {
-  const _CommentResponse({required this.commentId, required this.userId, required this.nickname, required this.profileImageUrl, required this.content, this.underReview = false, required this.createdAt, this.updatedAt});
+  const _CommentResponse({required this.commentId, required this.userId, required this.nickname, required this.profileImageUrl, required this.content, this.underReview = false, this.reportedByMe = false, required this.createdAt, this.updatedAt});
   factory _CommentResponse.fromJson(Map<String, dynamic> json) => _$CommentResponseFromJson(json);
 
 @override final  int commentId;
@@ -226,9 +228,11 @@ class _CommentResponse implements CommentResponse {
 @override final  String nickname;
 // 프로필 이미지 URL. 없으면 null.
 @override final  String? profileImageUrl;
-// 댓글 내용. 검토 중이면 null.
 @override final  String? content;
+// 신고 접수로 검토 중인 댓글인지 여부.
 @override@JsonKey() final  bool underReview;
+// 내가 신고한 댓글인지 여부.
+@override@JsonKey() final  bool reportedByMe;
 @override final  DateTime createdAt;
 @override final  DateTime? updatedAt;
 
@@ -245,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommentResponse&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommentResponse&&(identical(other.commentId, commentId) || other.commentId == commentId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.content, content) || other.content == content)&&(identical(other.underReview, underReview) || other.underReview == underReview)&&(identical(other.reportedByMe, reportedByMe) || other.reportedByMe == reportedByMe)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,commentId,userId,nickname,profileImageUrl,content,underReview,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,commentId,userId,nickname,profileImageUrl,content,underReview,reportedByMe,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'CommentResponse(commentId: $commentId, userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, underReview: $underReview, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'CommentResponse(commentId: $commentId, userId: $userId, nickname: $nickname, profileImageUrl: $profileImageUrl, content: $content, underReview: $underReview, reportedByMe: $reportedByMe, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -265,7 +269,7 @@ abstract mixin class _$CommentResponseCopyWith<$Res> implements $CommentResponse
   factory _$CommentResponseCopyWith(_CommentResponse value, $Res Function(_CommentResponse) _then) = __$CommentResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int commentId, int userId, String nickname, String? profileImageUrl, String? content, bool underReview, DateTime createdAt, DateTime? updatedAt
+ int commentId, int userId, String nickname, String? profileImageUrl, String? content, bool underReview, bool reportedByMe, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -282,7 +286,7 @@ class __$CommentResponseCopyWithImpl<$Res>
 
 /// Create a copy of CommentResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? commentId = null,Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = freezed,Object? underReview = null,Object? createdAt = null,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? commentId = null,Object? userId = null,Object? nickname = null,Object? profileImageUrl = freezed,Object? content = freezed,Object? underReview = null,Object? reportedByMe = null,Object? createdAt = null,Object? updatedAt = freezed,}) {
   return _then(_CommentResponse(
 commentId: null == commentId ? _self.commentId : commentId // ignore: cast_nullable_to_non_nullable
 as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -290,6 +294,7 @@ as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nu
 as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String?,underReview: null == underReview ? _self.underReview : underReview // ignore: cast_nullable_to_non_nullable
+as bool,reportedByMe: null == reportedByMe ? _self.reportedByMe : reportedByMe // ignore: cast_nullable_to_non_nullable
 as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,

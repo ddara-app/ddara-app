@@ -3,6 +3,7 @@ import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/model/report/group_report_reason.dart';
 import 'package:ddara/core/model/report/user_report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';
@@ -143,6 +144,40 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
     }
   }
 
+  /// 이 모임을 신고한다. 성공하면 true.
+  /// (실패 사유는 errorMessage 로 내려 화면에서 토스트로 안내한다)
+  ///
+  /// 신고해도 화면에 바뀌는 값이 없으므로 로딩 표시·상세 재조회 없이
+  /// 접수만 하고 결과 토스트로 끝낸다.
+  Future<bool> reportGroup({
+    required GroupReportReason reason,
+    String? reasonText,
+  }) async {
+    final reportGroupUseCase = ref.read(reportGroupUseCaseProvider);
+
+    try {
+      await reportGroupUseCase(
+        groupId: arg,
+        reason: reason,
+        reasonText: reasonText,
+      );
+      return true;
+    } on InvalidReportInputException {
+      state = state.copyWith(errorMessage: '신고 내용이 올바르지 않아요.');
+      return false;
+    } on NotGroupMemberException {
+      state = state.copyWith(errorMessage: '해당 모임의 멤버가 아니에요.');
+      return false;
+    } on GroupNotFoundException {
+      state = state.copyWith(errorMessage: '존재하지 않는 모임이에요.');
+      return false;
+    } catch (_) {
+      // NetworkException 및 기타 예기치 못한 오류.
+      state = state.copyWith(errorMessage: '신고하지 못했어요.');
+      return false;
+    }
+  }
+
   /// [userId] 멤버를 차단한다. 성공하면 true, 실패하면 errorMessage 를 채우고 false 를 반환한다.
   /// 요청 시작~완료까지 isLoading 을 true 로 두고, 성공 시 차단이 반영된
   /// 목록을 받도록 상세를 다시 조회한다.
@@ -153,7 +188,7 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
     final blockUserUseCase = ref.read(blockUserUseCaseProvider);
 
     try {
-      await blockUserUseCase(userId);
+      await blockUserUseCase(userId, groupId: arg);
       // 차단 결과를 반영하기 위해 상세를 다시 조회한다. (isLoading 은 _load 가 내린다)
       await _load(arg);
       return true;

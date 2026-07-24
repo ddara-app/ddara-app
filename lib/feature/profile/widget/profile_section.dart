@@ -2,6 +2,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../../core/design_system/component/divider/app_divider.dart';
+import '../../../core/design_system/component/icon/app_icon.dart';
 import '../../../core/design_system/component/surface/app_surface.dart';
 import '../../../core/design_system/component/text/app_text.dart';
 
@@ -133,8 +134,8 @@ class ProfileChevron extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(
-      CupertinoIcons.chevron_forward,
+    return const AppIcon(
+      AppIcons.chevronForward,
       size: 20,
       color: AppColors.textSecondary,
     );

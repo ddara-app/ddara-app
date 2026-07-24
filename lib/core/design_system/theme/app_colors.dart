@@ -27,6 +27,9 @@ abstract final class AppColors {
   static const Color accentPressed = AppColorPrimitives.sky700;
   static const Color accentSubtle = AppColorPrimitives.sky50;
 
+  /// 짙은 강조 배경. (홈 대시보드 카드 그라데이션의 끝 색 등)
+  static const Color bgAccentDeep = AppColorPrimitives.sky900;
+
   // Border
   static const Color borderDefault = AppColorPrimitives.grayscale800;
   static const Color borderStrong = AppColorPrimitives.grayscale700;

@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
@@ -9,7 +10,6 @@ import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
-import 'package:ddara/core/widget/icon/reverse_icon.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -285,8 +285,8 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              CupertinoIcons.camera,
+            const AppIcon(
+              AppIcons.camera,
               size: 48,
               color: AppColors.textSecondary,
             ),
@@ -366,16 +366,11 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                     spacing: AppSpacing.s2,
                     children: [
                       _PreviewControlButton(
-                        icon: _flashOn
-                            ? CupertinoIcons.bolt_fill
-                            : CupertinoIcons.bolt_slash_fill,
+                        icon: _flashOn ? AppIcons.flashOn : AppIcons.flashOff,
                         onPressed: _toggleFlash,
                       ),
                       _PreviewControlButton(
-                        leading: const ReverseIcon(
-                          size: 24,
-                          color: AppColors.textPrimary,
-                        ),
+                        icon: AppIcons.reverse,
                         onPressed: _switchCamera,
                       ),
                     ],
@@ -397,14 +392,10 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
 /// 프리뷰 위에 얹는 컨트롤 버튼. (배경 없이 흰색 아이콘만)
 class _PreviewControlButton extends StatelessWidget {
-  const _PreviewControlButton({this.icon, this.leading, required this.onPressed})
-    : assert(icon != null || leading != null, 'icon 또는 leading 중 하나는 필요');
+  const _PreviewControlButton({required this.icon, required this.onPressed});
 
-  /// 아이콘. [leading] 이 없을 때 [Icon] 으로 그린다.
-  final IconData? icon;
-
-  /// 아이콘을 직접 지정할 때. (예: SVG) 있으면 [icon] 대신 이걸 그린다.
-  final Widget? leading;
+  /// 아이콘.
+  final AppIconData icon;
   final VoidCallback onPressed;
 
   @override
@@ -413,7 +404,7 @@ class _PreviewControlButton extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.s2),
       minimumSize: Size.zero,
       onPressed: onPressed,
-      child: leading ?? Icon(icon, size: 24, color: AppColors.textPrimary),
+      child: AppIcon(icon, size: 24, color: AppColors.textPrimary),
     );
   }
 }

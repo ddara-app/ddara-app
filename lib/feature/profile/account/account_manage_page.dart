@@ -1,6 +1,7 @@
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
@@ -31,21 +32,13 @@ class AccountManagePage extends ConsumerWidget {
       _,
       status,
     ) {
-      if (!context.mounted) return;
-      switch (status) {
-        case LogoutStatus.success:
-          MixpanelManager.instance.track('logout_succeeded');
-          context.go(RoutePath.login);
-        case LogoutStatus.fail:
-          Toast.showToast(
-            context,
-            l10n.profileLogoutFailed,
-            type: ToastType.error,
-          );
-        case LogoutStatus.idle:
-        case LogoutStatus.loading:
-          break;
-      }
+      _onAccountActionResult(
+        context,
+        success: status == LogoutStatus.success,
+        fail: status == LogoutStatus.fail,
+        trackEvent: 'logout_succeeded',
+        failMessage: l10n.profileLogoutFailed,
+      );
     });
 
     // 회원 탈퇴 결과에 따라 분기: 성공 시 로그인 화면으로 이동, 실패 시 안내.
@@ -53,21 +46,13 @@ class AccountManagePage extends ConsumerWidget {
       _,
       status,
     ) {
-      if (!context.mounted) return;
-      switch (status) {
-        case WithdrawStatus.success:
-          MixpanelManager.instance.track('account_withdraw_succeeded');
-          context.go(RoutePath.login);
-        case WithdrawStatus.fail:
-          Toast.showToast(
-            context,
-            l10n.profileWithdrawFailed,
-            type: ToastType.error,
-          );
-        case WithdrawStatus.idle:
-        case WithdrawStatus.loading:
-          break;
-      }
+      _onAccountActionResult(
+        context,
+        success: status == WithdrawStatus.success,
+        fail: status == WithdrawStatus.fail,
+        trackEvent: 'account_withdraw_succeeded',
+        failMessage: l10n.profileWithdrawFailed,
+      );
     });
 
     return CupertinoPageScaffold(
@@ -77,53 +62,42 @@ class AccountManagePage extends ConsumerWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: LayoutBuilder(
-          // 콘텐츠가 화면에 들어가면 스크롤 없음, 큰 글자 설정 등에서는
-          // 스크롤로 전환되도록 뷰포트 높이를 최소 높이로 강제한다.
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s4,
-                  right: AppSpacing.s4,
-                  // 하단 Safe Area 까지 배경을 잇되, 마지막 항목이 홈
-                  // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
-                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ProfileSection(
-                      label: l10n.profileSectionAccount,
-                      children: [
-                        ProfileRow(
-                          label: l10n.profileLinkedAccount,
-                          value: state.linkedAccount,
-                        ),
-                        ProfileRow(
-                          label: l10n.profileLogout,
-                          // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
-                          onTap: tapGuard(
-                            _isAccountActionRunning(state),
-                            () => _confirmLogout(context, ref),
-                          ),
-                        ),
-                        ProfileRow(
-                          label: l10n.profileWithdraw,
-                          onTap: tapGuard(
-                            _isAccountActionRunning(state),
-                            () => _confirmWithdraw(context, ref),
-                          ),
-                        ),
-                      ],
+        child: ScrollablePageBody(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ProfileSection(
+                label: l10n.profileSectionAccount,
+                children: [
+                  ProfileRow(
+                    label: l10n.profileLinkedAccount,
+                    // 이 화면은 프로필(로드 완료) 화면에서만 진입하지만,
+                    // 타입상 로드 전이면 빈 값으로 표시한다.
+                    value: switch (state.load) {
+                      final ProfileLoaded loaded =>
+                        loaded.provider?.label ?? '',
+                      _ => '',
+                    },
+                  ),
+                  ProfileRow(
+                    label: l10n.profileLogout,
+                    // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
+                    onTap: tapGuard(
+                      _isAccountActionRunning(state),
+                      () => _confirmLogout(context, ref),
                     ),
-                  ],
-                ),
+                  ),
+                  ProfileRow(
+                    label: l10n.profileWithdraw,
+                    onTap: tapGuard(
+                      _isAccountActionRunning(state),
+                      () => _confirmWithdraw(context, ref),
+                    ),
+                  ),
+                ],
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -134,6 +108,24 @@ class AccountManagePage extends ConsumerWidget {
   bool _isAccountActionRunning(ProfileState state) =>
       state.logoutStatus == LogoutStatus.loading ||
       state.withdrawStatus == WithdrawStatus.loading;
+
+  /// 로그아웃·회원 탈퇴 공통 결과 처리.
+  /// 성공 시 이벤트를 기록하고 로그인 화면으로 이동, 실패 시 토스트를 띄운다.
+  void _onAccountActionResult(
+    BuildContext context, {
+    required bool success,
+    required bool fail,
+    required String trackEvent,
+    required String failMessage,
+  }) {
+    if (!context.mounted) return;
+    if (success) {
+      MixpanelManager.instance.track(trackEvent);
+      context.go(RoutePath.login);
+    } else if (fail) {
+      Toast.showToast(context, failMessage, type: ToastType.error);
+    }
+  }
 
   /// 로그아웃 확인 다이얼로그를 띄우고, 확인 시에만 로그아웃을 진행한다.
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {

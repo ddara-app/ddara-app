@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
@@ -11,7 +12,7 @@ import 'package:flutter/cupertino.dart';
 ///
 /// 더보기(⋮) 버튼을 누르면 버튼 옆에 컨텍스트 메뉴가 뜬다. 배경은 어둡게
 /// 하지 않고(투명 배리어), 바깥을 탭하면 닫힌다. 내 댓글이면 수정·삭제,
-/// 상대 댓글이면 신고 항목을 보여준다.
+/// 상대 댓글이면 차단·신고 항목을 보여준다.
 ///
 /// 삭제는 확인 다이얼로그까지 이 위젯이 처리하고, 사용자가 확인한 경우에만
 /// [onDelete] 를 부른다.
@@ -22,6 +23,7 @@ class CommentItem extends StatefulWidget {
     this.onEdit,
     this.onDelete,
     this.onReport,
+    this.onBlock,
     this.onRetry,
     this.onDiscard,
   });
@@ -37,6 +39,9 @@ class CommentItem extends StatefulWidget {
 
   /// 상대 댓글 '신고하기' 콜백.
   final void Function(PhotoComment comment)? onReport;
+
+  /// 상대 댓글 '차단하기' 콜백. (작성자 차단 — 확인 다이얼로그는 호출 측 처리)
+  final void Function(PhotoComment comment)? onBlock;
 
   /// 전송 실패 댓글 '재전송' 콜백.
   final void Function(PhotoComment comment)? onRetry;
@@ -166,6 +171,13 @@ class _CommentItemState extends State<CommentItem> {
             ),
           ]
         : [
+            // 멤버 아바타·사진 카드 메뉴와 같은 순서. (차단하기 → 신고하기)
+            _menuItem(
+              l10n.memberBlock,
+              color: AppColors.statusDanger,
+              onPressed: () => _select(dialogContext, widget.onBlock),
+            ),
+            Container(height: 1, color: AppColors.borderDefault),
             _menuItem(
               l10n.commentMenuReport,
               color: AppColors.statusDanger,
@@ -226,7 +238,6 @@ class _CommentItemState extends State<CommentItem> {
   ///
   /// 아직 서버에 없는 댓글(전송 중·실패)은 더보기 메뉴 대신 전송 상태를
   /// 보여준다. 수정·삭제·신고 대상이 될 수 없기 때문이다.
-  /// 검토 중인 댓글은 아무것도 두지 않는다.
   Widget? _trailing() {
     final comment = widget.comment;
     final l10n = AppLocalizations.of(context);
@@ -273,15 +284,14 @@ class _CommentItemState extends State<CommentItem> {
           ),
         );
       case CommentSendStatus.sent:
-        if (comment.isUnderReview) return null;
         // 버튼을 앵커로 삼아 탭하면 컨텍스트 메뉴를 띄운다.
         return CompositedTransformTarget(
           link: _link,
           child: AppBarIconButton(
             size: 20,
             onPressed: _open,
-            child: const Icon(
-              CupertinoIcons.ellipsis_vertical,
+            child: const AppIcon(
+              AppIcons.moreVertical,
               size: 20,
               color: AppColors.textPrimary,
             ),
@@ -361,11 +371,10 @@ class CommentContent extends StatelessWidget {
                   ],
                 ],
               ),
-              // 검토 중인 댓글(자리표시 문구)과 아직 서버에 없는 댓글
-              // (전송 중·실패)은 흐린 색으로 보여준다.
+              // 아직 서버에 없는 댓글(전송 중·실패)은 흐린 색으로 보여준다.
               AppText.body(
                 comment.content,
-                color: comment.isUnderReview || comment.isPending
+                color: comment.isPending
                     ? AppColors.textDisabled
                     : AppColors.textPrimary,
                 maxLines: contentMaxLines,

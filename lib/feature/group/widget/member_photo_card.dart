@@ -1,10 +1,9 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
-import 'package:ddara/core/widget/icon/gallery_icon.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/feature/group/widget/take_photo_button.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -108,7 +107,7 @@ class MemberPhotoCard extends StatelessWidget {
             // 잠금: 가운데 자물쇠.
             if (locked)
               const Center(
-                child: LockIcon(size: 32, color: AppColors.textPrimary),
+                child: AppIcon(AppIcons.lock, size: 32, color: AppColors.textPrimary),
               )
             // 사진이 없을 때: 본인이면 촬영 버튼, 아니면 갤러리 아이콘.
             // (차단·검토 자리표시가 안내를 대신하므로 해당 카드는 제외)
@@ -116,7 +115,8 @@ class MemberPhotoCard extends StatelessWidget {
               Center(
                 child: onTakePhoto != null
                     ? TakePhotoButton(onPressed: onTakePhoto)
-                    : const GalleryIcon(
+                    : const AppIcon(
+                        AppIcons.gallery,
                         size: 32,
                         color: AppColors.textSecondary,
                       ),

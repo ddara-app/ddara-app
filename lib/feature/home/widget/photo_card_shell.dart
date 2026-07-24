@@ -1,12 +1,12 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
-import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
+import 'package:ddara/core/widget/effect/baked_progressive_blur_image.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -97,6 +97,7 @@ class PhotoCardShell extends StatelessWidget {
             children: [
               // 배경: 차단·검토 자리표시 / 잠금 블러 / 대표 이미지.
               // 잠기지 않은 사진은 하단 스크림 구간에 맞춰 아래로 갈수록 흐려진다.
+              // 점진 블러는 베이크 버전이라 디코딩 직후 1회만 계산해 캐시한다.
               // (잠금 사진은 이미 전체가 블러라 추가로 흐리지 않는다)
               Positioned.fill(
                 child: blocked
@@ -115,17 +116,20 @@ class PhotoCardShell extends StatelessWidget {
                         ),
                         child: _image(imageUrl),
                       )
-                    : ProgressiveBlurImage(
+                    : imageUrl == null
+                    ? _image(null)
+                    : BakedProgressiveBlurImage(
+                        imageUrl: imageUrl,
                         sharpUntil: 0.6,
                         builder: (_) => _image(imageUrl),
                       ),
               ),
-              // 하단 스크림. (텍스트 가독성 + 하단 경계를 배경과 자연스럽게 잇기)
-              const BottomScrim(),
+              // 하단 스크림. (텍스트 가독성 확보)
+              const BottomScrim(color: AppColorPrimitives.pureBlack),
               // 잠금: 가운데 자물쇠.
               if (locked)
                 const Center(
-                  child: LockIcon(size: 32, color: AppColors.textPrimary),
+                  child: AppIcon(AppIcons.lock, size: 32, color: AppColors.textPrimary),
                 ),
               // 상단 우측 라벨. (모임 카드의 남은 시간 등)
               if (topLabel != null)

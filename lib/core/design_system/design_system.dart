@@ -5,6 +5,7 @@
 library;
 
 export 'foundation/app_color_primitives.dart';
+export 'foundation/app_icons.dart';
 export 'foundation/app_radius.dart';
 export 'foundation/app_spacing.dart';
 export 'theme/app_colors.dart';

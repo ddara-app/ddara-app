@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
@@ -11,7 +12,6 @@ import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// 모임에 따라찍기가 시작된 뒤 상단에 보여주는 헤더. ([EmptyHeader] 의 반대 상태)
 ///
@@ -24,6 +24,7 @@ class StartedHeader extends StatefulWidget {
     required this.progress,
     this.onImageTap,
     this.onReport,
+    this.onBlock,
     this.starterBlocked = false,
     this.memberCount,
   });
@@ -42,8 +43,12 @@ class StartedHeader extends StatefulWidget {
   final VoidCallback? onImageTap;
 
   /// 대표 이미지를 롱프레스해 '신고하기'를 선택했을 때.
-  /// null 이면 신고 메뉴가 뜨지 않는다. (펼친 상태에서만 동작)
+  /// null 이면 메뉴에 신고 항목이 뜨지 않는다. (펼친 상태에서만 동작)
   final VoidCallback? onReport;
+
+  /// 대표 이미지를 롱프레스해 '차단하기'를 선택했을 때.
+  /// null 이면 메뉴에 차단 항목이 뜨지 않는다. (펼친 상태에서만 동작)
+  final VoidCallback? onBlock;
 
   /// 스타터를 차단한 상태인지 여부.
   ///
@@ -74,10 +79,13 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 사진을 자리표시로 가려야 하는 상태인지. (차단 또는 검토 중)
   bool get _obscured => widget.starterBlocked || _underReview;
 
-  /// 신고 메뉴를 띄울 수 있는지.
-  /// (콜백 有 + 이미지 有 + 가림 상태 아님 — 검토 중인 사진은 재신고 불가)
-  bool get _canReport =>
-      widget.onReport != null && !_obscured && widget.imageUri.isNotEmpty;
+  /// 컨텍스트 메뉴(신고·차단)를 띄울 수 있는지.
+  /// (콜백 하나라도 有 + 이미지 有 + 가림 상태 아님 — 검토 중·차단된 사진은
+  /// 메뉴를 띄우지 않는다)
+  bool get _canOpenMenu =>
+      (widget.onReport != null || widget.onBlock != null) &&
+      !_obscured &&
+      widget.imageUri.isNotEmpty;
 
   void _toggle() => setState(() => _expanded = !_expanded);
 
@@ -97,10 +105,10 @@ class _StartedHeaderState extends State<StartedHeader> {
     Navigator.of(context).push(route).then((_) => _menuRoute = null);
   }
 
-  /// 메뉴를 닫은 뒤 신고 콜백을 실행한다.
-  void _selectReport(BuildContext dialogContext) {
+  /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
+  void _select(BuildContext dialogContext, VoidCallback onSelect) {
     Navigator.of(dialogContext).pop();
-    widget.onReport?.call();
+    onSelect();
   }
 
   @override
@@ -130,7 +138,8 @@ class _StartedHeaderState extends State<StartedHeader> {
     );
   }
 
-  /// 신고 메뉴 오버레이. 배경을 블러 처리하고 헤더 사본 위에 메뉴를 띄운다.
+  /// 컨텍스트 메뉴(신고·차단) 오버레이. 배경을 블러 처리하고 헤더 사본 위에
+  /// 메뉴를 띄운다.
   Widget _buildMenuOverlay(BuildContext dialogContext) {
     final copySize = _copySize;
     return Stack(
@@ -157,14 +166,23 @@ class _StartedHeaderState extends State<StartedHeader> {
           targetAnchor: Alignment.topLeft,
           followerAnchor: Alignment.topLeft,
           offset: const Offset(AppSpacing.s3, AppSpacing.s3),
-          child: _reportMenu(dialogContext),
+          child: _menu(dialogContext),
         ),
       ],
     );
   }
 
-  Widget _reportMenu(BuildContext dialogContext) {
+  Widget _menu(BuildContext dialogContext) {
+    final l10n = AppLocalizations.of(context);
+    // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
+    final actions = <({String label, VoidCallback onSelect})>[
+      if (widget.onBlock != null)
+        (label: l10n.memberBlock, onSelect: widget.onBlock!),
+      if (widget.onReport != null)
+        (label: l10n.report, onSelect: widget.onReport!),
+    ];
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -177,16 +195,28 @@ class _StartedHeaderState extends State<StartedHeader> {
           ),
         ],
       ),
-      child: CupertinoButton(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s4,
-          vertical: AppSpacing.s3,
-        ),
-        minimumSize: Size.zero,
-        onPressed: () => _selectReport(dialogContext),
-        child: AppText.body(
-          AppLocalizations.of(context).report,
-          color: AppColors.statusDanger,
+      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < actions.length; i++) ...[
+              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
+              CupertinoButton(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s4,
+                  vertical: AppSpacing.s3,
+                ),
+                minimumSize: Size.zero,
+                onPressed: () => _select(dialogContext, actions[i].onSelect),
+                child: AppText.body(
+                  actions[i].label,
+                  color: AppColors.statusDanger,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -205,11 +235,12 @@ class _StartedHeaderState extends State<StartedHeader> {
         child: Stack(
           children: [
             // 배경: 스타터 대표 이미지.
-            // (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기, 길게 누르면 신고 메뉴)
+            // (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기, 길게 누르면
+            // 신고·차단 메뉴)
             Positioned.fill(
               child: GestureDetector(
                 onTap: onImageTap,
-                onLongPress: _canReport ? _openMenu : null,
+                onLongPress: _canOpenMenu ? _openMenu : null,
                 child: _blurredBackground(),
               ),
             ),
@@ -316,14 +347,10 @@ class _StartedHeaderState extends State<StartedHeader> {
                       ),
                       if (widget.memberCount != null) ...[
                         AppText.caption('·', color: AppColors.textPrimary),
-                        SvgPicture.asset(
-                          'assets/images/ic_people.svg',
-                          width: 14,
-                          height: 14,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.textPrimary,
-                            BlendMode.srcIn,
-                          ),
+                        const AppIcon(
+                          AppIcons.people,
+                          size: 14,
+                          color: AppColors.textPrimary,
                         ),
                         AppText.caption(
                           '${widget.progress.uploadedUserIds.length + 1}'
@@ -429,8 +456,8 @@ class _StartedHeaderState extends State<StartedHeader> {
             borderRadius: BorderRadius.circular(AppRadius.full),
           ),
         ),
-        child: Icon(
-          _expanded ? CupertinoIcons.chevron_up : CupertinoIcons.chevron_down,
+        child: AppIcon(
+          _expanded ? AppIcons.chevronUp : AppIcons.chevronDown,
           size: 24,
           color: AppColors.textPrimary,
         ),

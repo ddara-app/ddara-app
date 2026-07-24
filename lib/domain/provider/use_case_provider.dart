@@ -23,6 +23,7 @@ import 'package:ddara/domain/usecase/profile/get_profile_use_case.dart';
 import 'package:ddara/domain/usecase/profile/reset_profile_image_use_case.dart';
 import 'package:ddara/domain/usecase/profile/upload_profile_image_use_case.dart';
 import 'package:ddara/domain/usecase/report/report_comment_use_case.dart';
+import 'package:ddara/domain/usecase/report/report_group_use_case.dart';
 import 'package:ddara/domain/usecase/report/report_shot_use_case.dart';
 import 'package:ddara/domain/usecase/report/report_user_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -176,6 +177,10 @@ final reportCommentUseCaseProvider = Provider<ReportCommentUseCase>((ref) {
 
 final reportUserUseCaseProvider = Provider<ReportUserUseCase>((ref) {
   return ReportUserUseCase(ref.read(reportRepositoryProvider));
+});
+
+final reportGroupUseCaseProvider = Provider<ReportGroupUseCase>((ref) {
+  return ReportGroupUseCase(ref.read(reportRepositoryProvider));
 });
 
 final createCommentUseCaseProvider = Provider<CreateCommentUseCase>((ref) {

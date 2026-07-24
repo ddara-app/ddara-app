@@ -20,6 +20,7 @@ _BlockedUserResponse _$BlockedUserResponseFromJson(Map<String, dynamic> json) =>
     _BlockedUserResponse(
       userId: (json['userId'] as num).toInt(),
       name: json['name'] as String,
+      blockedNickname: json['blockedNickname'] as String,
       blockedAt: DateTime.parse(json['blockedAt'] as String),
     );
 
@@ -28,5 +29,6 @@ Map<String, dynamic> _$BlockedUserResponseToJson(
 ) => <String, dynamic>{
   'userId': instance.userId,
   'name': instance.name,
+  'blockedNickname': instance.blockedNickname,
   'blockedAt': instance.blockedAt.toIso8601String(),
 };

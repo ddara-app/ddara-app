@@ -1,3 +1,4 @@
+import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 
 class CyclePhotoGalleryState {
@@ -17,12 +18,17 @@ class CyclePhotoGalleryState {
   /// 조회 실패 메시지. 비어 있으면 에러 없음.
   final String errorMessage;
 
+  /// 댓글 액션 실패 종류. (토스트용 일회성 — 문구는 화면이 l10n 으로 매핑,
+  /// 소비 후 clearCommentError 로 비운다)
+  final CommentActionError? commentError;
+
   const CyclePhotoGalleryState({
     this.gallery,
     this.myUserId,
     this.blockedUserIds = const {},
     this.isLoading = false,
     this.errorMessage = '',
+    this.commentError,
   });
 
   /// 모임 이름. 조회 전엔 빈 문자열.
@@ -34,6 +40,8 @@ class CyclePhotoGalleryState {
     Set<int>? blockedUserIds,
     bool? isLoading,
     String? errorMessage,
+    CommentActionError? commentError,
+    bool clearCommentError = false,
   }) {
     return CyclePhotoGalleryState(
       gallery: gallery ?? this.gallery,
@@ -41,6 +49,8 @@ class CyclePhotoGalleryState {
       blockedUserIds: blockedUserIds ?? this.blockedUserIds,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
+      // copyWith(commentError: null) 은 기존 값을 유지하므로 리셋은 clear 로만.
+      commentError: clearCommentError ? null : (commentError ?? this.commentError),
     );
   }
 }
