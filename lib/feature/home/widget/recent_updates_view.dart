@@ -20,6 +20,7 @@ import 'package:ddara/feature/home/widget/feed_card.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
 import 'package:ddara/feature/home/widget/home_tab_header.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
+import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,7 +97,7 @@ class RecentUpdatesView extends ConsumerWidget {
         item: item,
         // 차단한 멤버의 댓글은 미리보기에서 뺀다.
         blockedUserIds: blockedUserIds,
-        onCommentTap: () => _openPhotoViewer(context, ref, item, state),
+        onCommentTap: () => _openPhotoViewer(context, ref, item),
         // 카드를 누르면 그 사진이 속한 회차의 갤러리로 들어간다.
         onTap: () => context.push(RoutePath.follower, extra: item.cycleId),
       ),
@@ -109,16 +110,14 @@ class RecentUpdatesView extends ConsumerWidget {
   /// 카드에서 보이던 프레임(186:245) 그대로 잘라 보여주고, 잠긴 사진은 뷰어에서도
   /// 블러 + 자물쇠를 유지한다. (서버가 잠긴 사진의 댓글 작성을 막으므로 뷰어가
   /// 입력창을 비활성화한다)
-  void _openPhotoViewer(
-    BuildContext context,
-    WidgetRef ref,
-    FeedItem item,
-    FeedLoaded state,
-  ) {
+  void _openPhotoViewer(BuildContext context, WidgetRef ref, FeedItem item) {
     final imageUrl = item.imageUrl;
     if (imageUrl == null) return;
 
     final notifier = ref.read(feedNotifierProvider.notifier);
+    // 내 프로필(공유 캐시 currentProfileProvider). 아직 조회 전이면 null —
+    // 내 댓글 구분·작성자 표기가 빠질 뿐 뷰어 동작에는 지장 없다.
+    final profile = ref.read(currentProfileProvider).valueOrNull;
     showPhotoViewer(
       context,
       image: CachedNetworkImageProvider(imageUrl),
@@ -127,8 +126,8 @@ class RecentUpdatesView extends ConsumerWidget {
       title: item.nickname,
       body: item.topic,
       // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
-      myNickname: state.myNickname,
-      myProfileImageUrl: state.myProfileImageUrl,
+      myNickname: profile?.name ?? '',
+      myProfileImageUrl: profile?.profileImageUrl,
       locked: item.locked,
       // 댓글을 눌러 들어왔으므로 시트를 연 채로 시작한다.
       openCommentSheet: true,
@@ -145,7 +144,7 @@ class RecentUpdatesView extends ConsumerWidget {
         if (comments == null || !context.mounted) return null;
         final l10n = AppLocalizations.of(context);
         return comments
-            .map((comment) => toPhotoComment(comment, l10n, state.myUserId))
+            .map((comment) => toPhotoComment(comment, l10n, profile?.id))
             .toList();
       },
       onSubmitComment: (content) async {
@@ -157,7 +156,7 @@ class RecentUpdatesView extends ConsumerWidget {
         return toPhotoComment(
           created,
           AppLocalizations.of(context),
-          state.myUserId,
+          profile?.id,
         );
       },
       // 삭제·수정은 댓글 id 로 처리한다. (대상 사진 shotId 와 무관)

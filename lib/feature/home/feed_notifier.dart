@@ -23,8 +23,8 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
     state = updater(state);
   }
 
-  /// 최근 업데이트 피드와 내 프로필을 조회해 state 에 담는다.
-  /// (내 id·닉네임은 댓글 시트에서 내 댓글을 구분·표기하는 데 쓴다)
+  /// 최근 업데이트 피드를 조회해 state 에 담는다.
+  /// (댓글 시트가 쓰는 내 프로필은 currentProfileProvider 가 공유 제공한다)
   ///
   /// 실패 시: 피드를 이미 보고 있으면(재조회) 토스트용 actionError 로,
   /// 아직 로드 전이면 본문 에러로 전환한다.
@@ -34,33 +34,13 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
     try {
       // size 는 생략해 서버 기본값(최신 30개)을 따른다.
       final feed = await getFeedUseCase();
-      final profile = await _loadProfile();
-      _update(
-        (_) => FeedLoaded(
-          feed: feed,
-          myUserId: profile?.$1,
-          myNickname: profile?.$2 ?? '',
-          myProfileImageUrl: profile?.$3,
-        ),
-      );
+      _update((_) => FeedLoaded(feed: feed));
     } catch (_) {
       _update(
         (s) => s is FeedLoaded
             ? s.copyWith(actionError: '최근 업데이트를 불러오지 못했어요.')
             : const FeedLoadError('최근 업데이트를 불러오지 못했어요.'),
       );
-    }
-  }
-
-  /// 내 (userId, 닉네임, 프로필 이미지 URL). 프로필 조회가 실패해도 피드는
-  /// 보여줘야 하므로 실패 시 null 로 대체한다.
-  /// (내 댓글 구분이 한 번 빠질 뿐 치명적이지 않다)
-  Future<(int, String, String?)?> _loadProfile() async {
-    try {
-      final profile = await ref.read(getProfileUseCaseProvider)();
-      return (profile.id, profile.name, profile.profileImageUrl);
-    } catch (_) {
-      return null;
     }
   }
 

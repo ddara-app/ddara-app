@@ -21,29 +21,16 @@ final class FeedLoadError extends FeedState {
 }
 
 final class FeedLoaded extends FeedState {
-  const FeedLoaded({
-    required this.feed,
-    this.myUserId,
-    this.myNickname = '',
-    this.myProfileImageUrl,
-    this.actionError,
-  });
+  const FeedLoaded({required this.feed, this.actionError});
 
   final Feed feed;
-
-  /// 내 userId. (댓글 시트에서 내 댓글을 구분하는 데 쓴다) 조회 실패 시 null.
-  final int? myUserId;
-
-  /// 내 닉네임. (내가 단 댓글의 작성자 표기에 쓴다)
-  final String myNickname;
-
-  /// 내 프로필 이미지 URL. (전송 중 댓글의 아바타에 쓴다) 없으면 null.
-  final String? myProfileImageUrl;
 
   /// 액션(댓글·새로고침 등) 실패의 토스트용 일회성 에러.
   /// 화면이 소비한 뒤 clearActionError 로 비운다.
   final String? actionError;
 
+  /// (내 프로필 정보는 저장하지 않는다 — 댓글 시트가 쓰는 내 id·닉네임은
+  /// 공유 캐시인 currentProfileProvider 에서 직접 읽는다)
   FeedLoaded copyWith({
     Feed? feed,
     String? actionError,
@@ -51,9 +38,6 @@ final class FeedLoaded extends FeedState {
   }) {
     return FeedLoaded(
       feed: feed ?? this.feed,
-      myUserId: myUserId,
-      myNickname: myNickname,
-      myProfileImageUrl: myProfileImageUrl,
       // copyWith(actionError: null) 은 기존 값을 유지하므로 리셋은 clear 로만.
       actionError: clearActionError ? null : (actionError ?? this.actionError),
     );
