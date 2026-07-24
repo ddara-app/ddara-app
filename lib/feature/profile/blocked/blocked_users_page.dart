@@ -58,6 +58,9 @@ class BlockedUsersPage extends ConsumerWidget {
       return Center(child: AppText.body(l10n.blockedUsersEmpty));
     }
 
+    // 안내 문구를 목록 마지막 항목(footer)으로 붙인다. 유저가 적으면 타일
+    // 바로 아래에, 많아지면 목록 끝(하단)으로 자연스럽게 밀려난다.
+    // (빈 목록은 위에서 조기 반환하므로 안내도 함께 숨는다)
     return ListView.builder(
       padding: EdgeInsets.only(
         left: AppSpacing.s4,
@@ -65,13 +68,24 @@ class BlockedUsersPage extends ConsumerWidget {
         // 마지막 항목이 홈 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
         bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
       ),
-      itemCount: users.length,
-      itemBuilder: (context, index) => _BlockedUserTile(
-        user: users[index],
-        // 이 항목이 해제 진행 중이면 버튼 자리에 로딩을 표시한다.
-        isUnblocking: state.unblockingUserIds.contains(users[index].userId),
-        onUnblock: () => _unblock(context, ref, users[index]),
-      ),
+      itemCount: users.length + 1,
+      itemBuilder: (context, index) {
+        if (index == users.length) {
+          return Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.s5),
+            child: AppText.caption(
+              l10n.blockedUsersNotice,
+              textAlign: TextAlign.left,
+            ),
+          );
+        }
+        return _BlockedUserTile(
+          user: users[index],
+          // 이 항목이 해제 진행 중이면 버튼 자리에 로딩을 표시한다.
+          isUnblocking: state.unblockingUserIds.contains(users[index].userId),
+          onUnblock: () => _unblock(context, ref, users[index]),
+        );
+      },
     );
   }
 

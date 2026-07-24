@@ -1747,6 +1747,12 @@ abstract class AppLocalizations {
   /// **'{nickname} · {date} 차단'**
   String blockedUsersNicknameDate(String nickname, String date);
 
+  /// No description provided for @blockedUsersNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 멤버의 사진은 내 화면에서만 보이지 않습니다.\n상대방에게는 차단 사실이 알려지지 않아요.'**
+  String get blockedUsersNotice;
+
   /// No description provided for @blockedUsersUnblock.
   ///
   /// In ko, this message translates to:

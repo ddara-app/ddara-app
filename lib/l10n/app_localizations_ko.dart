@@ -914,6 +914,10 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get blockedUsersNotice =>
+      '차단한 멤버의 사진은 내 화면에서만 보이지 않습니다.\n상대방에게는 차단 사실이 알려지지 않아요.';
+
+  @override
   String get blockedUsersUnblock => '차단 해제';
 
   @override
