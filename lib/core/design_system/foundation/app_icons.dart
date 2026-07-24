@@ -36,7 +36,7 @@ abstract final class AppIcons {
   // chevron·내비게이션
   /// AppBar 뒤로가기. (커스텀 chevron — Material rounded 아이콘과 비교 테스트 중)
   static const back = AppIconData.svg('ic_chevron_left');
-  static const chevronForward = AppIconData.font(CupertinoIcons.chevron_forward);
+  static const chevronForward = AppIconData.svg('ic_chevron_right');
   static const chevronUp = AppIconData.font(CupertinoIcons.chevron_up);
   static const chevronDown = AppIconData.font(CupertinoIcons.chevron_down);
   static const chevronLeft = AppIconData.font(CupertinoIcons.chevron_left);

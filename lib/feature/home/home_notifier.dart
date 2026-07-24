@@ -48,14 +48,15 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     }
   }
 
-  /// [userId] 유저를 차단한다. 성공하면 차단이 카드·댓글 필터에 반영되도록
-  /// 홈(모임 목록 + 차단 목록)을 다시 조회하고 true 를 반환한다.
+  /// [userId] 유저를 [groupId] 모임 맥락에서 차단한다. 성공하면 차단이
+  /// 카드·댓글 필터에 반영되도록 홈(모임 목록 + 차단 목록)을 다시 조회하고
+  /// true 를 반환한다.
   /// (실패해도 화면 상태는 바꾸지 않는다 — 안내는 호출 측 토스트가 맡는다)
-  Future<bool> blockUser(int userId) async {
+  Future<bool> blockUser(int userId, {required int groupId}) async {
     final blockUserUseCase = ref.read(blockUserUseCaseProvider);
 
     try {
-      await blockUserUseCase(userId);
+      await blockUserUseCase(userId, groupId: groupId);
       await _load();
       return true;
     } catch (_) {

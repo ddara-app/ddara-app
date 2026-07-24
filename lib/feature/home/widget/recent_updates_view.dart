@@ -143,7 +143,9 @@ class RecentUpdatesView extends ConsumerWidget {
             ? homeState.blockedUserIds
             : blockedUserIds;
       },
-      onBlockComment: (comment) => _blockCommentAuthor(context, ref, comment),
+      // 차단 API 가 모임 맥락을 요구하므로 사진이 속한 모임 id 를 함께 넘긴다.
+      onBlockComment: (comment) =>
+          _blockCommentAuthor(context, ref, comment, groupId: item.groupId),
     );
 
     showPhotoViewer(
@@ -175,8 +177,9 @@ class RecentUpdatesView extends ConsumerWidget {
   Future<bool> _blockCommentAuthor(
     BuildContext context,
     WidgetRef ref,
-    PhotoComment comment,
-  ) async {
+    PhotoComment comment, {
+    required int groupId,
+  }) async {
     final userId = comment.userId;
     if (userId == null) return false;
 
@@ -193,7 +196,7 @@ class RecentUpdatesView extends ConsumerWidget {
 
     final success = await ref
         .read(homeNotifierProvider.notifier)
-        .blockUser(userId);
+        .blockUser(userId, groupId: groupId);
     if (!context.mounted) return success;
 
     if (success) {
@@ -207,5 +210,4 @@ class RecentUpdatesView extends ConsumerWidget {
     }
     return success;
   }
-
 }

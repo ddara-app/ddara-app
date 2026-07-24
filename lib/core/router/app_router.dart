@@ -25,7 +25,7 @@ import '../../feature/profile/blocked/blocked_users_page.dart';
 import '../../feature/profile/profile_page.dart';
 import '../widget/policy/policy_viewer_page.dart';
 import '../../feature/profile/policy/terms_policy_page.dart';
-import '../../feature/profile/settings/notification_settings.dart';
+import '../../feature/profile/settings/notification_settings_page.dart';
 import '../../feature/permission/required_permission_page.dart';
 import '../../feature/sign/login/login_page.dart';
 import '../../feature/sign/signup/sign_up_page.dart';
@@ -184,7 +184,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RoutePath.notificationSettings,
-        builder: (_, _) => const NotificationSettings(),
+        builder: (_, _) => const NotificationSettingsPage(),
       ),
       GoRoute(
         path: RoutePath.termsPolicy,

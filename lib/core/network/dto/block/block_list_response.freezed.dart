@@ -284,7 +284,7 @@ as List<BlockedUserResponse>,
 /// @nodoc
 mixin _$BlockedUserResponse {
 
- int get userId; String get name; DateTime get blockedAt;
+ int get userId; String get name; String get blockedNickname; DateTime get blockedAt;
 /// Create a copy of BlockedUserResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -297,16 +297,16 @@ $BlockedUserResponseCopyWith<BlockedUserResponse> get copyWith => _$BlockedUserR
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BlockedUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.blockedAt, blockedAt) || other.blockedAt == blockedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BlockedUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.blockedNickname, blockedNickname) || other.blockedNickname == blockedNickname)&&(identical(other.blockedAt, blockedAt) || other.blockedAt == blockedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,name,blockedAt);
+int get hashCode => Object.hash(runtimeType,userId,name,blockedNickname,blockedAt);
 
 @override
 String toString() {
-  return 'BlockedUserResponse(userId: $userId, name: $name, blockedAt: $blockedAt)';
+  return 'BlockedUserResponse(userId: $userId, name: $name, blockedNickname: $blockedNickname, blockedAt: $blockedAt)';
 }
 
 
@@ -317,7 +317,7 @@ abstract mixin class $BlockedUserResponseCopyWith<$Res>  {
   factory $BlockedUserResponseCopyWith(BlockedUserResponse value, $Res Function(BlockedUserResponse) _then) = _$BlockedUserResponseCopyWithImpl;
 @useResult
 $Res call({
- int userId, String name, DateTime blockedAt
+ int userId, String name, String blockedNickname, DateTime blockedAt
 });
 
 
@@ -334,10 +334,11 @@ class _$BlockedUserResponseCopyWithImpl<$Res>
 
 /// Create a copy of BlockedUserResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? name = null,Object? blockedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? name = null,Object? blockedNickname = null,Object? blockedAt = null,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,blockedNickname: null == blockedNickname ? _self.blockedNickname : blockedNickname // ignore: cast_nullable_to_non_nullable
 as String,blockedAt: null == blockedAt ? _self.blockedAt : blockedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -424,10 +425,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String name,  DateTime blockedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String name,  String blockedNickname,  DateTime blockedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BlockedUserResponse() when $default != null:
-return $default(_that.userId,_that.name,_that.blockedAt);case _:
+return $default(_that.userId,_that.name,_that.blockedNickname,_that.blockedAt);case _:
   return orElse();
 
 }
@@ -445,10 +446,10 @@ return $default(_that.userId,_that.name,_that.blockedAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String name,  DateTime blockedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String name,  String blockedNickname,  DateTime blockedAt)  $default,) {final _that = this;
 switch (_that) {
 case _BlockedUserResponse():
-return $default(_that.userId,_that.name,_that.blockedAt);case _:
+return $default(_that.userId,_that.name,_that.blockedNickname,_that.blockedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -465,10 +466,10 @@ return $default(_that.userId,_that.name,_that.blockedAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String name,  DateTime blockedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String name,  String blockedNickname,  DateTime blockedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _BlockedUserResponse() when $default != null:
-return $default(_that.userId,_that.name,_that.blockedAt);case _:
+return $default(_that.userId,_that.name,_that.blockedNickname,_that.blockedAt);case _:
   return null;
 
 }
@@ -480,11 +481,12 @@ return $default(_that.userId,_that.name,_that.blockedAt);case _:
 @JsonSerializable()
 
 class _BlockedUserResponse implements BlockedUserResponse {
-  const _BlockedUserResponse({required this.userId, required this.name, required this.blockedAt});
+  const _BlockedUserResponse({required this.userId, required this.name, required this.blockedNickname, required this.blockedAt});
   factory _BlockedUserResponse.fromJson(Map<String, dynamic> json) => _$BlockedUserResponseFromJson(json);
 
 @override final  int userId;
 @override final  String name;
+@override final  String blockedNickname;
 @override final  DateTime blockedAt;
 
 /// Create a copy of BlockedUserResponse
@@ -500,16 +502,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BlockedUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.blockedAt, blockedAt) || other.blockedAt == blockedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BlockedUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.blockedNickname, blockedNickname) || other.blockedNickname == blockedNickname)&&(identical(other.blockedAt, blockedAt) || other.blockedAt == blockedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,name,blockedAt);
+int get hashCode => Object.hash(runtimeType,userId,name,blockedNickname,blockedAt);
 
 @override
 String toString() {
-  return 'BlockedUserResponse(userId: $userId, name: $name, blockedAt: $blockedAt)';
+  return 'BlockedUserResponse(userId: $userId, name: $name, blockedNickname: $blockedNickname, blockedAt: $blockedAt)';
 }
 
 
@@ -520,7 +522,7 @@ abstract mixin class _$BlockedUserResponseCopyWith<$Res> implements $BlockedUser
   factory _$BlockedUserResponseCopyWith(_BlockedUserResponse value, $Res Function(_BlockedUserResponse) _then) = __$BlockedUserResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, String name, DateTime blockedAt
+ int userId, String name, String blockedNickname, DateTime blockedAt
 });
 
 
@@ -537,10 +539,11 @@ class __$BlockedUserResponseCopyWithImpl<$Res>
 
 /// Create a copy of BlockedUserResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? name = null,Object? blockedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? name = null,Object? blockedNickname = null,Object? blockedAt = null,}) {
   return _then(_BlockedUserResponse(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,blockedNickname: null == blockedNickname ? _self.blockedNickname : blockedNickname // ignore: cast_nullable_to_non_nullable
 as String,blockedAt: null == blockedAt ? _self.blockedAt : blockedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));

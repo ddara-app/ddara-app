@@ -118,6 +118,12 @@ abstract class AppLocalizations {
   /// **'취소'**
   String get commonCancel;
 
+  /// No description provided for @commonRetry.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get commonRetry;
+
   /// 온보딩 1페이지 제목
   ///
   /// In ko, this message translates to:
@@ -1693,6 +1699,18 @@ abstract class AppLocalizations {
   /// **'계정 관리'**
   String get profileAccountManage;
 
+  /// No description provided for @profileErrorUserNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용자를 찾을 수 없어요.'**
+  String get profileErrorUserNotFound;
+
+  /// No description provided for @profileLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 정보를 불러오지 못했어요.'**
+  String get profileLoadFailed;
+
   /// No description provided for @profileSectionManage.
   ///
   /// In ko, this message translates to:
@@ -1717,11 +1735,47 @@ abstract class AppLocalizations {
   /// **'차단한 유저가 없어요'**
   String get blockedUsersEmpty;
 
+  /// No description provided for @blockedUsersLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단 목록을 불러오지 못했어요.'**
+  String get blockedUsersLoadFailed;
+
+  /// 차단 목록 항목의 모임 닉네임 · 차단 날짜 요약 (날짜 뒤 '차단' 표기)
+  ///
+  /// In ko, this message translates to:
+  /// **'{nickname} · {date} 차단'**
+  String blockedUsersNicknameDate(String nickname, String date);
+
+  /// No description provided for @blockedUsersNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 멤버의 사진은 내 화면에서만 보이지 않습니다.\n상대방에게는 차단 사실이 알려지지 않아요.'**
+  String get blockedUsersNotice;
+
   /// No description provided for @blockedUsersUnblock.
   ///
   /// In ko, this message translates to:
   /// **'차단 해제'**
   String get blockedUsersUnblock;
+
+  /// No description provided for @blockedUsersUnblockConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}님의 차단을 해제할까요?'**
+  String blockedUsersUnblockConfirmTitle(String name);
+
+  /// No description provided for @blockedUsersUnblockConfirmBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 멤버의 사진이 다시 보이게 됩니다.'**
+  String get blockedUsersUnblockConfirmBody;
+
+  /// No description provided for @blockedUsersUnblockConfirmAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제하기'**
+  String get blockedUsersUnblockConfirmAction;
 
   /// No description provided for @blockedUsersUnblockedToast.
   ///
@@ -1824,6 +1878,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'메일 앱을 열 수 없어요. ({email})'**
   String profileContactMailFailed(String email);
+
+  /// No description provided for @profileImageCropTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 편집'**
+  String get profileImageCropTitle;
 
   /// No description provided for @profileImageSourceTitle.
   ///

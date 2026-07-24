@@ -8,6 +8,7 @@
   "commonNext": "다음",
   "commonStart": "시작하기",
   "commonCancel": "취소",
+  "commonRetry": "다시 시도",
 
   "onboardingFirstTitle": "한 장 찍으면 인증샷이 시작",
   "@onboardingFirstTitle": {
@@ -657,11 +658,31 @@
   "profileAppVersion": "앱 버전",
   "profileSectionAccount": "계정",
   "profileAccountManage": "계정 관리",
+  "profileErrorUserNotFound": "사용자를 찾을 수 없어요.",
+  "profileLoadFailed": "프로필 정보를 불러오지 못했어요.",
   "profileSectionManage": "관리",
   "profileBlockedUsers": "차단한 유저 목록",
   "blockedUsersTitle": "차단한 유저",
   "blockedUsersEmpty": "차단한 유저가 없어요",
+  "blockedUsersLoadFailed": "차단 목록을 불러오지 못했어요.",
+  "blockedUsersNicknameDate": "{nickname} · {date} 차단",
+  "@blockedUsersNicknameDate": {
+    "description": "차단 목록 항목의 모임 닉네임 · 차단 날짜 요약 (날짜 뒤 '차단' 표기)",
+    "placeholders": {
+      "nickname": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "blockedUsersNotice": "차단한 멤버의 사진은 내 화면에서만 보이지 않습니다.\n상대방에게는 차단 사실이 알려지지 않아요.",
   "blockedUsersUnblock": "차단 해제",
+  "blockedUsersUnblockConfirmTitle": "{name}님의 차단을 해제할까요?",
+  "@blockedUsersUnblockConfirmTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "blockedUsersUnblockConfirmBody": "이 멤버의 사진이 다시 보이게 됩니다.",
+  "blockedUsersUnblockConfirmAction": "해제하기",
   "blockedUsersUnblockedToast": "차단을 해제했어요.",
   "blockedUsersUnblockFailed": "차단을 해제하지 못했어요.",
   "blockedPhotoPlaceholder": "차단한 멤버의 사진입니다.",
@@ -691,6 +712,7 @@
       "email": { "type": "String" }
     }
   },
+  "profileImageCropTitle": "사진 편집",
   "profileImageSourceTitle": "프로필 사진 변경",
   "profileImageSourceCamera": "사진 촬영",
   "profileImageSourceGallery": "갤러리에서 선택",

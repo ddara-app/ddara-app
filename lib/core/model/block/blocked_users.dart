@@ -13,6 +13,7 @@ abstract class BlockedUser with _$BlockedUser {
   const factory BlockedUser({
     required int userId,
     required String name,
+    required String blockedNickname,
     required DateTime blockedAt,
   }) = _BlockedUser;
 }

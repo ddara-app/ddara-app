@@ -21,6 +21,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commonCancel => '취소';
 
   @override
+  String get commonRetry => '다시 시도';
+
+  @override
   String get onboardingFirstTitle => '한 장 찍으면 인증샷이 시작';
 
   @override
@@ -885,6 +888,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profileAccountManage => '계정 관리';
 
   @override
+  String get profileErrorUserNotFound => '사용자를 찾을 수 없어요.';
+
+  @override
+  String get profileLoadFailed => '프로필 정보를 불러오지 못했어요.';
+
+  @override
   String get profileSectionManage => '관리';
 
   @override
@@ -897,7 +906,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedUsersEmpty => '차단한 유저가 없어요';
 
   @override
+  String get blockedUsersLoadFailed => '차단 목록을 불러오지 못했어요.';
+
+  @override
+  String blockedUsersNicknameDate(String nickname, String date) {
+    return '$nickname · $date 차단';
+  }
+
+  @override
+  String get blockedUsersNotice =>
+      '차단한 멤버의 사진은 내 화면에서만 보이지 않습니다.\n상대방에게는 차단 사실이 알려지지 않아요.';
+
+  @override
   String get blockedUsersUnblock => '차단 해제';
+
+  @override
+  String blockedUsersUnblockConfirmTitle(String name) {
+    return '$name님의 차단을 해제할까요?';
+  }
+
+  @override
+  String get blockedUsersUnblockConfirmBody => '이 멤버의 사진이 다시 보이게 됩니다.';
+
+  @override
+  String get blockedUsersUnblockConfirmAction => '해제하기';
 
   @override
   String get blockedUsersUnblockedToast => '차단을 해제했어요.';
@@ -953,6 +985,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String profileContactMailFailed(String email) {
     return '메일 앱을 열 수 없어요. ($email)';
   }
+
+  @override
+  String get profileImageCropTitle => '사진 편집';
 
   @override
   String get profileImageSourceTitle => '프로필 사진 변경';
