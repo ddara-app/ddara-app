@@ -40,7 +40,12 @@ class EmptyGroupView extends StatelessWidget {
         // 하단 액션 영역
         Padding(
           // 하단 여백은 s6, 항목 사이 간격은 s3.
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, AppSpacing.s6),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.s4,
+            0,
+            AppSpacing.s4,
+            AppSpacing.s6,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             spacing: AppSpacing.s3,

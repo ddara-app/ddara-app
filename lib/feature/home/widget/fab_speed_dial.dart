@@ -167,9 +167,9 @@ class _SpeedDialFabState extends State<SpeedDialFab>
             onTap: _toggle,
             child: AnimatedBuilder(
               animation: _c,
+              // 스크림 토큰을 기반으로 진행도에 따라 0→50% 로 짙어진다.
               builder: (_, _) => ColoredBox(
-                color: const Color(0xFF000000)
-                    .withValues(alpha: _c.value * 0.5),
+                color: AppColors.overlayScrim.withValues(alpha: _c.value * 0.5),
               ),
             ),
           ),
