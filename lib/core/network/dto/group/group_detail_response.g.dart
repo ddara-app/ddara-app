@@ -22,6 +22,11 @@ _GroupDetailResponse _$GroupDetailResponseFromJson(Map<String, dynamic> json) =>
           : GroupCycleResponse.fromJson(
               json['currentCycle'] as Map<String, dynamic>,
             ),
+      nextStarter: json['nextStarter'] == null
+          ? null
+          : GroupNextStarterResponse.fromJson(
+              json['nextStarter'] as Map<String, dynamic>,
+            ),
       canStartCycle: json['canStartCycle'] as bool,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
@@ -37,6 +42,7 @@ Map<String, dynamic> _$GroupDetailResponseToJson(
   'memberCount': instance.memberCount,
   'members': instance.members,
   'currentCycle': instance.currentCycle,
+  'nextStarter': instance.nextStarter,
   'canStartCycle': instance.canStartCycle,
   'createdAt': instance.createdAt.toIso8601String(),
 };
@@ -56,6 +62,20 @@ Map<String, dynamic> _$GroupMemberResponseToJson(
   'nickname': instance.nickname,
   'profileImageUrl': instance.profileImageUrl,
   'role': instance.role,
+};
+
+_GroupNextStarterResponse _$GroupNextStarterResponseFromJson(
+  Map<String, dynamic> json,
+) => _GroupNextStarterResponse(
+  userId: (json['userId'] as num).toInt(),
+  nickname: json['nickname'] as String,
+);
+
+Map<String, dynamic> _$GroupNextStarterResponseToJson(
+  _GroupNextStarterResponse instance,
+) => <String, dynamic>{
+  'userId': instance.userId,
+  'nickname': instance.nickname,
 };
 
 _GroupCycleResponse _$GroupCycleResponseFromJson(Map<String, dynamic> json) =>

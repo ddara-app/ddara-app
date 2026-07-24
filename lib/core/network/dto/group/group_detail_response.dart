@@ -15,6 +15,8 @@ abstract class GroupDetailResponse with _$GroupDetailResponse {
     required List<GroupMemberResponse> members,
     // 진행 중인 사이클이 없으면 null.
     required GroupCycleResponse? currentCycle,
+    // 다음 사이클의 스타터. 아직 지정되지 않았으면 null.
+    required GroupNextStarterResponse? nextStarter,
     // 현재 사용자가 새 사이클을 시작할 수 있는지 여부.
     required bool canStartCycle,
     required DateTime createdAt,
@@ -35,6 +37,17 @@ abstract class GroupMemberResponse with _$GroupMemberResponse {
 
   factory GroupMemberResponse.fromJson(Map<String, dynamic> json) =>
       _$GroupMemberResponseFromJson(json);
+}
+
+@freezed
+abstract class GroupNextStarterResponse with _$GroupNextStarterResponse {
+  const factory GroupNextStarterResponse({
+    required int userId,
+    required String nickname,
+  }) = _GroupNextStarterResponse;
+
+  factory GroupNextStarterResponse.fromJson(Map<String, dynamic> json) =>
+      _$GroupNextStarterResponseFromJson(json);
 }
 
 @freezed

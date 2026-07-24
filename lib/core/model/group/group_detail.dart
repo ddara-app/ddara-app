@@ -11,8 +11,18 @@ abstract class GroupDetail with _$GroupDetail {
     required List<GroupMember> members,
     // 진행 중인 사이클이 없으면 null.
     required GroupCycle? currentCycle,
+    // 다음 사이클의 스타터. 아직 지정되지 않았으면 null.
+    required GroupNextStarter? nextStarter,
     required DateTime createdAt,
   }) = _GroupDetail;
+}
+
+@freezed
+abstract class GroupNextStarter with _$GroupNextStarter {
+  const factory GroupNextStarter({
+    required int userId,
+    required String nickname,
+  }) = _GroupNextStarter;
 }
 
 @freezed
