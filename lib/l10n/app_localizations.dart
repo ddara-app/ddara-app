@@ -586,6 +586,54 @@ abstract class AppLocalizations {
   /// **'100자 이하로 입력해주세요'**
   String get groupCreateIntroLengthError;
 
+  /// No description provided for @groupJoinErrorInvalidInput.
+  ///
+  /// In ko, this message translates to:
+  /// **'입력값이 올바르지 않아요.'**
+  String get groupJoinErrorInvalidInput;
+
+  /// No description provided for @groupJoinErrorInvalidCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'유효하지 않은 초대 코드예요.'**
+  String get groupJoinErrorInvalidCode;
+
+  /// No description provided for @groupJoinErrorGroupNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'존재하지 않는 초대 코드예요.'**
+  String get groupJoinErrorGroupNotFound;
+
+  /// No description provided for @groupJoinErrorAlreadyJoined.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 참여 중인 모임이에요.'**
+  String get groupJoinErrorAlreadyJoined;
+
+  /// No description provided for @groupJoinErrorGroupFull.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 꽉 찬 모임이에요. 만든 친구에게 물어봐 주세요.'**
+  String get groupJoinErrorGroupFull;
+
+  /// No description provided for @groupJoinErrorLimitExceeded.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여할 수 있는 모임 개수를 초과했어요.'**
+  String get groupJoinErrorLimitExceeded;
+
+  /// No description provided for @groupJoinErrorDuplicateNickname.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 누가 쓰고 있어요. 다른 이름은 어때요?'**
+  String get groupJoinErrorDuplicateNickname;
+
+  /// No description provided for @groupJoinErrorUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결이 불안정해요.'**
+  String get groupJoinErrorUnknown;
+
   /// No description provided for @groupJoinTitle.
   ///
   /// In ko, this message translates to:

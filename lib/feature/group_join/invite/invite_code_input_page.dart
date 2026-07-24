@@ -14,11 +14,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// 초대 딥링크(`kakao{KEY}://kakaolink?invite_code=...` 또는
-/// `https://ddara.app/invite?code=...`)로 진입했을 때 보여줄 모임 참여 화면.
-///
-/// 딥링크에서 파싱한 [inviteCode] 가 있으면 입력 필드에 미리 채워준다.
-/// 실제 참여 API 연동(research.md 작업 7번)은 백엔드 스펙 확정 후 연결한다.
 /// 토스트 대신 입력 필드 아래 인라인 에러(errorText)로 보여줄 에러 코드.
 const _inlineErrorCodes = {
   GroupJoinErrorCode.invalidInviteCode,
@@ -26,6 +21,10 @@ const _inlineErrorCodes = {
   GroupJoinErrorCode.alreadyJoinedGroup,
 };
 
+/// 초대 딥링크(`kakao{KEY}://kakaolink?invite_code=...` 또는
+/// `https://ddara.app/invite?code=...`)로 진입했을 때 보여줄 모임 참여 화면.
+///
+/// 딥링크에서 파싱한 [inviteCode] 가 있으면 입력 필드에 미리 채워준다.
 class InviteCodeInputPage extends ConsumerStatefulWidget {
   const InviteCodeInputPage({super.key, required this.inviteCode});
 
@@ -72,7 +71,7 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
     final errorCode = state.errorCode;
     final codeErrorText =
         errorCode != null && _inlineErrorCodes.contains(errorCode)
-        ? errorCode.message
+        ? errorCode.message(l10n)
         : null;
 
     ref.listen(inviteCodeInputNotifierProvider, (prev, next) {
@@ -90,7 +89,11 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
 
       // 인라인(errorText)으로 보여주는 코드는 토스트에서 제외.
       if (errorCode != null && !_inlineErrorCodes.contains(errorCode)) {
-        Toast.showToast(context, errorCode.message, type: ToastType.error);
+        Toast.showToast(
+          context,
+          errorCode.message(l10n),
+          type: ToastType.error,
+        );
       }
     });
 
@@ -102,8 +105,8 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(
-            left: AppSpacing.s5,
-            right: AppSpacing.s5,
+            left: AppSpacing.s4,
+            right: AppSpacing.s4,
             top: AppSpacing.s4,
             bottom: AppSpacing.s4,
           ),
@@ -127,8 +130,11 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
               const Spacer(),
               AppButton(
                 label: l10n.groupJoin,
-                // 조회 요청이 진행되는 동안 중복 탭을 차단한다.
-                onPressed: tapGuard(state.isLoading, () => notifier.joinGroup()),
+                // 코드가 비어 있으면(빈 조회 방지) 또는 조회 중이면 탭을 막는다.
+                onPressed: tapGuard(
+                  state.isLoading || state.inviteCode.trim().isEmpty,
+                  () => notifier.fetchInviteGroup(),
+                ),
               ),
             ],
           ),

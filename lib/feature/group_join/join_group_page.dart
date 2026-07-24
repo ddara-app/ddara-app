@@ -7,7 +7,7 @@ import 'package:ddara/core/model/group/invite_group.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group_join/confirm/join_confirm.dart';
+import 'package:ddara/feature/group_join/widget/join_confirm.dart';
 import 'package:ddara/feature/group_join/provider/notifier_provider.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
@@ -95,7 +95,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
     final nicknameError =
         validateNickname(l10n, state.nickname) ??
         (state.errorCode == GroupJoinErrorCode.duplicateGroupNickname
-            ? GroupJoinErrorCode.duplicateGroupNickname.message
+            ? GroupJoinErrorCode.duplicateGroupNickname.message(l10n)
             : null);
 
     // 스텝별 다음 진행 가능 조건.
@@ -121,7 +121,11 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
       // 닉네임 중복은 입력 필드 인라인으로 보여주므로 토스트에서 제외.
       if (errorCode != null &&
           errorCode != GroupJoinErrorCode.duplicateGroupNickname) {
-        Toast.showToast(context, errorCode.message, type: ToastType.error);
+        Toast.showToast(
+          context,
+          errorCode.message(l10n),
+          type: ToastType.error,
+        );
       }
     });
 
