@@ -7,9 +7,21 @@ import '../../core/exception/group_exception.dart';
 import '../../core/exception/login_exception.dart';
 
 class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
+  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
+  /// (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+  bool _disposed = false;
+
   @override
   CreateGroupState build() {
+    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
+    ref.onDispose(() => _disposed = true);
     return CreateGroupState();
+  }
+
+  /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
+  void _update(CreateGroupState Function(CreateGroupState state) updater) {
+    if (_disposed) return;
+    state = updater(state);
   }
 
   void groupNameOnChanged(String groupName) {
@@ -40,27 +52,33 @@ class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
         state.nickname,
       );
 
-      state = state.copyWith(isLoading: false);
-      state = state.copyWith(createGroupId: createGroup.groupId);
+      _update((s) => s.copyWith(isLoading: false));
+      _update((s) => s.copyWith(createGroupId: createGroup.groupId));
     } on InvalidGroupNameException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupCreateError.invalidName,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupCreateError.invalidName,
+        ),
       );
     } on UnauthorizedException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupCreateError.unauthorized,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupCreateError.unauthorized,
+        ),
       );
     } on GroupLimitExceededException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupCreateError.limitExceeded,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupCreateError.limitExceeded,
+        ),
       );
     } on NetworkException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupCreateError.unknown,
+      _update(
+        (s) =>
+            s.copyWith(isLoading: false, errorCode: GroupCreateError.unknown),
       );
     }
   }
