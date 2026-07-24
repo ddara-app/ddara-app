@@ -30,8 +30,12 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     final getGroupListUseCase = ref.read(getGroupListUseCaseProvider);
 
     try {
-      final groupList = await getGroupListUseCase();
-      final blockedUserIds = await _loadBlockedUserIds();
+      // 서로 의존 없는 두 조회를 병렬로 기다린다. (초기 로딩 체감 단축 —
+      // 차단 목록 조회는 내부에서 실패를 삼키므로 실패는 목록 조회 쪽뿐이다)
+      final (groupList, blockedUserIds) = await (
+        getGroupListUseCase(),
+        _loadBlockedUserIds(),
+      ).wait;
       _update(
         (_) => HomeLoaded(
           groups: groupList.groups,
