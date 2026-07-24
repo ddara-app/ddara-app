@@ -7,6 +7,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/bottom_sheet/invite_share_sheet.dart';
@@ -269,12 +270,9 @@ class GroupPage extends ConsumerWidget {
     }
 
     // 최상단에서 아래로 당기면 상세·히스토리를 다시 조회한다.
-    // 조회가 아무리 빨리 끝나도 인디케이터를 최소 1초는 상단에 고정했다가
-    // 풀어, 새로고침이 일어났음을 인지할 수 있게 한다.
-    Future<void> onRefresh() => Future.wait([
-      ref.read(groupPageNotifierProvider(groupId).notifier).refresh(),
-      Future<void>.delayed(const Duration(seconds: 1)),
-    ]);
+    Future<void> onRefresh() => refreshWithMinDuration(
+      () => ref.read(groupPageNotifierProvider(groupId).notifier).refresh(),
+    );
 
     // 당겨서 새로고침에 필요한 상단 overscroll(바운스)을 허용하고, 콘텐츠가
     // 화면보다 짧아도 당길 수 있도록 AlwaysScrollable 을 부모로 둔다.

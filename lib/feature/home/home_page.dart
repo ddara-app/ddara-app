@@ -6,11 +6,12 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/foundation/app_icons.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
-import 'package:ddara/feature/home/empty_group_page.dart';
-import 'package:ddara/feature/home/group_list_page.dart';
+import 'package:ddara/feature/home/widget/empty_group_view.dart';
+import 'package:ddara/feature/home/widget/home_tabs_view.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +31,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _trackHomeViewed(HomeState state) {
     if (_viewTracked) return;
     // 아직 어떤 화면인지 확정되지 않았으므로 보류.
-    if (state.isLoading || state.errorMessage.isNotEmpty) return;
+    if (state is! HomeLoaded) return;
     _viewTracked = true;
     MixpanelManager.instance.track(
       'home_viewed',
@@ -43,13 +44,15 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(homeNotifierProvider);
-    _trackHomeViewed(state);
+    // 조회 이벤트는 상태 변화 콜백에서 전송한다. (build 는 순수하게 유지)
+    ref.listen(homeNotifierProvider, (_, next) => _trackHomeViewed(next));
     // 서버 프로필의 이미지 URL. (조회 전·미등록이면 null → 기본 아바타)
-    final profileImageUrl = ref
-        .watch(currentProfileProvider)
-        .valueOrNull
-        ?.profileImageUrl;
+    // 이미지 URL 만 select 해 닉네임 등 다른 프로필 변경에는 rebuild 하지 않는다.
+    final profileImageUrl = ref.watch(
+      currentProfileProvider.select((v) => v.valueOrNull?.profileImageUrl),
+    );
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -73,25 +76,19 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-      child: SafeArea(bottom: false, child: _body(state)),
+      child: SafeArea(bottom: false, child: _body(state, l10n)),
     );
   }
 
   /// 조회 결과에 따라 화면을 분기한다.
   /// 로딩 → 인디케이터 / 에러 → 안내 / 모임 없음 → 빈 상태 / 있으면 목록.
-  Widget _body(HomeState state) {
-    if (state.isLoading) {
-      return const Center(child: CupertinoActivityIndicator());
-    }
-    if (state.errorMessage.isNotEmpty) {
-      return Center(child: AppText.body(state.errorMessage));
-    }
-    if (state.groups.isNotEmpty) {
-      return GroupListPage(
-        groups: state.groups,
-        blockedUserIds: state.blockedUserIds,
-      );
-    }
-    return const EmptyGroupPage();
+  Widget _body(HomeState state, AppLocalizations l10n) {
+    return switch (state) {
+      HomeLoading() => const Center(child: CupertinoActivityIndicator()),
+      HomeLoadError() => Center(child: AppText.body(l10n.homeLoadFailed)),
+      HomeLoaded(:final groups, :final blockedUserIds) => groups.isNotEmpty
+          ? HomeTabsView(groups: groups, blockedUserIds: blockedUserIds)
+          : const EmptyGroupView(),
+    };
   }
 }

@@ -6,9 +6,9 @@ import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
-/// 참여한 모임이 하나도 없을 때 보여주는 빈 상태 화면.
-class EmptyGroupPage extends StatelessWidget {
-  const EmptyGroupPage({super.key});
+/// 참여한 모임이 하나도 없을 때 보여주는 빈 상태 본문.
+class EmptyGroupView extends StatelessWidget {
+  const EmptyGroupView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,12 @@ class EmptyGroupPage extends StatelessWidget {
         // 하단 액션 영역
         Padding(
           // 하단 여백은 s6, 항목 사이 간격은 s3.
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, AppSpacing.s6),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.s4,
+            0,
+            AppSpacing.s4,
+            AppSpacing.s6,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             spacing: AppSpacing.s3,
