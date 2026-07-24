@@ -133,7 +133,12 @@ class _BlockedUserTile extends StatelessWidget {
                 spacing: AppSpacing.s1,
                 children: [
                   AppText.label(user.name, color: AppColors.textPrimary),
-                  AppText.caption(formatDate(user.blockedAt)),
+                  AppText.caption(
+                    AppLocalizations.of(context).blockedUsersNicknameDate(
+                      user.blockedNickname,
+                      formatDate(user.blockedAt),
+                    ),
+                  ),
                 ],
               ),
             ],

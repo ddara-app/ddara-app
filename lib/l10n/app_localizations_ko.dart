@@ -909,6 +909,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedUsersLoadFailed => '차단 목록을 불러오지 못했어요.';
 
   @override
+  String blockedUsersNicknameDate(String nickname, String date) {
+    return '$nickname · $date';
+  }
+
+  @override
   String get blockedUsersUnblock => '차단 해제';
 
   @override
