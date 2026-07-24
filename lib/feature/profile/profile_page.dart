@@ -94,7 +94,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   onImageSourceSelected: tapGuard(
                     state.isImageUploading,
                     (ProfileImageSource source) =>
-                        _onImageSourceSelected(context, ref, source),
+                        _onImageSourceSelected(context, source),
                   ),
                 ),
                 ProfileSection(
@@ -170,12 +170,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   /// 아무것도 하지 않는다. '기본 이미지로 변경'은 선택 즉시 서버에 반영한다.
   Future<void> _onImageSourceSelected(
     BuildContext context,
-    WidgetRef ref,
     ProfileImageSource source,
   ) async {
     // 기본 이미지로 되돌리기 — 촬영/선택 없이 바로 초기화를 요청한다.
     if (source == ProfileImageSource.reset) {
-      await _resetProfileImage(context, ref);
+      await _resetProfileImage(context);
       return;
     }
 
@@ -184,7 +183,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     // (iOS 는 PHPicker 라 권한 없이도 동작하므로 그대로 둔다)
     if (source == ProfileImageSource.gallery &&
         defaultTargetPlatform == TargetPlatform.android) {
-      final ok = await _ensureAndroidPhotosPermission(context, ref);
+      final ok = await _ensureAndroidPhotosPermission(context);
       if (!ok || !context.mounted) return;
     }
 
@@ -203,17 +202,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     if (!context.mounted) return;
 
     // 리사이징·압축은 업로드 단계(UploadDataSource.compress)에서 처리한다.
-    await _uploadProfileImage(context, ref, cropped.path);
+    await _uploadProfileImage(context, cropped.path);
   }
 
   /// Android 갤러리 접근 전 '사진' 권한을 확인하고, 없으면 요청한다.
   ///
   /// 허용(부분 접근 포함)되면 true, 거부면 false 를 반환한다. 영구 거부라
   /// 프롬프트가 더 뜨지 않는 경우엔 설정 이동 안내를 띄운다.
-  Future<bool> _ensureAndroidPhotosPermission(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
+  Future<bool> _ensureAndroidPhotosPermission(BuildContext context) async {
     final permission = ref.read(permissionServiceProvider);
     if (await permission.isPhotosGranted()) return true;
 
@@ -235,7 +231,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   /// 성공 시 안내 토스트, 실패 시 원인별 토스트를 띄운다. (상태 갱신은 notifier)
   Future<void> _uploadProfileImage(
     BuildContext context,
-    WidgetRef ref,
     String imagePath,
   ) async {
     final l10n = AppLocalizations.of(context);
@@ -266,7 +261,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   /// 프로필 이미지를 기본 이미지로 되돌린다.
   ///
   /// 성공 시 안내 토스트, 실패 시 실패 토스트를 띄운다. (상태 갱신은 notifier)
-  Future<void> _resetProfileImage(BuildContext context, WidgetRef ref) async {
+  Future<void> _resetProfileImage(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     try {
       await ref.read(profileNotifierProvider.notifier).resetProfileImage();

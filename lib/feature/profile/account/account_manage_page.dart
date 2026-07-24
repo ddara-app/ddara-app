@@ -32,21 +32,13 @@ class AccountManagePage extends ConsumerWidget {
       _,
       status,
     ) {
-      if (!context.mounted) return;
-      switch (status) {
-        case LogoutStatus.success:
-          MixpanelManager.instance.track('logout_succeeded');
-          context.go(RoutePath.login);
-        case LogoutStatus.fail:
-          Toast.showToast(
-            context,
-            l10n.profileLogoutFailed,
-            type: ToastType.error,
-          );
-        case LogoutStatus.idle:
-        case LogoutStatus.loading:
-          break;
-      }
+      _onAccountActionResult(
+        context,
+        success: status == LogoutStatus.success,
+        fail: status == LogoutStatus.fail,
+        trackEvent: 'logout_succeeded',
+        failMessage: l10n.profileLogoutFailed,
+      );
     });
 
     // 회원 탈퇴 결과에 따라 분기: 성공 시 로그인 화면으로 이동, 실패 시 안내.
@@ -54,21 +46,13 @@ class AccountManagePage extends ConsumerWidget {
       _,
       status,
     ) {
-      if (!context.mounted) return;
-      switch (status) {
-        case WithdrawStatus.success:
-          MixpanelManager.instance.track('account_withdraw_succeeded');
-          context.go(RoutePath.login);
-        case WithdrawStatus.fail:
-          Toast.showToast(
-            context,
-            l10n.profileWithdrawFailed,
-            type: ToastType.error,
-          );
-        case WithdrawStatus.idle:
-        case WithdrawStatus.loading:
-          break;
-      }
+      _onAccountActionResult(
+        context,
+        success: status == WithdrawStatus.success,
+        fail: status == WithdrawStatus.fail,
+        trackEvent: 'account_withdraw_succeeded',
+        failMessage: l10n.profileWithdrawFailed,
+      );
     });
 
     return CupertinoPageScaffold(
@@ -124,6 +108,24 @@ class AccountManagePage extends ConsumerWidget {
   bool _isAccountActionRunning(ProfileState state) =>
       state.logoutStatus == LogoutStatus.loading ||
       state.withdrawStatus == WithdrawStatus.loading;
+
+  /// 로그아웃·회원 탈퇴 공통 결과 처리.
+  /// 성공 시 이벤트를 기록하고 로그인 화면으로 이동, 실패 시 토스트를 띄운다.
+  void _onAccountActionResult(
+    BuildContext context, {
+    required bool success,
+    required bool fail,
+    required String trackEvent,
+    required String failMessage,
+  }) {
+    if (!context.mounted) return;
+    if (success) {
+      MixpanelManager.instance.track(trackEvent);
+      context.go(RoutePath.login);
+    } else if (fail) {
+      Toast.showToast(context, failMessage, type: ToastType.error);
+    }
+  }
 
   /// 로그아웃 확인 다이얼로그를 띄우고, 확인 시에만 로그아웃을 진행한다.
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
