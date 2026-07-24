@@ -7,9 +7,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'util/join_group_state.dart';
 
 class JoinGroupNotifier extends AutoDisposeNotifier<JoinGroupState> {
+  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
+  /// (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+  bool _disposed = false;
+
   @override
   JoinGroupState build() {
+    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
+    ref.onDispose(() => _disposed = true);
     return const JoinGroupState();
+  }
+
+  /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
+  void _update(JoinGroupState Function(JoinGroupState state) updater) {
+    if (_disposed) return;
+    state = updater(state);
   }
 
   void nicknameOnChanged(String nickname) {
@@ -28,41 +40,55 @@ class JoinGroupNotifier extends AutoDisposeNotifier<JoinGroupState> {
 
     try {
       final joined = await joinGroupUseCase(inviteCode, state.nickname);
-      state = state.copyWith(isLoading: false, joinedGroupId: joined.groupId);
+      _update(
+        (s) => s.copyWith(isLoading: false, joinedGroupId: joined.groupId),
+      );
     } on InvalidJoinInputException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.invalidInput,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupJoinErrorCode.invalidInput,
+        ),
       );
     } on InvalidInviteCodeException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.invalidInviteCode,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupJoinErrorCode.invalidInviteCode,
+        ),
       );
     } on AlreadyJoinedGroupException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.alreadyJoinedGroup,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupJoinErrorCode.alreadyJoinedGroup,
+        ),
       );
     } on GroupFullException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.groupFull,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupJoinErrorCode.groupFull,
+        ),
       );
     } on GroupLimitExceededException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.groupLimitExceeded,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupJoinErrorCode.groupLimitExceeded,
+        ),
       );
     } on DuplicateGroupNicknameException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.duplicateGroupNickname,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupJoinErrorCode.duplicateGroupNickname,
+        ),
       );
     } on NetworkException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.unknown,
+      _update(
+        (s) =>
+            s.copyWith(isLoading: false, errorCode: GroupJoinErrorCode.unknown),
       );
     }
   }

@@ -8,9 +8,23 @@ import 'package:ddara/core/exception/login_exception.dart';
 
 class InviteCodeInputNotifier
     extends AutoDisposeNotifier<InviteCodeInputState> {
+  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
+  /// (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+  bool _disposed = false;
+
   @override
   InviteCodeInputState build() {
+    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
+    ref.onDispose(() => _disposed = true);
     return InviteCodeInputState();
+  }
+
+  /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
+  void _update(
+    InviteCodeInputState Function(InviteCodeInputState state) updater,
+  ) {
+    if (_disposed) return;
+    state = updater(state);
   }
 
   void inviteCodeOnChanged(String inviteCode) {
@@ -41,30 +55,36 @@ class InviteCodeInputNotifier
 
       // 조회는 됐지만 참여할 수 없는 경우(이미 참여 중·정원 초과)를 걸러낸다.
       if (inviteGroup.alreadyJoined) {
-        state = state.copyWith(
-          isLoading: false,
-          errorCode: GroupJoinErrorCode.alreadyJoinedGroup,
+        _update(
+          (s) => s.copyWith(
+            isLoading: false,
+            errorCode: GroupJoinErrorCode.alreadyJoinedGroup,
+          ),
         );
         return;
       }
       if (inviteGroup.isFull) {
-        state = state.copyWith(
-          isLoading: false,
-          errorCode: GroupJoinErrorCode.groupFull,
+        _update(
+          (s) => s.copyWith(
+            isLoading: false,
+            errorCode: GroupJoinErrorCode.groupFull,
+          ),
         );
         return;
       }
 
-      state = state.copyWith(isLoading: false, inviteGroup: inviteGroup);
+      _update((s) => s.copyWith(isLoading: false, inviteGroup: inviteGroup));
     } on InvalidInviteCodeException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.invalidInviteCode,
+      _update(
+        (s) => s.copyWith(
+          isLoading: false,
+          errorCode: GroupJoinErrorCode.invalidInviteCode,
+        ),
       );
     } on NetworkException {
-      state = state.copyWith(
-        isLoading: false,
-        errorCode: GroupJoinErrorCode.unknown,
+      _update(
+        (s) =>
+            s.copyWith(isLoading: false, errorCode: GroupJoinErrorCode.unknown),
       );
     }
   }
