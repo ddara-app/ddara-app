@@ -1741,10 +1741,10 @@ abstract class AppLocalizations {
   /// **'차단 목록을 불러오지 못했어요.'**
   String get blockedUsersLoadFailed;
 
-  /// 차단 목록 항목의 모임 닉네임 · 차단 날짜 요약
+  /// 차단 목록 항목의 모임 닉네임 · 차단 날짜 요약 (날짜 뒤 '차단' 표기)
   ///
   /// In ko, this message translates to:
-  /// **'{nickname} · {date}'**
+  /// **'{nickname} · {date} 차단'**
   String blockedUsersNicknameDate(String nickname, String date);
 
   /// No description provided for @blockedUsersUnblock.

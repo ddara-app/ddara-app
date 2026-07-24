@@ -665,9 +665,9 @@
   "blockedUsersTitle": "차단한 유저",
   "blockedUsersEmpty": "차단한 유저가 없어요",
   "blockedUsersLoadFailed": "차단 목록을 불러오지 못했어요.",
-  "blockedUsersNicknameDate": "{nickname} · {date}",
+  "blockedUsersNicknameDate": "{nickname} · {date} 차단",
   "@blockedUsersNicknameDate": {
-    "description": "차단 목록 항목의 모임 닉네임 · 차단 날짜 요약",
+    "description": "차단 목록 항목의 모임 닉네임 · 차단 날짜 요약 (날짜 뒤 '차단' 표기)",
     "placeholders": {
       "nickname": { "type": "String" },
       "date": { "type": "String" }

@@ -186,14 +186,16 @@ class _UnblockButton extends StatelessWidget {
       onPressed: onPressed,
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s3,
+          horizontal: AppSpacing.s5,
           vertical: AppSpacing.s2,
         ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.accentDefault),
+        decoration: ShapeDecoration(
+          // 완전히 둥근(pill) 아웃라인. (AppRadius 로는 살짝만 둥글다)
+          shape: const StadiumBorder(
+            side: BorderSide(color: AppColors.borderSelected),
+          ),
         ),
-        child: AppText.label(label, color: AppColors.accentDefault),
+        child: AppText.label(label, color: AppColors.textAccent),
       ),
     );
   }

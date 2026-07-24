@@ -910,7 +910,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String blockedUsersNicknameDate(String nickname, String date) {
-    return '$nickname · $date';
+    return '$nickname · $date 차단';
   }
 
   @override
