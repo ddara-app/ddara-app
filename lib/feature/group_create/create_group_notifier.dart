@@ -1,3 +1,4 @@
+import 'package:ddara/core/exception/group_create_error.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group_create/util/create_group_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +34,7 @@ class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
       final createGroup = await createGroupUseCase(
         state.groupName,
         state.description,
-        state.nickname
+        state.nickname,
       );
 
       state = state.copyWith(isLoading: false);
@@ -41,22 +42,22 @@ class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
     } on InvalidGroupNameException {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: "name 누락 또는 길이 초과",
+        errorCode: GroupCreateError.invalidName,
       );
     } on UnauthorizedException {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: "토큰 없음·만료 (인터셉터 복구도 실패한 경우)",
+        errorCode: GroupCreateError.unauthorized,
       );
     } on GroupLimitExceededException {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: "모임 최대 개수(20개) 초과",
+        errorCode: GroupCreateError.limitExceeded,
       );
     } on NetworkException {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: "네트워크 연결이 불안정합니다.",
+        errorCode: GroupCreateError.unknown,
       );
     }
   }

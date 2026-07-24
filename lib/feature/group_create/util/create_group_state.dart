@@ -1,3 +1,5 @@
+import 'package:ddara/core/exception/group_create_error.dart';
+
 class CreateGroupState {
   final String groupName;
   final String description;
@@ -5,7 +7,9 @@ class CreateGroupState {
 
   final bool isLoading;
   final int createGroupId;
-  final String errorMessage;
+
+  /// 생성 실패 종류. 없으면 null. (사용자 문구는 화면에서 l10n 매핑)
+  final GroupCreateError? errorCode;
 
   const CreateGroupState({
     this.groupName = '',
@@ -13,7 +17,7 @@ class CreateGroupState {
     this.nickname = '',
     this.isLoading = false,
     this.createGroupId = -1,
-    this.errorMessage = '',
+    this.errorCode,
   });
 
   CreateGroupState copyWith({
@@ -22,7 +26,7 @@ class CreateGroupState {
     String? nickname,
     bool? isLoading,
     int? createGroupId,
-    String? errorMessage,
+    GroupCreateError? errorCode,
   }) {
     return CreateGroupState(
       groupName: groupName ?? this.groupName,
@@ -30,7 +34,7 @@ class CreateGroupState {
       nickname: nickname ?? this.nickname,
       isLoading: isLoading ?? this.isLoading,
       createGroupId: createGroupId ?? this.createGroupId,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorCode: errorCode ?? this.errorCode,
     );
   }
 }

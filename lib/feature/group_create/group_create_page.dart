@@ -2,6 +2,7 @@ import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/exception/group_create_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
@@ -70,10 +71,14 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
         return;
       }
 
-      final errorMessage = next.errorMessage;
+      final errorCode = next.errorCode;
 
-      if (errorMessage.isNotEmpty) {
-        Toast.showToast(context, errorMessage, type: ToastType.error);
+      if (errorCode != null) {
+        Toast.showToast(
+          context,
+          errorCode.message(l10n),
+          type: ToastType.error,
+        );
       }
     });
 
