@@ -26,9 +26,14 @@ class InviteCodeInputNotifier
   Future<void> joinGroup() async {
     if (state.isLoading) return;
 
-    // 조회 시작 시 이전 결과를 비운다. 조회 성공 화면(참여 확인)에서 뒤로
-    // 돌아와 다시 조회해도 "prev==null → next!=null" 전환이 다시 트리거된다.
-    state = state.copyWith(isLoading: true, clearInviteGroup: true);
+    // 조회 시작 시 이전 결과·에러를 함께 비운다. 조회 성공 화면(참여 확인)에서
+    // 뒤로 돌아와 다시 조회해도 "prev==null → next!=null" 전환이 다시
+    // 트리거되고, 남아 있던 errorCode 로 stale 토스트가 재표시되지 않는다.
+    state = state.copyWith(
+      isLoading: true,
+      clearInviteGroup: true,
+      clearErrorCode: true,
+    );
     final getInviteGroupUseCase = ref.read(getInviteGroupUseCaseProvider);
 
     try {

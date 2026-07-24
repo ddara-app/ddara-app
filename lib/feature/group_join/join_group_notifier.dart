@@ -21,14 +21,13 @@ class JoinGroupNotifier extends AutoDisposeNotifier<JoinGroupState> {
   Future<void> joinGroup(String inviteCode) async {
     if (state.isLoading) return;
 
-    state = state.copyWith(isLoading: true);
+    // 요청 시작 시 이전 에러를 해제한다. (isLoading 발행으로 listen 이 다시
+    // 발화할 때 남아 있던 errorCode 로 stale 토스트가 재표시되는 것을 막는다)
+    state = state.copyWith(isLoading: true, clearErrorCode: true);
     final joinGroupUseCase = ref.read(joinGroupUseCaseProvider);
 
     try {
-      final joined = await joinGroupUseCase(
-        inviteCode,
-        state.nickname,
-      );
+      final joined = await joinGroupUseCase(inviteCode, state.nickname);
       state = state.copyWith(isLoading: false, joinedGroupId: joined.groupId);
     } on InvalidJoinInputException {
       state = state.copyWith(
