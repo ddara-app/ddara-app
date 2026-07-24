@@ -20,7 +20,7 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
     // 진입 시 프로필 정보를 자동 조회. (build 는 동기라 fire-and-forget)
     _load();
 
-    return const ProfileState(isLoading: true);
+    return const ProfileState();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
@@ -39,23 +39,23 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
 
       _update(
         (s) => s.copyWith(
-          isLoading: false,
-          name: profile.name,
-          profileImageUrl: profile.profileImageUrl,
-          joinedAt: profile.createdAt,
           appVersion: appVersion,
-          // 서버 provider 코드('KAKAO')를 한글 표시명('카카오')으로 변환한다.
-          linkedAccount:
-              SocialLoginType.fromValue(profile.provider)?.label ??
-              profile.provider,
+          load: ProfileLoaded(
+            name: profile.name,
+            profileImageUrl: profile.profileImageUrl,
+            joinedAt: profile.createdAt,
+            // 서버 provider 코드('KAKAO')를 한글 표시명('카카오')으로 변환한다.
+            linkedAccount:
+                SocialLoginType.fromValue(profile.provider)?.label ??
+                profile.provider,
+          ),
         ),
       );
     } on UserNotFoundException {
       _update(
         (s) => s.copyWith(
-          isLoading: false,
           appVersion: appVersion,
-          loadError: ProfileLoadError.userNotFound,
+          load: const ProfileLoadFailed(ProfileLoadError.userNotFound),
         ),
       );
     } catch (e) {
@@ -63,9 +63,8 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
       debugPrint('[Profile] 조회 실패: $e');
       _update(
         (s) => s.copyWith(
-          isLoading: false,
           appVersion: appVersion,
-          loadError: ProfileLoadError.loadFailed,
+          load: const ProfileLoadFailed(ProfileLoadError.loadFailed),
         ),
       );
     }
@@ -95,7 +94,15 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
       final url = await ref.read(uploadProfileImageUseCaseProvider)(imagePath);
       // 새 이미지 바이트는 업로드 단계(Repository)에서 캐시로 심어지므로
       // (같은 URL 덮어쓰기 대비 메모리 캐시 비움 포함) 바로 상태만 갱신한다.
-      _update((s) => s.copyWith(isImageUploading: false, profileImageUrl: url));
+      _update(
+        (s) => s.copyWith(
+          isImageUploading: false,
+          load: switch (s.load) {
+            final ProfileLoaded loaded => loaded.copyWith(profileImageUrl: url),
+            final other => other,
+          },
+        ),
+      );
       // 공유 프로필(홈 AppBar 아바타 등)도 새 이미지로 갱신되도록 재조회를 유도한다.
       ref.invalidate(currentProfileProvider);
     } catch (_) {
@@ -115,7 +122,15 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
     try {
       await ref.read(resetProfileImageUseCaseProvider)();
       _update(
-        (s) => s.copyWith(isImageUploading: false, clearProfileImageUrl: true),
+        (s) => s.copyWith(
+          isImageUploading: false,
+          load: switch (s.load) {
+            final ProfileLoaded loaded => loaded.copyWith(
+              clearProfileImageUrl: true,
+            ),
+            final other => other,
+          },
+        ),
       );
       // 공유 프로필(홈 AppBar 아바타 등)도 기본 이미지로 갱신되도록 재조회를 유도한다.
       ref.invalidate(currentProfileProvider);

@@ -37,11 +37,31 @@ enum ProfileLoadError {
   loadFailed,
 }
 
-/// 프로필 화면 상태.
-///
-/// 사용자 이름·가입일·앱 버전·연동 계정 등 서버에서 내려받는 정보와
-/// 로그아웃 진행 상태를 함께 보관한다.
-class ProfileState {
+/// 프로필 조회 결과. 로딩·실패·완료가 상호배타인 sealed 설계라
+/// "로딩 중인데 에러", "데이터 있는데 에러" 같은 조합이 타입상 불가능하다.
+sealed class ProfileLoadState {
+  const ProfileLoadState();
+}
+
+final class ProfileLoading extends ProfileLoadState {
+  const ProfileLoading();
+}
+
+/// 조회 실패. (문구 매핑은 화면 담당)
+final class ProfileLoadFailed extends ProfileLoadState {
+  const ProfileLoadFailed(this.error);
+
+  final ProfileLoadError error;
+}
+
+final class ProfileLoaded extends ProfileLoadState {
+  const ProfileLoaded({
+    required this.name,
+    this.profileImageUrl,
+    this.joinedAt,
+    this.linkedAccount = '',
+  });
+
   /// 사용자 이름(닉네임).
   final String name;
 
@@ -51,20 +71,38 @@ class ProfileState {
   /// 가입일.
   final DateTime? joinedAt;
 
-  /// 앱 버전. (예: 'v1.0.0')
-  final String appVersion;
-
   /// 연동된 소셜 계정 이름. (예: '카카오')
   final String linkedAccount;
 
-  /// 프로필 정보 로딩 여부.
-  final bool isLoading;
+  ProfileLoaded copyWith({
+    String? profileImageUrl,
+    // 기본 이미지로 되돌릴 때 사용. (copyWith 의 null 은 '유지'라 별도 플래그)
+    bool clearProfileImageUrl = false,
+  }) {
+    return ProfileLoaded(
+      name: name,
+      profileImageUrl: clearProfileImageUrl
+          ? null
+          : (profileImageUrl ?? this.profileImageUrl),
+      joinedAt: joinedAt,
+      linkedAccount: linkedAccount,
+    );
+  }
+}
+
+/// 프로필 화면 상태.
+///
+/// 서로 독립인 채널을 분리해 보관한다 — 조회 결과([load])와 이미지 업로드·
+/// 로그아웃·탈퇴 진행 상태는 서로 조합이 자유롭다.
+class ProfileState {
+  /// 프로필 조회 결과. (로딩/실패/완료)
+  final ProfileLoadState load;
+
+  /// 앱 버전. (예: 'v1.0.0') 서버 조회와 무관하게 채워진다.
+  final String appVersion;
 
   /// 프로필 이미지 업로드 진행 여부. (중복 탭 방지 + 진행 표시)
   final bool isImageUploading;
-
-  /// 프로필 정보 로딩 실패 종류. (없으면 null — 문구 매핑은 화면 담당)
-  final ProfileLoadError? loadError;
 
   /// 로그아웃 진행 상태.
   final LogoutStatus logoutStatus;
@@ -73,43 +111,24 @@ class ProfileState {
   final WithdrawStatus withdrawStatus;
 
   const ProfileState({
-    this.name = '',
-    this.profileImageUrl,
-    this.joinedAt,
+    this.load = const ProfileLoading(),
     this.appVersion = '',
-    this.linkedAccount = '',
-    this.isLoading = false,
     this.isImageUploading = false,
-    this.loadError,
     this.logoutStatus = LogoutStatus.idle,
     this.withdrawStatus = WithdrawStatus.idle,
   });
 
   ProfileState copyWith({
-    String? name,
-    String? profileImageUrl,
-    // 기본 이미지로 되돌릴 때 사용. (copyWith 의 null 은 '유지'라 별도 플래그)
-    bool clearProfileImageUrl = false,
-    DateTime? joinedAt,
+    ProfileLoadState? load,
     String? appVersion,
-    String? linkedAccount,
-    bool? isLoading,
     bool? isImageUploading,
-    ProfileLoadError? loadError,
     LogoutStatus? logoutStatus,
     WithdrawStatus? withdrawStatus,
   }) {
     return ProfileState(
-      name: name ?? this.name,
-      profileImageUrl: clearProfileImageUrl
-          ? null
-          : (profileImageUrl ?? this.profileImageUrl),
-      joinedAt: joinedAt ?? this.joinedAt,
+      load: load ?? this.load,
       appVersion: appVersion ?? this.appVersion,
-      linkedAccount: linkedAccount ?? this.linkedAccount,
-      isLoading: isLoading ?? this.isLoading,
       isImageUploading: isImageUploading ?? this.isImageUploading,
-      loadError: loadError ?? this.loadError,
       logoutStatus: logoutStatus ?? this.logoutStatus,
       withdrawStatus: withdrawStatus ?? this.withdrawStatus,
     );
