@@ -1,5 +1,6 @@
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomeNotifier extends AutoDisposeNotifier<HomeState> {
@@ -37,10 +38,9 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
           blockedUserIds: blockedUserIds,
         ),
       );
-    } catch (_) {
-      _update(
-        (s) => s is HomeLoaded ? s : const HomeLoadError('목록을 불러오지 못했어요.'),
-      );
+    } catch (e) {
+      debugPrint('[Home] 목록 조회 실패: $e');
+      _update((s) => s is HomeLoaded ? s : const HomeLoadError());
     }
   }
 

@@ -412,6 +412,18 @@ abstract class AppLocalizations {
   /// **'최근 업데이트'**
   String get homeTabRecentUpdates;
 
+  /// 홈 모임 목록 조회 실패 본문
+  ///
+  /// In ko, this message translates to:
+  /// **'목록을 불러오지 못했어요.'**
+  String get homeLoadFailed;
+
+  /// 최근 업데이트 피드 조회 실패 (본문·새로고침 실패 토스트 공용)
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 업데이트를 불러오지 못했어요.'**
+  String get feedLoadFailed;
+
   /// No description provided for @emptyGroupTitle.
   ///
   /// In ko, this message translates to:
@@ -1239,6 +1251,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'실패'**
   String get commentSendFailed;
+
+  /// No description provided for @commentErrorPhotoDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 삭제된 사진이에요.'**
+  String get commentErrorPhotoDeleted;
+
+  /// No description provided for @commentErrorNotGroupMember.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 모임의 멤버가 아니에요.'**
+  String get commentErrorNotGroupMember;
+
+  /// No description provided for @commentErrorLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 불러오지 못했어요.'**
+  String get commentErrorLoadFailed;
+
+  /// No description provided for @commentErrorInvalidInput.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글 내용을 확인해 주세요.'**
+  String get commentErrorInvalidInput;
+
+  /// No description provided for @commentErrorPhotoLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 인증샷을 올려야 댓글을 달 수 있어요.'**
+  String get commentErrorPhotoLocked;
+
+  /// No description provided for @commentErrorPhotoUnderReview.
+  ///
+  /// In ko, this message translates to:
+  /// **'검토 중인 사진에는 댓글을 달 수 없어요.'**
+  String get commentErrorPhotoUnderReview;
+
+  /// No description provided for @commentErrorSubmitFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 등록하지 못했어요.'**
+  String get commentErrorSubmitFailed;
+
+  /// No description provided for @commentErrorDeleteForbidden.
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 작성한 댓글만 삭제할 수 있어요.'**
+  String get commentErrorDeleteForbidden;
+
+  /// No description provided for @commentErrorAlreadyDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 삭제된 댓글이에요.'**
+  String get commentErrorAlreadyDeleted;
+
+  /// No description provided for @commentErrorDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 삭제하지 못했어요.'**
+  String get commentErrorDeleteFailed;
+
+  /// No description provided for @commentErrorEditForbidden.
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 작성한 댓글만 수정할 수 있어요.'**
+  String get commentErrorEditForbidden;
+
+  /// No description provided for @commentErrorEditFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 수정하지 못했어요.'**
+  String get commentErrorEditFailed;
+
+  /// No description provided for @commentErrorInvalidReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 내용이 올바르지 않아요.'**
+  String get commentErrorInvalidReport;
+
+  /// No description provided for @commentErrorReportFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하지 못했어요.'**
+  String get commentErrorReportFailed;
 
   /// 전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 제목
   ///

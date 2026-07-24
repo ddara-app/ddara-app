@@ -171,6 +171,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get homeTabRecentUpdates => '최근 업데이트';
 
   @override
+  String get homeLoadFailed => '목록을 불러오지 못했어요.';
+
+  @override
+  String get feedLoadFailed => '최근 업데이트를 불러오지 못했어요.';
+
+  @override
   String get emptyGroupTitle => '아직 참여한 모임이 없어요';
 
   @override
@@ -632,6 +638,48 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get commentSendFailed => '실패';
+
+  @override
+  String get commentErrorPhotoDeleted => '이미 삭제된 사진이에요.';
+
+  @override
+  String get commentErrorNotGroupMember => '해당 모임의 멤버가 아니에요.';
+
+  @override
+  String get commentErrorLoadFailed => '댓글을 불러오지 못했어요.';
+
+  @override
+  String get commentErrorInvalidInput => '댓글 내용을 확인해 주세요.';
+
+  @override
+  String get commentErrorPhotoLocked => '내 인증샷을 올려야 댓글을 달 수 있어요.';
+
+  @override
+  String get commentErrorPhotoUnderReview => '검토 중인 사진에는 댓글을 달 수 없어요.';
+
+  @override
+  String get commentErrorSubmitFailed => '댓글을 등록하지 못했어요.';
+
+  @override
+  String get commentErrorDeleteForbidden => '내가 작성한 댓글만 삭제할 수 있어요.';
+
+  @override
+  String get commentErrorAlreadyDeleted => '이미 삭제된 댓글이에요.';
+
+  @override
+  String get commentErrorDeleteFailed => '댓글을 삭제하지 못했어요.';
+
+  @override
+  String get commentErrorEditForbidden => '내가 작성한 댓글만 수정할 수 있어요.';
+
+  @override
+  String get commentErrorEditFailed => '댓글을 수정하지 못했어요.';
+
+  @override
+  String get commentErrorInvalidReport => '신고 내용이 올바르지 않아요.';
+
+  @override
+  String get commentErrorReportFailed => '신고하지 못했어요.';
 
   @override
   String get commentPendingLeaveTitle => '전송하지 못한 댓글이 있어요';

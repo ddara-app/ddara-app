@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -61,6 +62,18 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         ref
             .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
             .clearError();
+      }
+      // 댓글 액션 실패는 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
+      final commentError = next.commentError;
+      if (commentError != null) {
+        Toast.showToast(
+          context,
+          commentError.message(AppLocalizations.of(context)),
+          type: ToastType.error,
+        );
+        ref
+            .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+            .clearCommentError();
       }
     });
 

@@ -1,6 +1,8 @@
+import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/comment/comment_actions.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/home/util/feed_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FeedNotifier extends AutoDisposeNotifier<FeedState>
@@ -35,11 +37,12 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
       // size 는 생략해 서버 기본값(최신 30개)을 따른다.
       final feed = await getFeedUseCase();
       _update((_) => FeedLoaded(feed: feed));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Feed] 조회 실패: $e');
       _update(
         (s) => s is FeedLoaded
-            ? s.copyWith(actionError: '최근 업데이트를 불러오지 못했어요.')
-            : const FeedLoadError('최근 업데이트를 불러오지 못했어요.'),
+            ? s.copyWith(actionError: const FeedRefreshFailed())
+            : const FeedLoadError(),
       );
     }
   }
@@ -54,9 +57,13 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
   }
 
   @override
-  void onCommentError(String message) {
+  void onCommentError(CommentActionError error) {
     // 댓글 액션은 피드가 떠 있어야만 가능하므로 Loaded 외 상태에선 무시한다.
-    _update((s) => s is FeedLoaded ? s.copyWith(actionError: message) : s);
+    _update(
+      (s) => s is FeedLoaded
+          ? s.copyWith(actionError: FeedCommentError(error))
+          : s,
+    );
   }
 
   /// 등록·삭제·신고 성공 시 댓글 수·미리보기가 반영되도록 피드를 다시 조회한다.
@@ -71,8 +78,9 @@ class FeedNotifier extends AutoDisposeNotifier<FeedState>
     try {
       final feed = await ref.read(getFeedUseCaseProvider)();
       _update((s) => s is FeedLoaded ? s.copyWith(feed: feed) : s);
-    } catch (_) {
-      // 무시. (다음 진입 때 갱신된다)
+    } catch (e) {
+      // 화면엔 반영하지 않는다. (다음 진입 때 갱신된다)
+      debugPrint('[Feed] 조용한 재조회 실패: $e');
     }
   }
 }

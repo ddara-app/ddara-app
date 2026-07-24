@@ -11,6 +11,7 @@ import 'package:ddara/feature/home/widget/home_tabs_view.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -43,6 +44,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(homeNotifierProvider);
     // 조회 이벤트는 상태 변화 콜백에서 전송한다. (build 는 순수하게 유지)
     ref.listen(homeNotifierProvider, (_, next) => _trackHomeViewed(next));
@@ -74,16 +76,16 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-      child: SafeArea(bottom: false, child: _body(state)),
+      child: SafeArea(bottom: false, child: _body(state, l10n)),
     );
   }
 
   /// 조회 결과에 따라 화면을 분기한다.
   /// 로딩 → 인디케이터 / 에러 → 안내 / 모임 없음 → 빈 상태 / 있으면 목록.
-  Widget _body(HomeState state) {
+  Widget _body(HomeState state, AppLocalizations l10n) {
     return switch (state) {
       HomeLoading() => const Center(child: CupertinoActivityIndicator()),
-      HomeLoadError(:final message) => Center(child: AppText.body(message)),
+      HomeLoadError() => Center(child: AppText.body(l10n.homeLoadFailed)),
       HomeLoaded(:final groups, :final blockedUserIds) => groups.isNotEmpty
           ? HomeTabsView(groups: groups, blockedUserIds: blockedUserIds)
           : const EmptyGroupView(),

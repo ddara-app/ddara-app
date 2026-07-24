@@ -1,3 +1,4 @@
+import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/comment/comment_actions.dart';
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
@@ -154,8 +155,14 @@ class CyclePhotoGalleryNotifier
   }
 
   @override
-  void onCommentError(String message) {
-    state = state.copyWith(errorMessage: message);
+  void onCommentError(CommentActionError error) {
+    state = state.copyWith(commentError: error);
+  }
+
+  /// 댓글 액션 에러를 소비한 뒤(토스트로 노출 후) 다시 비운다.
+  void clearCommentError() {
+    if (state.commentError == null) return;
+    state = state.copyWith(clearCommentError: true);
   }
 
   // 갤러리는 댓글이 화면에 노출되지 않으므로 변경 성공 후 재조회하지 않는다.

@@ -1,6 +1,7 @@
 import 'dart:async' show unawaited;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/feed/feed.dart';
@@ -44,8 +45,13 @@ class RecentUpdatesView extends ConsumerWidget {
     // 댓글 등 액션 실패를 토스트로 안내한다.
     // (초기 조회 실패는 FeedLoadError 본문이 표시하므로 여기선 제외된다)
     ref.listen(feedNotifierProvider, (prev, next) {
-      if (next is FeedLoaded && next.actionError != null) {
-        Toast.showToast(context, next.actionError!, type: ToastType.error);
+      final actionError = next is FeedLoaded ? next.actionError : null;
+      if (actionError != null) {
+        Toast.showToast(
+          context,
+          _actionErrorMessage(AppLocalizations.of(context), actionError),
+          type: ToastType.error,
+        );
         ref.read(feedNotifierProvider.notifier).clearActionError();
       }
     });
@@ -58,7 +64,7 @@ class RecentUpdatesView extends ConsumerWidget {
     return switch (state) {
       FeedLoading() => const Center(child: CupertinoActivityIndicator()),
       // 최초 조회 실패 화면에서도 당겨서 재시도할 수 있게 한다.
-      FeedLoadError(:final message) => CustomScrollView(
+      FeedLoadError() => CustomScrollView(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
@@ -66,11 +72,21 @@ class RecentUpdatesView extends ConsumerWidget {
           CupertinoSliverRefreshControl(onRefresh: onRefresh),
           SliverFillRemaining(
             hasScrollBody: false,
-            child: Center(child: AppText.body(message)),
+            child: Center(
+              child: AppText.body(AppLocalizations.of(context).feedLoadFailed),
+            ),
           ),
         ],
       ),
       FeedLoaded() => _grid(context, ref, state, onRefresh),
+    };
+  }
+
+  /// 액션 실패 종류를 사용자 노출 문구로 매핑한다.
+  String _actionErrorMessage(AppLocalizations l10n, FeedActionError error) {
+    return switch (error) {
+      FeedRefreshFailed() => l10n.feedLoadFailed,
+      FeedCommentError(:final error) => error.message(l10n),
     };
   }
 

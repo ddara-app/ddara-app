@@ -10,11 +10,9 @@ final class HomeLoading extends HomeState {
   const HomeLoading();
 }
 
-/// 초기 조회 실패. (본문에 안내 문구를 표시)
+/// 초기 조회 실패. (본문 문구는 화면이 l10n 으로 표시)
 final class HomeLoadError extends HomeState {
-  const HomeLoadError(this.message);
-
-  final String message;
+  const HomeLoadError();
 }
 
 final class HomeLoaded extends HomeState {

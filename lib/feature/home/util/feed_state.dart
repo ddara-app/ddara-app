@@ -1,3 +1,4 @@
+import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/model/feed/feed.dart';
 
 /// 최근 업데이트 피드 화면 상태. 로딩·실패·완료가 상호배타인 sealed 설계다.
@@ -13,11 +14,27 @@ final class FeedLoading extends FeedState {
   const FeedLoading();
 }
 
-/// 초기 조회 실패. (본문에 안내 문구를 표시하고 당겨서 재시도)
+/// 초기 조회 실패. (본문 문구는 화면이 l10n 으로 표시하고 당겨서 재시도)
 final class FeedLoadError extends FeedState {
-  const FeedLoadError(this.message);
+  const FeedLoadError();
+}
 
-  final String message;
+/// 피드가 떠 있는 상태에서 발생한 일회성 실패. (토스트용 — 종류만 담고
+/// 문구는 화면이 l10n 으로 매핑)
+sealed class FeedActionError {
+  const FeedActionError();
+}
+
+/// 당겨서 새로고침 실패.
+final class FeedRefreshFailed extends FeedActionError {
+  const FeedRefreshFailed();
+}
+
+/// 댓글 액션 실패.
+final class FeedCommentError extends FeedActionError {
+  const FeedCommentError(this.error);
+
+  final CommentActionError error;
 }
 
 final class FeedLoaded extends FeedState {
@@ -27,13 +44,13 @@ final class FeedLoaded extends FeedState {
 
   /// 액션(댓글·새로고침 등) 실패의 토스트용 일회성 에러.
   /// 화면이 소비한 뒤 clearActionError 로 비운다.
-  final String? actionError;
+  final FeedActionError? actionError;
 
   /// (내 프로필 정보는 저장하지 않는다 — 댓글 시트가 쓰는 내 id·닉네임은
   /// 공유 캐시인 currentProfileProvider 에서 직접 읽는다)
   FeedLoaded copyWith({
     Feed? feed,
-    String? actionError,
+    FeedActionError? actionError,
     bool clearActionError = false,
   }) {
     return FeedLoaded(
