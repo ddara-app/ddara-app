@@ -636,9 +636,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get randomStarterLoadFailed => '스타터 정보를 불러오지 못했어요';
 
   @override
-  String get randomStarterTestEntry => '스타터 룰렛 (테스트)';
-
-  @override
   String get followerCameraTitle => '따라찍기';
 
   @override

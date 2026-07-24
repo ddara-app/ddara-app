@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
@@ -70,6 +68,25 @@ class GroupPage extends ConsumerWidget {
           'group_page_viewed',
           properties: {'group_id': groupId},
         );
+
+        // 다음 스타터가 지정돼 있으면 슬롯머신(랜덤 스타터 공개)으로 이동한다.
+        // (상세를 재조회하지 않고 push 한다 — 재조회하면 nextStarter 가 남아
+        //  진입할 때마다 다시 이동하는 루프가 된다)
+        final nextStarter = detail.nextStarter;
+        if (nextStarter != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
+            context.push(
+              RoutePath.randomStarter,
+              extra: RandomStarterArgs(
+                groupId: groupId,
+                starterUserId: nextStarter.userId,
+                members: detail.members,
+              ),
+            );
+          });
+          return;
+        }
 
         // 인원이 기준 미만이면 초대 시트를 띄운다.
         if (detail.members.length < _inviteThreshold) {
@@ -159,14 +176,6 @@ class GroupPage extends ConsumerWidget {
       context: context,
       builder: (sheetContext) => CupertinoActionSheet(
         actions: [
-          // TODO: 테스트용 임시 진입 — 스타터 랜덤 지정 API 연동 시 제거.
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(sheetContext).pop();
-              _openRandomStarterTest(context, ref);
-            },
-            child: AppText.title(l10n.randomStarterTestEntry),
-          ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(sheetContext).pop();
@@ -201,25 +210,6 @@ class GroupPage extends ConsumerWidget {
           onPressed: () => Navigator.of(sheetContext).pop(),
           child: AppText.title(l10n.commonCancel),
         ),
-      ),
-    );
-  }
-
-  /// 테스트용 스타터 룰렛 진입. 서버의 스타터 랜덤 지정 API가 아직 없어
-  /// 멤버 중 한 명을 클라이언트에서 임의로 뽑아 전달한다.
-  /// (API 연동 시 이 메서드와 메뉴 항목을 제거하고 서버 지정 값으로 대체)
-  void _openRandomStarterTest(BuildContext context, WidgetRef ref) {
-    final detail = ref.read(groupPageNotifierProvider(groupId)).groupDetail;
-    final members = detail?.members ?? const [];
-    if (members.isEmpty) return;
-
-    final starter = members[Random().nextInt(members.length)];
-    context.push(
-      RoutePath.randomStarter,
-      extra: RandomStarterArgs(
-        groupId: groupId,
-        starterUserId: starter.userId,
-        members: members,
       ),
     );
   }
@@ -457,12 +447,7 @@ class GroupPage extends ConsumerWidget {
                       'group_history_cycle_clicked',
                       properties: {'group_id': groupId, 'cycle_id': cycleId},
                     );
-                    _pushThenRefresh(
-                      context,
-                      ref,
-                      RoutePath.follower,
-                      cycleId,
-                    );
+                    _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
                   },
                 ),
         ),

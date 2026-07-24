@@ -465,11 +465,6 @@
   "@randomStarterLoadFailed": {
     "description": "스타터가 멤버 목록에 없는 등 인자가 유효하지 않을 때 안내"
   },
-  "randomStarterTestEntry": "스타터 룰렛 (테스트)",
-  "@randomStarterTestEntry": {
-    "description": "모임 메뉴의 임시 테스트 진입 버튼 — 서버 API 연동 시 제거"
-  },
-
   "followerCameraTitle": "따라찍기",
   "photoRetake": "다시 찍기",
   "@photoRetake": {

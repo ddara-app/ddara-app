@@ -1240,12 +1240,6 @@ abstract class AppLocalizations {
   /// **'스타터 정보를 불러오지 못했어요'**
   String get randomStarterLoadFailed;
 
-  /// 모임 메뉴의 임시 테스트 진입 버튼 — 서버 API 연동 시 제거
-  ///
-  /// In ko, this message translates to:
-  /// **'스타터 룰렛 (테스트)'**
-  String get randomStarterTestEntry;
-
   /// No description provided for @followerCameraTitle.
   ///
   /// In ko, this message translates to:
