@@ -130,8 +130,14 @@ class NotificationSettingsNotifier
     await _persist();
   }
 
+  /// 저장 요청 시퀀스. 토글을 빠르게 연속 변경하면 `_persist` 가 겹치는데,
+  /// 늦게 도착한 이전 응답이 최신 변경을 롤백하지 않도록 마지막 요청의
+  /// 응답만 상태에 반영한다.
+  int _persistSeq = 0;
+
   /// 현재 선호값을 서버에 저장하고, 응답으로 상태를 정합화한다.
   Future<void> _persist() async {
+    final seq = ++_persistSeq;
     final settings = NotificationSettings(
       allowAll: state.allowAll,
       followShot: state.followShot,
@@ -143,6 +149,8 @@ class NotificationSettingsNotifier
       final saved = await ref
           .read(changeNotificationSettingsUseCaseProvider)
           .call(settings);
+      // 더 새로운 저장 요청이 나갔으면 이 응답은 무시한다.
+      if (seq != _persistSeq) return;
       _update(
         (s) => s.copyWith(
           allowAll: saved.allowAll,
