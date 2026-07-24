@@ -9,7 +9,10 @@ import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/dialog/permission_dialog.dart';
+import 'package:ddara/core/design_system/component/button/app_text_button.dart';
+import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/util/profile_state.dart';
 import 'package:ddara/feature/profile/widget/profile_header.dart';
 import 'package:ddara/feature/profile/widget/profile_image_source_sheet.dart';
 import 'package:ddara/feature/profile/widget/profile_section.dart';
@@ -36,6 +39,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     MixpanelManager.instance.track('profile_page_viewed');
   }
 
+  /// 프로필 조회 실패 안내 + 재시도.
+  /// (실패 시 이름·가입일이 빈 화면이 조용히 표시되지 않도록 본문을 대체한다)
+  Widget _loadErrorView(AppLocalizations l10n, ProfileLoadError error) {
+    final message = switch (error) {
+      ProfileLoadError.userNotFound => l10n.profileErrorUserNotFound,
+      ProfileLoadError.loadFailed => l10n.profileLoadFailed,
+    };
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: AppSpacing.s3,
+        children: [
+          AppText.body(message),
+          AppTextButton(
+            label: l10n.commonRetry,
+            // provider 를 무효화하면 build 가 다시 돌며 _load 를 재시도한다.
+            onPressed: () => ref.invalidate(profileNotifierProvider),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -48,107 +74,118 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
       child: SafeArea(
         bottom: false,
-        child: LayoutBuilder(
-          // 콘텐츠가 화면에 들어가면 스크롤 없음, 작은 기기·큰 글자에서는
-          // 스크롤로 전환되도록 뷰포트 높이를 최소 높이로 강제한다.
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Padding(
-                // 패딩이 스크롤 범위에 더해져 항상 스크롤되지 않도록
-                // (minHeight 초과) ConstrainedBox 안쪽에 둔다.
-                padding: EdgeInsets.only(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s4,
-                  right: AppSpacing.s4,
-                  // 하단 Safe Area 까지 배경을 잇되, 마지막 항목이 홈
-                  // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
-                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: AppSpacing.s5,
-                  children: [
-                    ProfileHeader(
-                      name: state.name,
-                      imageUrl: state.profileImageUrl,
-                      onEditPressed: () => MixpanelManager.instance.track(
-                        'profile_image_edit_clicked',
+        child: state.loadError != null
+            ? _loadErrorView(l10n, state.loadError!)
+            : LayoutBuilder(
+                // 콘텐츠가 화면에 들어가면 스크롤 없음, 작은 기기·큰 글자에서는
+                // 스크롤로 전환되도록 뷰포트 높이를 최소 높이로 강제한다.
+                builder: (context, constraints) => SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Padding(
+                      // 패딩이 스크롤 범위에 더해져 항상 스크롤되지 않도록
+                      // (minHeight 초과) ConstrainedBox 안쪽에 둔다.
+                      padding: EdgeInsets.only(
+                        top: AppSpacing.s3,
+                        left: AppSpacing.s4,
+                        right: AppSpacing.s4,
+                        // 하단 Safe Area 까지 배경을 잇되, 마지막 항목이 홈
+                        // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
+                        bottom:
+                            AppSpacing.s6 +
+                            MediaQuery.of(context).padding.bottom,
                       ),
-                      // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.
-                      onImageSourceSelected: tapGuard(
-                        state.isImageUploading,
-                        (ProfileImageSource source) =>
-                            _onImageSourceSelected(context, ref, source),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: AppSpacing.s5,
+                        children: [
+                          ProfileHeader(
+                            name: state.name,
+                            imageUrl: state.profileImageUrl,
+                            onEditPressed: () => MixpanelManager.instance.track(
+                              'profile_image_edit_clicked',
+                            ),
+                            // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.
+                            onImageSourceSelected: tapGuard(
+                              state.isImageUploading,
+                              (ProfileImageSource source) =>
+                                  _onImageSourceSelected(context, ref, source),
+                            ),
+                          ),
+                          ProfileSection(
+                            label: l10n.profileSectionBasicInfo,
+                            children: [
+                              ProfileRow(
+                                label: l10n.profileJoinedAt,
+                                value: formatDate(state.joinedAt),
+                              ),
+                            ],
+                          ),
+                          ProfileSection(
+                            label: l10n.profileSectionNotification,
+                            children: [
+                              ProfileRow(
+                                label: l10n.notificationSettingsTitle,
+                                trailing: const ProfileChevron(),
+                                onTap: () => context.push(
+                                  RoutePath.notificationSettings,
+                                ),
+                              ),
+                            ],
+                          ),
+                          ProfileSection(
+                            label: l10n.profileSectionManage,
+                            children: [
+                              ProfileRow(
+                                label: l10n.profileBlockedUsers,
+                                trailing: const ProfileChevron(),
+                                onTap: () =>
+                                    context.push(RoutePath.blockedUsers),
+                              ),
+                            ],
+                          ),
+                          ProfileSection(
+                            label: l10n.profileSectionSupport,
+                            children: [
+                              ProfileRow(
+                                label: l10n.profileTermsPolicy,
+                                trailing: const ProfileChevron(),
+                                onTap: () =>
+                                    context.push(RoutePath.termsPolicy),
+                              ),
+                              ProfileRow(
+                                label: l10n.profileContact,
+                                trailing: const ProfileChevron(),
+                                onTap: () =>
+                                    _contact(context, state.appVersion),
+                              ),
+                              ProfileRow(
+                                label: l10n.profileAppVersion,
+                                value: state.appVersion,
+                              ),
+                            ],
+                          ),
+                          ProfileSection(
+                            label: l10n.profileSectionAccount,
+                            children: [
+                              // 연동 계정·로그아웃·회원 탈퇴는 계정 관리 화면에 모아 둔다.
+                              ProfileRow(
+                                label: l10n.profileAccountManage,
+                                trailing: const ProfileChevron(),
+                                onTap: () =>
+                                    context.push(RoutePath.accountManage),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    ProfileSection(
-                      label: l10n.profileSectionBasicInfo,
-                      children: [
-                        ProfileRow(
-                          label: l10n.profileJoinedAt,
-                          value: formatDate(state.joinedAt),
-                        ),
-                      ],
-                    ),
-                    ProfileSection(
-                      label: l10n.profileSectionNotification,
-                      children: [
-                        ProfileRow(
-                          label: l10n.notificationSettingsTitle,
-                          trailing: const ProfileChevron(),
-                          onTap: () =>
-                              context.push(RoutePath.notificationSettings),
-                        ),
-                      ],
-                    ),
-                    ProfileSection(
-                      label: l10n.profileSectionManage,
-                      children: [
-                        ProfileRow(
-                          label: l10n.profileBlockedUsers,
-                          trailing: const ProfileChevron(),
-                          onTap: () => context.push(RoutePath.blockedUsers),
-                        ),
-                      ],
-                    ),
-                    ProfileSection(
-                      label: l10n.profileSectionSupport,
-                      children: [
-                        ProfileRow(
-                          label: l10n.profileTermsPolicy,
-                          trailing: const ProfileChevron(),
-                          onTap: () => context.push(RoutePath.termsPolicy),
-                        ),
-                        ProfileRow(
-                          label: l10n.profileContact,
-                          trailing: const ProfileChevron(),
-                          onTap: () => _contact(context, state.appVersion),
-                        ),
-                        ProfileRow(
-                          label: l10n.profileAppVersion,
-                          value: state.appVersion,
-                        ),
-                      ],
-                    ),
-                    ProfileSection(
-                      label: l10n.profileSectionAccount,
-                      children: [
-                        // 연동 계정·로그아웃·회원 탈퇴는 계정 관리 화면에 모아 둔다.
-                        ProfileRow(
-                          label: l10n.profileAccountManage,
-                          trailing: const ProfileChevron(),
-                          onTap: () => context.push(RoutePath.accountManage),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-        ),
       ),
     );
   }

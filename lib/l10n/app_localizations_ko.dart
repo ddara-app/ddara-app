@@ -21,6 +21,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commonCancel => '취소';
 
   @override
+  String get commonRetry => '다시 시도';
+
+  @override
   String get onboardingFirstTitle => '한 장 찍으면 인증샷이 시작';
 
   @override
@@ -883,6 +886,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get profileAccountManage => '계정 관리';
+
+  @override
+  String get profileErrorUserNotFound => '사용자를 찾을 수 없어요.';
+
+  @override
+  String get profileLoadFailed => '프로필 정보를 불러오지 못했어요.';
 
   @override
   String get profileSectionManage => '관리';

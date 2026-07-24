@@ -118,6 +118,12 @@ abstract class AppLocalizations {
   /// **'취소'**
   String get commonCancel;
 
+  /// No description provided for @commonRetry.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get commonRetry;
+
   /// 온보딩 1페이지 제목
   ///
   /// In ko, this message translates to:
@@ -1692,6 +1698,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'계정 관리'**
   String get profileAccountManage;
+
+  /// No description provided for @profileErrorUserNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용자를 찾을 수 없어요.'**
+  String get profileErrorUserNotFound;
+
+  /// No description provided for @profileLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 정보를 불러오지 못했어요.'**
+  String get profileLoadFailed;
 
   /// No description provided for @profileSectionManage.
   ///
