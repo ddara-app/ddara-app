@@ -68,6 +68,8 @@ class BlockedUsersPage extends ConsumerWidget {
       itemCount: users.length,
       itemBuilder: (context, index) => _BlockedUserTile(
         user: users[index],
+        // 이 항목이 해제 진행 중이면 버튼 자리에 로딩을 표시한다.
+        isUnblocking: state.unblockingUserIds.contains(users[index].userId),
         onUnblock: () => _unblock(context, ref, users[index]),
       ),
     );
@@ -106,9 +108,16 @@ class BlockedUsersPage extends ConsumerWidget {
 
 /// 차단한 유저 한 명. (기본 프로필 아이콘 + 차단 정보 + 차단 해제 버튼)
 class _BlockedUserTile extends StatelessWidget {
-  const _BlockedUserTile({required this.user, required this.onUnblock});
+  const _BlockedUserTile({
+    required this.user,
+    required this.isUnblocking,
+    required this.onUnblock,
+  });
 
   final BlockedUser user;
+
+  /// 이 항목의 차단 해제가 진행 중인지. true 면 버튼 대신 로딩을 표시한다.
+  final bool isUnblocking;
 
   /// '차단 해제' 버튼을 눌렀을 때.
   final VoidCallback onUnblock;
@@ -143,10 +152,16 @@ class _BlockedUserTile extends StatelessWidget {
               ),
             ],
           ),
-          _UnblockButton(
-            label: AppLocalizations.of(context).blockedUsersUnblock,
-            onPressed: onUnblock,
-          ),
+          if (isUnblocking)
+            const SizedBox(
+              width: _avatarSize,
+              child: Center(child: CupertinoActivityIndicator()),
+            )
+          else
+            _UnblockButton(
+              label: AppLocalizations.of(context).blockedUsersUnblock,
+              onPressed: onUnblock,
+            ),
         ],
       ),
     );
