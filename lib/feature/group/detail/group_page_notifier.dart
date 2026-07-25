@@ -10,6 +10,12 @@ import 'package:ddara/feature/group/detail/util/group_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
+  /// 가장 마지막에 시작한 조회의 번호. 응답이 도착했을 때 이 값과 다르면
+  /// 그 사이 새 조회가 시작된 것이므로 결과를 버린다.
+  /// (당겨서 새로고침을 연달아 하거나 차단·닉네임 변경 후 재조회가 겹칠 때,
+  ///  옛 응답이 최신 상태를 덮는 것을 막는다)
+  int _requestId = 0;
+
   @override
   GroupPageState build(int groupId) {
     // GroupPage 가 넘긴 groupId 로 진입 시 자동 조회. (build 는 동기라 fire-and-forget)
@@ -19,6 +25,7 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
   }
 
   Future<void> _load(int groupId) async {
+    final id = ++_requestId;
     final getGroupDetailUseCase = ref.read(getGroupDetailUseCaseProvider);
     final getHistoryCyclesUseCase = ref.read(getHistoryCyclesUseCaseProvider);
 
@@ -29,6 +36,8 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
         getHistoryCyclesUseCase(groupId),
         ref.read(getBlockedUserIdsUseCaseProvider)(),
       ]);
+      // 기다리는 동안 더 새 조회가 시작됐으면 이 결과는 버린다.
+      if (id != _requestId) return;
       state = state.copyWith(
         isLoading: false,
         groupDetail: results[0] as GroupDetail,
@@ -36,25 +45,27 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
         blockedUserIds: results[2] as Set<int>,
       );
     } on NotGroupMemberException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '해당 모임의 멤버가 아니에요.',
-      );
+      _failLoad(id, '해당 모임의 멤버가 아니에요.');
     } on GroupNotFoundException {
-      state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 모임이에요.');
+      _failLoad(id, '존재하지 않는 모임이에요.');
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '모임 정보를 불러오지 못했어요.',
-      );
+      _failLoad(id, '모임 정보를 불러오지 못했어요.');
     }
+  }
+
+  /// 조회 실패를 상태에 반영한다. 이미 더 새 조회가 시작됐다면 무시한다 —
+  /// 옛 요청의 실패로 최신 조회의 로딩·본문이 흐트러지지 않게 한다.
+  void _failLoad(int id, String message) {
+    if (id != _requestId) return;
+    state = state.copyWith(isLoading: false, errorMessage: message);
   }
 
   /// 당겨서 새로고침: 상세·히스토리를 다시 조회한다.
   ///
   /// 전체 화면 로딩(isLoading)으로 바꾸지 않는다 — 당김 인디케이터가 로딩
   /// 표시를 대신하고, 본문이 스피너로 교체되면 당김 제스처가 끊기기 때문.
+  /// (연달아 당겨 조회가 겹쳐도 [_requestId] 가 옛 응답을 버린다)
   Future<void> refresh() async {
     if (state.isLoading) return;
     await _load(arg);
