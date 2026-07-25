@@ -1522,6 +1522,12 @@ abstract class AppLocalizations {
   /// **'알림을 받으면 여기에 표시돼요'**
   String get notificationEmptyDescription;
 
+  /// 알림 목록 조회 실패 본문
+  ///
+  /// In ko, this message translates to:
+  /// **'알림을 불러오지 못했어요.'**
+  String get notificationLoadFailed;
+
   /// No description provided for @notificationLabelMemberJoin.
   ///
   /// In ko, this message translates to:

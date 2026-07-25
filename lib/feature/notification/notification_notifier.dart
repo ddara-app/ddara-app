@@ -33,14 +33,12 @@ class NotificationNotifier extends AutoDisposeNotifier<NotificationState> {
           isLoading: false,
           items: result.items,
           blockedUserIds: blockedUserIds,
-          errorMessage: '',
+          hasError: false,
         ),
       );
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      _update(
-        (s) => s.copyWith(isLoading: false, errorMessage: '알림을 불러오지 못했어요.'),
-      );
+      _update((s) => s.copyWith(isLoading: false, hasError: true));
     }
   }
 }

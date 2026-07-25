@@ -10,14 +10,14 @@ class NotificationState {
   /// 알림 조회 중 여부.
   final bool isLoading;
 
-  /// 조회 실패 메시지. 비어 있으면 에러 없음.
-  final String errorMessage;
+  /// 조회 실패 여부. (표시 문자열은 UI 에서 l10n 으로 매핑한다)
+  final bool hasError;
 
   const NotificationState({
     this.items = const [],
     this.blockedUserIds = const {},
     this.isLoading = false,
-    this.errorMessage = '',
+    this.hasError = false,
   });
 
   /// 표시할 알림이 하나도 없는지 여부.
@@ -27,13 +27,13 @@ class NotificationState {
     List<NotificationItem>? items,
     Set<int>? blockedUserIds,
     bool? isLoading,
-    String? errorMessage,
+    bool? hasError,
   }) {
     return NotificationState(
       items: items ?? this.items,
       blockedUserIds: blockedUserIds ?? this.blockedUserIds,
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      hasError: hasError ?? this.hasError,
     );
   }
 }

@@ -775,6 +775,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationEmptyDescription => '알림을 받으면 여기에 표시돼요';
 
   @override
+  String get notificationLoadFailed => '알림을 불러오지 못했어요.';
+
+  @override
   String get notificationLabelMemberJoin => '모임 합류';
 
   @override

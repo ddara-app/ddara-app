@@ -42,8 +42,10 @@ class NotificationPage extends ConsumerWidget {
     }
 
     // 조회 실패: 에러 메시지.
-    if (state.errorMessage.isNotEmpty) {
-      return Center(child: AppText.body(state.errorMessage));
+    if (state.hasError) {
+      return Center(
+        child: AppText.body(AppLocalizations.of(context).notificationLoadFailed),
+      );
     }
 
     // 알림이 없으면 빈 상태 화면을 중앙에 보여준다.
