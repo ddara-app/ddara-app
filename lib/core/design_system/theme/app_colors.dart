@@ -11,6 +11,10 @@ abstract final class AppColors {
   static const Color bgSurfaceAlt = AppColorPrimitives.grayscale800;
   static const Color bgWarm = AppColorPrimitives.cream100;
 
+  /// 배경을 칠하지 않는 표면. (아래 페이지 배경이 그대로 비친다 —
+  /// 예: 눌렀을 때만 밝아지는 목록 아이템의 평상시 배경)
+  static const Color bgTransparent = AppColorPrimitives.transparent;
+
   // Text
   static const Color textPrimary = AppColorPrimitives.white;
   static const Color textSecondary = AppColorPrimitives.grayscale400;
