@@ -5,6 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HistoryListNotifier
     extends AutoDisposeFamilyNotifier<HistoryListState, int> {
+  /// 가장 마지막에 시작한 조회의 번호. 응답이 도착했을 때 이 값과 다르면
+  /// 그 사이 새 조회가 시작된 것이므로 결과를 버린다.
+  /// (필터를 빠르게 바꿀 때 옛 응답이 최신 목록을 덮는 것을 막는다)
+  int _requestId = 0;
+
   @override
   HistoryListState build(int groupId) {
     // 진입 시 groupId 로 히스토리 목록을 조회한다. (build 는 동기라 fire-and-forget)
@@ -21,6 +26,7 @@ class HistoryListNotifier
   }
 
   Future<void> _load(int groupId, {int? year, int? month}) async {
+    final id = ++_requestId;
     final getHistoryListUseCase = ref.read(getHistoryListUseCaseProvider);
 
     try {
@@ -30,24 +36,27 @@ class HistoryListNotifier
         month: month,
       );
       final blockedUserIds = await ref.read(getBlockedUserIdsUseCaseProvider)();
+      // 기다리는 동안 더 새 조회가 시작됐으면 이 결과는 버린다.
+      if (id != _requestId) return;
       state = state.copyWith(
         isLoading: false,
         historyList: historyList,
         blockedUserIds: blockedUserIds,
       );
     } on NotGroupMemberException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '해당 모임의 멤버가 아니에요.',
-      );
+      _fail(id, '해당 모임의 멤버가 아니에요.');
     } on GroupNotFoundException {
-      state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 모임이에요.');
+      _fail(id, '존재하지 않는 모임이에요.');
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '지난 따라찍기를 불러오지 못했어요.',
-      );
+      _fail(id, '지난 따라찍기를 불러오지 못했어요.');
     }
+  }
+
+  /// 조회 실패를 상태에 반영한다. 이미 더 새 조회가 시작됐다면 무시한다 —
+  /// 옛 요청의 실패로 최신 조회의 로딩·목록이 흐트러지지 않게 한다.
+  void _fail(int id, String message) {
+    if (id != _requestId) return;
+    state = state.copyWith(isLoading: false, errorMessage: message);
   }
 }
