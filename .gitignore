@@ -53,4 +53,4 @@ app.*.map.json
 
 CLAUDE.md
 /docs
-lib/feature/*/docs/
+lib/feature/**/docs/
