@@ -7,6 +7,7 @@ import 'package:ddara/core/design_system/component/loading/app_loading_overlay.d
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
+import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
     as group_detail;
@@ -104,95 +105,82 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
 
     return Stack(
       children: [
+        // 하단 인셋은 ScrollablePageBody 가 패딩으로 처리한다.
         SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.s5,
-              vertical: AppSpacing.s6,
-            ),
-            // 키보드가 올라와 높이가 줄면 내용을 스크롤시켜 오버플로를 막는다.
-            // 공간이 충분하면 Spacer 가 버튼을 하단에 고정한다.
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
+          bottom: false,
+          // 키보드가 올라와 높이가 줄면 내용을 스크롤시켜 오버플로를 막는다.
+          // 공간이 충분하면 Spacer 가 버튼을 하단에 고정한다.
+          child: ScrollablePageBody(
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppSpacing.s5,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 465,
+                    padding: const EdgeInsets.all(AppSpacing.s4),
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: AppColors.bgSurface,
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                      // 사진이 있으면 카드를 가득 채워 보여준다.
+                      image: hasPhoto
+                          ? DecorationImage(
+                              image: FileImage(File(photoPath)),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: AppSpacing.s5,
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: 465,
-                            padding: const EdgeInsets.all(AppSpacing.s4),
-                            clipBehavior: Clip.antiAlias,
-                            decoration: BoxDecoration(
-                              color: AppColors.bgSurface,
-                              borderRadius: BorderRadius.circular(AppRadius.lg),
-                              // 사진이 있으면 카드를 가득 채워 보여준다.
-                              image: hasPhoto
-                                  ? DecorationImage(
-                                      image: FileImage(File(photoPath)),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
-                            ),
-                            // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
-                            child: hasPhoto
-                                ? null
-                                : Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      TakePhotoButton(
-                                        size: TakePhotoButtonSize.large,
-                                        onPressed: notifier.goToCamera,
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                          AppTextField(
-                            label: l10n.starterConceptLabel,
-                            placeholder: l10n.starterConceptPlaceholder,
-                            controller: _conceptController,
-                            highlightWhenFilled: true,
-                            errorText: conceptError,
-                            onChanged: notifier.conceptChanged,
-                          ),
-                          const Spacer(),
-                          Row(
-                            spacing: AppSpacing.s3,
+                    // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
+                    child: hasPhoto
+                        ? null
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Expanded(
-                                child: AppButton.outline(
-                                  label: l10n.photoRetake,
-                                  onPressed: notifier.goToCamera,
-                                ),
-                              ),
-                              Expanded(
-                                child: AppButton(
-                                  label: l10n.photoUpload,
-                                  // 사진이 없거나 컨셉이 비어 있거나(공백 포함) 20자를
-                                  // 넘거나, 업로드 중이면 비활성화.
-                                  onPressed:
-                                      hasPhoto &&
-                                          concept.trim().isNotEmpty &&
-                                          conceptError == null &&
-                                          !isLoading
-                                      ? _upload
-                                      : null,
-                                ),
+                              TakePhotoButton(
+                                size: TakePhotoButtonSize.large,
+                                onPressed: notifier.goToCamera,
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
                   ),
-                );
-              },
+                  AppTextField(
+                    label: l10n.starterConceptLabel,
+                    placeholder: l10n.starterConceptPlaceholder,
+                    controller: _conceptController,
+                    highlightWhenFilled: true,
+                    errorText: conceptError,
+                    onChanged: notifier.conceptChanged,
+                  ),
+                  const Spacer(),
+                  Row(
+                    spacing: AppSpacing.s3,
+                    children: [
+                      Expanded(
+                        child: AppButton.outline(
+                          label: l10n.photoRetake,
+                          onPressed: notifier.goToCamera,
+                        ),
+                      ),
+                      Expanded(
+                        child: AppButton(
+                          label: l10n.photoUpload,
+                          // 사진이 없거나 컨셉이 비어 있거나(공백 포함) 20자를
+                          // 넘거나, 업로드 중이면 비활성화.
+                          onPressed:
+                              hasPhoto &&
+                                  concept.trim().isNotEmpty &&
+                                  conceptError == null &&
+                                  !isLoading
+                              ? _upload
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
