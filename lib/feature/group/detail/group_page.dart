@@ -69,39 +69,7 @@ class GroupPage extends ConsumerWidget {
           properties: {'group_id': groupId},
         );
 
-        // 다음 스타터가 지정돼 있으면 슬롯머신(랜덤 스타터 공개)으로 이동한다.
-        // (상세를 재조회하지 않고 push 한다 — 재조회하면 nextStarter 가 남아
-        //  진입할 때마다 다시 이동하는 루프가 된다)
-        final nextStarter = detail.nextStarter;
-        if (nextStarter != null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) return;
-            context.push(
-              RoutePath.randomStarter,
-              extra: RandomStarterArgs(
-                groupId: groupId,
-                starterUserId: nextStarter.userId,
-                members: detail.members,
-              ),
-            );
-          });
-          return;
-        }
-
-        // 인원이 기준 미만이면 초대 시트를 띄운다.
-        if (detail.members.length < _inviteThreshold) {
-          // 빌드/네비게이션 도중 모달을 띄우지 않도록 다음 프레임에 연다.
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) return;
-            InviteShareSheet.show(
-              context,
-              inviteCode: detail.inviteCode,
-              imageUrl: _shareImageUrl,
-              // 인원 부족으로 자동으로 띄운 경우라 머리말을 안내 문구로 바꾼다.
-              memberShortage: true,
-            );
-          });
-        }
+        _onDetailLoaded(context, ref, detail);
       }
     });
 
@@ -138,6 +106,68 @@ class GroupPage extends ConsumerWidget {
         child: SafeArea(bottom: false, child: _body(context, ref, state)),
       ),
     );
+  }
+
+  /// 상세가 처음 로드된 직후의 진입 처리.
+  /// 랜덤 스타터 공개가 필요하면 그 화면으로 보내고, 아니면 인원이 기준 미만일 때
+  /// 초대 시트를 띄운다. (빌드·네비게이션 도중 화면을 띄우지 않도록 다음 프레임에 연다)
+  Future<void> _onDetailLoaded(
+    BuildContext context,
+    WidgetRef ref,
+    GroupDetail detail,
+  ) async {
+    final revealStarter = await _shouldRevealStarter(ref, detail);
+    if (!context.mounted) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+
+      // 슬롯머신(랜덤 스타터 공개)으로 이동한다. (상세를 재조회하지 않고 push
+      //  한다 — 재조회하면 nextStarter 가 남아 다시 이동하는 루프가 된다)
+      final nextStarter = detail.nextStarter;
+      if (revealStarter && nextStarter != null) {
+        context.push(
+          RoutePath.randomStarter,
+          extra: RandomStarterArgs(
+            groupId: groupId,
+            starterUserId: nextStarter.userId,
+            members: detail.members,
+          ),
+        );
+        return;
+      }
+
+      // 인원이 기준 미만이면 초대 시트를 띄운다.
+      if (detail.members.length < _inviteThreshold) {
+        InviteShareSheet.show(
+          context,
+          inviteCode: detail.inviteCode,
+          imageUrl: _shareImageUrl,
+          // 인원 부족으로 자동으로 띄운 경우라 머리말을 안내 문구로 바꾼다.
+          memberShortage: true,
+        );
+      }
+    });
+  }
+
+  /// 진입 시 랜덤 스타터 공개 화면을 띄워야 하는지 판단한다.
+  /// - 아직 공개를 보지 않았으면(seen=false) 보여준다.
+  /// - 이미 봤어도(seen=true) 당첨된 본인이 아직 따라찍기를 시작하지 않았으면
+  ///   (nextStarter 가 남아 있다는 것 자체가 미시작) 진입할 때마다 다시 보여준다.
+  /// - 그 외(이미 본 다른 멤버)에는 띄우지 않는다.
+  Future<bool> _shouldRevealStarter(WidgetRef ref, GroupDetail detail) async {
+    final nextStarter = detail.nextStarter;
+    if (nextStarter == null) return false;
+    if (!nextStarter.seen) return true;
+
+    // 내 프로필을 못 얻으면 당첨자 본인인지 알 수 없으므로 재노출하지 않는다.
+    // (스타터는 헤더의 시작 버튼으로도 따라찍기를 시작할 수 있다)
+    try {
+      final myUserId = (await ref.read(currentProfileProvider.future)).id;
+      return myUserId == nextStarter.userId;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// AppBar 뒤로가기: 스택이 있으면 이전 화면으로 pop 하고, 없으면(딥링크

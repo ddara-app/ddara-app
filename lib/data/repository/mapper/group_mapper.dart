@@ -80,7 +80,11 @@ extension GroupDetailMapper on GroupDetailResponse {
             ),
       nextStarter: next == null
           ? null
-          : GroupNextStarter(userId: next.userId, nickname: next.nickname),
+          : GroupNextStarter(
+              userId: next.userId,
+              nickname: next.nickname,
+              seen: next.seen,
+            ),
       createdAt: createdAt,
     );
   }

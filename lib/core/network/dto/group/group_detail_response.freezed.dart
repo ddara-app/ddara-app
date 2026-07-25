@@ -640,7 +640,9 @@ as String,
 /// @nodoc
 mixin _$GroupNextStarterResponse {
 
- int get userId; String get nickname;
+ int get userId; String get nickname;// 스타터가 지정된 시각. (서버 미제공 시 null)
+ DateTime? get assignedAt;// 이 모임에서 랜덤 스타터 공개를 이미 봤는지 여부. (서버 미제공 시 false)
+ bool get seen;
 /// Create a copy of GroupNextStarterResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -653,16 +655,16 @@ $GroupNextStarterResponseCopyWith<GroupNextStarterResponse> get copyWith => _$Gr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupNextStarterResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupNextStarterResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.assignedAt, assignedAt) || other.assignedAt == assignedAt)&&(identical(other.seen, seen) || other.seen == seen));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,nickname);
+int get hashCode => Object.hash(runtimeType,userId,nickname,assignedAt,seen);
 
 @override
 String toString() {
-  return 'GroupNextStarterResponse(userId: $userId, nickname: $nickname)';
+  return 'GroupNextStarterResponse(userId: $userId, nickname: $nickname, assignedAt: $assignedAt, seen: $seen)';
 }
 
 
@@ -673,7 +675,7 @@ abstract mixin class $GroupNextStarterResponseCopyWith<$Res>  {
   factory $GroupNextStarterResponseCopyWith(GroupNextStarterResponse value, $Res Function(GroupNextStarterResponse) _then) = _$GroupNextStarterResponseCopyWithImpl;
 @useResult
 $Res call({
- int userId, String nickname
+ int userId, String nickname, DateTime? assignedAt, bool seen
 });
 
 
@@ -690,11 +692,13 @@ class _$GroupNextStarterResponseCopyWithImpl<$Res>
 
 /// Create a copy of GroupNextStarterResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? nickname = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? nickname = null,Object? assignedAt = freezed,Object? seen = null,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
-as String,
+as String,assignedAt: freezed == assignedAt ? _self.assignedAt : assignedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,seen: null == seen ? _self.seen : seen // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -779,10 +783,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String nickname)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String nickname,  DateTime? assignedAt,  bool seen)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GroupNextStarterResponse() when $default != null:
-return $default(_that.userId,_that.nickname);case _:
+return $default(_that.userId,_that.nickname,_that.assignedAt,_that.seen);case _:
   return orElse();
 
 }
@@ -800,10 +804,10 @@ return $default(_that.userId,_that.nickname);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String nickname)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String nickname,  DateTime? assignedAt,  bool seen)  $default,) {final _that = this;
 switch (_that) {
 case _GroupNextStarterResponse():
-return $default(_that.userId,_that.nickname);case _:
+return $default(_that.userId,_that.nickname,_that.assignedAt,_that.seen);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -820,10 +824,10 @@ return $default(_that.userId,_that.nickname);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String nickname)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String nickname,  DateTime? assignedAt,  bool seen)?  $default,) {final _that = this;
 switch (_that) {
 case _GroupNextStarterResponse() when $default != null:
-return $default(_that.userId,_that.nickname);case _:
+return $default(_that.userId,_that.nickname,_that.assignedAt,_that.seen);case _:
   return null;
 
 }
@@ -835,11 +839,15 @@ return $default(_that.userId,_that.nickname);case _:
 @JsonSerializable()
 
 class _GroupNextStarterResponse implements GroupNextStarterResponse {
-  const _GroupNextStarterResponse({required this.userId, required this.nickname});
+  const _GroupNextStarterResponse({required this.userId, required this.nickname, this.assignedAt, this.seen = false});
   factory _GroupNextStarterResponse.fromJson(Map<String, dynamic> json) => _$GroupNextStarterResponseFromJson(json);
 
 @override final  int userId;
 @override final  String nickname;
+// 스타터가 지정된 시각. (서버 미제공 시 null)
+@override final  DateTime? assignedAt;
+// 이 모임에서 랜덤 스타터 공개를 이미 봤는지 여부. (서버 미제공 시 false)
+@override@JsonKey() final  bool seen;
 
 /// Create a copy of GroupNextStarterResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -854,16 +862,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupNextStarterResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupNextStarterResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.assignedAt, assignedAt) || other.assignedAt == assignedAt)&&(identical(other.seen, seen) || other.seen == seen));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,nickname);
+int get hashCode => Object.hash(runtimeType,userId,nickname,assignedAt,seen);
 
 @override
 String toString() {
-  return 'GroupNextStarterResponse(userId: $userId, nickname: $nickname)';
+  return 'GroupNextStarterResponse(userId: $userId, nickname: $nickname, assignedAt: $assignedAt, seen: $seen)';
 }
 
 
@@ -874,7 +882,7 @@ abstract mixin class _$GroupNextStarterResponseCopyWith<$Res> implements $GroupN
   factory _$GroupNextStarterResponseCopyWith(_GroupNextStarterResponse value, $Res Function(_GroupNextStarterResponse) _then) = __$GroupNextStarterResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, String nickname
+ int userId, String nickname, DateTime? assignedAt, bool seen
 });
 
 
@@ -891,11 +899,13 @@ class __$GroupNextStarterResponseCopyWithImpl<$Res>
 
 /// Create a copy of GroupNextStarterResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? nickname = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? nickname = null,Object? assignedAt = freezed,Object? seen = null,}) {
   return _then(_GroupNextStarterResponse(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
-as String,
+as String,assignedAt: freezed == assignedAt ? _self.assignedAt : assignedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,seen: null == seen ? _self.seen : seen // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

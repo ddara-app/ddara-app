@@ -69,6 +69,10 @@ _GroupNextStarterResponse _$GroupNextStarterResponseFromJson(
 ) => _GroupNextStarterResponse(
   userId: (json['userId'] as num).toInt(),
   nickname: json['nickname'] as String,
+  assignedAt: json['assignedAt'] == null
+      ? null
+      : DateTime.parse(json['assignedAt'] as String),
+  seen: json['seen'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$GroupNextStarterResponseToJson(
@@ -76,6 +80,8 @@ Map<String, dynamic> _$GroupNextStarterResponseToJson(
 ) => <String, dynamic>{
   'userId': instance.userId,
   'nickname': instance.nickname,
+  'assignedAt': instance.assignedAt?.toIso8601String(),
+  'seen': instance.seen,
 };
 
 _GroupCycleResponse _$GroupCycleResponseFromJson(Map<String, dynamic> json) =>

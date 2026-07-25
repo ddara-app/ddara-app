@@ -22,6 +22,8 @@ abstract class GroupNextStarter with _$GroupNextStarter {
   const factory GroupNextStarter({
     required int userId,
     required String nickname,
+    // 랜덤 스타터 공개를 이미 봤는지 여부. (진입 시 재노출 여부 판단에 사용)
+    @Default(false) bool seen,
   }) = _GroupNextStarter;
 }
 

@@ -44,6 +44,10 @@ abstract class GroupNextStarterResponse with _$GroupNextStarterResponse {
   const factory GroupNextStarterResponse({
     required int userId,
     required String nickname,
+    // 스타터가 지정된 시각. (서버 미제공 시 null)
+    DateTime? assignedAt,
+    // 이 모임에서 랜덤 스타터 공개를 이미 봤는지 여부. (서버 미제공 시 false)
+    @Default(false) bool seen,
   }) = _GroupNextStarterResponse;
 
   factory GroupNextStarterResponse.fromJson(Map<String, dynamic> json) =>

@@ -347,7 +347,8 @@ $GroupNextStarterCopyWith<$Res>? get nextStarter {
 /// @nodoc
 mixin _$GroupNextStarter {
 
- int get userId; String get nickname;
+ int get userId; String get nickname;// 랜덤 스타터 공개를 이미 봤는지 여부. (진입 시 재노출 여부 판단에 사용)
+ bool get seen;
 /// Create a copy of GroupNextStarter
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -358,16 +359,16 @@ $GroupNextStarterCopyWith<GroupNextStarter> get copyWith => _$GroupNextStarterCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupNextStarter&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupNextStarter&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.seen, seen) || other.seen == seen));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,userId,nickname);
+int get hashCode => Object.hash(runtimeType,userId,nickname,seen);
 
 @override
 String toString() {
-  return 'GroupNextStarter(userId: $userId, nickname: $nickname)';
+  return 'GroupNextStarter(userId: $userId, nickname: $nickname, seen: $seen)';
 }
 
 
@@ -378,7 +379,7 @@ abstract mixin class $GroupNextStarterCopyWith<$Res>  {
   factory $GroupNextStarterCopyWith(GroupNextStarter value, $Res Function(GroupNextStarter) _then) = _$GroupNextStarterCopyWithImpl;
 @useResult
 $Res call({
- int userId, String nickname
+ int userId, String nickname, bool seen
 });
 
 
@@ -395,11 +396,12 @@ class _$GroupNextStarterCopyWithImpl<$Res>
 
 /// Create a copy of GroupNextStarter
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? nickname = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? nickname = null,Object? seen = null,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
-as String,
+as String,seen: null == seen ? _self.seen : seen // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -484,10 +486,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String nickname)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String nickname,  bool seen)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GroupNextStarter() when $default != null:
-return $default(_that.userId,_that.nickname);case _:
+return $default(_that.userId,_that.nickname,_that.seen);case _:
   return orElse();
 
 }
@@ -505,10 +507,10 @@ return $default(_that.userId,_that.nickname);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String nickname)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String nickname,  bool seen)  $default,) {final _that = this;
 switch (_that) {
 case _GroupNextStarter():
-return $default(_that.userId,_that.nickname);case _:
+return $default(_that.userId,_that.nickname,_that.seen);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -525,10 +527,10 @@ return $default(_that.userId,_that.nickname);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String nickname)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String nickname,  bool seen)?  $default,) {final _that = this;
 switch (_that) {
 case _GroupNextStarter() when $default != null:
-return $default(_that.userId,_that.nickname);case _:
+return $default(_that.userId,_that.nickname,_that.seen);case _:
   return null;
 
 }
@@ -540,11 +542,13 @@ return $default(_that.userId,_that.nickname);case _:
 
 
 class _GroupNextStarter implements GroupNextStarter {
-  const _GroupNextStarter({required this.userId, required this.nickname});
+  const _GroupNextStarter({required this.userId, required this.nickname, this.seen = false});
   
 
 @override final  int userId;
 @override final  String nickname;
+// 랜덤 스타터 공개를 이미 봤는지 여부. (진입 시 재노출 여부 판단에 사용)
+@override@JsonKey() final  bool seen;
 
 /// Create a copy of GroupNextStarter
 /// with the given fields replaced by the non-null parameter values.
@@ -556,16 +560,16 @@ _$GroupNextStarterCopyWith<_GroupNextStarter> get copyWith => __$GroupNextStarte
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupNextStarter&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupNextStarter&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.seen, seen) || other.seen == seen));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,userId,nickname);
+int get hashCode => Object.hash(runtimeType,userId,nickname,seen);
 
 @override
 String toString() {
-  return 'GroupNextStarter(userId: $userId, nickname: $nickname)';
+  return 'GroupNextStarter(userId: $userId, nickname: $nickname, seen: $seen)';
 }
 
 
@@ -576,7 +580,7 @@ abstract mixin class _$GroupNextStarterCopyWith<$Res> implements $GroupNextStart
   factory _$GroupNextStarterCopyWith(_GroupNextStarter value, $Res Function(_GroupNextStarter) _then) = __$GroupNextStarterCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, String nickname
+ int userId, String nickname, bool seen
 });
 
 
@@ -593,11 +597,12 @@ class __$GroupNextStarterCopyWithImpl<$Res>
 
 /// Create a copy of GroupNextStarter
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? nickname = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? nickname = null,Object? seen = null,}) {
   return _then(_GroupNextStarter(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
-as String,
+as String,seen: null == seen ? _self.seen : seen // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
