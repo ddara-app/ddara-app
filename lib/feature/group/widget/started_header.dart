@@ -356,33 +356,40 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 접은 상태: 블러 처리된 대표 이미지 배경 위 진행 정보만.
   Widget _buildCollapsed() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: Stack(
-        children: [
-          // 블러 처리된 스타터 대표 이미지 배경.
-          // (차단·검토 자리표시는 민무늬 배경이라 블러를 걸지 않는다)
-          Positioned.fill(
-            child: _obscured
-                ? _backgroundImage()
-                : ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: _backgroundImage(),
-                  ),
-          ),
-          // 텍스트 대비를 위한 어두운 오버레이 + 진행 정보.
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
-            color: AppColors.overlayScrimSoft,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [_buildInfoRow()],
+    // 가려진(차단·검토 중) 사진은 펼친 상태와 마찬가지로 탭을 막는다.
+    final onImageTap = _obscured ? null : widget.onImageTap;
+    // 진행 정보 오버레이가 배경을 덮고 있어, 탭은 헤더 전체에서 받는다.
+    // (토글 버튼은 자식이라 자기 탭을 먼저 가져간다)
+    return GestureDetector(
+      onTap: onImageTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        child: Stack(
+          children: [
+            // 블러 처리된 스타터 대표 이미지 배경.
+            // (차단·검토 자리표시는 민무늬 배경이라 블러를 걸지 않는다)
+            Positioned.fill(
+              child: _obscured
+                  ? _backgroundImage()
+                  : ImageFiltered(
+                      imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: _backgroundImage(),
+                    ),
             ),
-          ),
-        ],
+            // 텍스트 대비를 위한 어두운 오버레이 + 진행 정보.
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
+              color: AppColors.overlayScrimSoft,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [_buildInfoRow()],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -363,6 +363,12 @@ class GroupPage extends ConsumerWidget {
               if (cycleId == null) return;
               _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
             },
+            // 스타터 사진 탭 → 히스토리 카드와 동일하게 사진 갤러리로 이동.
+            onStarterImageTap: () {
+              final cycleId = groupDetail.currentCycle?.cycleId;
+              if (cycleId == null) return;
+              _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
+            },
           ),
         ),
         GroupSection(

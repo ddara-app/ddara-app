@@ -17,6 +17,7 @@ class GroupHeader extends StatelessWidget {
     required this.memberCount,
     required this.navigateToStart,
     required this.onTakePhoto,
+    required this.onStarterImageTap,
     this.canStart = true,
     this.starterBlocked = false,
   });
@@ -35,6 +36,9 @@ class GroupHeader extends StatelessWidget {
 
   /// 시작된 상태에서 '촬영하러 가기' 버튼을 눌렀을 때 실행할 콜백.
   final VoidCallback onTakePhoto;
+
+  /// 스타터 대표 사진을 탭했을 때 실행할 콜백. (사이클 갤러리로 이동)
+  final VoidCallback onStarterImageTap;
 
   /// 따라찍기를 시작할 수 있는지 여부. (멤버가 부족하면 시작 버튼을 비활성화)
   final bool canStart;
@@ -81,6 +85,9 @@ class GroupHeader extends StatelessWidget {
           ),
           starterBlocked: starterBlocked,
           memberCount: memberCount,
+          // 스타터 사진 탭 → 이번 회차 사진 갤러리로 이동.
+          // (차단·검토 중이면 헤더가 자체적으로 탭을 막는다)
+          onImageTap: onStarterImageTap,
         ),
         const SizedBox(height: AppSpacing.s5),
         // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로
