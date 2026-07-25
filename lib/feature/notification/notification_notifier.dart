@@ -14,7 +14,7 @@ class NotificationNotifier extends AutoDisposeNotifier<NotificationState> {
     ref.onDispose(() => _disposed = true);
     // 진입 시 전체 알림을 조회한다. (build 는 동기라 fire-and-forget)
     _load();
-    return const NotificationState(isLoading: true);
+    return const NotificationLoading();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
@@ -30,18 +30,19 @@ class NotificationNotifier extends AutoDisposeNotifier<NotificationState> {
       final result = await getNotifications();
       final blockedUserIds = await ref.read(getBlockedUserIdsUseCaseProvider)();
       _update(
-        (s) => s.copyWith(
-          isLoading: false,
+        (_) => NotificationLoaded(
           items: result.items,
           blockedUserIds: blockedUserIds,
-          hasError: false,
         ),
       );
     } catch (e) {
       // NetworkException 및 기타 예기치 못한 오류. (매퍼 버그 등 프로그래밍
       // 오류도 화면을 막지 않도록 여기서 잡되, 단서가 사라지지 않게 로깅한다)
       debugPrint('[Notification] 알림 조회 실패: $e');
-      _update((s) => s.copyWith(isLoading: false, hasError: true));
+      // 이미 목록을 보고 있으면 유지하고, 아직 로드 전이면 에러 화면으로 전환한다.
+      _update(
+        (s) => s is NotificationLoaded ? s : const NotificationLoadError(),
+      );
     }
   }
 }

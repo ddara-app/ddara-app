@@ -1,39 +1,26 @@
 import 'package:ddara/core/model/notification/notification_item.dart';
 
-class NotificationState {
-  /// 조회된 알림 목록.
+/// 알림 목록 화면 상태. 로딩·실패·완료가 상호배타인 sealed 설계라
+/// "로딩 중인데 에러", "목록 있는데 에러 화면" 같은 조합이 타입상 불가능하다.
+sealed class NotificationState {
+  const NotificationState();
+}
+
+final class NotificationLoading extends NotificationState {
+  const NotificationLoading();
+}
+
+/// 초기 조회 실패. (본문 문구는 화면이 l10n 으로 표시)
+final class NotificationLoadError extends NotificationState {
+  const NotificationLoadError();
+}
+
+final class NotificationLoaded extends NotificationState {
+  const NotificationLoaded({required this.items, required this.blockedUserIds});
+
+  /// 조회된 알림 목록. (비어 있으면 빈 상태 화면)
   final List<NotificationItem> items;
 
   /// 내가 차단한 사용자 userId 집합. (차단한 멤버의 썸네일을 가리는 데 사용)
   final Set<int> blockedUserIds;
-
-  /// 알림 조회 중 여부.
-  final bool isLoading;
-
-  /// 조회 실패 여부. (표시 문자열은 UI 에서 l10n 으로 매핑한다)
-  final bool hasError;
-
-  const NotificationState({
-    this.items = const [],
-    this.blockedUserIds = const {},
-    this.isLoading = false,
-    this.hasError = false,
-  });
-
-  /// 표시할 알림이 하나도 없는지 여부.
-  bool get isEmpty => items.isEmpty;
-
-  NotificationState copyWith({
-    List<NotificationItem>? items,
-    Set<int>? blockedUserIds,
-    bool? isLoading,
-    bool? hasError,
-  }) {
-    return NotificationState(
-      items: items ?? this.items,
-      blockedUserIds: blockedUserIds ?? this.blockedUserIds,
-      isLoading: isLoading ?? this.isLoading,
-      hasError: hasError ?? this.hasError,
-    );
-  }
 }
