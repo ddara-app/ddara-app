@@ -160,8 +160,24 @@ class _MenuAvatarState extends State<_MenuAvatar> {
   /// 열려 있는 메뉴 라우트. 닫혀 있으면 null.
   Route<void>? _menuRoute;
 
+  /// 메뉴를 아바타 오른쪽 끝에 맞춰 열지 여부. (메뉴를 열 때 결정)
+  ///
+  /// 목록이 가로로 스크롤되므로 아바타가 화면 오른쪽 끝에 올 수 있는데,
+  /// 그때 왼쪽 정렬로 열면 메뉴가 화면 밖으로 잘린다.
+  bool _alignRight = false;
+
+  /// 아바타 중심이 화면 오른쪽 절반에 있는지.
+  bool _isOnRightHalf() {
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return false;
+    final center = box.localToGlobal(Offset.zero).dx + box.size.width / 2;
+    return center > MediaQuery.sizeOf(context).width / 2;
+  }
+
   void _open() {
     if (_menuRoute != null) return;
+    // 열기 직전 위치로 펼침 방향을 정한다. (스크롤로 위치가 바뀌므로 매번 계산)
+    _alignRight = _isOnRightHalf();
     // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
     // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
     final route = RawDialogRoute<void>(
@@ -202,12 +218,20 @@ class _MenuAvatarState extends State<_MenuAvatar> {
           followerAnchor: Alignment.topLeft,
           child: IgnorePointer(child: _avatarLabel()),
         ),
-        // 아바타 위쪽(좌측 정렬)에 앵커. (아바타 위로 s2 만큼 띄움)
+        // 아바타의 대각선 위에 앵커. 아바타를 가리지 않도록 가로로도 비켜난다.
+        // 화면 왼쪽 아바타는 오른쪽 위로, 오른쪽 아바타는 왼쪽 위로 펼친다.
+        // (오른쪽 끝 아바타에서 메뉴가 화면 밖으로 잘리지 않도록)
         CompositedTransformFollower(
           link: _link,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.bottomLeft,
-          offset: const Offset(0, -AppSpacing.s2),
+          targetAnchor: _alignRight ? Alignment.topLeft : Alignment.topRight,
+          followerAnchor: _alignRight
+              ? Alignment.bottomRight
+              : Alignment.bottomLeft,
+          // 아바타 모서리 안쪽으로 s1 만큼 파고들게 둔다.
+          offset: Offset(
+            _alignRight ? AppSpacing.s1 : -AppSpacing.s1,
+            AppSpacing.s1,
+          ),
           child: _menu(dialogContext),
         ),
       ],
