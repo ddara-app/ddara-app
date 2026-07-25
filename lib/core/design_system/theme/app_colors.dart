@@ -55,4 +55,14 @@ abstract final class AppColors {
   // Overlay
   static const Color overlayScrim = AppColorPrimitives.black60;
   static const Color overlayBlurTint = AppColorPrimitives.black40;
+
+  /// [overlayScrim] 보다 옅은 스크림. (사진을 어느 정도 비추면서 글자 대비를
+  /// 확보해야 하는 곳 — 접힌 헤더 오버레이 등)
+  static const Color overlayScrimSoft = AppColorPrimitives.black50;
+
+  /// 사진 위에 얹는 컨트롤(버튼) 배경.
+  static const Color overlayControl = AppColorPrimitives.gray12;
+
+  /// 카드가 배경에서 살짝 떠 보이게 하는 그림자.
+  static const Color shadowSoft = AppColorPrimitives.black10;
 }

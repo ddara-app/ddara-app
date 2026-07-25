@@ -10,7 +10,6 @@ import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 /// [StartedHeader] 가 그리는 데 필요한 값만 담은 표시용 정보.
 ///
@@ -375,7 +374,7 @@ class _StartedHeaderState extends State<StartedHeader> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
-            color: Colors.black.withValues(alpha: 0.50),
+            color: AppColors.overlayScrimSoft,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -530,7 +529,7 @@ class _StartedHeaderState extends State<StartedHeader> {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.s3),
         decoration: ShapeDecoration(
-          color: const Color(0x1E949494),
+          color: AppColors.overlayControl,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.full),
           ),
