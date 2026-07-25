@@ -1891,6 +1891,12 @@ abstract class AppLocalizations {
   /// **'차단한 멤버의 따라찍기'**
   String get blockedCycleTopic;
 
+  /// 사진 갤러리에서 본인 카드에 닉네임 대신 표시하는 라벨.
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get galleryMyCardLabel;
+
   /// No description provided for @profileLinkedAccount.
   ///
   /// In ko, this message translates to:

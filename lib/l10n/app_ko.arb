@@ -705,6 +705,10 @@
   "photoUnderReviewPlaceholder": "신고 접수되어\n검토 중인 사진입니다",
   "photoUnderReviewPlaceholderShort": "신고 접수\n검토중",
   "blockedCycleTopic": "차단한 멤버의 따라찍기",
+  "galleryMyCardLabel": "나",
+  "@galleryMyCardLabel": {
+    "description": "사진 갤러리에서 본인 카드에 닉네임 대신 표시하는 라벨."
+  },
   "profileLinkedAccount": "연동 계정",
   "profileLogout": "로그아웃",
   "profileWithdraw": "회원 탈퇴",

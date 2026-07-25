@@ -4,6 +4,8 @@ import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
 import 'package:ddara/core/model/comment/comment.dart';
+import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/core/model/profile/profile.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
@@ -28,14 +30,19 @@ class CyclePhotoGalleryNotifier
     final getProfileUseCase = ref.read(getProfileUseCaseProvider);
 
     try {
-      final gallery = await getCycleGalleryUseCase(cycleId);
-      final profile = await getProfileUseCase();
-      final blockedUserIds = await ref.read(getBlockedUserIdsUseCaseProvider)();
+      // 갤러리와 내 프로필, 차단 목록을 함께(병렬) 조회한다.
+      // (group_page_notifier 와 같은 방식 — records 의 `.wait` 는 실패를
+      //  ParallelWaitError 로 감싸 아래 개별 예외 분기를 탈 수 없다)
+      final results = await Future.wait([
+        getCycleGalleryUseCase(cycleId),
+        getProfileUseCase(),
+        ref.read(getBlockedUserIdsUseCaseProvider)(),
+      ]);
       state = state.copyWith(
         isLoading: false,
-        gallery: gallery,
-        myUserId: profile.id,
-        blockedUserIds: blockedUserIds,
+        gallery: results[0] as CycleGallery,
+        myUserId: (results[1] as Profile).id,
+        blockedUserIds: results[2] as Set<int>,
       );
     } on NotGroupMemberException {
       state = state.copyWith(

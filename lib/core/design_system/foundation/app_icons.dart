@@ -46,22 +46,29 @@ abstract final class AppIcons {
   static const close = AppIconData.font(CupertinoIcons.xmark);
   static const add = AppIconData.font(CupertinoIcons.add);
   static const checkmark = AppIconData.font(CupertinoIcons.checkmark);
+
   /// 댓글 등록(전송) 버튼.
   static const arrowUp = AppIconData.font(CupertinoIcons.arrow_up);
   static const copy = AppIconData.font(CupertinoIcons.doc_on_clipboard);
   static const more = AppIconData.font(CupertinoIcons.ellipsis);
-  static const moreVertical = AppIconData.font(CupertinoIcons.ellipsis_vertical);
+  static const moreVertical = AppIconData.font(
+    CupertinoIcons.ellipsis_vertical,
+  );
+
   /// 따라찍기 순서 반전.
   static const reverse = AppIconData.svg('ic_reverse');
 
   // 촬영
   static const camera = AppIconData.font(CupertinoIcons.camera);
+
   /// 목록·시트용 카메라. (커스텀 SVG — 카메라 화면 안내는 [camera] 폰트 아이콘)
   static const cameraDefault = AppIconData.svg('ic_camera');
   static const flashOn = AppIconData.font(CupertinoIcons.bolt_fill);
   static const flashOff = AppIconData.font(CupertinoIcons.bolt_slash_fill);
+
   /// 사진 없음 placeholder. (반투명 — 카드·빈 썸네일용)
   static const gallery = AppIconData.svg('ic_image');
+
   /// 목록·시트용 갤러리. (커스텀 SVG — 사진 placeholder 는 [gallery])
   static const galleryDefault = AppIconData.svg('ic_image_default');
 
@@ -71,9 +78,15 @@ abstract final class AppIcons {
   static const lock = AppIconData.svg('ic_lock');
   static const people = AppIconData.svg('ic_people');
   static const comment = AppIconData.svg('ic_comment');
+
+  /// 읽지 않은 댓글이 있는 상태의 말풍선. (우상단 빨간 점 — 점 색이 고정이라
+  /// [AppIcon] 에 color 를 주면 말풍선만 바뀐다)
+  static const commentActive = AppIconData.svg('ic_comment_circle_active');
+
   static const personCropCircle = AppIconData.font(
     CupertinoIcons.person_crop_circle,
   );
+
   /// 프로필 아바타 placeholder.
   static const personCircleFill = AppIconData.svg('ic_person_circle_fill');
 
