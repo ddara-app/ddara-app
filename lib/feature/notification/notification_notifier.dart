@@ -1,5 +1,6 @@
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NotificationNotifier extends AutoDisposeNotifier<NotificationState> {
@@ -36,8 +37,10 @@ class NotificationNotifier extends AutoDisposeNotifier<NotificationState> {
           hasError: false,
         ),
       );
-    } catch (_) {
-      // NetworkException 및 기타 예기치 못한 오류.
+    } catch (e) {
+      // NetworkException 및 기타 예기치 못한 오류. (매퍼 버그 등 프로그래밍
+      // 오류도 화면을 막지 않도록 여기서 잡되, 단서가 사라지지 않게 로깅한다)
+      debugPrint('[Notification] 알림 조회 실패: $e');
       _update((s) => s.copyWith(isLoading: false, hasError: true));
     }
   }
