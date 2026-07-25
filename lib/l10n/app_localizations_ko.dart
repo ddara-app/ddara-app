@@ -989,6 +989,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockedCycleTopic => '차단한 멤버의 따라찍기';
 
   @override
+  String get galleryMyCardLabel => '나';
+
+  @override
   String get profileLinkedAccount => '연동 계정';
 
   @override

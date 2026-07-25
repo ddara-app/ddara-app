@@ -107,6 +107,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     int? myUserId,
     Set<int> blockedUserIds,
   ) {
+    final l10n = AppLocalizations.of(context);
     final cycle = gallery.cycle;
 
     // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
@@ -267,8 +268,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   // 댓글 등록 대상 shot id. (미업로드면 null → 댓글 불가)
                   final shotId = member.shotId;
                   final card = MemberPhotoCard(
-                    // 본인 카드는 이름 대신 '본인' 으로 표시한다.
-                    name: isMe ? '나' : member.nickname,
+                    // 본인 카드는 닉네임 대신 '나' 로 표시한다.
+                    name: isMe ? l10n.galleryMyCardLabel : member.nickname,
                     image: image,
                     heroTag: heroTag,
                     isBlocked: isBlockedMember,
@@ -333,7 +334,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   // 타인의 보이는 사진만 신고·차단할 수 있다. (본인·잠김·차단 제외)
                   if (isMe || !canView || shotId == null) return card;
 
-                  final l10n = AppLocalizations.of(context);
                   return _MenuPhotoCard(
                     cardWidth: cardWidth,
                     // 사본은 Hero 태그 충돌을 피해 태그·콜백 없이 만든다.
