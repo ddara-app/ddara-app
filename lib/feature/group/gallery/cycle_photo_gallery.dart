@@ -280,6 +280,30 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 댓글 등록 대상 shot id. (미업로드면 null → 댓글 불가)
     final shotId = member.shotId;
 
+    // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
+    // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
+    // (사진이 있으면 shot id 도 함께 오지만, 없으면 열지 않는다)
+    VoidCallback? openViewer;
+    VoidCallback? openComments;
+    if (canOpen && shotId != null) {
+      void show({bool withComments = false}) => _showShotViewer(
+        context,
+        ref,
+        shotId: shotId,
+        image: image,
+        heroTag: heroTag,
+        // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
+        aspectRatio: cardAspectRatio,
+        // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
+        title: member.nickname,
+        body: cycle.topic,
+        locked: locked,
+        openCommentSheet: withComments,
+      );
+      openViewer = () => show();
+      openComments = () => show(withComments: true);
+    }
+
     final card = MemberPhotoCard(
       // 본인 카드는 닉네임 대신 '나' 로 표시한다.
       name: isMe ? l10n.galleryMyCardLabel : member.nickname,
@@ -287,24 +311,9 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       heroTag: heroTag,
       isBlocked: isBlockedMember,
       isUnderReview: isReported,
-      // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
-      // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
-      // (사진이 있으면 shot id 도 함께 오지만, 없으면 열지 않는다)
-      onTap: canOpen && shotId != null
-          ? () => _showShotViewer(
-              context,
-              ref,
-              shotId: shotId,
-              image: image,
-              heroTag: heroTag,
-              // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
-              aspectRatio: cardAspectRatio,
-              // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
-              title: member.nickname,
-              body: cycle.topic,
-              locked: locked,
-            )
-          : null,
+      onTap: openViewer,
+      // 우측 상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
+      onComment: openComments,
       // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
       // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
       // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로 역시 숨긴다.
@@ -369,6 +378,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     Object? heroTag,
     double? aspectRatio,
     bool locked = false,
+    bool openCommentSheet = false,
   }) {
     // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
     final state = ref.read(cyclePhotoGalleryNotifierProvider(cycleId));
@@ -389,6 +399,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
       // (서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내)
       locked: locked,
+      // 댓글 버튼으로 들어왔으면 시트를 연 채로 시작한다.
+      openCommentSheet: openCommentSheet,
       onLoadComments: handlers.onLoadComments,
       onSubmitComment: handlers.onSubmitComment,
       onDeleteComment: handlers.onDeleteComment,
