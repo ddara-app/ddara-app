@@ -92,6 +92,12 @@ class _StartedHeaderState extends State<StartedHeader> {
       !_obscured &&
       widget.imageUri.isNotEmpty;
 
+  /// 우상단 댓글 버튼을 그리는 상태인지.
+  /// (가려진 사진은 크게 보기가 막히므로 버튼도 숨긴다)
+  ///
+  /// 버튼이 우상단을 차지하면 스타터 안내 pill 은 좌상단으로 비켜난다.
+  bool get _showCommentButton => widget.onComment != null && !_obscured;
+
   void _toggle() => setState(() => _expanded = !_expanded);
 
   void _openMenu() {
@@ -264,14 +270,18 @@ class _StartedHeaderState extends State<StartedHeader> {
                 children: [_buildInfoRow()],
               ),
             ),
-            // 좌상단: 스타터 안내 pill. (스타터 · 닉네임)
+            // 스타터 안내 pill. (스타터 · 닉네임)
+            // 기본은 우상단이고, 댓글 버튼이 그 자리를 쓰면 좌상단으로 비켜난다.
             Padding(
-              padding: const EdgeInsets.only(
+              padding: EdgeInsets.only(
                 top: AppSpacing.s4,
-                left: AppSpacing.s4,
+                left: _showCommentButton ? AppSpacing.s4 : 0,
+                right: _showCommentButton ? 0 : AppSpacing.s4,
               ),
               child: Align(
-                alignment: Alignment.topLeft,
+                alignment: _showCommentButton
+                    ? Alignment.topLeft
+                    : Alignment.topRight,
                 child: _pill(
                   child: AppText.caption(
                     l10n.startedHeaderStarterChip(
@@ -282,8 +292,8 @@ class _StartedHeaderState extends State<StartedHeader> {
                 ),
               ),
             ),
-            // 우상단: 댓글 버튼. (가려진 사진은 크게 보기가 막히므로 함께 숨긴다)
-            if (widget.onComment != null && !_obscured)
+            // 우상단: 댓글 버튼.
+            if (_showCommentButton)
               Padding(
                 padding: const EdgeInsets.only(
                   top: AppSpacing.s4,
@@ -364,22 +374,34 @@ class _StartedHeaderState extends State<StartedHeader> {
                 // 좌상단에 있던 진행 상태(검정 60% pill)를 주제 위로 옮기고,
                 // 같은 배경 안에서 가운데 점으로 참여 인원(아이콘 + n/총원)을 잇는다.
                 _pill(
+                  // 항목 간격이 제각각이라 Row spacing 대신 각자 여백을 준다.
+                  // (상태·인원수 바깥 여백은 pill 의 좌우 패딩 s5 가 전부)
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: AppSpacing.s1,
                     children: [
                       AppText.caption(
                         _statusText(),
                         color: AppColors.textPrimary,
                       ),
                       if (widget.memberCount != null) ...[
-                        AppText.caption('·', color: AppColors.textPrimary),
+                        // 가운데 점 좌우로만 s2 를 띄운다.
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.s2,
+                          ),
+                          child: AppText.caption(
+                            '·',
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        // 아이콘과 인원수는 한 덩어리로 읽히도록 s1 만 띄운다.
                         const AppIcon(
                           AppIcons.people,
                           size: 14,
                           color: AppColors.textPrimary,
                         ),
+                        const SizedBox(width: AppSpacing.s1),
                         AppText.caption(
                           '${widget.progress.uploadedUserIds.length + 1}'
                           '/${widget.memberCount}',
@@ -439,8 +461,8 @@ class _StartedHeaderState extends State<StartedHeader> {
   Widget _pill({required Widget child}) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s3,
-        vertical: AppSpacing.s1,
+        horizontal: AppSpacing.s5,
+        vertical: AppSpacing.s2,
       ),
       decoration: const ShapeDecoration(
         color: AppColorPrimitives.black60,
