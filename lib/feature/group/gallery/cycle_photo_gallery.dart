@@ -113,11 +113,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
     final starterBlocked = blockedUserIds.contains(cycle.starterUserId);
 
-    // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
-    final me = gallery.members
-        .where((m) => m.userId == myUserId)
-        .firstOrNull;
-
     // 마감된(done) 회차는 사진이 있는 카드만 보여준다. (미업로드 빈 카드는 숨김)
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
 
@@ -187,33 +182,20 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
             onImageTap: (cycle.starterImageUrl ?? '').isEmpty
                 ? null
-                : () {
-                    // 스타터 사진 댓글은 스타터 shot id 로 등록·조회한다.
-                    final handlers = _commentHandlers(
-                      context,
-                      ref,
-                      cycle.starterShotId,
-                    );
-                    showPhotoViewer(
-                      context,
-                      image: CachedNetworkImageProvider(cycle.starterImageUrl!),
-                      aspectRatio:
-                          (MediaQuery.of(context).size.width -
-                              AppSpacing.s4 * 2) /
-                          478,
-                      // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
-                      title: cycle.starterNickname,
-                      body: cycle.topic,
-                      myNickname: me?.nickname ?? '',
-                      myProfileImageUrl: me?.profileImageUrl,
-                      onLoadComments: handlers.onLoadComments,
-                      onSubmitComment: handlers.onSubmitComment,
-                      onDeleteComment: handlers.onDeleteComment,
-                      onEditComment: handlers.onEditComment,
-                      onReportComment: handlers.onReportComment,
-                      onBlockComment: handlers.onBlockComment,
-                    );
-                  },
+                // 스타터 사진 댓글은 스타터 shot id 로 등록·조회한다.
+                : () => _showShotViewer(
+                    context,
+                    ref,
+                    shotId: cycle.starterShotId,
+                    image: CachedNetworkImageProvider(cycle.starterImageUrl!),
+                    aspectRatio:
+                        (MediaQuery.of(context).size.width -
+                            AppSpacing.s4 * 2) /
+                        478,
+                    // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
+                    title: cycle.starterNickname,
+                    body: cycle.topic,
+                  ),
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
           const SizedBox(height: AppSpacing.s6),
@@ -239,131 +221,180 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   mainAxisExtent: 225,
                 ),
                 itemCount: members.length,
-                itemBuilder: (context, index) {
-                  final member = members[index];
-                  final isMe = member.userId == myUserId;
-                  // 차단한 멤버는 사진을 아예 로드하지 않고 자리표시만 보여준다.
-                  final isBlockedMember = blockedUserIds.contains(
-                    member.userId,
-                  );
-                  // 신고 접수로 검토 중인 사진. (검토 안내 자리표시로 가린다)
-                  final isReported = member.status.toLowerCase() == 'reported';
-                  final imageUrl = isBlockedMember || isReported
-                      ? null
-                      : member.imageUrl;
-                  // 잠긴(블러) 사진. 크게 볼 때도 블러+자물쇠는 유지하지만,
-                  // 뷰어와 댓글에는 접근할 수 있다.
-                  final locked = !isDoneCycle && !canSeeAll;
-                  final ImageProvider? image = imageUrl == null
-                      ? null
-                      : CachedNetworkImageProvider(imageUrl);
-                  // 사진이 있으면(잠겨 있어도) 탭해서 뷰어를 열 수 있다.
-                  final canOpen = image != null;
-                  // 선명하게 볼 수 있는(= Hero 전환·신고 가능) 상태.
-                  final canView = canOpen && !locked;
-                  // 잠긴 사진은 카드가 블러라 Hero 전환을 하지 않는다.
-                  final heroTag = canView
-                      ? 'gallery-photo-${member.userId}'
-                      : null;
-                  // 댓글 등록 대상 shot id. (미업로드면 null → 댓글 불가)
-                  final shotId = member.shotId;
-                  final card = MemberPhotoCard(
-                    // 본인 카드는 닉네임 대신 '나' 로 표시한다.
-                    name: isMe ? l10n.galleryMyCardLabel : member.nickname,
-                    image: image,
-                    heroTag: heroTag,
-                    isBlocked: isBlockedMember,
-                    isUnderReview: isReported,
-                    // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
-                    // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
-                    // (사진이 있으면 shot id 도 함께 오지만, 없으면 열지 않는다)
-                    onTap: canOpen && shotId != null
-                        ? () {
-                            final handlers = _commentHandlers(
-                              context,
-                              ref,
-                              shotId,
-                            );
-                            showPhotoViewer(
-                              context,
-                              image: image,
-                              heroTag: heroTag,
-                              // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
-                              aspectRatio: cardAspectRatio,
-                              // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
-                              title: member.nickname,
-                              body: cycle.topic,
-                              myNickname: me?.nickname ?? '',
-                              myProfileImageUrl: me?.profileImageUrl,
-                              // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
-                              // (서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내)
-                              locked: locked,
-                              onLoadComments: handlers.onLoadComments,
-                              onSubmitComment: handlers.onSubmitComment,
-                              onDeleteComment: handlers.onDeleteComment,
-                              onEditComment: handlers.onEditComment,
-                              onReportComment: handlers.onReportComment,
-                              onBlockComment: handlers.onBlockComment,
-                            );
-                          }
-                        : null,
-                    // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
-                    // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
-                    // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로
-                    // 역시 숨긴다.
-                    onTakePhoto:
-                        isMe &&
-                            !isDoneCycle &&
-                            !starterBlocked &&
-                            !cycle.starterImageUnderReview
-                        ? () => context.push(
-                            RoutePath.followerCamera,
-                            // 대상 사이클 id 와 가이드용 스타터 사진 URL 을 넘긴다.
-                            extra: (
-                              cycleId: cycle.cycleId,
-                              guideImageUrl: cycle.starterImageUrl ?? '',
-                            ),
-                          )
-                        : null,
-                    // 모든 사진을 볼 수 없는 상태면 사진이 있는 멤버를 블러+자물쇠로 가린다.
-                    // (실제 블러/자물쇠는 image 가 있을 때만 그려진다)
-                    // 단, 마감(done) 회차는 항상 공개하므로 잠금하지 않는다.
-                    isLocked: locked,
-                  );
-
-                  // 타인의 보이는 사진만 신고·차단할 수 있다. (본인·잠김·차단 제외)
-                  if (isMe || !canView || shotId == null) return card;
-
-                  return _MenuPhotoCard(
-                    cardWidth: cardWidth,
-                    // 사본은 Hero 태그 충돌을 피해 태그·콜백 없이 만든다.
-                    copy: MemberPhotoCard(name: member.nickname, image: image),
-                    // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
-                    actions: [
-                      (
-                        label: l10n.memberBlock,
-                        color: AppColors.statusDanger,
-                        onSelect: () => _blockUser(
-                          context,
-                          ref,
-                          userId: member.userId,
-                          nickname: member.nickname,
-                        ),
-                      ),
-                      (
-                        label: l10n.report,
-                        color: AppColors.statusDanger,
-                        onSelect: () => _reportPhoto(context, ref, shotId),
-                      ),
-                    ],
-                    child: card,
-                  );
-                },
+                itemBuilder: (context, index) => _memberTile(
+                  context,
+                  ref,
+                  l10n: l10n,
+                  member: members[index],
+                  cycle: cycle,
+                  myUserId: myUserId,
+                  blockedUserIds: blockedUserIds,
+                  isDoneCycle: isDoneCycle,
+                  canSeeAll: canSeeAll,
+                  starterBlocked: starterBlocked,
+                  cardWidth: cardWidth,
+                  cardAspectRatio: cardAspectRatio,
+                ),
               );
             },
           ),
         ],
       ),
+    );
+  }
+
+  /// 멤버 사진 그리드의 카드 한 장. 표시 상태(차단·검토중·잠김·본인 여부)를
+  /// 여기서 판정하고, 타인의 보이는 사진이면 롱프레스 메뉴로 감싼다.
+  Widget _memberTile(
+    BuildContext context,
+    WidgetRef ref, {
+    required AppLocalizations l10n,
+    required CycleGalleryMember member,
+    required CycleGalleryCycle cycle,
+    required int? myUserId,
+    required Set<int> blockedUserIds,
+    required bool isDoneCycle,
+    required bool canSeeAll,
+    required bool starterBlocked,
+    required double cardWidth,
+    required double cardAspectRatio,
+  }) {
+    final isMe = member.userId == myUserId;
+    // 차단한 멤버는 사진을 아예 로드하지 않고 자리표시만 보여준다.
+    final isBlockedMember = blockedUserIds.contains(member.userId);
+    // 신고 접수로 검토 중인 사진. (검토 안내 자리표시로 가린다)
+    final isReported = member.status.toLowerCase() == 'reported';
+    final imageUrl = isBlockedMember || isReported ? null : member.imageUrl;
+    // 잠긴(블러) 사진. 크게 볼 때도 블러+자물쇠는 유지하지만,
+    // 뷰어와 댓글에는 접근할 수 있다.
+    final locked = !isDoneCycle && !canSeeAll;
+    final ImageProvider? image = imageUrl == null
+        ? null
+        : CachedNetworkImageProvider(imageUrl);
+    // 사진이 있으면(잠겨 있어도) 탭해서 뷰어를 열 수 있다.
+    final canOpen = image != null;
+    // 선명하게 볼 수 있는(= Hero 전환·신고 가능) 상태.
+    final canView = canOpen && !locked;
+    // 잠긴 사진은 카드가 블러라 Hero 전환을 하지 않는다.
+    final heroTag = canView ? 'gallery-photo-${member.userId}' : null;
+    // 댓글 등록 대상 shot id. (미업로드면 null → 댓글 불가)
+    final shotId = member.shotId;
+
+    final card = MemberPhotoCard(
+      // 본인 카드는 닉네임 대신 '나' 로 표시한다.
+      name: isMe ? l10n.galleryMyCardLabel : member.nickname,
+      image: image,
+      heroTag: heroTag,
+      isBlocked: isBlockedMember,
+      isUnderReview: isReported,
+      // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
+      // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
+      // (사진이 있으면 shot id 도 함께 오지만, 없으면 열지 않는다)
+      onTap: canOpen && shotId != null
+          ? () => _showShotViewer(
+              context,
+              ref,
+              shotId: shotId,
+              image: image,
+              heroTag: heroTag,
+              // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
+              aspectRatio: cardAspectRatio,
+              // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
+              title: member.nickname,
+              body: cycle.topic,
+              locked: locked,
+            )
+          : null,
+      // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
+      // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
+      // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로 역시 숨긴다.
+      onTakePhoto:
+          isMe &&
+              !isDoneCycle &&
+              !starterBlocked &&
+              !cycle.starterImageUnderReview
+          ? () => context.push(
+              RoutePath.followerCamera,
+              // 대상 사이클 id 와 가이드용 스타터 사진 URL 을 넘긴다.
+              extra: (
+                cycleId: cycle.cycleId,
+                guideImageUrl: cycle.starterImageUrl ?? '',
+              ),
+            )
+          : null,
+      // 모든 사진을 볼 수 없는 상태면 사진이 있는 멤버를 블러+자물쇠로 가린다.
+      // (실제 블러/자물쇠는 image 가 있을 때만 그려진다)
+      // 단, 마감(done) 회차는 항상 공개하므로 잠금하지 않는다.
+      isLocked: locked,
+    );
+
+    // 타인의 보이는 사진만 신고·차단할 수 있다. (본인·잠김·차단 제외)
+    if (isMe || !canView || shotId == null) return card;
+
+    return _MenuPhotoCard(
+      cardWidth: cardWidth,
+      // 사본은 Hero 태그 충돌을 피해 태그·콜백 없이 만든다.
+      copy: MemberPhotoCard(name: member.nickname, image: image),
+      // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
+      actions: [
+        (
+          label: l10n.memberBlock,
+          color: AppColors.statusDanger,
+          onSelect: () => _blockUser(
+            context,
+            ref,
+            userId: member.userId,
+            nickname: member.nickname,
+          ),
+        ),
+        (
+          label: l10n.report,
+          color: AppColors.statusDanger,
+          onSelect: () => _reportPhoto(context, ref, shotId),
+        ),
+      ],
+      child: card,
+    );
+  }
+
+  /// 사진 뷰어를 연다. 댓글 시트 배선(내 프로필·핸들러 6종)은 어느 사진이든
+  /// 같으므로 여기서 한 번만 구성한다 — 호출부는 사진마다 다른 값만 넘긴다.
+  void _showShotViewer(
+    BuildContext context,
+    WidgetRef ref, {
+    required int shotId,
+    required ImageProvider image,
+    required String title,
+    required String body,
+    Object? heroTag,
+    double? aspectRatio,
+    bool locked = false,
+  }) {
+    // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
+    final state = ref.read(cyclePhotoGalleryNotifierProvider(cycleId));
+    final me = state.gallery?.members
+        .where((member) => member.userId == state.myUserId)
+        .firstOrNull;
+
+    final handlers = _commentHandlers(context, ref, shotId);
+    showPhotoViewer(
+      context,
+      image: image,
+      heroTag: heroTag,
+      aspectRatio: aspectRatio,
+      title: title,
+      body: body,
+      myNickname: me?.nickname ?? '',
+      myProfileImageUrl: me?.profileImageUrl,
+      // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
+      // (서버가 SHOT_LOCKED 로 작성 거부 → 토스트 안내)
+      locked: locked,
+      onLoadComments: handlers.onLoadComments,
+      onSubmitComment: handlers.onSubmitComment,
+      onDeleteComment: handlers.onDeleteComment,
+      onEditComment: handlers.onEditComment,
+      onReportComment: handlers.onReportComment,
+      onBlockComment: handlers.onBlockComment,
     );
   }
 
