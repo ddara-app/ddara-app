@@ -6,6 +6,7 @@ import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/random_starter/util/starter_reel.dart';
 import 'package:ddara/feature/group/random_starter/widget/starter_confetti.dart';
 import 'package:ddara/feature/group/random_starter/widget/starter_result_reveal.dart';
@@ -13,6 +14,7 @@ import 'package:ddara/feature/group/random_starter/widget/starter_slot_machine.d
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// [RandomStarterPage] 라우트 인자.
@@ -40,16 +42,16 @@ class RandomStarterArgs {
 /// 동시 시작) → confetti 종료(1.8초) 후 CTA 활성화.
 /// CTA 는 공개된 스타터([GroupMember])를 결과로 pop 한다 — 이후 진행(촬영
 /// 이동 등)은 호출부가 결정한다.
-class RandomStarterPage extends StatefulWidget {
+class RandomStarterPage extends ConsumerStatefulWidget {
   const RandomStarterPage({super.key, required this.args});
 
   final RandomStarterArgs args;
 
   @override
-  State<RandomStarterPage> createState() => _RandomStarterPageState();
+  ConsumerState<RandomStarterPage> createState() => _RandomStarterPageState();
 }
 
-class _RandomStarterPageState extends State<RandomStarterPage>
+class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
     with TickerProviderStateMixin {
   late final AnimationController _slotController = AnimationController(
     vsync: this,
@@ -100,7 +102,21 @@ class _RandomStarterPageState extends State<RandomStarterPage>
       'random_starter_page_viewed',
       properties: {'group_id': widget.args.groupId},
     );
+    _markSeen();
     _configureReel();
+  }
+
+  /// 공개 화면에 들어온 시점에 확인 처리를 남긴다. 이후 모임 진입에서 이미 본
+  /// 멤버에게는 이 화면을 다시 띄우지 않는다. (당첨자 본인은 시작 전까지 계속 노출)
+  ///
+  /// 실패해도 공개 모션은 그대로 재생한다 — 표시가 남지 않으면 다음 진입에서
+  /// 다시 보여주고 재시도되므로 사용자에게 에러를 알리지 않는다.
+  Future<void> _markSeen() async {
+    try {
+      await ref.read(markNextStarterSeenUseCaseProvider)(widget.args.groupId);
+    } catch (_) {
+      // 무시. (다음 진입 때 다시 시도된다)
+    }
   }
 
   @override

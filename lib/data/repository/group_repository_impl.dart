@@ -3,6 +3,7 @@ import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/group_exit_error_code.dart';
 import 'package:ddara/core/exception/group_history_error_code.dart';
 import 'package:ddara/core/exception/group_join_error_code.dart';
+import 'package:ddara/core/exception/group_next_starter_seen_error_code.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/model/group/change_nickname.dart';
 import 'package:ddara/core/model/group/create_group.dart';
@@ -165,6 +166,30 @@ class GroupRepositoryImpl implements GroupRepository {
           throw NotGroupMemberException();
 
         case GroupExitErrorCode.groupNotFound:
+          // 404 — 모임을 찾을 수 없음
+          throw GroupNotFoundException();
+
+        default:
+          throw NetworkException();
+      }
+    }
+  }
+
+  @override
+  Future<void> markNextStarterSeen(int groupId) async {
+    try {
+      await _groupDataSource.markNextStarterSeen(groupId);
+    } on DioException catch (e) {
+      final code = e.response?.data is Map
+          ? GroupNextStarterSeenErrorCode.fromValue(e.response?.data['code'])
+          : null;
+
+      switch (code) {
+        case GroupNextStarterSeenErrorCode.notGroupMember:
+          // 403 — 해당 모임의 멤버가 아님
+          throw NotGroupMemberException();
+
+        case GroupNextStarterSeenErrorCode.groupNotFound:
           // 404 — 모임을 찾을 수 없음
           throw GroupNotFoundException();
 
