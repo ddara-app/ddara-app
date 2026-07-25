@@ -23,6 +23,7 @@ class StartedHeader extends StatefulWidget {
     required this.imageUri,
     required this.progress,
     this.onImageTap,
+    this.onComment,
     this.onReport,
     this.onBlock,
     this.starterBlocked = false,
@@ -41,6 +42,10 @@ class StartedHeader extends StatefulWidget {
 
   /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
   final VoidCallback? onImageTap;
+
+  /// 우상단 댓글 버튼을 눌렀을 때의 콜백. (크게 보기를 댓글이 열린 채로 여는 데
+  /// 쓴다) null 이면 버튼을 표시하지 않는다. (펼친 상태·사진이 보일 때만 노출)
+  final VoidCallback? onComment;
 
   /// 대표 이미지를 롱프레스해 '신고하기'를 선택했을 때.
   /// null 이면 메뉴에 신고 항목이 뜨지 않는다. (펼친 상태에서만 동작)
@@ -259,14 +264,14 @@ class _StartedHeaderState extends State<StartedHeader> {
                 children: [_buildInfoRow()],
               ),
             ),
-            // 우상단: 스타터 안내 pill. (스타터 · 닉네임)
+            // 좌상단: 스타터 안내 pill. (스타터 · 닉네임)
             Padding(
               padding: const EdgeInsets.only(
                 top: AppSpacing.s4,
-                right: AppSpacing.s4,
+                left: AppSpacing.s4,
               ),
               child: Align(
-                alignment: Alignment.topRight,
+                alignment: Alignment.topLeft,
                 child: _pill(
                   child: AppText.caption(
                     l10n.startedHeaderStarterChip(
@@ -277,6 +282,29 @@ class _StartedHeaderState extends State<StartedHeader> {
                 ),
               ),
             ),
+            // 우상단: 댓글 버튼. (가려진 사진은 크게 보기가 막히므로 함께 숨긴다)
+            if (widget.onComment != null && !_obscured)
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.s4,
+                  right: AppSpacing.s4,
+                ),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: widget.onComment,
+                    child: Container(
+                      // 아이콘 24 + 패딩 s3(12)×2 = 지름 48 원.
+                      padding: const EdgeInsets.all(AppSpacing.s3),
+                      decoration: const BoxDecoration(
+                        color: AppColors.overlayScrim,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const AppIcon(AppIcons.comment, size: 24),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

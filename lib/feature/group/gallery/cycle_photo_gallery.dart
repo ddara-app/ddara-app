@@ -143,6 +143,29 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       }
     }
 
+    // 스타터 대표 사진 크게 보기. (사진이 없으면 열지 않는다)
+    // 헤더 프레임 그대로 보여준다 — 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정.
+    // (StartedHeader 참조) 댓글은 스타터 shot id 로 등록·조회한다.
+    VoidCallback? openStarterViewer;
+    VoidCallback? openStarterComments;
+    final starterImageUrl = cycle.starterImageUrl;
+    if (starterImageUrl != null && starterImageUrl.isNotEmpty) {
+      void show({bool withComments = false}) => _showShotViewer(
+        context,
+        ref,
+        shotId: cycle.starterShotId,
+        image: CachedNetworkImageProvider(starterImageUrl),
+        aspectRatio:
+            (MediaQuery.of(context).size.width - AppSpacing.s4 * 2) / 478,
+        // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
+        title: cycle.starterNickname,
+        body: cycle.topic,
+        openCommentSheet: withComments,
+      );
+      openStarterViewer = () => show();
+      openStarterComments = () => show(withComments: true);
+    }
+
     return SingleChildScrollView(
       // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
       physics: const ClampingScrollPhysics(),
@@ -180,22 +203,9 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   ),
             // 스타터 대표 사진 탭 → 헤더에서 보이던 프레임 그대로 크게 보여준다.
             // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
-            onImageTap: (cycle.starterImageUrl ?? '').isEmpty
-                ? null
-                // 스타터 사진 댓글은 스타터 shot id 로 등록·조회한다.
-                : () => _showShotViewer(
-                    context,
-                    ref,
-                    shotId: cycle.starterShotId,
-                    image: CachedNetworkImageProvider(cycle.starterImageUrl!),
-                    aspectRatio:
-                        (MediaQuery.of(context).size.width -
-                            AppSpacing.s4 * 2) /
-                        478,
-                    // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
-                    title: cycle.starterNickname,
-                    body: cycle.topic,
-                  ),
+            onImageTap: openStarterViewer,
+            // 우상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
+            onComment: openStarterComments,
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
           const SizedBox(height: AppSpacing.s6),
