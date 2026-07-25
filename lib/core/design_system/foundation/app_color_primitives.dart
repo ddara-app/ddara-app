@@ -98,10 +98,16 @@ abstract final class AppColorPrimitives {
   static const Color white40 = Color(0x66FFFFFF);
   static const Color white60 = Color(0x99FFFFFF);
   static const Color white80 = Color(0xCCFFFFFF);
+  static const Color black10 = Color(0x1A000000);
   static const Color black20 = Color(0x33000000);
   static const Color black40 = Color(0x66000000);
+  static const Color black50 = Color(0x80000000);
   static const Color black60 = Color(0x99000000);
   static const Color black80 = Color(0xCC000000);
+
+  /// 사진 위에 얹는 컨트롤 배경. (회색 12% — 배경을 가리지 않으면서 버튼 윤곽만
+  /// 잡아 준다. grayscale 팔레트에 없는 디자인 원본값이라 여기 둔다)
+  static const Color gray12 = Color(0x1E949494);
 
   /// 완전 투명. (색을 칠하지 않는다는 뜻을 값으로 표현할 때)
   static const Color transparent = Color(0x00000000);
