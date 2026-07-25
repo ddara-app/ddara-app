@@ -2,6 +2,7 @@ import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
+import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
@@ -265,7 +266,9 @@ class GroupPage extends ConsumerWidget {
 
   Widget _body(BuildContext context, WidgetRef ref, GroupPageState state) {
     final l10n = AppLocalizations.of(context);
-    if (state.isLoading) {
+    // 최초 조회 전에는 보여줄 본문이 없으므로 화면 전체가 로딩이다.
+    // (차단·닉네임 변경 등 이후의 로딩은 본문을 유지한 채 오버레이로 덮는다)
+    if (state.isLoading && state.groupDetail == null) {
       return const Center(child: CupertinoActivityIndicator());
     }
 
@@ -303,21 +306,28 @@ class GroupPage extends ConsumerWidget {
 
     final cycles = state.historyCycles?.cycles ?? const [];
 
-    return CustomScrollView(
-      physics: physics,
-      slivers: [
-        CupertinoSliverRefreshControl(onRefresh: onRefresh),
-        SliverPadding(
-          // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
-          // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
-          padding: EdgeInsets.only(
-            top: AppSpacing.s6,
-            bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-          ),
-          sliver: SliverToBoxAdapter(
-            child: _content(context, ref, state, groupDetail, cycles),
-          ),
+    return Stack(
+      children: [
+        CustomScrollView(
+          physics: physics,
+          slivers: [
+            CupertinoSliverRefreshControl(onRefresh: onRefresh),
+            SliverPadding(
+              // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
+              // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
+              padding: EdgeInsets.only(
+                top: AppSpacing.s6,
+                bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: _content(context, ref, state, groupDetail, cycles),
+              ),
+            ),
+          ],
         ),
+        // 차단·닉네임 변경 등 처리 중에는 본문을 그대로 둔 채 덮는다.
+        // (본문이 살아 있어 완료 후 스크롤 위치가 그대로 유지된다)
+        if (state.isLoading) const AppLoadingOverlay(),
       ],
     );
   }
