@@ -4,6 +4,7 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
+import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/feature/group/history/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/history/util/history_list_state.dart';
 import 'package:ddara/feature/group/history/widget/history_month_section.dart';
@@ -61,13 +62,9 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
           pageSize: _sectionPageSize,
           // 필터가 바뀌면 목록이 새로 조회되므로 첫 페이지부터 다시 드러낸다.
           resetKey: (_selectedYear, _selectedMonth),
-          builder: (context, visibleSections) => SingleChildScrollView(
-            // 본문 여백: 상 s7, 좌우 s4.
-            padding: const EdgeInsets.only(
-              top: AppSpacing.s7,
-              left: AppSpacing.s4,
-              right: AppSpacing.s4,
-            ),
+          // 페이지 표준 스크롤 본문. 콘텐츠가 짧아도 뷰포트를 채워 스크롤이
+          // 가능하고, 마지막 항목이 홈 인디케이터와 겹치지 않는다.
+          builder: (context, visibleSections) => ScrollablePageBody(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: AppSpacing.s7,
@@ -203,7 +200,9 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       _displayYear = DateTime.now().year;
       _pickerVisible = false;
     });
-    ref.read(historyListNotifierProvider(widget.groupId).notifier).applyFilter();
+    ref
+        .read(historyListNotifierProvider(widget.groupId).notifier)
+        .applyFilter();
   }
 
   /// 월 선택 → 필터 확정 후 피커를 닫고, 선택한 연·월로 서버 재조회한다.
