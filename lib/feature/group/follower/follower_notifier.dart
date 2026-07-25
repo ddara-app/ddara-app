@@ -52,6 +52,14 @@ class FollowerNotifier extends AutoDisposeNotifier<FollowerState> {
         isLoading: false,
         errorMessage: '네트워크 연결이 불안정합니다.',
       );
+    } catch (_) {
+      // 위에 나열되지 않은 오류(파일 IO 실패·매퍼 캐스트 오류 등).
+      // 여기서 잡지 않으면 isLoading 이 true 로 남아 로딩 오버레이가 화면을
+      // 계속 덮은 채 아무것도 할 수 없게 된다.
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '사진을 올리지 못했어요.',
+      );
     }
   }
 }
