@@ -47,7 +47,7 @@ class HistoryListItem extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return AppSurface(
       // 페이지 배경 위 맨 아이템이라 평소엔 투명, 누르는 동안만 살짝 밝게.
-      color: const Color(0x00000000),
+      color: AppColors.bgTransparent,
       pressedColor: AppColors.bgSurface,
       // 탭 → 해당 사이클의 사진 갤러리로 이동.
       onTap: () => context.push(RoutePath.follower, extra: cycle.cycleId),

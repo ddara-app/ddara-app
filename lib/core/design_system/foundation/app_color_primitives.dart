@@ -102,4 +102,7 @@ abstract final class AppColorPrimitives {
   static const Color black40 = Color(0x66000000);
   static const Color black60 = Color(0x99000000);
   static const Color black80 = Color(0xCC000000);
+
+  /// 완전 투명. (색을 칠하지 않는다는 뜻을 값으로 표현할 때)
+  static const Color transparent = Color(0x00000000);
 }
