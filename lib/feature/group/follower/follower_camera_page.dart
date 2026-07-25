@@ -45,6 +45,37 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
     );
   }
 
+  /// 게시 확인을 받고 촬영본을 올린다. 성공하면 스택 아래 갤러리를 새로고침한
+  /// 뒤 이 화면을 닫아 그 갤러리로 돌아간다.
+  /// (실패 시 notifier 가 errorMessage 를 채우고 화면이 토스트로 안내한다)
+  Future<void> _upload(String path) async {
+    final l10n = AppLocalizations.of(context);
+    // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.photoPostWarningTitle,
+      confirmLabel: l10n.commonConfirm,
+    );
+    if (!confirmed || !mounted) return;
+
+    final cycleId = await ref
+        .read(followerNotifierProvider.notifier)
+        .upload(widget.cycleId, path);
+    if (cycleId == null || !mounted) return;
+
+    MixpanelManager.instance.track(
+      'follower_photo_posted',
+      properties: {'cycle_id': cycleId},
+    );
+    // 스택 아래의 갤러리를 새로고침한 뒤 촬영 화면을 닫아 그 갤러리로 돌아간다.
+    // (pushReplacement 로 갤러리를 새로 쌓으면 중복·미갱신 문제가 생긴다)
+    ref.invalidate(cyclePhotoGalleryNotifierProvider(cycleId));
+    // 스택 아래에 모임 상세가 있으면 새 사진(참여 현황)이 반영되도록 함께
+    // 무효화한다. (groupId 를 모르는 화면이라 family 전체를 무효화)
+    ref.invalidate(group_detail.groupPageNotifierProvider);
+    context.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final capturedPath = _capturedPath;
@@ -54,26 +85,11 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
       followerNotifierProvider.select((s) => s.isLoading),
     );
 
-    // 업로드 결과를 감지해 에러는 토스트로, 성공은 갤러리 이동으로 처리한다.
+    // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
     ref.listen(followerNotifierProvider, (prev, next) {
       if (next.errorMessage.isNotEmpty) {
         Toast.showToast(context, next.errorMessage, type: ToastType.error);
         notifier.clearError();
-      }
-
-      final cycleId = next.uploadedCycleId;
-      if (prev?.uploadedCycleId == null && cycleId != null) {
-        MixpanelManager.instance.track(
-          'follower_photo_posted',
-          properties: {'cycle_id': cycleId},
-        );
-        // 스택 아래의 갤러리를 새로고침한 뒤 촬영 화면을 닫아 그 갤러리로 돌아간다.
-        // (pushReplacement 로 갤러리를 새로 쌓으면 중복·미갱신 문제가 생긴다)
-        ref.invalidate(cyclePhotoGalleryNotifierProvider(cycleId));
-        // 스택 아래에 모임 상세가 있으면 새 사진(참여 현황)이 반영되도록 함께
-        // 무효화한다. (groupId 를 모르는 화면이라 family 전체를 무효화)
-        ref.invalidate(group_detail.groupPageNotifierProvider);
-        context.pop();
       }
     });
 
@@ -91,18 +107,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
                   imagePath: capturedPath,
                   // 다시 찍기 → 촬영 단계로 돌아간다.
                   onRetake: () => setState(() => _capturedPath = null),
-                  onUpload: () async {
-                    // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
-                    final ok = await AppDialog.show(
-                      context,
-                      title: l10n.photoPostWarningTitle,
-                      confirmLabel: l10n.commonConfirm,
-                    );
-                    if (!ok) return;
-                    // 촬영본을 S3에 올리고 따라찍기 사진을 등록한다.
-                    // (성공/실패는 위 listen 에서 처리)
-                    await notifier.upload(widget.cycleId, capturedPath);
-                  },
+                  onUpload: () => _upload(capturedPath),
                 ),
 
           // 업로드 처리 중 로딩 오버레이 (입력 차단 + 인디케이터)
