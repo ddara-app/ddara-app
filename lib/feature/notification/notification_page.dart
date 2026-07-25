@@ -60,12 +60,12 @@ class NotificationPage extends ConsumerWidget {
       builder: (context, visibleItems) => SingleChildScrollView(
         // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
         physics: const ClampingScrollPhysics(),
-        // 상단 s3, 좌우 s5, 하단 s6 + Safe Area 인셋 여백. (마지막 알림이
+        // 상단 s3, 좌우 s4, 하단 s6 + Safe Area 인셋 여백. (마지막 알림이
         // 홈 인디케이터와 겹치지 않도록)
         padding: EdgeInsets.fromLTRB(
-          AppSpacing.s5,
+          AppSpacing.s4,
           AppSpacing.s3,
-          AppSpacing.s5,
+          AppSpacing.s4,
           AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
         ),
         child: Column(
