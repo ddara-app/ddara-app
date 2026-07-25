@@ -35,37 +35,41 @@ class NotificationPage extends ConsumerWidget {
     );
   }
 
+  /// 조회 결과에 따라 화면을 분기한다.
+  /// 로딩 → 인디케이터 / 에러 → 안내 / 알림 없음 → 빈 상태 / 있으면 목록.
   Widget _body(BuildContext context, NotificationState state) {
-    // 첫 조회 중: 로딩 인디케이터.
-    if (state.isLoading) {
-      return const Center(child: CupertinoActivityIndicator());
-    }
+    final l10n = AppLocalizations.of(context);
+    return switch (state) {
+      NotificationLoading() => const Center(
+        child: CupertinoActivityIndicator(),
+      ),
+      NotificationLoadError() => Center(
+        child: AppText.body(l10n.notificationLoadFailed),
+      ),
+      NotificationLoaded(:final items, :final blockedUserIds) => items.isEmpty
+          ? const Center(child: NotificationEmpty())
+          : _list(context, items, blockedUserIds),
+    };
+  }
 
-    // 조회 실패: 에러 메시지.
-    if (state.errorMessage.isNotEmpty) {
-      return Center(child: AppText.body(state.errorMessage));
-    }
-
-    // 알림이 없으면 빈 상태 화면을 중앙에 보여준다.
-    if (state.isEmpty) {
-      return const Center(child: NotificationEmpty());
-    }
-
-    // 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
+  /// 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
+  Widget _list(
+    BuildContext context,
+    List<NotificationItem> items,
+    Set<int> blockedUserIds,
+  ) {
     return LazyRevealList(
-      items: state.items,
+      items: items,
       pageSize: _pageSize,
-      // 카테고리를 바꾸면 목록이 새로 조회되므로 첫 페이지부터 다시 드러낸다.
-      resetKey: state.category,
       builder: (context, visibleItems) => SingleChildScrollView(
         // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
         physics: const ClampingScrollPhysics(),
-        // 상단 s3, 좌우 s5, 하단 s6 + Safe Area 인셋 여백. (마지막 알림이
+        // 상단 s3, 좌우 s4, 하단 s6 + Safe Area 인셋 여백. (마지막 알림이
         // 홈 인디케이터와 겹치지 않도록)
         padding: EdgeInsets.fromLTRB(
-          AppSpacing.s5,
+          AppSpacing.s4,
           AppSpacing.s3,
-          AppSpacing.s5,
+          AppSpacing.s4,
           AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
         ),
         child: Column(
@@ -75,7 +79,7 @@ class NotificationPage extends ConsumerWidget {
             for (final notification in visibleItems)
               NotificationTile(
                 item: notification,
-                blockedUserIds: state.blockedUserIds,
+                blockedUserIds: blockedUserIds,
                 onTap: _onTap(context, notification),
               ),
           ],

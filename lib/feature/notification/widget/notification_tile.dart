@@ -108,31 +108,16 @@ class _NotificationThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final url = imageUrl;
-
     if (bare) {
       // 박스 없이 이미지만. (로고가 잘리지 않도록 contain)
       return SizedBox(
         width: _thumbnailSize,
         height: _thumbnailSize,
-        child: (url == null || url.isEmpty)
-            ? SvgPicture.asset(_defaultThumbnailAsset)
-            : CachedNetworkImage(
-                imageUrl: url,
-                fit: BoxFit.contain,
-                // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
-                memCacheWidth:
-                    (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
-                        .round(),
-                // 로딩 중·로드 실패 모두 기본 썸네일로 대체한다.
-                placeholder: (context, url) =>
-                    SvgPicture.asset(_defaultThumbnailAsset),
-                errorWidget: (context, url, error) =>
-                    SvgPicture.asset(_defaultThumbnailAsset),
-              ),
+        child: _image(context, fit: BoxFit.contain),
       );
     }
 
+    // 박스(bg-base 배경 + 라운드)에 이미지를 채운다. (잘림 방지 clip)
     return Container(
       width: _thumbnailSize,
       height: _thumbnailSize,
@@ -143,21 +128,26 @@ class _NotificationThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.xs),
         ),
       ),
-      child: (url == null || url.isEmpty)
-          ? SvgPicture.asset(_defaultThumbnailAsset)
-          : CachedNetworkImage(
-              imageUrl: url,
-              fit: BoxFit.cover,
-              // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
-              memCacheWidth:
-                  (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
-                      .round(),
-              // 로딩 중·로드 실패 모두 기본 썸네일로 대체한다.
-              placeholder: (context, url) =>
-                  SvgPicture.asset(_defaultThumbnailAsset),
-              errorWidget: (context, url, error) =>
-                  SvgPicture.asset(_defaultThumbnailAsset),
-            ),
+      child: _image(context, fit: BoxFit.cover),
+    );
+  }
+
+  /// payload 이미지를 [fit] 으로 그린다.
+  /// url 이 없거나 로딩 중·로드 실패면 모두 기본 썸네일로 대체한다.
+  Widget _image(BuildContext context, {required BoxFit fit}) {
+    final url = imageUrl;
+    if (url == null || url.isEmpty) {
+      return SvgPicture.asset(_defaultThumbnailAsset);
+    }
+    return CachedNetworkImage(
+      imageUrl: url,
+      fit: fit,
+      // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
+      memCacheWidth: (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
+          .round(),
+      placeholder: (context, url) => SvgPicture.asset(_defaultThumbnailAsset),
+      errorWidget: (context, url, error) =>
+          SvgPicture.asset(_defaultThumbnailAsset),
     );
   }
 }
