@@ -46,29 +46,44 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
     super.dispose();
   }
 
+  /// 게시 확인을 받고 촬영본을 올린다. 성공하면 방금 만들어진 사이클로 이동한다.
+  /// (실패 시 notifier 가 errorMessage 를 채우고 화면이 토스트로 안내한다)
+  Future<void> _upload() async {
+    final l10n = AppLocalizations.of(context);
+    // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.photoPostWarningTitle,
+      confirmLabel: l10n.commonConfirm,
+    );
+    if (!confirmed || !mounted) return;
+
+    final cycleId = await ref
+        .read(starterNotifierProvider.notifier)
+        .upload(widget.groupId);
+    if (cycleId == null || !mounted) return;
+
+    MixpanelManager.instance.track(
+      'starter_photo_posted',
+      properties: {'group_id': widget.groupId, 'cycle_id': cycleId},
+    );
+    // 새 사이클이 생겼으므로 스택 아래 모임 상세를 무효화해, 갤러리에서
+    // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.
+    ref.invalidate(group_detail.groupPageNotifierProvider(widget.groupId));
+    // 게시 후에는 스타터로 돌아가지 않도록 화면을 교체한다.
+    context.pushReplacement(RoutePath.follower, extra: cycleId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final notifier = ref.read(starterNotifierProvider.notifier);
 
-    // 업로드 결과를 감지해 에러는 토스트로, 성공은 시작 화면 이동으로 처리한다.
+    // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
     ref.listen(starterNotifierProvider, (prev, next) {
       if (next.errorMessage.isNotEmpty) {
         Toast.showToast(context, next.errorMessage, type: ToastType.error);
         notifier.clearError();
-      }
-
-      final cycleId = next.uploadedCycleId;
-      if (prev?.uploadedCycleId == null && cycleId != null) {
-        MixpanelManager.instance.track(
-          'starter_photo_posted',
-          properties: {'group_id': widget.groupId, 'cycle_id': cycleId},
-        );
-        // 새 사이클이 생겼으므로 스택 아래 모임 상세를 무효화해, 갤러리에서
-        // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.
-        ref.invalidate(group_detail.groupPageNotifierProvider(widget.groupId));
-        // 게시 후에는 스타터로 돌아가지 않도록 화면을 교체한다.
-        context.pushReplacement(RoutePath.follower, extra: cycleId);
       }
     });
 
@@ -166,16 +181,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
                                           concept.trim().isNotEmpty &&
                                           conceptError == null &&
                                           !isLoading
-                                      ? () async {
-                                          // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
-                                          final ok = await AppDialog.show(
-                                            context,
-                                            title: l10n.photoPostWarningTitle,
-                                            confirmLabel: l10n.commonConfirm,
-                                          );
-                                          if (!ok) return;
-                                          await notifier.upload(widget.groupId);
-                                        }
+                                      ? _upload
                                       : null,
                                 ),
                               ),
