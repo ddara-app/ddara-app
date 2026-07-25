@@ -331,7 +331,10 @@ class GroupPage extends ConsumerWidget {
   ) {
     final l10n = AppLocalizations.of(context);
     // 현재 사용자 id. (본인 프로필에는 신고·차단 메뉴를 띄우지 않기 위함)
-    final myUserId = ref.watch(currentProfileProvider).valueOrNull?.id;
+    // id 만 보므로 닉네임·이미지 변경으로는 다시 그리지 않는다.
+    final myUserId = ref.watch(
+      currentProfileProvider.select((profile) => profile.valueOrNull?.id),
+    );
     return Column(
       // 상단부터 쌓되 가로는 중앙 정렬.
       mainAxisAlignment: MainAxisAlignment.start,
