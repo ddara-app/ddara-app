@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
@@ -13,6 +12,44 @@ import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+/// [StartedHeader] 가 그리는 데 필요한 값만 담은 표시용 정보.
+///
+/// 화면마다 원본 모델이 다르므로(모임 상세: `GroupCycle`, 갤러리:
+/// `CycleGallery`) 헤더는 도메인 모델 대신 이 객체만 받는다. 헤더가 쓰지
+/// 않는 필드를 억지로 채워 넣을 필요가 없다.
+class StarterHeaderInfo {
+  const StarterHeaderInfo({
+    required this.topic,
+    required this.starterNickname,
+    required this.imageUrl,
+    required this.imageUnderReview,
+    required this.isDone,
+    required this.deadlineAt,
+    required this.participantCount,
+  });
+
+  /// 따라찍기 주제.
+  final String topic;
+
+  /// 스타터 닉네임. (우/좌상단 안내 칩)
+  final String starterNickname;
+
+  /// 대표로 보여줄 스타터 사진 URL. 없으면 빈 자리표시를 보여준다.
+  final String? imageUrl;
+
+  /// 스타터 사진이 신고 접수로 검토 중인지 여부.
+  final bool imageUnderReview;
+
+  /// 마감된 회차인지 여부. (진행 중이면 남은 시간을 함께 보여준다)
+  final bool isDone;
+
+  /// 마감 시각. (남은 시간 계산)
+  final DateTime deadlineAt;
+
+  /// 이번 회차에 사진을 올린 인원. (스타터 포함)
+  final int participantCount;
+}
+
 /// 모임에 따라찍기가 시작된 뒤 상단에 보여주는 헤더. ([EmptyHeader] 의 반대 상태)
 ///
 /// 대표 이미지를 중심으로 구성하며, 우측 하단 토글 버튼으로 펼침/접힘을 전환한다.
@@ -20,8 +57,7 @@ import 'package:flutter/material.dart';
 class StartedHeader extends StatefulWidget {
   const StartedHeader({
     super.key,
-    required this.imageUri,
-    required this.progress,
+    required this.info,
     this.onImageTap,
     this.onComment,
     this.onReport,
@@ -30,11 +66,8 @@ class StartedHeader extends StatefulWidget {
     this.memberCount,
   });
 
-  /// 대표로 보여줄 이미지 URI.
-  final String imageUri;
-
-  /// 진행 중인 따라찍기(사이클) 정보.
-  final GroupCycle progress;
+  /// 헤더에 그릴 진행 정보.
+  final StarterHeaderInfo info;
 
   /// 모임 총원. 지정하면 진행 상태 우측에 참여 인원(아이콘 + n/총원)을 보여준다.
   /// null 이면 참여 인원 칩을 숨긴다.
@@ -78,8 +111,11 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 오버레이에 띄울 헤더 사본 크기. (메뉴를 열 때 측정)
   Size? _copySize;
 
+  /// 대표로 보여줄 스타터 사진 URL. 없으면 빈 문자열.
+  String get _imageUrl => widget.info.imageUrl ?? '';
+
   /// 스타터 사진이 신고 접수로 검토 중인지 여부.
-  bool get _underReview => widget.progress.starterImageUnderReview;
+  bool get _underReview => widget.info.imageUnderReview;
 
   /// 사진을 자리표시로 가려야 하는 상태인지. (차단 또는 검토 중)
   bool get _obscured => widget.starterBlocked || _underReview;
@@ -90,7 +126,7 @@ class _StartedHeaderState extends State<StartedHeader> {
   bool get _canOpenMenu =>
       (widget.onReport != null || widget.onBlock != null) &&
       !_obscured &&
-      widget.imageUri.isNotEmpty;
+      _imageUrl.isNotEmpty;
 
   /// 우상단 댓글 버튼을 그리는 상태인지.
   /// (가려진 사진은 크게 보기가 막히므로 버튼도 숨긴다)
@@ -284,9 +320,7 @@ class _StartedHeaderState extends State<StartedHeader> {
                     : Alignment.topRight,
                 child: _pill(
                   child: AppText.caption(
-                    l10n.startedHeaderStarterChip(
-                      widget.progress.starterNickname,
-                    ),
+                    l10n.startedHeaderStarterChip(widget.info.starterNickname),
                     color: AppColors.textPrimary,
                   ),
                 ),
@@ -403,7 +437,7 @@ class _StartedHeaderState extends State<StartedHeader> {
                         ),
                         const SizedBox(width: AppSpacing.s1),
                         AppText.caption(
-                          '${widget.progress.uploadedUserIds.length + 1}'
+                          '${widget.info.participantCount}'
                           '/${widget.memberCount}',
                           color: AppColors.textPrimary,
                         ),
@@ -411,10 +445,7 @@ class _StartedHeaderState extends State<StartedHeader> {
                     ],
                   ),
                 ),
-                AppText.display(
-                  widget.progress.topic,
-                  textAlign: TextAlign.left,
-                ),
+                AppText.display(widget.info.topic, textAlign: TextAlign.left),
               ],
             ),
           ),
@@ -445,7 +476,7 @@ class _StartedHeaderState extends State<StartedHeader> {
         message: AppLocalizations.of(context).photoUnderReviewPlaceholder,
       );
     }
-    final url = widget.imageUri;
+    final url = _imageUrl;
     if (url.isEmpty) {
       return const EmptyThumbnail();
     }
@@ -476,12 +507,10 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 마감(done)된 회차는 '마감'만, 진행 중이면 '진행 중 · N 남음'을 보여준다.
   String _statusText() {
     final l10n = AppLocalizations.of(context);
-    if (widget.progress.status.toLowerCase() == 'done') {
+    if (widget.info.isDone) {
       return l10n.remainingDeadline; // '마감'
     }
-    return l10n.startedHeaderRemaining(
-      _remainingText(widget.progress.deadlineAt),
-    );
+    return l10n.startedHeaderRemaining(_remainingText(widget.info.deadlineAt));
   }
 
   /// 마감(deadline)까지 남은 시간 표시 문자열. ('14시간' / '30분' / '마감')

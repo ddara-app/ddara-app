@@ -5,17 +5,16 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/gallery/widget/photo_report_sheet.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
+import 'package:ddara/feature/group/widget/started_header.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -183,8 +182,21 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         spacing: AppSpacing.s4,
         children: [
           StartedHeader(
-            imageUri: cycle.starterImageUrl ?? '',
-            progress: _toGroupCycle(gallery),
+            info: StarterHeaderInfo(
+              topic: cycle.topic,
+              starterNickname: cycle.starterNickname,
+              imageUrl: cycle.starterImageUrl,
+              imageUnderReview: cycle.starterImageUnderReview,
+              isDone: isDoneCycle,
+              deadlineAt: cycle.deadlineAt,
+              // 사진을 올린 멤버(스타터 제외) + 스타터 본인.
+              // 모임 페이지와 같은 기준으로 참여 인원을 센다.
+              participantCount:
+                  gallery.members
+                      .where((m) => !m.isStarter && m.uploadedAt != null)
+                      .length +
+                  1,
+            ),
             starterBlocked: starterBlocked,
             // 모임 페이지와 동일하게 참여 인원(n/총원)을 표시한다.
             memberCount: gallery.members.length,
@@ -500,31 +512,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     if (!success || !context.mounted) return;
 
     Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
-  }
-
-  /// [StartedHeader] 가 요구하는 [GroupCycle] 로 변환한다.
-  /// (헤더는 회차·주제·스타터·마감만 쓰므로 응답에 없는 값은 기본값으로 채운다)
-  GroupCycle _toGroupCycle(CycleGallery gallery) {
-    final cycle = gallery.cycle;
-    return GroupCycle(
-      cycleId: cycle.cycleId,
-      cycleNumber: cycle.cycleNumber,
-      topic: cycle.topic,
-      starterUserId: cycle.starterUserId,
-      starterNickname: cycle.starterNickname,
-      starterImageUrl: cycle.starterImageUrl,
-      starterImageUnderReview: cycle.starterImageUnderReview,
-      status: cycle.status,
-      // 응답에 시작 시각이 없어 마감 시각으로 채운다. (헤더에서 쓰지 않음)
-      startedAt: cycle.deadlineAt,
-      deadlineAt: cycle.deadlineAt,
-      // 참여 인원 표시용: 스타터를 제외하고 이번 사이클에 사진을 올린 멤버.
-      // (헤더가 스타터 +1 로 참여자 수를 계산하므로 모임 페이지와 동일하게 맞춘다)
-      uploadedUserIds: gallery.members
-          .where((member) => !member.isStarter && member.uploadedAt != null)
-          .map((member) => member.userId)
-          .toList(),
-    );
   }
 }
 

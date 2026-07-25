@@ -2,7 +2,7 @@ import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/feature/group/detail/widget/header/empty_header.dart';
-import 'package:ddara/feature/group/detail/widget/header/started_header.dart';
+import 'package:ddara/feature/group/widget/started_header.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -69,8 +69,16 @@ class GroupHeader extends StatelessWidget {
       children: [
         // 사진 신고는 갤러리에서만 지원하므로 onReport 는 연결하지 않는다.
         StartedHeader(
-          imageUri: cycle.starterImageUrl ?? "",
-          progress: cycle,
+          info: StarterHeaderInfo(
+            topic: cycle.topic,
+            starterNickname: cycle.starterNickname,
+            imageUrl: cycle.starterImageUrl,
+            imageUnderReview: cycle.starterImageUnderReview,
+            isDone: cycle.status.toLowerCase() == 'done',
+            deadlineAt: cycle.deadlineAt,
+            // 사진을 올린 멤버 + 스타터 본인.
+            participantCount: cycle.uploadedUserIds.length + 1,
+          ),
           starterBlocked: starterBlocked,
           memberCount: memberCount,
         ),
