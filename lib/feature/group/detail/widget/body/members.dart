@@ -2,30 +2,9 @@ import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/widget/circle_avatar_label.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
-
-/// 멤버 아바타·추가 버튼의 원 지름.
-const double _circleSize = 60;
-
-/// 차단한 멤버 닉네임 취소선 굵기. (폰트 기본 굵기의 배수)
-const double _blockedStrikeThickness = 2.0;
-
-/// 이름 라벨을 그대로 보여줄 최대 글자 수. (6자까지는 줄이지 않는다)
-const int _maxNameLength = 6;
-
-/// 줄일 때 남기는 글자 수. (7자 이상이면 앞 5자 + 말줄임표)
-const int _truncatedNameLength = 5;
-
-/// [name] 이 [_maxNameLength] 자를 초과하면 앞 [_truncatedNameLength] 자
-/// + 말줄임표(…)로 줄인다.
-///
-/// 이모지 등 서로게이트 쌍이 잘리지 않도록 자소(grapheme) 단위로 센다.
-String _ellipsizeName(String name) {
-  final chars = name.characters;
-  if (chars.length <= _maxNameLength) return name;
-  return '${chars.take(_truncatedNameLength)}…';
-}
 
 /// 모임 멤버 한 명의 표시 데이터.
 ///
@@ -105,7 +84,7 @@ class _MemberAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final label = _ellipsizeName(member.name);
+    final label = ellipsizeName(member.name);
 
     // 차단한 멤버는 기본 프로필 아이콘 + 취소선 닉네임으로 표시한다.
     final imageUrl = member.isBlocked ? null : member.imageUrl;
@@ -115,10 +94,13 @@ class _MemberAvatar extends StatelessWidget {
 
     // 본인 프로필은 신고·차단 대상이 아니므로 메뉴 없이 아바타만 보여준다.
     if (member.isMe) {
-      return _CircleLabel(
+      return CircleAvatarLabel(
         label: label,
         labelDecoration: labelDecoration,
-        child: ProfileAvatar(size: _circleSize, imageUrl: imageUrl),
+        child: ProfileAvatar(
+          size: CircleAvatarLabel.circleSize,
+          imageUrl: imageUrl,
+        ),
       );
     }
 
@@ -135,22 +117,19 @@ class _MemberAvatar extends StatelessWidget {
       ),
     ];
 
-    return _CircleLabel(
+    return _MenuAvatar(
       label: label,
       labelDecoration: labelDecoration,
-      child: _MenuAvatar(
-        label: label,
-        labelDecoration: labelDecoration,
-        imageUrl: imageUrl,
-        actions: actions,
-      ),
+      imageUrl: imageUrl,
+      actions: actions,
     );
   }
 }
 
-/// 롱프레스하면 아바타 위쪽에 컨텍스트 메뉴(오버레이)를 띄우는 원형 아바타.
+/// 롱프레스하면 위쪽에 컨텍스트 메뉴(오버레이)를 띄우는 아바타 + 이름 라벨.
 ///
-/// 아바타에 앵커된 작은 메뉴로, 바깥을 탭하면 닫힌다.
+/// 아바타에 앵커된 작은 메뉴로, 바깥을 탭하면 닫힌다. 메뉴가 열리면 대상
+/// 아바타·라벨 사본을 스크림 위로 띄워 선명하게 유지한다.
 class _MenuAvatar extends StatefulWidget {
   const _MenuAvatar({
     required this.label,
@@ -159,10 +138,10 @@ class _MenuAvatar extends StatefulWidget {
     this.labelDecoration,
   });
 
-  /// 아바타 아래 라벨. (오버레이에서 블러 없이 유지 — 원본 라벨과 동일 문자열)
+  /// 아바타 아래 라벨.
   final String label;
 
-  /// 라벨 글자 장식. (원본 라벨과 동일하게 유지 — 예: 차단 멤버 취소선)
+  /// 라벨 글자 장식. (예: 차단 멤버 취소선)
   final TextDecoration? labelDecoration;
 
   final String? imageUrl;
@@ -214,31 +193,14 @@ class _MenuAvatarState extends State<_MenuAvatar> {
   Widget _buildOverlay(BuildContext dialogContext) {
     return Stack(
       children: [
-        // 대상 아바타 사본을 스크림 위로 띄워 선명하게 유지한다.
-        // (원본 위치에 정확히 겹치므로 아바타만 떠오른 것처럼 보인다)
+        // 대상 아바타·라벨 사본을 스크림 위로 띄워 선명하게 유지한다.
+        // 원본과 같은 위젯을 그대로 쓰므로 위치·간격을 따로 맞출 필요가 없다.
+        // (원본 위에 정확히 겹쳐 아바타만 떠오른 것처럼 보인다)
         CompositedTransformFollower(
           link: _link,
           targetAnchor: Alignment.topLeft,
           followerAnchor: Alignment.topLeft,
-          child: IgnorePointer(
-            child: ProfileAvatar(size: _circleSize, imageUrl: widget.imageUrl),
-          ),
-        ),
-        // 아바타 아래 이름 라벨 사본도 스크림 위로 띄워 블러 없이 유지한다.
-        // (원본 라벨 위치 — 아바타 아래 s2 여백, 가로 중앙 — 에 정확히 겹친다)
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: Alignment.bottomCenter,
-          followerAnchor: Alignment.topCenter,
-          offset: const Offset(0, AppSpacing.s2),
-          // 원본 라벨과 동일한 문자열·장식을 써야 사본이 정확히 겹친다.
-          child: IgnorePointer(
-            child: AppText.caption(
-              widget.label,
-              decoration: widget.labelDecoration,
-              decorationThickness: _blockedStrikeThickness,
-            ),
-          ),
+          child: IgnorePointer(child: _avatarLabel()),
         ),
         // 아바타 위쪽(좌측 정렬)에 앵커. (아바타 위로 s2 만큼 띄움)
         CompositedTransformFollower(
@@ -295,14 +257,23 @@ class _MenuAvatarState extends State<_MenuAvatar> {
     );
   }
 
+  /// 아바타 + 이름 라벨. 원본과 오버레이 사본이 같은 위젯을 쓴다.
+  Widget _avatarLabel() {
+    return CircleAvatarLabel(
+      label: widget.label,
+      labelDecoration: widget.labelDecoration,
+      child: ProfileAvatar(
+        size: CircleAvatarLabel.circleSize,
+        imageUrl: widget.imageUrl,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: _link,
-      child: GestureDetector(
-        onLongPress: _open,
-        child: ProfileAvatar(size: _circleSize, imageUrl: widget.imageUrl),
-      ),
+      child: GestureDetector(onLongPress: _open, child: _avatarLabel()),
     );
   }
 }
@@ -315,62 +286,14 @@ class _AddMemberButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _CircleLabel(
+    return CircleAvatarLabel(
       label: AppLocalizations.of(context).groupMembersAdd,
       onTap: onPressed,
       child: const SizedBox(
-        width: _circleSize,
-        height: _circleSize,
-        child: AppIcon(
-          AppIcons.add,
-          size: 28,
-          color: AppColors.textPrimary,
-        ),
+        width: CircleAvatarLabel.circleSize,
+        height: CircleAvatarLabel.circleSize,
+        child: AppIcon(AppIcons.add, size: 28, color: AppColors.textPrimary),
       ),
-    );
-  }
-}
-
-/// [child](원형 콘텐츠) 아래 caption 라벨을 둔 공통 레이아웃.
-///
-/// [onTap] 을 주면 [child] 영역이 버튼이 된다.
-class _CircleLabel extends StatelessWidget {
-  const _CircleLabel({
-    required this.child,
-    required this.label,
-    this.labelDecoration,
-    this.onTap,
-  });
-
-  final Widget child;
-  final String label;
-
-  /// 라벨 글자 장식. (예: 차단 멤버 취소선)
-  final TextDecoration? labelDecoration;
-
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      spacing: AppSpacing.s2,
-      children: [
-        if (onTap != null)
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            onPressed: onTap,
-            child: child,
-          )
-        else
-          child,
-        AppText.caption(
-          label,
-          decoration: labelDecoration,
-          decorationThickness: _blockedStrikeThickness,
-        ),
-      ],
     );
   }
 }
