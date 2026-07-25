@@ -34,11 +34,15 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
   }
 
   /// 촬영본을 presigned URL로 S3에 올리고 새 사이클을 시작한다.
-  /// 성공 시 [StarterState.uploadedCycleId] 에 생성된 사이클 id 를 담는다.
-  Future<void> upload(int groupId) async {
+  /// 성공하면 생성된 사이클 id 를, 실패하면 null 을 반환한다.
+  /// (실패 사유는 [StarterState.errorMessage] 로 내려 화면이 토스트로 안내한다)
+  ///
+  /// 성공 후 이동은 일회성 이벤트라 상태에 남기지 않고 반환값으로 넘긴다 —
+  /// 호출부가 결과를 받아 직접 화면을 전환한다.
+  Future<int?> upload(int groupId) async {
     final photoPath = state.photoPath;
     // 촬영 전이거나 이미 전송 중이면 무시한다. (중복 전송 방지)
-    if (state.isLoading || photoPath == null) return;
+    if (state.isLoading || photoPath == null) return null;
 
     state = state.copyWith(isLoading: true, errorMessage: '');
     final useCase = ref.read(starterUploadUseCase);
@@ -50,10 +54,8 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
         photoPath,
       );
 
-      state = state.copyWith(
-        isLoading: false,
-        uploadedCycleId: result.cycleId,
-      );
+      state = state.copyWith(isLoading: false);
+      return result.cycleId;
     } on InvalidStarterInputException {
       state = state.copyWith(
         isLoading: false,
@@ -94,6 +96,15 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
         isLoading: false,
         errorMessage: '네트워크 연결이 불안정합니다.',
       );
+    } catch (_) {
+      // 위에 나열되지 않은 오류(파일 IO 실패·매퍼 캐스트 오류 등).
+      // 여기서 잡지 않으면 isLoading 이 true 로 남아 로딩 오버레이가 화면을
+      // 계속 덮은 채 아무것도 할 수 없게 된다.
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '따라찍기를 시작하지 못했어요.',
+      );
     }
+    return null;
   }
 }
