@@ -34,7 +34,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       // 차단 목록 조회는 내부에서 실패를 삼키므로 실패는 목록 조회 쪽뿐이다)
       final (groupList, blockedUserIds) = await (
         getGroupListUseCase(),
-        _loadBlockedUserIds(),
+        ref.read(getBlockedUserIdsUseCaseProvider)(),
       ).wait;
       _update(
         (_) => HomeLoaded(
@@ -67,17 +67,4 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   /// 모임 목록·차단 목록을 다시 조회한다. (당겨서 새로고침)
   /// 실패 시 보던 목록 유지는 [_load] 가 처리한다.
   Future<void> refresh() => _load();
-
-  /// 내가 차단한 사용자 userId 집합을 조회한다.
-  ///
-  /// 차단 목록 조회가 실패해도 화면(홈)을 막지 않도록, 실패 시 빈 집합으로
-  /// 대체한다. (썸네일 가림이 한 번 빠질 뿐 치명적이지 않다)
-  Future<Set<int>> _loadBlockedUserIds() async {
-    try {
-      final blockedUsers = await ref.read(getBlockedUsersUseCaseProvider)();
-      return blockedUsers.users.map((user) => user.userId).toSet();
-    } catch (_) {
-      return const {};
-    }
-  }
 }
