@@ -55,8 +55,6 @@ class NotificationPage extends ConsumerWidget {
     return LazyRevealList(
       items: state.items,
       pageSize: _pageSize,
-      // 카테고리를 바꾸면 목록이 새로 조회되므로 첫 페이지부터 다시 드러낸다.
-      resetKey: state.category,
       builder: (context, visibleItems) => SingleChildScrollView(
         // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
         physics: const ClampingScrollPhysics(),
