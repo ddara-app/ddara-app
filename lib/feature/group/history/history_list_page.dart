@@ -120,12 +120,13 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       onTap: () => setState(() => _pickerVisible = !_pickerVisible),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         spacing: AppSpacing.s1,
         children: [
           AppText.headlineMedium(label),
           AppIcon(
             _pickerVisible ? AppIcons.chevronUp : AppIcons.chevronDown,
-            size: 24,
+            size: 20,
             color: AppColors.textPrimary,
           ),
         ],
