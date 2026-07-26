@@ -273,10 +273,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       // 스타터 랜덤 지정 공개 모션. CTA 는 공개된 스타터(GroupMember)를
       // 결과로 pop 하므로, 이후 진행은 push 한 호출부가 결정한다.
+      //
+      // 모임 진입 직후 자동으로 열리는 화면이라, 슬라이드로 밀고 들어오면
+      // 사용자가 누르지 않은 이동처럼 느껴진다. 페이드로 부드럽게 전환한다.
       GoRoute(
         path: RoutePath.randomStarter,
-        builder: (_, state) =>
-            RandomStarterPage(args: state.extra! as RandomStarterArgs),
+        pageBuilder: (_, state) => CustomTransitionPage(
+          key: state.pageKey,
+          transitionDuration: const Duration(milliseconds: 400),
+          transitionsBuilder: (_, animation, _, child) => FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            child: child,
+          ),
+          child: RandomStarterPage(args: state.extra! as RandomStarterArgs),
+        ),
       ),
       GoRoute(
         path: RoutePath.followerCamera,

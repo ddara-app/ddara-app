@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
-import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
@@ -53,6 +52,9 @@ class RandomStarterPage extends ConsumerStatefulWidget {
 
 class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
     with TickerProviderStateMixin {
+  /// 확인 버튼이 나타나는 페이드 길이.
+  static const _ctaFadeDuration = Duration(milliseconds: 250);
+
   late final AnimationController _slotController = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 2520),
@@ -222,8 +224,8 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
+    // AppBar 없이 본문만 두고, 배경은 스캐폴드의 기본 배경을 그대로 쓴다.
     return CupertinoPageScaffold(
-      navigationBar: AppBar(title: l10n.randomStarterTitle),
       child: SafeArea(
         child: _starter == null
             ? Center(child: AppText.body(l10n.randomStarterLoadFailed))
@@ -240,12 +242,16 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
                             child: _buildHero(),
                           ),
                         ),
+                        // 다시보기는 당분간 노출하지 않는다. (기능은 유지)
                         Positioned(
                           right: AppSpacing.s4,
                           bottom: AppSpacing.s6,
-                          child: AppTextButton.body(
-                            label: l10n.randomStarterReplay,
-                            onPressed: _done ? _play : null,
+                          child: Visibility(
+                            visible: false,
+                            child: AppTextButton.body(
+                              label: l10n.randomStarterReplay,
+                              onPressed: _done ? _play : null,
+                            ),
                           ),
                         ),
                       ],
@@ -258,9 +264,16 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
                       AppSpacing.s4,
                       AppSpacing.s6,
                     ),
-                    child: AppButton(
-                      label: l10n.commonConfirm,
-                      onPressed: _done ? _onStartPressed : null,
+                    // 공개 모션이 끝나기 전에는 비활성 버튼을 보여주는 대신
+                    // 아예 감춰 두고, 끝나는 순간 페이드로 나타낸다.
+                    // (자리는 항상 차지해 나타날 때 본문이 밀리지 않는다)
+                    child: AnimatedOpacity(
+                      duration: _ctaFadeDuration,
+                      opacity: _done ? 1 : 0,
+                      child: AppButton(
+                        label: l10n.commonConfirm,
+                        onPressed: _done ? _onStartPressed : null,
+                      ),
                     ),
                   ),
                 ],
