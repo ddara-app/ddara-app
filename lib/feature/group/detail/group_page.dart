@@ -12,6 +12,7 @@ import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/bottom_sheet/invite_share_sheet.dart';
+import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';
 import 'package:ddara/feature/group/detail/widget/body/history_photos.dart';
@@ -27,8 +28,6 @@ import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../core/widget/toast/toast.dart';
 
 /// 모임 화면. 전달받은 [groupId] 로 상세를 조회해 그린다.
 class GroupPage extends ConsumerWidget {
