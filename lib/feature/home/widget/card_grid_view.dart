@@ -84,7 +84,7 @@ class CardGridView<T> extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: AppSpacing.s3,
+                      spacing: AppSpacing.s4,
                       children: [
                         for (var i = 0; i < visibleItems.length; i += 2)
                           cardBuilder(context, visibleItems[i]),
@@ -95,7 +95,7 @@ class CardGridView<T> extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: AppSpacing.s3,
+                      spacing: AppSpacing.s4,
                       children: [
                         // 지그재그 오프셋용 고정 위젯. (내용은 탭별로 주입)
                         dashboard,
