@@ -22,6 +22,8 @@ abstract class Group with _$Group {
     required int? thumbnailUserId,
     // 진행 중인 사이클이 없으면 null.
     required CurrentCycle? currentCycle,
+    // 내가 다음 스타터로 지정돼 카드를 강조해야 하는지 여부.
+    required bool showStarterBorder,
   }) = _Group;
 }
 

@@ -288,7 +288,8 @@ mixin _$GroupResponse {
  String? get thumbnailUrl;// 썸네일이 신고 접수로 검토 중인지 여부.
  bool get thumbnailUnderReview;// 썸네일을 올린 사용자의 userId. 썸네일이 없으면 null.
  int? get thumbnailUserId;// 진행 중인 사이클이 없으면 null.
- CurrentCycleResponse? get currentCycle; DateTime get createdAt;
+ CurrentCycleResponse? get currentCycle; DateTime get createdAt;// 내가 다음 스타터로 지정돼 카드를 강조해야 하는지 여부.
+ bool get showStarterBorder;
 /// Create a copy of GroupResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -301,16 +302,16 @@ $GroupResponseCopyWith<GroupResponse> get copyWith => _$GroupResponseCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.ownerNickname, ownerNickname) || other.ownerNickname == ownerNickname)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.thumbnailUnderReview, thumbnailUnderReview) || other.thumbnailUnderReview == thumbnailUnderReview)&&(identical(other.thumbnailUserId, thumbnailUserId) || other.thumbnailUserId == thumbnailUserId)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.ownerNickname, ownerNickname) || other.ownerNickname == ownerNickname)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.thumbnailUnderReview, thumbnailUnderReview) || other.thumbnailUnderReview == thumbnailUnderReview)&&(identical(other.thumbnailUserId, thumbnailUserId) || other.thumbnailUserId == thumbnailUserId)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.showStarterBorder, showStarterBorder) || other.showStarterBorder == showStarterBorder));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,groupId,name,ownerNickname,memberCount,thumbnailUrl,thumbnailUnderReview,thumbnailUserId,currentCycle,createdAt);
+int get hashCode => Object.hash(runtimeType,groupId,name,ownerNickname,memberCount,thumbnailUrl,thumbnailUnderReview,thumbnailUserId,currentCycle,createdAt,showStarterBorder);
 
 @override
 String toString() {
-  return 'GroupResponse(groupId: $groupId, name: $name, ownerNickname: $ownerNickname, memberCount: $memberCount, thumbnailUrl: $thumbnailUrl, thumbnailUnderReview: $thumbnailUnderReview, thumbnailUserId: $thumbnailUserId, currentCycle: $currentCycle, createdAt: $createdAt)';
+  return 'GroupResponse(groupId: $groupId, name: $name, ownerNickname: $ownerNickname, memberCount: $memberCount, thumbnailUrl: $thumbnailUrl, thumbnailUnderReview: $thumbnailUnderReview, thumbnailUserId: $thumbnailUserId, currentCycle: $currentCycle, createdAt: $createdAt, showStarterBorder: $showStarterBorder)';
 }
 
 
@@ -321,7 +322,7 @@ abstract mixin class $GroupResponseCopyWith<$Res>  {
   factory $GroupResponseCopyWith(GroupResponse value, $Res Function(GroupResponse) _then) = _$GroupResponseCopyWithImpl;
 @useResult
 $Res call({
- int groupId, String name, String ownerNickname, int memberCount, String? thumbnailUrl, bool thumbnailUnderReview, int? thumbnailUserId, CurrentCycleResponse? currentCycle, DateTime createdAt
+ int groupId, String name, String ownerNickname, int memberCount, String? thumbnailUrl, bool thumbnailUnderReview, int? thumbnailUserId, CurrentCycleResponse? currentCycle, DateTime createdAt, bool showStarterBorder
 });
 
 
@@ -338,7 +339,7 @@ class _$GroupResponseCopyWithImpl<$Res>
 
 /// Create a copy of GroupResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? groupId = null,Object? name = null,Object? ownerNickname = null,Object? memberCount = null,Object? thumbnailUrl = freezed,Object? thumbnailUnderReview = null,Object? thumbnailUserId = freezed,Object? currentCycle = freezed,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? groupId = null,Object? name = null,Object? ownerNickname = null,Object? memberCount = null,Object? thumbnailUrl = freezed,Object? thumbnailUnderReview = null,Object? thumbnailUserId = freezed,Object? currentCycle = freezed,Object? createdAt = null,Object? showStarterBorder = null,}) {
   return _then(_self.copyWith(
 groupId: null == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -349,7 +350,8 @@ as String?,thumbnailUnderReview: null == thumbnailUnderReview ? _self.thumbnailU
 as bool,thumbnailUserId: freezed == thumbnailUserId ? _self.thumbnailUserId : thumbnailUserId // ignore: cast_nullable_to_non_nullable
 as int?,currentCycle: freezed == currentCycle ? _self.currentCycle : currentCycle // ignore: cast_nullable_to_non_nullable
 as CurrentCycleResponse?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,showStarterBorder: null == showStarterBorder ? _self.showStarterBorder : showStarterBorder // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of GroupResponse
@@ -446,10 +448,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  bool thumbnailUnderReview,  int? thumbnailUserId,  CurrentCycleResponse? currentCycle,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  bool thumbnailUnderReview,  int? thumbnailUserId,  CurrentCycleResponse? currentCycle,  DateTime createdAt,  bool showStarterBorder)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GroupResponse() when $default != null:
-return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUnderReview,_that.thumbnailUserId,_that.currentCycle,_that.createdAt);case _:
+return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUnderReview,_that.thumbnailUserId,_that.currentCycle,_that.createdAt,_that.showStarterBorder);case _:
   return orElse();
 
 }
@@ -467,10 +469,10 @@ return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  bool thumbnailUnderReview,  int? thumbnailUserId,  CurrentCycleResponse? currentCycle,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  bool thumbnailUnderReview,  int? thumbnailUserId,  CurrentCycleResponse? currentCycle,  DateTime createdAt,  bool showStarterBorder)  $default,) {final _that = this;
 switch (_that) {
 case _GroupResponse():
-return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUnderReview,_that.thumbnailUserId,_that.currentCycle,_that.createdAt);case _:
+return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUnderReview,_that.thumbnailUserId,_that.currentCycle,_that.createdAt,_that.showStarterBorder);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -487,10 +489,10 @@ return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  bool thumbnailUnderReview,  int? thumbnailUserId,  CurrentCycleResponse? currentCycle,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int groupId,  String name,  String ownerNickname,  int memberCount,  String? thumbnailUrl,  bool thumbnailUnderReview,  int? thumbnailUserId,  CurrentCycleResponse? currentCycle,  DateTime createdAt,  bool showStarterBorder)?  $default,) {final _that = this;
 switch (_that) {
 case _GroupResponse() when $default != null:
-return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUnderReview,_that.thumbnailUserId,_that.currentCycle,_that.createdAt);case _:
+return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_that.thumbnailUrl,_that.thumbnailUnderReview,_that.thumbnailUserId,_that.currentCycle,_that.createdAt,_that.showStarterBorder);case _:
   return null;
 
 }
@@ -502,7 +504,7 @@ return $default(_that.groupId,_that.name,_that.ownerNickname,_that.memberCount,_
 @JsonSerializable()
 
 class _GroupResponse implements GroupResponse {
-  const _GroupResponse({required this.groupId, required this.name, required this.ownerNickname, required this.memberCount, required this.thumbnailUrl, required this.thumbnailUnderReview, required this.thumbnailUserId, required this.currentCycle, required this.createdAt});
+  const _GroupResponse({required this.groupId, required this.name, required this.ownerNickname, required this.memberCount, required this.thumbnailUrl, required this.thumbnailUnderReview, required this.thumbnailUserId, required this.currentCycle, required this.createdAt, this.showStarterBorder = false});
   factory _GroupResponse.fromJson(Map<String, dynamic> json) => _$GroupResponseFromJson(json);
 
 @override final  int groupId;
@@ -518,6 +520,8 @@ class _GroupResponse implements GroupResponse {
 // 진행 중인 사이클이 없으면 null.
 @override final  CurrentCycleResponse? currentCycle;
 @override final  DateTime createdAt;
+// 내가 다음 스타터로 지정돼 카드를 강조해야 하는지 여부.
+@override@JsonKey() final  bool showStarterBorder;
 
 /// Create a copy of GroupResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -532,16 +536,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.ownerNickname, ownerNickname) || other.ownerNickname == ownerNickname)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.thumbnailUnderReview, thumbnailUnderReview) || other.thumbnailUnderReview == thumbnailUnderReview)&&(identical(other.thumbnailUserId, thumbnailUserId) || other.thumbnailUserId == thumbnailUserId)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupResponse&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.ownerNickname, ownerNickname) || other.ownerNickname == ownerNickname)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.thumbnailUnderReview, thumbnailUnderReview) || other.thumbnailUnderReview == thumbnailUnderReview)&&(identical(other.thumbnailUserId, thumbnailUserId) || other.thumbnailUserId == thumbnailUserId)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.showStarterBorder, showStarterBorder) || other.showStarterBorder == showStarterBorder));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,groupId,name,ownerNickname,memberCount,thumbnailUrl,thumbnailUnderReview,thumbnailUserId,currentCycle,createdAt);
+int get hashCode => Object.hash(runtimeType,groupId,name,ownerNickname,memberCount,thumbnailUrl,thumbnailUnderReview,thumbnailUserId,currentCycle,createdAt,showStarterBorder);
 
 @override
 String toString() {
-  return 'GroupResponse(groupId: $groupId, name: $name, ownerNickname: $ownerNickname, memberCount: $memberCount, thumbnailUrl: $thumbnailUrl, thumbnailUnderReview: $thumbnailUnderReview, thumbnailUserId: $thumbnailUserId, currentCycle: $currentCycle, createdAt: $createdAt)';
+  return 'GroupResponse(groupId: $groupId, name: $name, ownerNickname: $ownerNickname, memberCount: $memberCount, thumbnailUrl: $thumbnailUrl, thumbnailUnderReview: $thumbnailUnderReview, thumbnailUserId: $thumbnailUserId, currentCycle: $currentCycle, createdAt: $createdAt, showStarterBorder: $showStarterBorder)';
 }
 
 
@@ -552,7 +556,7 @@ abstract mixin class _$GroupResponseCopyWith<$Res> implements $GroupResponseCopy
   factory _$GroupResponseCopyWith(_GroupResponse value, $Res Function(_GroupResponse) _then) = __$GroupResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int groupId, String name, String ownerNickname, int memberCount, String? thumbnailUrl, bool thumbnailUnderReview, int? thumbnailUserId, CurrentCycleResponse? currentCycle, DateTime createdAt
+ int groupId, String name, String ownerNickname, int memberCount, String? thumbnailUrl, bool thumbnailUnderReview, int? thumbnailUserId, CurrentCycleResponse? currentCycle, DateTime createdAt, bool showStarterBorder
 });
 
 
@@ -569,7 +573,7 @@ class __$GroupResponseCopyWithImpl<$Res>
 
 /// Create a copy of GroupResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? groupId = null,Object? name = null,Object? ownerNickname = null,Object? memberCount = null,Object? thumbnailUrl = freezed,Object? thumbnailUnderReview = null,Object? thumbnailUserId = freezed,Object? currentCycle = freezed,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? groupId = null,Object? name = null,Object? ownerNickname = null,Object? memberCount = null,Object? thumbnailUrl = freezed,Object? thumbnailUnderReview = null,Object? thumbnailUserId = freezed,Object? currentCycle = freezed,Object? createdAt = null,Object? showStarterBorder = null,}) {
   return _then(_GroupResponse(
 groupId: null == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -580,7 +584,8 @@ as String?,thumbnailUnderReview: null == thumbnailUnderReview ? _self.thumbnailU
 as bool,thumbnailUserId: freezed == thumbnailUserId ? _self.thumbnailUserId : thumbnailUserId // ignore: cast_nullable_to_non_nullable
 as int?,currentCycle: freezed == currentCycle ? _self.currentCycle : currentCycle // ignore: cast_nullable_to_non_nullable
 as CurrentCycleResponse?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,showStarterBorder: null == showStarterBorder ? _self.showStarterBorder : showStarterBorder // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

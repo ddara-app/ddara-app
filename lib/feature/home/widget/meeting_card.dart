@@ -49,6 +49,8 @@ class MeetingCard extends StatelessWidget {
           : closed
           ? AppColors.statusClosed
           : AppColors.statusSuccess,
+      // 내가 다음 스타터로 지정된 모임은 테두리로 강조한다.
+      borderColor: group.showStarterBorder ? AppColors.borderSelected : null,
       blocked: thumbnailBlocked,
       underReview: group.thumbnailUnderReview,
       onTap: onTap,
