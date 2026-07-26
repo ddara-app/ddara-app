@@ -27,6 +27,7 @@ import 'core/notification/provider/fcm_token_sync.dart';
 import 'core/router/app_router.dart';
 import 'core/router/route_path.dart';
 import 'data/provider/repository_provider.dart';
+import 'feature/group/detail/group_page.dart';
 import 'feature/onboarding/provider/notifier_provider.dart';
 import 'firebase_options.dart';
 
@@ -203,7 +204,14 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     final groupId = int.tryParse('${data['groupId']}');
     if (groupId != null) {
-      router.push(RoutePath.group, extra: groupId);
+      // data 의 모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다.
+      router.push(
+        RoutePath.group,
+        extra: GroupPageArgs(
+          groupId: groupId,
+          groupName: data['groupName'] as String?,
+        ),
+      );
       return;
     }
 

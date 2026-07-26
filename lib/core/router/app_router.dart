@@ -170,9 +170,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: RoutePath.requiredPermission,
         builder: (_, _) => const RequiredPermissionPage(),
       ),
+      // 모임 상세. 호출부가 모임 이름을 알면 [GroupPageArgs] 로 함께 넘겨
+      // 조회 전에도 AppBar 제목이 비지 않게 한다. (id 만 아는 진입도 허용)
       GoRoute(
         path: RoutePath.group,
-        builder: (_, state) => GroupPage(groupId: state.extra! as int),
+        builder: (_, state) {
+          final extra = state.extra;
+          final args = extra is GroupPageArgs
+              ? extra
+              : GroupPageArgs(groupId: extra! as int);
+
+          return GroupPage(
+            groupId: args.groupId,
+            groupName: args.groupName,
+            hasCurrentCycle: args.hasCurrentCycle,
+            thumbnailUrl: args.thumbnailUrl,
+          );
+        },
       ),
       GoRoute(path: RoutePath.profile, builder: (_, _) => const ProfilePage()),
       GoRoute(

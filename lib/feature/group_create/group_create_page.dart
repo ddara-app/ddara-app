@@ -6,6 +6,7 @@ import 'package:ddara/core/exception/group_create_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/group_create/provider/notifier_provider.dart';
 import 'package:ddara/feature/group_create/widget/set_group_name.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
@@ -64,7 +65,16 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
         // 홈 목록을 무효화해, 상세에서 뒤로 돌아왔을 때 새 모임이 반영되게 한다.
         // (HomePage 는 스택에 남아 있어 재조회가 자동으로 일어나지 않는다)
         ref.invalidate(homeNotifierProvider);
-        context.pushReplacement(RoutePath.group, extra: next.createGroupId);
+        // 방금 입력한 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
+        context.pushReplacement(
+          RoutePath.group,
+          extra: GroupPageArgs(
+            groupId: next.createGroupId,
+            groupName: next.groupName,
+            // 방금 만든 모임이라 진행 중 따라찍기가 있을 수 없다.
+            hasCurrentCycle: false,
+          ),
+        );
         return;
       }
 

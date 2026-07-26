@@ -7,6 +7,7 @@ import 'package:ddara/core/model/group/invite_group.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/group_join/widget/join_confirm.dart';
 import 'package:ddara/feature/group_join/provider/notifier_provider.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
@@ -113,7 +114,14 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
           properties: {'group_id': next.joinedGroupId},
         );
         ref.invalidate(homeNotifierProvider);
-        context.pushReplacement(RoutePath.group, extra: next.joinedGroupId);
+        // 초대 확인 스텝에서 받은 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
+        context.pushReplacement(
+          RoutePath.group,
+          extra: GroupPageArgs(
+            groupId: next.joinedGroupId,
+            groupName: group?.name,
+          ),
+        );
         return;
       }
 

@@ -19,6 +19,7 @@ import 'package:ddara/feature/group/detail/util/group_page_state.dart';
 import 'package:ddara/feature/group/detail/widget/body/history_photos.dart';
 import 'package:ddara/feature/group/detail/widget/body/members.dart';
 import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
+import 'package:ddara/feature/group/detail/widget/group_page_skeleton.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
 import 'package:ddara/feature/group/random_starter/random_starter_page.dart';
@@ -29,12 +30,55 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+/// [GroupPage] 라우트 인자.
+///
+/// 이름을 모르는 진입(딥링크 등)도 있으므로 [groupName] 은 선택이다.
+class GroupPageArgs {
+  const GroupPageArgs({
+    required this.groupId,
+    this.groupName,
+    this.hasCurrentCycle,
+    this.thumbnailUrl,
+  });
+
+  final int groupId;
+
+  /// 상세 조회 전 AppBar 에 미리 띄울 모임 이름. 모르면 null.
+  final String? groupName;
+
+  /// 진행 중 사이클 유무. 헤더 모양(빈 상태 / 사진)이 갈리므로, 아는 경우에만
+  /// 넘겨 조회 전 골격의 높이를 맞춘다. 모르면 null.
+  final bool? hasCurrentCycle;
+
+  /// 진행 중 사이클의 스타터 썸네일 URL.
+  /// 목록에서 이미 보여준 이미지라면 캐시가 있어 조회 전에도 바로 그려진다.
+  final String? thumbnailUrl;
+}
+
 /// 모임 화면. 전달받은 [groupId] 로 상세를 조회해 그린다.
 class GroupPage extends ConsumerWidget {
-  const GroupPage({super.key, required this.groupId});
+  const GroupPage({
+    super.key,
+    required this.groupId,
+    this.groupName,
+    this.hasCurrentCycle,
+    this.thumbnailUrl,
+  });
 
   /// 진입 시 전달받은 모임 식별자. (이 id 로 모임 상세를 조회)
   final int groupId;
+
+  /// 호출부가 미리 알고 있는 모임 이름. 조회가 끝나기 전 AppBar 를 채우는 데만
+  /// 쓰고, 상세가 도착하면 서버 값으로 대체된다. (모르면 null → 빈 제목)
+  final String? groupName;
+
+  /// 호출부가 미리 알고 있는 진행 중 사이클 유무.
+  /// 조회 전 골격([GroupPageSkeleton])의 헤더 높이를 맞추는 데만 쓴다.
+  final bool? hasCurrentCycle;
+
+  /// 호출부가 미리 알고 있는 스타터 썸네일 URL.
+  /// 조회 전 골격의 사진 자리를 캐시 이미지로 채우는 데만 쓴다.
+  final String? thumbnailUrl;
 
   /// 초대 공유 카드에 넣을 모임 대표 이미지. (카카오가 접근 가능한 공개 https URL)
   // TODO: 모임 대표 이미지로 대체. (현재 응답에 없음 — 임시 placeholder)
@@ -99,8 +143,11 @@ class GroupPage extends ConsumerWidget {
       },
       child: CupertinoPageScaffold(
         navigationBar: AppBar(
-          // 조회 전·실패 시에는 제목이 없으므로 빈 문자열.
-          title: state is GroupPageLoaded ? state.groupDetail.name : '',
+          // 조회 전에는 호출부가 넘긴 이름으로 먼저 채운다.
+          // (모르고 들어왔거나 조회에 실패하면 빈 제목)
+          title: state is GroupPageLoaded
+              ? state.groupDetail.name
+              : groupName ?? '',
           onBack: () => _back(context, ref),
           trailing: AppBarIconButton(
             // 상세가 뜨기 전이거나 나가기·닉네임 변경이 진행되는 동안 메뉴
@@ -337,9 +384,29 @@ class GroupPage extends ConsumerWidget {
       parent: AlwaysScrollableScrollPhysics(),
     );
 
+    // 본문 슬리버 패딩. 조회 전 골격과 본문이 같은 자리에서 시작하도록 공유한다.
+    final bodyPadding = EdgeInsets.only(
+      top: AppSpacing.s6,
+      bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+    );
+
     return switch (state) {
-      // 최초 조회 전에는 보여줄 본문이 없으므로 화면 전체가 로딩이다.
-      GroupPageLoading() => const Center(child: CupertinoActivityIndicator()),
+      // 최초 조회 전에는 스피너로 화면을 덮는 대신 골격을 먼저 그린다.
+      // (응답이 오면 빈 자리만 메워져 화면이 통째로 바뀌지 않는다)
+      GroupPageLoading() => CustomScrollView(
+        physics: physics,
+        slivers: [
+          SliverPadding(
+            padding: bodyPadding,
+            sliver: SliverToBoxAdapter(
+              child: GroupPageSkeleton(
+                hasCurrentCycle: hasCurrentCycle,
+                thumbnailUrl: thumbnailUrl,
+              ),
+            ),
+          ),
+        ],
+      ),
       // 최초 조회 실패 화면에서도 당겨서 재시도할 수 있게 한다.
       GroupPageLoadError(:final error) => CustomScrollView(
         physics: physics,
@@ -362,10 +429,7 @@ class GroupPage extends ConsumerWidget {
               SliverPadding(
                 // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
                 // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
-                padding: EdgeInsets.only(
-                  top: AppSpacing.s6,
-                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-                ),
+                padding: bodyPadding,
                 sliver: SliverToBoxAdapter(
                   child: _content(context, ref, state),
                 ),

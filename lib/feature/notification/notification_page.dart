@@ -4,6 +4,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
+import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/notification/provider/notifier_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:ddara/feature/notification/widget/notification_empty.dart';
@@ -104,7 +105,14 @@ class NotificationPage extends ConsumerWidget {
 
     final groupId = item.payload.groupId;
     if (groupId != null) {
-      return () => context.push(RoutePath.group, extra: groupId);
+      // payload 의 모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다.
+      return () => context.push(
+        RoutePath.group,
+        extra: GroupPageArgs(
+          groupId: groupId,
+          groupName: item.payload.groupName,
+        ),
+      );
     }
 
     return null;
