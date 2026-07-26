@@ -14,6 +14,7 @@ import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
 import 'package:ddara/feature/group/widget/started_header.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -360,10 +361,13 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 타인의 보이는 사진만 신고·차단할 수 있다. (본인·잠김·차단 제외)
     if (isMe || !canView || shotId == null) return card;
 
-    return _MenuPhotoCard(
-      cardWidth: cardWidth,
+    return AnchoredContextMenu(
       // 사본은 Hero 태그 충돌을 피해 태그·콜백 없이 만든다.
-      copy: MemberPhotoCard(name: member.nickname, image: image),
+      // (오버레이에는 그리드 제약이 없어 원본 카드 폭을 그대로 준다)
+      overlayBuilder: (_, targetSize) => SizedBox(
+        width: targetSize.width,
+        child: MemberPhotoCard(name: member.nickname, image: image),
+      ),
       // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
       actions: [
         (
@@ -513,146 +517,4 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   }
 }
 
-/// 롱프레스 메뉴의 항목 하나. (라벨 + 글자색 + 선택 콜백)
-typedef _MenuAction = ({String label, Color? color, VoidCallback onSelect});
-
-/// 롱프레스하면 카드 위쪽에 컨텍스트 메뉴(오버레이)를 띄우는 사진 카드 래퍼.
-///
-/// 멤버 아바타 메뉴와 동일하게 배경을 블러 + 살짝 어둡게 하고, 대상 카드
-/// 사본을 스크림 위로 띄운 채 메뉴를 보여준다. 바깥을 탭하면 닫힌다.
-class _MenuPhotoCard extends StatefulWidget {
-  const _MenuPhotoCard({
-    required this.child,
-    required this.copy,
-    required this.cardWidth,
-    required this.actions,
-  });
-
-  final Widget child;
-
-  /// 스크림 위로 띄울 카드 사본. (Hero 태그 충돌을 피해 태그·콜백 없이 만든 카드)
-  final Widget copy;
-
-  /// 사본에 적용할 카드 폭. (오버레이에는 그리드 제약이 없어 직접 지정)
-  final double cardWidth;
-
-  /// 메뉴에 나열할 항목들. (위에서부터 순서대로)
-  final List<_MenuAction> actions;
-
-  @override
-  State<_MenuPhotoCard> createState() => _MenuPhotoCardState();
-}
-
-class _MenuPhotoCardState extends State<_MenuPhotoCard> {
-  /// 카드 위치를 메뉴가 따라가게 잇는 링크.
-  final LayerLink _link = LayerLink();
-
-  /// 열려 있는 메뉴 라우트. 닫혀 있으면 null.
-  Route<void>? _menuRoute;
-
-  void _open() {
-    if (_menuRoute != null) return;
-    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
-    // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
-    final route = RawDialogRoute<void>(
-      barrierColor: AppColorPrimitives.black60,
-      barrierLabel: AppLocalizations.of(context).commonCancel,
-      transitionDuration: Duration.zero,
-      pageBuilder: (dialogContext, _, _) => _buildOverlay(dialogContext),
-    );
-    _menuRoute = route;
-    Navigator.of(context).push(route).then((_) => _menuRoute = null);
-  }
-
-  /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
-  void _select(BuildContext dialogContext, VoidCallback onSelect) {
-    Navigator.of(dialogContext).pop();
-    onSelect();
-  }
-
-  @override
-  void dispose() {
-    // 카드가 사라지면(목록 갱신 등) 열려 있던 메뉴 라우트도 함께 닫는다.
-    final route = _menuRoute;
-    if (route != null && route.isActive) {
-      route.navigator?.removeRoute(route);
-    }
-    super.dispose();
-  }
-
-  Widget _buildOverlay(BuildContext dialogContext) {
-    return Stack(
-      children: [
-        // 대상 카드 사본을 스크림 위로 띄워 선명하게 유지한다.
-        // (원본 위치에 정확히 겹치므로 카드만 떠오른 것처럼 보인다)
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.topLeft,
-          child: IgnorePointer(
-            child: SizedBox(width: widget.cardWidth, child: widget.copy),
-          ),
-        ),
-        // 카드 위쪽(좌측 정렬)에 앵커. (카드 위로 s2 만큼 띄움)
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.bottomLeft,
-          offset: const Offset(0, -AppSpacing.s2),
-          child: _menu(dialogContext),
-        ),
-      ],
-    );
-  }
-
-  Widget _menu(BuildContext dialogContext) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.borderDefault),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColorPrimitives.black40,
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
-      child: IntrinsicWidth(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < widget.actions.length; i++) ...[
-              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s4,
-                  vertical: AppSpacing.s3,
-                ),
-                minimumSize: Size.zero,
-                onPressed: () =>
-                    _select(dialogContext, widget.actions[i].onSelect),
-                child: AppText.body(
-                  widget.actions[i].label,
-                  color: widget.actions[i].color,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _link,
-      child: GestureDetector(onLongPress: _open, child: widget.child),
-    );
-  }
-}
+// (롱프레스 컨텍스트 메뉴는 feature/group/widget/anchored_context_menu.dart 공용)

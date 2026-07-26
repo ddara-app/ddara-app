@@ -1,8 +1,8 @@
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
-import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/core/widget/circle_avatar_label.dart';
+import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -16,9 +16,6 @@ typedef MemberDisplay = ({
   bool isBlocked,
   bool isMe,
 });
-
-/// 롱프레스 메뉴의 항목 하나. (라벨 + 글자색 + 선택 콜백)
-typedef _MenuAction = ({String label, Color? color, VoidCallback onSelect});
 
 /// 모임 멤버 목록. (원형 프로필 + 이름, 끝에 멤버 추가 버튼)
 class Members extends StatelessWidget {
@@ -66,6 +63,8 @@ class Members extends StatelessWidget {
 }
 
 /// 원형 프로필 아바타 + 이름 라벨.
+///
+/// 본인이 아니면 길게 눌러 신고·차단 메뉴를 띄울 수 있다.
 class _MemberAvatar extends StatelessWidget {
   const _MemberAvatar({
     required this.member,
@@ -92,212 +91,35 @@ class _MemberAvatar extends StatelessWidget {
         ? TextDecoration.lineThrough
         : null;
 
-    // 본인 프로필은 신고·차단 대상이 아니므로 메뉴 없이 아바타만 보여준다.
-    if (member.isMe) {
-      return CircleAvatarLabel(
-        label: label,
-        labelDecoration: labelDecoration,
-        child: ProfileAvatar(
-          size: CircleAvatarLabel.circleSize,
-          imageUrl: imageUrl,
-        ),
-      );
-    }
-
-    final actions = <_MenuAction>[
-      (
-        label: l10n.memberBlock,
-        color: AppColors.statusDanger,
-        onSelect: onBlock,
-      ),
-      (
-        label: l10n.memberReportUser,
-        color: AppColors.statusDanger,
-        onSelect: onReport,
-      ),
-    ];
-
-    return _MenuAvatar(
+    final avatar = CircleAvatarLabel(
       label: label,
       labelDecoration: labelDecoration,
-      imageUrl: imageUrl,
-      actions: actions,
-    );
-  }
-}
-
-/// 롱프레스하면 위쪽에 컨텍스트 메뉴(오버레이)를 띄우는 아바타 + 이름 라벨.
-///
-/// 아바타에 앵커된 작은 메뉴로, 바깥을 탭하면 닫힌다. 메뉴가 열리면 대상
-/// 아바타·라벨 사본을 스크림 위로 띄워 선명하게 유지한다.
-class _MenuAvatar extends StatefulWidget {
-  const _MenuAvatar({
-    required this.label,
-    required this.imageUrl,
-    required this.actions,
-    this.labelDecoration,
-  });
-
-  /// 아바타 아래 라벨.
-  final String label;
-
-  /// 라벨 글자 장식. (예: 차단 멤버 취소선)
-  final TextDecoration? labelDecoration;
-
-  final String? imageUrl;
-
-  /// 메뉴에 나열할 항목들. (위에서부터 순서대로)
-  final List<_MenuAction> actions;
-
-  @override
-  State<_MenuAvatar> createState() => _MenuAvatarState();
-}
-
-class _MenuAvatarState extends State<_MenuAvatar> {
-  /// 아바타 위치를 메뉴가 따라가게 잇는 링크.
-  final LayerLink _link = LayerLink();
-
-  /// 열려 있는 메뉴 라우트. 닫혀 있으면 null.
-  Route<void>? _menuRoute;
-
-  /// 메뉴를 아바타 오른쪽 끝에 맞춰 열지 여부. (메뉴를 열 때 결정)
-  ///
-  /// 목록이 가로로 스크롤되므로 아바타가 화면 오른쪽 끝에 올 수 있는데,
-  /// 그때 왼쪽 정렬로 열면 메뉴가 화면 밖으로 잘린다.
-  bool _alignRight = false;
-
-  /// 아바타 중심이 화면 오른쪽 절반에 있는지.
-  bool _isOnRightHalf() {
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize) return false;
-    final center = box.localToGlobal(Offset.zero).dx + box.size.width / 2;
-    return center > MediaQuery.sizeOf(context).width / 2;
-  }
-
-  void _open() {
-    if (_menuRoute != null) return;
-    // 열기 직전 위치로 펼침 방향을 정한다. (스크롤로 위치가 바뀌므로 매번 계산)
-    _alignRight = _isOnRightHalf();
-    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
-    // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
-    final route = RawDialogRoute<void>(
-      barrierColor: AppColorPrimitives.black60,
-      barrierLabel: AppLocalizations.of(context).commonCancel,
-      transitionDuration: Duration.zero,
-      pageBuilder: (dialogContext, _, _) => _buildOverlay(dialogContext),
-    );
-    _menuRoute = route;
-    Navigator.of(context).push(route).then((_) => _menuRoute = null);
-  }
-
-  /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
-  void _select(BuildContext dialogContext, VoidCallback onSelect) {
-    Navigator.of(dialogContext).pop();
-    onSelect();
-  }
-
-  @override
-  void dispose() {
-    // 아바타가 사라지면(목록 갱신 등) 열려 있던 메뉴 라우트도 함께 닫는다.
-    final route = _menuRoute;
-    if (route != null && route.isActive) {
-      route.navigator?.removeRoute(route);
-    }
-    super.dispose();
-  }
-
-  Widget _buildOverlay(BuildContext dialogContext) {
-    return Stack(
-      children: [
-        // 대상 아바타·라벨 사본을 스크림 위로 띄워 선명하게 유지한다.
-        // 원본과 같은 위젯을 그대로 쓰므로 위치·간격을 따로 맞출 필요가 없다.
-        // (원본 위에 정확히 겹쳐 아바타만 떠오른 것처럼 보인다)
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.topLeft,
-          child: IgnorePointer(child: _avatarLabel()),
-        ),
-        // 아바타의 대각선 위에 앵커. 아바타를 가리지 않도록 가로로도 비켜난다.
-        // 화면 왼쪽 아바타는 오른쪽 위로, 오른쪽 아바타는 왼쪽 위로 펼친다.
-        // (오른쪽 끝 아바타에서 메뉴가 화면 밖으로 잘리지 않도록)
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: _alignRight ? Alignment.topLeft : Alignment.topRight,
-          followerAnchor: _alignRight
-              ? Alignment.bottomRight
-              : Alignment.bottomLeft,
-          // 아바타 모서리 안쪽으로 s1 만큼 파고들게 둔다.
-          offset: Offset(
-            _alignRight ? AppSpacing.s1 : -AppSpacing.s1,
-            AppSpacing.s1,
-          ),
-          child: _menu(dialogContext),
-        ),
-      ],
-    );
-  }
-
-  Widget _menu(BuildContext dialogContext) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.borderDefault),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColorPrimitives.black40,
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
-      child: IntrinsicWidth(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < widget.actions.length; i++) ...[
-              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s4,
-                  vertical: AppSpacing.s3,
-                ),
-                minimumSize: Size.zero,
-                onPressed: () =>
-                    _select(dialogContext, widget.actions[i].onSelect),
-                child: AppText.body(
-                  widget.actions[i].label,
-                  color: widget.actions[i].color,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 아바타 + 이름 라벨. 원본과 오버레이 사본이 같은 위젯을 쓴다.
-  Widget _avatarLabel() {
-    return CircleAvatarLabel(
-      label: widget.label,
-      labelDecoration: widget.labelDecoration,
       child: ProfileAvatar(
         size: CircleAvatarLabel.circleSize,
-        imageUrl: widget.imageUrl,
+        imageUrl: imageUrl,
       ),
     );
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _link,
-      child: GestureDetector(onLongPress: _open, child: _avatarLabel()),
+    // 본인 프로필은 신고·차단 대상이 아니므로 메뉴 없이 아바타만 보여준다.
+    if (member.isMe) return avatar;
+
+    // 아바타가 작아 메뉴가 위를 덮지 않도록 대각선으로 띄운다.
+    return AnchoredContextMenu(
+      placement: ContextMenuPlacement.aboveDiagonal,
+      // 멤버 아바타 메뉴 순서. (차단하기 → 신고하기)
+      actions: [
+        (
+          label: l10n.memberBlock,
+          color: AppColors.statusDanger,
+          onSelect: onBlock,
+        ),
+        (
+          label: l10n.memberReportUser,
+          color: AppColors.statusDanger,
+          onSelect: onReport,
+        ),
+      ],
+      child: avatar,
     );
   }
 }
