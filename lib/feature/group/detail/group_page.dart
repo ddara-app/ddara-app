@@ -211,14 +211,19 @@ class GroupPage extends ConsumerWidget {
   }
 
   /// 진입 시 랜덤 스타터 공개 화면을 띄워야 하는지 판단한다.
-  /// - 아직 공개를 보지 않았으면(seen=false) 보여준다.
-  /// - 이미 봤어도(seen=true) 당첨된 본인이 아직 따라찍기를 시작하지 않았으면
-  ///   (nextStarter 가 남아 있다는 것 자체가 미시작) 진입할 때마다 다시 보여준다.
+  /// - 아직 공개를 보지 않았으면(seen=false) 따라찍기가 이미 시작됐더라도 보여준다.
+  ///   (당첨 사실 자체를 아직 못 본 상태라 한 번은 알려야 한다)
+  /// - 이미 봤으면(seen=true) 당첨된 본인에게만, 그것도 **아직 아무도 시작하지
+  ///   않았을 때**(currentCycle 없음) 진입할 때마다 다시 보여준다. 누군가
+  ///   시작해 사이클이 열렸다면 공개를 다시 볼 이유가 없다.
   /// - 그 외(이미 본 다른 멤버)에는 띄우지 않는다.
   Future<bool> _shouldRevealStarter(WidgetRef ref, GroupDetail detail) async {
     final nextStarter = detail.nextStarter;
     if (nextStarter == null) return false;
     if (!nextStarter.seen) return true;
+
+    // 공개를 이미 본 뒤라면, 따라찍기가 시작된 시점부터는 재노출하지 않는다.
+    if (detail.currentCycle != null) return false;
 
     // 내 프로필을 못 얻으면 당첨자 본인인지 알 수 없으므로 재노출하지 않는다.
     // (스타터는 헤더의 시작 버튼으로도 따라찍기를 시작할 수 있다)
