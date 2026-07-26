@@ -4,14 +4,51 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
+import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+
+/// [StartedHeader] 가 그리는 데 필요한 값만 담은 표시용 정보.
+///
+/// 화면마다 원본 모델이 다르므로(모임 상세: `GroupCycle`, 갤러리:
+/// `CycleGallery`) 헤더는 도메인 모델 대신 이 객체만 받는다. 헤더가 쓰지
+/// 않는 필드를 억지로 채워 넣을 필요가 없다.
+class StarterHeaderInfo {
+  const StarterHeaderInfo({
+    required this.topic,
+    required this.starterNickname,
+    required this.imageUrl,
+    required this.imageUnderReview,
+    required this.isDone,
+    required this.deadlineAt,
+    required this.participantCount,
+  });
+
+  /// 따라찍기 주제.
+  final String topic;
+
+  /// 스타터 닉네임. (우/좌상단 안내 칩)
+  final String starterNickname;
+
+  /// 대표로 보여줄 스타터 사진 URL. 없으면 빈 자리표시를 보여준다.
+  final String? imageUrl;
+
+  /// 스타터 사진이 신고 접수로 검토 중인지 여부.
+  final bool imageUnderReview;
+
+  /// 마감된 회차인지 여부. (진행 중이면 남은 시간을 함께 보여준다)
+  final bool isDone;
+
+  /// 마감 시각. (남은 시간 계산)
+  final DateTime deadlineAt;
+
+  /// 이번 회차에 사진을 올린 인원. (스타터 포함)
+  final int participantCount;
+}
 
 /// 모임에 따라찍기가 시작된 뒤 상단에 보여주는 헤더. ([EmptyHeader] 의 반대 상태)
 ///
@@ -20,20 +57,17 @@ import 'package:flutter/material.dart';
 class StartedHeader extends StatefulWidget {
   const StartedHeader({
     super.key,
-    required this.imageUri,
-    required this.progress,
+    required this.info,
     this.onImageTap,
+    this.onComment,
     this.onReport,
     this.onBlock,
     this.starterBlocked = false,
     this.memberCount,
   });
 
-  /// 대표로 보여줄 이미지 URI.
-  final String imageUri;
-
-  /// 진행 중인 따라찍기(사이클) 정보.
-  final GroupCycle progress;
+  /// 헤더에 그릴 진행 정보.
+  final StarterHeaderInfo info;
 
   /// 모임 총원. 지정하면 진행 상태 우측에 참여 인원(아이콘 + n/총원)을 보여준다.
   /// null 이면 참여 인원 칩을 숨긴다.
@@ -41,6 +75,10 @@ class StartedHeader extends StatefulWidget {
 
   /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
   final VoidCallback? onImageTap;
+
+  /// 우상단 댓글 버튼을 눌렀을 때의 콜백. (크게 보기를 댓글이 열린 채로 여는 데
+  /// 쓴다) null 이면 버튼을 표시하지 않는다. (펼친 상태·사진이 보일 때만 노출)
+  final VoidCallback? onComment;
 
   /// 대표 이미지를 롱프레스해 '신고하기'를 선택했을 때.
   /// null 이면 메뉴에 신고 항목이 뜨지 않는다. (펼친 상태에서만 동작)
@@ -64,17 +102,11 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 헤더 펼침 여부. (true: 큰 이미지 헤더 / false: 축소된 헤더)
   bool _expanded = true;
 
-  /// 헤더 위치를 신고 메뉴가 따라가게 잇는 링크.
-  final LayerLink _link = LayerLink();
-
-  /// 열려 있는 신고 메뉴 라우트. 닫혀 있으면 null.
-  Route<void>? _menuRoute;
-
-  /// 오버레이에 띄울 헤더 사본 크기. (메뉴를 열 때 측정)
-  Size? _copySize;
+  /// 대표로 보여줄 스타터 사진 URL. 없으면 빈 문자열.
+  String get _imageUrl => widget.info.imageUrl ?? '';
 
   /// 스타터 사진이 신고 접수로 검토 중인지 여부.
-  bool get _underReview => widget.progress.starterImageUnderReview;
+  bool get _underReview => widget.info.imageUnderReview;
 
   /// 사진을 자리표시로 가려야 하는 상태인지. (차단 또는 검토 중)
   bool get _obscured => widget.starterBlocked || _underReview;
@@ -85,140 +117,60 @@ class _StartedHeaderState extends State<StartedHeader> {
   bool get _canOpenMenu =>
       (widget.onReport != null || widget.onBlock != null) &&
       !_obscured &&
-      widget.imageUri.isNotEmpty;
+      _imageUrl.isNotEmpty;
+
+  /// 우상단 댓글 버튼을 그리는 상태인지.
+  /// (가려진 사진은 크게 보기가 막히므로 버튼도 숨긴다)
+  ///
+  /// 버튼이 우상단을 차지하면 스타터 안내 pill 은 좌상단으로 비켜난다.
+  bool get _showCommentButton => widget.onComment != null && !_obscured;
 
   void _toggle() => setState(() => _expanded = !_expanded);
 
-  void _openMenu() {
-    if (_menuRoute != null) return;
-    // 사본이 원본 헤더와 정확히 겹치도록 현재 크기를 기억해 둔다.
-    _copySize = context.size;
-    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
-    // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
-    final route = RawDialogRoute<void>(
-      barrierColor: AppColorPrimitives.black60,
-      barrierLabel: AppLocalizations.of(context).commonCancel,
-      transitionDuration: Duration.zero,
-      pageBuilder: (dialogContext, _, _) => _buildMenuOverlay(dialogContext),
-    );
-    _menuRoute = route;
-    Navigator.of(context).push(route).then((_) => _menuRoute = null);
-  }
-
-  /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
-  void _select(BuildContext dialogContext, VoidCallback onSelect) {
-    Navigator.of(dialogContext).pop();
-    onSelect();
-  }
-
-  @override
-  void dispose() {
-    // 헤더가 사라지면(화면 전환 등) 열려 있던 메뉴 라우트도 함께 닫는다.
-    final route = _menuRoute;
-    if (route != null && route.isActive) {
-      route.navigator?.removeRoute(route);
-    }
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _link,
-      child: AnimatedCrossFade(
-        duration: const Duration(milliseconds: 250),
-        // 위 고정 헤더라 접힐 때 위에서부터 높이가 줄도록 상단 기준 정렬.
-        alignment: Alignment.topCenter,
-        crossFadeState: _expanded
-            ? CrossFadeState.showFirst
-            : CrossFadeState.showSecond,
-        firstChild: _buildExpanded(),
-        secondChild: _buildCollapsed(),
-      ),
-    );
-  }
-
-  /// 컨텍스트 메뉴(신고·차단) 오버레이. 배경을 블러 처리하고 헤더 사본 위에
-  /// 메뉴를 띄운다.
-  Widget _buildMenuOverlay(BuildContext dialogContext) {
-    final copySize = _copySize;
-    return Stack(
-      children: [
-        // 대상 헤더(이미지) 사본을 스크림 위로 띄워 선명하게 유지한다.
-        if (copySize != null)
-          CompositedTransformFollower(
-            link: _link,
-            targetAnchor: Alignment.topLeft,
-            followerAnchor: Alignment.topLeft,
-            child: IgnorePointer(
-              child: SizedBox.fromSize(
-                size: copySize,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  child: _blurredBackground(),
-                ),
-              ),
-            ),
-          ),
-        // 헤더가 화면 상단에 붙어 있어 메뉴는 이미지 안쪽 좌상단에 앵커한다.
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.topLeft,
-          offset: const Offset(AppSpacing.s3, AppSpacing.s3),
-          child: _menu(dialogContext),
-        ),
-      ],
-    );
-  }
-
-  Widget _menu(BuildContext dialogContext) {
     final l10n = AppLocalizations.of(context);
-    // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
-    final actions = <({String label, VoidCallback onSelect})>[
-      if (widget.onBlock != null)
-        (label: l10n.memberBlock, onSelect: widget.onBlock!),
-      if (widget.onReport != null)
-        (label: l10n.report, onSelect: widget.onReport!),
-    ];
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.borderDefault),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColorPrimitives.black40,
-            blurRadius: 12,
-            offset: Offset(0, 4),
+    final content = AnimatedCrossFade(
+      duration: const Duration(milliseconds: 250),
+      // 위 고정 헤더라 접힐 때 위에서부터 높이가 줄도록 상단 기준 정렬.
+      alignment: Alignment.topCenter,
+      crossFadeState: _expanded
+          ? CrossFadeState.showFirst
+          : CrossFadeState.showSecond,
+      firstChild: _buildExpanded(),
+      secondChild: _buildCollapsed(),
+    );
+
+    // 접은 상태에서는 대표 이미지가 배경으로만 남으므로 메뉴를 띄우지 않는다.
+    if (!_expanded || !_canOpenMenu) return content;
+
+    // 헤더가 화면 상단에 붙어 있어 위쪽 공간이 없다 — 메뉴를 이미지 안쪽에 띄운다.
+    return AnchoredContextMenu(
+      placement: ContextMenuPlacement.insideTopLeft,
+      // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
+      actions: [
+        if (widget.onBlock != null)
+          (
+            label: l10n.memberBlock,
+            color: AppColors.statusDanger,
+            onSelect: widget.onBlock!,
           ),
-        ],
-      ),
-      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
-      child: IntrinsicWidth(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < actions.length; i++) ...[
-              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s4,
-                  vertical: AppSpacing.s3,
-                ),
-                minimumSize: Size.zero,
-                onPressed: () => _select(dialogContext, actions[i].onSelect),
-                child: AppText.body(
-                  actions[i].label,
-                  color: AppColors.statusDanger,
-                ),
-              ),
-            ],
-          ],
+        if (widget.onReport != null)
+          (
+            label: l10n.report,
+            color: AppColors.statusDanger,
+            onSelect: widget.onReport!,
+          ),
+      ],
+      // 사본은 헤더와 같은 크기·모서리로 배경 이미지만 다시 그린다.
+      overlayBuilder: (_, targetSize) => SizedBox.fromSize(
+        size: targetSize,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          child: _blurredBackground(),
         ),
       ),
+      child: content,
     );
   }
 
@@ -229,18 +181,17 @@ class _StartedHeaderState extends State<StartedHeader> {
     final onImageTap = _obscured ? null : widget.onImageTap;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: SizedBox(
-        width: double.infinity,
-        height: 478,
+      // 촬영 확인·갤러리 카드와 같은 프레임으로 보여준다.
+      child: AspectRatio(
+        aspectRatio: AppRatio.photo,
         child: Stack(
           children: [
-            // 배경: 스타터 대표 이미지.
-            // (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기, 길게 누르면
-            // 신고·차단 메뉴)
+            // 배경: 스타터 대표 이미지. (아래로 갈수록 부드럽게 블러)
+            // 탭하면 크게 보기. 길게 누르면 뜨는 신고·차단 메뉴는 헤더 전체를
+            // 감싼 AnchoredContextMenu 가 처리한다.
             Positioned.fill(
               child: GestureDetector(
                 onTap: onImageTap,
-                onLongPress: _canOpenMenu ? _openMenu : null,
                 child: _blurredBackground(),
               ),
             ),
@@ -259,24 +210,49 @@ class _StartedHeaderState extends State<StartedHeader> {
                 children: [_buildInfoRow()],
               ),
             ),
-            // 우상단: 스타터 안내 pill. (스타터 · 닉네임)
+            // 스타터 안내 pill. (스타터 · 닉네임)
+            // 기본은 우상단이고, 댓글 버튼이 그 자리를 쓰면 좌상단으로 비켜난다.
             Padding(
-              padding: const EdgeInsets.only(
+              padding: EdgeInsets.only(
                 top: AppSpacing.s4,
-                right: AppSpacing.s4,
+                left: _showCommentButton ? AppSpacing.s4 : 0,
+                right: _showCommentButton ? 0 : AppSpacing.s4,
               ),
               child: Align(
-                alignment: Alignment.topRight,
+                alignment: _showCommentButton
+                    ? Alignment.topLeft
+                    : Alignment.topRight,
                 child: _pill(
                   child: AppText.caption(
-                    l10n.startedHeaderStarterChip(
-                      widget.progress.starterNickname,
-                    ),
+                    l10n.startedHeaderStarterChip(widget.info.starterNickname),
                     color: AppColors.textPrimary,
                   ),
                 ),
               ),
             ),
+            // 우상단: 댓글 버튼.
+            if (_showCommentButton)
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.s4,
+                  right: AppSpacing.s4,
+                ),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: widget.onComment,
+                    child: Container(
+                      // 아이콘 24 + 패딩 s3(12)×2 = 지름 48 원.
+                      padding: const EdgeInsets.all(AppSpacing.s3),
+                      decoration: const BoxDecoration(
+                        color: AppColors.overlayScrim,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const AppIcon(AppIcons.comment, size: 24),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -285,33 +261,40 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   /// 접은 상태: 블러 처리된 대표 이미지 배경 위 진행 정보만.
   Widget _buildCollapsed() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: Stack(
-        children: [
-          // 블러 처리된 스타터 대표 이미지 배경.
-          // (차단·검토 자리표시는 민무늬 배경이라 블러를 걸지 않는다)
-          Positioned.fill(
-            child: _obscured
-                ? _backgroundImage()
-                : ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: _backgroundImage(),
-                  ),
-          ),
-          // 텍스트 대비를 위한 어두운 오버레이 + 진행 정보.
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
-            color: Colors.black.withValues(alpha: 0.50),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [_buildInfoRow()],
+    // 가려진(차단·검토 중) 사진은 펼친 상태와 마찬가지로 탭을 막는다.
+    final onImageTap = _obscured ? null : widget.onImageTap;
+    // 진행 정보 오버레이가 배경을 덮고 있어, 탭은 헤더 전체에서 받는다.
+    // (토글 버튼은 자식이라 자기 탭을 먼저 가져간다)
+    return GestureDetector(
+      onTap: onImageTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        child: Stack(
+          children: [
+            // 블러 처리된 스타터 대표 이미지 배경.
+            // (차단·검토 자리표시는 민무늬 배경이라 블러를 걸지 않는다)
+            Positioned.fill(
+              child: _obscured
+                  ? _backgroundImage()
+                  : ImageFiltered(
+                      imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: _backgroundImage(),
+                    ),
             ),
-          ),
-        ],
+            // 텍스트 대비를 위한 어두운 오버레이 + 진행 정보.
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
+              color: AppColors.overlayScrimSoft,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [_buildInfoRow()],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -336,24 +319,36 @@ class _StartedHeaderState extends State<StartedHeader> {
                 // 좌상단에 있던 진행 상태(검정 60% pill)를 주제 위로 옮기고,
                 // 같은 배경 안에서 가운데 점으로 참여 인원(아이콘 + n/총원)을 잇는다.
                 _pill(
+                  // 항목 간격이 제각각이라 Row spacing 대신 각자 여백을 준다.
+                  // (상태·인원수 바깥 여백은 pill 의 좌우 패딩 s5 가 전부)
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: AppSpacing.s1,
                     children: [
                       AppText.caption(
                         _statusText(),
                         color: AppColors.textPrimary,
                       ),
                       if (widget.memberCount != null) ...[
-                        AppText.caption('·', color: AppColors.textPrimary),
+                        // 가운데 점 좌우로만 s2 를 띄운다.
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.s2,
+                          ),
+                          child: AppText.caption(
+                            '·',
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        // 아이콘과 인원수는 한 덩어리로 읽히도록 s1 만 띄운다.
                         const AppIcon(
                           AppIcons.people,
                           size: 14,
                           color: AppColors.textPrimary,
                         ),
+                        const SizedBox(width: AppSpacing.s1),
                         AppText.caption(
-                          '${widget.progress.uploadedUserIds.length + 1}'
+                          '${widget.info.participantCount}'
                           '/${widget.memberCount}',
                           color: AppColors.textPrimary,
                         ),
@@ -361,10 +356,7 @@ class _StartedHeaderState extends State<StartedHeader> {
                     ],
                   ),
                 ),
-                AppText.display(
-                  widget.progress.topic,
-                  textAlign: TextAlign.left,
-                ),
+                AppText.display(widget.info.topic, textAlign: TextAlign.left),
               ],
             ),
           ),
@@ -395,7 +387,7 @@ class _StartedHeaderState extends State<StartedHeader> {
         message: AppLocalizations.of(context).photoUnderReviewPlaceholder,
       );
     }
-    final url = widget.imageUri;
+    final url = _imageUrl;
     if (url.isEmpty) {
       return const EmptyThumbnail();
     }
@@ -411,8 +403,8 @@ class _StartedHeaderState extends State<StartedHeader> {
   Widget _pill({required Widget child}) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s3,
-        vertical: AppSpacing.s1,
+        horizontal: AppSpacing.s5,
+        vertical: AppSpacing.s2,
       ),
       decoration: const ShapeDecoration(
         color: AppColorPrimitives.black60,
@@ -426,12 +418,10 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 마감(done)된 회차는 '마감'만, 진행 중이면 '진행 중 · N 남음'을 보여준다.
   String _statusText() {
     final l10n = AppLocalizations.of(context);
-    if (widget.progress.status.toLowerCase() == 'done') {
+    if (widget.info.isDone) {
       return l10n.remainingDeadline; // '마감'
     }
-    return l10n.startedHeaderRemaining(
-      _remainingText(widget.progress.deadlineAt),
-    );
+    return l10n.startedHeaderRemaining(_remainingText(widget.info.deadlineAt));
   }
 
   /// 마감(deadline)까지 남은 시간 표시 문자열. ('14시간' / '30분' / '마감')
@@ -451,7 +441,7 @@ class _StartedHeaderState extends State<StartedHeader> {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.s3),
         decoration: ShapeDecoration(
-          color: const Color(0x1E949494),
+          color: AppColors.overlayControl,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.full),
           ),

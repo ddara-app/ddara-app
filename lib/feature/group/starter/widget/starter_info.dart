@@ -5,8 +5,10 @@ import 'package:ddara/core/design_system/component/text_field/app_text_field.dar
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
+import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
     as group_detail;
@@ -46,29 +48,45 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
     super.dispose();
   }
 
+  /// 게시 확인을 받고 촬영본을 올린다. 성공하면 방금 만들어진 사이클로 이동한다.
+  /// (실패 시 notifier 가 error 를 채우고 화면이 토스트로 안내한다)
+  Future<void> _upload() async {
+    final l10n = AppLocalizations.of(context);
+    // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.photoPostWarningTitle,
+      confirmLabel: l10n.commonConfirm,
+    );
+    if (!confirmed || !mounted) return;
+
+    final cycleId = await ref
+        .read(starterNotifierProvider.notifier)
+        .upload(widget.groupId);
+    if (cycleId == null || !mounted) return;
+
+    MixpanelManager.instance.track(
+      'starter_photo_posted',
+      properties: {'group_id': widget.groupId, 'cycle_id': cycleId},
+    );
+    // 새 사이클이 생겼으므로 스택 아래 모임 상세를 무효화해, 갤러리에서
+    // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.
+    ref.invalidate(group_detail.groupPageNotifierProvider(widget.groupId));
+    // 게시 후에는 스타터로 돌아가지 않도록 화면을 교체한다.
+    context.pushReplacement(RoutePath.follower, extra: cycleId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final notifier = ref.read(starterNotifierProvider.notifier);
 
-    // 업로드 결과를 감지해 에러는 토스트로, 성공은 시작 화면 이동으로 처리한다.
+    // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
     ref.listen(starterNotifierProvider, (prev, next) {
-      if (next.errorMessage.isNotEmpty) {
-        Toast.showToast(context, next.errorMessage, type: ToastType.error);
+      final error = next.error;
+      if (error != null) {
+        Toast.showToast(context, error.message(l10n), type: ToastType.error);
         notifier.clearError();
-      }
-
-      final cycleId = next.uploadedCycleId;
-      if (prev?.uploadedCycleId == null && cycleId != null) {
-        MixpanelManager.instance.track(
-          'starter_photo_posted',
-          properties: {'group_id': widget.groupId, 'cycle_id': cycleId},
-        );
-        // 새 사이클이 생겼으므로 스택 아래 모임 상세를 무효화해, 갤러리에서
-        // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.
-        ref.invalidate(group_detail.groupPageNotifierProvider(widget.groupId));
-        // 게시 후에는 스타터로 돌아가지 않도록 화면을 교체한다.
-        context.pushReplacement(RoutePath.follower, extra: cycleId);
       }
     });
 
@@ -89,104 +107,84 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
 
     return Stack(
       children: [
+        // 하단 인셋은 ScrollablePageBody 가 패딩으로 처리한다.
         SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.s5,
-              vertical: AppSpacing.s6,
-            ),
-            // 키보드가 올라와 높이가 줄면 내용을 스크롤시켜 오버플로를 막는다.
-            // 공간이 충분하면 Spacer 가 버튼을 하단에 고정한다.
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: AppSpacing.s5,
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: 465,
-                            padding: const EdgeInsets.all(AppSpacing.s4),
-                            clipBehavior: Clip.antiAlias,
-                            decoration: BoxDecoration(
-                              color: AppColors.bgSurface,
-                              borderRadius: BorderRadius.circular(AppRadius.lg),
-                              // 사진이 있으면 카드를 가득 채워 보여준다.
-                              image: hasPhoto
-                                  ? DecorationImage(
-                                      image: FileImage(File(photoPath)),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
-                            ),
-                            // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
-                            child: hasPhoto
-                                ? null
-                                : Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      TakePhotoButton(
-                                        size: TakePhotoButtonSize.large,
-                                        onPressed: notifier.goToCamera,
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                          AppTextField(
-                            label: l10n.starterConceptLabel,
-                            placeholder: l10n.starterConceptPlaceholder,
-                            controller: _conceptController,
-                            highlightWhenFilled: true,
-                            errorText: conceptError,
-                            onChanged: notifier.conceptChanged,
-                          ),
-                          const Spacer(),
-                          Row(
-                            spacing: AppSpacing.s3,
-                            children: [
-                              Expanded(
-                                child: AppButton.outline(
-                                  label: l10n.photoRetake,
+          bottom: false,
+          // 키보드가 올라와 높이가 줄면 내용을 스크롤시켜 오버플로를 막는다.
+          // 공간이 충분하면 Spacer 가 버튼을 하단에 고정한다.
+          child: ScrollablePageBody(
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppSpacing.s5,
+                children: [
+                  // 모임 헤더·갤러리 카드와 같은 사진 프레임으로 보여준다.
+                  AspectRatio(
+                    aspectRatio: AppRatio.photo,
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.s4),
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: AppColors.bgSurface,
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        // 사진이 있으면 카드를 가득 채워 보여준다.
+                        image: hasPhoto
+                            ? DecorationImage(
+                                image: FileImage(File(photoPath)),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
+                      child: hasPhoto
+                          ? null
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TakePhotoButton(
+                                  size: TakePhotoButtonSize.large,
                                   onPressed: notifier.goToCamera,
                                 ),
-                              ),
-                              Expanded(
-                                child: AppButton(
-                                  label: l10n.photoUpload,
-                                  // 사진이 없거나 컨셉이 비어 있거나(공백 포함) 20자를
-                                  // 넘거나, 업로드 중이면 비활성화.
-                                  onPressed:
-                                      hasPhoto &&
-                                          concept.trim().isNotEmpty &&
-                                          conceptError == null &&
-                                          !isLoading
-                                      ? () async {
-                                          // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
-                                          final ok = await AppDialog.show(
-                                            context,
-                                            title: l10n.photoPostWarningTitle,
-                                            confirmLabel: l10n.commonConfirm,
-                                          );
-                                          if (!ok) return;
-                                          await notifier.upload(widget.groupId);
-                                        }
-                                      : null,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                              ],
+                            ),
                     ),
                   ),
-                );
-              },
+                  AppTextField(
+                    label: l10n.starterConceptLabel,
+                    placeholder: l10n.starterConceptPlaceholder,
+                    controller: _conceptController,
+                    highlightWhenFilled: true,
+                    errorText: conceptError,
+                    onChanged: notifier.conceptChanged,
+                  ),
+                  const Spacer(),
+                  Row(
+                    spacing: AppSpacing.s3,
+                    children: [
+                      Expanded(
+                        child: AppButton.outline(
+                          label: l10n.photoRetake,
+                          onPressed: notifier.goToCamera,
+                        ),
+                      ),
+                      Expanded(
+                        child: AppButton(
+                          label: l10n.photoUpload,
+                          // 사진이 없거나 컨셉이 비어 있거나(공백 포함) 20자를
+                          // 넘거나, 업로드 중이면 비활성화.
+                          onPressed:
+                              hasPhoto &&
+                                  concept.trim().isNotEmpty &&
+                                  conceptError == null &&
+                                  !isLoading
+                              ? _upload
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

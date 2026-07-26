@@ -1,27 +1,26 @@
 import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/comment/comment_actions.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/home/util/feed_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FeedNotifier extends AutoDisposeNotifier<FeedState>
-    with CommentActions<FeedState> {
-  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
-  /// (홈 진입 직후 로그아웃 등으로 폐기된 뒤 응답이 도착하면 StateError)
-  bool _disposed = false;
-
+    with CommentActions<FeedState>, AutoDisposeGuard<FeedState> {
   @override
   FeedState build() {
-    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
-    ref.onDispose(() => _disposed = true);
+    // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
+    // (홈 진입 직후 로그아웃 등으로 폐기된 뒤 응답이 도착하면 StateError)
+    watchDispose();
     _load();
+
     return const FeedLoading();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
   void _update(FeedState Function(FeedState state) updater) {
-    if (_disposed) return;
+    if (isDisposed) return;
     state = updater(state);
   }
 

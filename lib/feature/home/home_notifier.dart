@@ -1,24 +1,24 @@
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeNotifier extends AutoDisposeNotifier<HomeState> {
-  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
-  /// (홈 진입 직후 로그아웃 등으로 폐기된 뒤 응답이 도착하면 StateError)
-  bool _disposed = false;
-
+class HomeNotifier extends AutoDisposeNotifier<HomeState>
+    with AutoDisposeGuard<HomeState> {
   @override
   HomeState build() {
-    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
-    ref.onDispose(() => _disposed = true);
+    // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
+    // (홈 진입 직후 로그아웃 등으로 폐기된 뒤 응답이 도착하면 StateError)
+    watchDispose();
     _load();
+
     return const HomeLoading();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
   void _update(HomeState Function(HomeState state) updater) {
-    if (_disposed) return;
+    if (isDisposed) return;
     state = updater(state);
   }
 
