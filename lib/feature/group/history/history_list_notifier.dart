@@ -1,4 +1,5 @@
 import 'package:ddara/core/exception/group_exception.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/history/util/history_list_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +22,7 @@ class HistoryListNotifier
   /// 연·월 필터를 적용해 목록을 다시 조회한다.
   /// (전체보기는 year·month 를 모두 null 로 호출)
   Future<void> applyFilter({int? year, int? month}) async {
-    state = state.copyWith(isLoading: true, errorMessage: '');
+    state = state.copyWith(isLoading: true, clearError: true);
     await _load(arg, year: year, month: month);
   }
 
@@ -44,19 +45,19 @@ class HistoryListNotifier
         blockedUserIds: blockedUserIds,
       );
     } on NotGroupMemberException {
-      _fail(id, '해당 모임의 멤버가 아니에요.');
+      _fail(id, GroupActionError.notGroupMember);
     } on GroupNotFoundException {
-      _fail(id, '존재하지 않는 모임이에요.');
+      _fail(id, GroupActionError.groupNotFound);
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      _fail(id, '지난 따라찍기를 불러오지 못했어요.');
+      _fail(id, GroupActionError.historyLoadFailed);
     }
   }
 
   /// 조회 실패를 상태에 반영한다. 이미 더 새 조회가 시작됐다면 무시한다 —
   /// 옛 요청의 실패로 최신 조회의 로딩·목록이 흐트러지지 않게 한다.
-  void _fail(int id, String message) {
+  void _fail(int id, GroupActionError error) {
     if (id != _requestId) return;
-    state = state.copyWith(isLoading: false, errorMessage: message);
+    state = state.copyWith(isLoading: false, error: error);
   }
 }

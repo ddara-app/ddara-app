@@ -1,16 +1,23 @@
+import 'package:ddara/core/model/group/group_action_error.dart';
+
 class FollowerState {
   /// 업로드 진행 중 여부. (중복 전송 방지·버튼 로딩 표시)
   final bool isLoading;
 
-  /// 업로드 실패 메시지. 비어 있으면 에러 없음.
-  final String errorMessage;
+  /// 업로드 실패 종류. (문구는 화면이 l10n 으로 매핑)
+  final GroupActionError? error;
 
-  const FollowerState({this.isLoading = false, this.errorMessage = ''});
+  const FollowerState({this.isLoading = false, this.error});
 
-  FollowerState copyWith({bool? isLoading, String? errorMessage}) {
+  FollowerState copyWith({
+    bool? isLoading,
+    GroupActionError? error,
+    bool clearError = false,
+  }) {
     return FollowerState(
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      // copyWith(error: null) 은 기존 값을 유지하므로 리셋은 clear 로만.
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }

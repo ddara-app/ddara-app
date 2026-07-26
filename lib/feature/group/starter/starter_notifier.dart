@@ -1,6 +1,7 @@
 import 'package:ddara/core/exception/cycle_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/starter/util/starter_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,12 +31,17 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
 
   /// 에러 토스트를 띄운 뒤 호출해, 같은 에러가 다시 노출되지 않게 비운다.
   void clearError() {
-    state = state.copyWith(errorMessage: '');
+    state = state.copyWith(clearError: true);
+  }
+
+  /// 업로드 실패를 상태에 반영하고 로딩을 내린다.
+  void _fail(GroupActionError error) {
+    state = state.copyWith(isLoading: false, error: error);
   }
 
   /// 촬영본을 presigned URL로 S3에 올리고 새 사이클을 시작한다.
   /// 성공하면 생성된 사이클 id 를, 실패하면 null 을 반환한다.
-  /// (실패 사유는 [StarterState.errorMessage] 로 내려 화면이 토스트로 안내한다)
+  /// (실패 사유는 [StarterState.error] 로 내려 화면이 토스트로 안내한다)
   ///
   /// 성공 후 이동은 일회성 이벤트라 상태에 남기지 않고 반환값으로 넘긴다 —
   /// 호출부가 결과를 받아 직접 화면을 전환한다.
@@ -44,7 +50,7 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
     // 촬영 전이거나 이미 전송 중이면 무시한다. (중복 전송 방지)
     if (state.isLoading || photoPath == null) return null;
 
-    state = state.copyWith(isLoading: true, errorMessage: '');
+    state = state.copyWith(isLoading: true, clearError: true);
     final useCase = ref.read(starterUploadUseCase);
 
     try {
@@ -57,53 +63,26 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
       state = state.copyWith(isLoading: false);
       return result.cycleId;
     } on InvalidStarterInputException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '컨셉 또는 이미지가 올바르지 않습니다.',
-      );
+      _fail(GroupActionError.starterInvalidInput);
     } on StarterImageUploadException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '이미지 업로드에 실패했습니다.',
-      );
+      _fail(GroupActionError.imageUploadFailed);
     } on UnauthorizedException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '로그인이 필요합니다.',
-      );
+      _fail(GroupActionError.unauthorized);
     } on NotGroupMemberException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '모임 멤버가 아닙니다.',
-      );
+      _fail(GroupActionError.notGroupMember);
     } on GroupNotFoundException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '존재하지 않는 모임입니다.',
-      );
+      _fail(GroupActionError.groupNotFound);
     } on NotEnoughMembersException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '활동 멤버가 3명 이상이어야 시작할 수 있어요.',
-      );
+      _fail(GroupActionError.notEnoughMembers);
     } on CycleAlreadyInProgressException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '이미 진행 중인 회차가 있어요.',
-      );
+      _fail(GroupActionError.cycleAlreadyInProgress);
     } on NetworkException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '네트워크 연결이 불안정합니다.',
-      );
+      _fail(GroupActionError.network);
     } catch (_) {
       // 위에 나열되지 않은 오류(파일 IO 실패·매퍼 캐스트 오류 등).
       // 여기서 잡지 않으면 isLoading 이 true 로 남아 로딩 오버레이가 화면을
       // 계속 덮은 채 아무것도 할 수 없게 된다.
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '따라찍기를 시작하지 못했어요.',
-      );
+      _fail(GroupActionError.starterUploadFailed);
     }
     return null;
   }

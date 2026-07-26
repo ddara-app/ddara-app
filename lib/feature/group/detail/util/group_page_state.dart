@@ -1,3 +1,4 @@
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 
@@ -11,14 +12,17 @@ class GroupPageState {
   final Set<int> blockedUserIds;
 
   final bool isLoading;
-  final String errorMessage;
+
+  /// 액션 실패 종류. (토스트용 일회성 — 문구는 화면이 l10n 으로 매핑,
+  /// 소비 후 clearError 로 비운다)
+  final GroupActionError? error;
 
   const GroupPageState({
     this.groupDetail,
     this.historyCycles,
     this.blockedUserIds = const {},
     this.isLoading = false,
-    this.errorMessage = '',
+    this.error,
   });
 
   GroupPageState copyWith({
@@ -26,14 +30,16 @@ class GroupPageState {
     HistoryCycles? historyCycles,
     Set<int>? blockedUserIds,
     bool? isLoading,
-    String? errorMessage,
+    GroupActionError? error,
+    bool clearError = false,
   }) {
     return GroupPageState(
       groupDetail: groupDetail ?? this.groupDetail,
       historyCycles: historyCycles ?? this.historyCycles,
       blockedUserIds: blockedUserIds ?? this.blockedUserIds,
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      // copyWith(error: null) 은 기존 값을 유지하므로 리셋은 clear 로만.
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }

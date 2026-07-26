@@ -5,6 +5,7 @@ import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
 import 'package:ddara/core/model/comment/comment.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/model/profile/profile.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
@@ -45,27 +46,30 @@ class CyclePhotoGalleryNotifier
         blockedUserIds: results[2] as Set<int>,
       );
     } on NotGroupMemberException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '해당 모임의 멤버가 아니에요.',
-      );
+      _fail(GroupActionError.notGroupMember);
     } on GroupNotFoundException {
-      state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 사이클이에요.');
+      _fail(GroupActionError.cycleNotFound);
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(isLoading: false, errorMessage: '사진을 불러오지 못했어요.');
+      _fail(GroupActionError.galleryLoadFailed);
     }
   }
 
-  /// 에러 메시지를 소비한 뒤(토스트로 노출 후) 다시 비운다.
+  /// 실패를 상태에 반영하고 로딩을 내린 뒤 false 를 돌려준다.
+  bool _fail(GroupActionError error) {
+    state = state.copyWith(isLoading: false, error: error);
+    return false;
+  }
+
+  /// 에러를 소비한 뒤(토스트로 노출 후) 다시 비운다.
   /// 같은 에러가 이후 상태 변경 때 재노출되는 것을 막는다.
   void clearError() {
-    if (state.errorMessage.isEmpty) return;
-    state = state.copyWith(errorMessage: '');
+    if (state.error == null) return;
+    state = state.copyWith(clearError: true);
   }
 
   /// [shotId] 사진을 신고한다. 성공하면 검토 상태가 반영되도록 갤러리를
-  /// 다시 조회하고 true, 실패하면 errorMessage 를 채우고 false 를 반환한다.
+  /// 다시 조회하고 true, 실패하면 error 를 채우고 false 를 반환한다.
   Future<bool> reportShot({
     required int shotId,
     required ReportReason reason,
@@ -87,28 +91,18 @@ class CyclePhotoGalleryNotifier
       await _loadGallery(arg);
       return true;
     } on InvalidReportInputException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '신고 내용이 올바르지 않아요.',
-      );
-      return false;
+      return _fail(GroupActionError.reportInvalidInput);
     } on ShotNotFoundException {
-      state = state.copyWith(isLoading: false, errorMessage: '이미 삭제된 사진이에요.');
-      return false;
+      return _fail(GroupActionError.reportShotNotFound);
     } on NotGroupMemberException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '해당 모임의 멤버가 아니에요.',
-      );
-      return false;
+      return _fail(GroupActionError.notGroupMember);
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(isLoading: false, errorMessage: '신고하지 못했어요.');
-      return false;
+      return _fail(GroupActionError.reportFailed);
     }
   }
 
-  /// [userId] 멤버를 차단한다. 성공하면 true, 실패하면 errorMessage 를 채우고
+  /// [userId] 멤버를 차단한다. 성공하면 true, 실패하면 error 를 채우고
   /// false 를 반환한다. 요청 시작~완료까지 isLoading 을 true 로 두고, 성공 시
   /// 차단이 반영된(사진 가림) 갤러리를 다시 조회한다.
   Future<bool> blockMember(int userId) async {
@@ -132,18 +126,12 @@ class CyclePhotoGalleryNotifier
       ref.invalidate(homeNotifierProvider);
       return true;
     } on InvalidBlockInputException {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '자기 자신은 차단할 수 없어요.',
-      );
-      return false;
+      return _fail(GroupActionError.blockSelf);
     } on BlockTargetNotFoundException {
-      state = state.copyWith(isLoading: false, errorMessage: '존재하지 않는 사용자예요.');
-      return false;
+      return _fail(GroupActionError.blockTargetNotFound);
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(isLoading: false, errorMessage: '차단하지 못했어요.');
-      return false;
+      return _fail(GroupActionError.blockFailed);
     }
   }
 

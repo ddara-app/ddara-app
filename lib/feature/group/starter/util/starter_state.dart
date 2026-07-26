@@ -1,3 +1,5 @@
+import 'package:ddara/core/model/group/group_action_error.dart';
+
 /// 스타터 화면에서 현재 보여줄 본문 단계. (촬영으로 시작해 정보 입력으로 넘어간다)
 enum StarterStep { camera, info }
 
@@ -15,15 +17,15 @@ class StarterState {
   /// 업로드 진행 중 여부. (중복 전송 방지·버튼 로딩 표시)
   final bool isLoading;
 
-  /// 업로드 실패 메시지. 비어 있으면 에러 없음.
-  final String errorMessage;
+  /// 업로드 실패 종류. (문구는 화면이 l10n 으로 매핑)
+  final GroupActionError? error;
 
   const StarterState({
     this.step = StarterStep.camera,
     this.concept = '',
     this.photoPath,
     this.isLoading = false,
-    this.errorMessage = '',
+    this.error,
   });
 
   StarterState copyWith({
@@ -31,14 +33,16 @@ class StarterState {
     String? concept,
     String? photoPath,
     bool? isLoading,
-    String? errorMessage,
+    GroupActionError? error,
+    bool clearError = false,
   }) {
     return StarterState(
       step: step ?? this.step,
       concept: concept ?? this.concept,
       photoPath: photoPath ?? this.photoPath,
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      // copyWith(error: null) 은 기존 값을 유지하므로 리셋은 clear 로만.
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }

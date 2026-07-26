@@ -2,6 +2,7 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
@@ -141,9 +142,13 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       return [
         SizedBox(
           width: double.infinity,
-          child: state.errorMessage.isNotEmpty
-              ? AppText.body(state.errorMessage, textAlign: TextAlign.center)
-              : const CupertinoActivityIndicator(),
+          child: switch (state.error) {
+            final error? => AppText.body(
+              error.message(l10n),
+              textAlign: TextAlign.center,
+            ),
+            _ => const CupertinoActivityIndicator(),
+          },
         ),
       ];
     }

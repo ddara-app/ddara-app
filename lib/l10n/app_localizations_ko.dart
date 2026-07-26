@@ -721,6 +721,81 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commentErrorReportFailed => '신고하지 못했어요.';
 
   @override
+  String get groupErrorNotGroupMember => '해당 모임의 멤버가 아니에요.';
+
+  @override
+  String get groupErrorGroupNotFound => '존재하지 않는 모임이에요.';
+
+  @override
+  String get groupErrorCycleNotFound => '존재하지 않는 회차예요.';
+
+  @override
+  String get groupErrorUnauthorized => '로그인이 필요해요.';
+
+  @override
+  String get groupErrorNetwork => '네트워크 연결이 불안정해요.';
+
+  @override
+  String get groupErrorGroupLoadFailed => '모임 정보를 불러오지 못했어요.';
+
+  @override
+  String get groupErrorGalleryLoadFailed => '사진을 불러오지 못했어요.';
+
+  @override
+  String get groupErrorHistoryLoadFailed => '지난 따라찍기를 불러오지 못했어요.';
+
+  @override
+  String get groupErrorExitFailed => '모임에서 나가지 못했어요.';
+
+  @override
+  String get groupErrorReportInvalidInput => '신고 내용이 올바르지 않아요.';
+
+  @override
+  String get groupErrorReportShotNotFound => '이미 삭제된 사진이에요.';
+
+  @override
+  String get groupErrorReportUserNotFound => '모임에 없는 사용자예요.';
+
+  @override
+  String get groupErrorReportFailed => '신고하지 못했어요.';
+
+  @override
+  String get groupErrorBlockSelf => '자기 자신은 차단할 수 없어요.';
+
+  @override
+  String get groupErrorBlockTargetNotFound => '존재하지 않는 사용자예요.';
+
+  @override
+  String get groupErrorBlockFailed => '차단하지 못했어요.';
+
+  @override
+  String get groupErrorNicknameInvalid => '닉네임은 2~10자로 입력해주세요.';
+
+  @override
+  String get groupErrorNicknameDuplicate => '이미 누가 쓰고 있어요. 다른 이름은 어때요?';
+
+  @override
+  String get groupErrorNicknameChangeFailed => '닉네임을 변경하지 못했어요.';
+
+  @override
+  String get groupErrorStarterInvalidInput => '컨셉 또는 이미지가 올바르지 않아요.';
+
+  @override
+  String get groupErrorImageUploadFailed => '이미지 업로드에 실패했어요.';
+
+  @override
+  String get groupErrorNotEnoughMembers => '활동 멤버가 3명 이상이어야 시작할 수 있어요.';
+
+  @override
+  String get groupErrorCycleAlreadyInProgress => '이미 진행 중인 회차가 있어요.';
+
+  @override
+  String get groupErrorStarterUploadFailed => '따라찍기를 시작하지 못했어요.';
+
+  @override
+  String get groupErrorFollowerUploadFailed => '사진을 올리지 못했어요.';
+
+  @override
   String get commentPendingLeaveTitle => '전송하지 못한 댓글이 있어요';
 
   @override

@@ -5,6 +5,7 @@ import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -51,10 +52,14 @@ class GroupPage extends ConsumerWidget {
     final state = ref.watch(groupPageNotifierProvider(groupId));
 
     ref.listen(groupPageNotifierProvider(groupId), (prev, next) {
-      final errorMessage = next.errorMessage;
-
-      if (errorMessage.isNotEmpty) {
-        Toast.showToast(context, errorMessage, type: ToastType.error);
+      // 실패 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
+      final error = next.error;
+      if (error != null) {
+        Toast.showToast(
+          context,
+          error.message(AppLocalizations.of(context)),
+          type: ToastType.error,
+        );
         // 토스트로 소비했으니 비워, 이후 상태 변경 때 같은 에러가 재노출되지 않게 한다.
         ref.read(groupPageNotifierProvider(groupId).notifier).clearError();
       }
@@ -191,7 +196,7 @@ class GroupPage extends ConsumerWidget {
 
   /// 모임 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공 시 완료 토스트를 띄운다. (신고해도 모임은 그대로 노출 — 관리자 검토
-  /// 후 처리, 실패 시 notifier 가 errorMessage → 토스트로 처리)
+  /// 후 처리, 실패 시 notifier 가 error → 토스트로 처리)
   Future<void> _reportGroup(BuildContext context, WidgetRef ref) async {
     final result = await GroupReportSheet.show(context);
     if (result == null || !context.mounted) return;
@@ -208,7 +213,7 @@ class GroupPage extends ConsumerWidget {
   }
 
   /// 닉네임 수정 바텀시트를 띄우고, 입력을 받으면 변경을 요청한다.
-  /// (실패 시 notifier 가 errorMessage → 토스트로 처리, 성공 시 상세 재조회로 반영)
+  /// (실패 시 notifier 가 error → 토스트로 처리, 성공 시 상세 재조회로 반영)
   Future<void> _editNickname(BuildContext context, WidgetRef ref) async {
     final detail = ref.read(groupPageNotifierProvider(groupId)).groupDetail;
 
@@ -288,9 +293,7 @@ class GroupPage extends ConsumerWidget {
             hasScrollBody: false,
             child: Center(
               child: AppText.body(
-                state.errorMessage.isEmpty
-                    ? l10n.groupDetailLoadError
-                    : state.errorMessage,
+                state.error?.message(l10n) ?? l10n.groupDetailLoadError,
               ),
             ),
           ),
@@ -456,7 +459,7 @@ class GroupPage extends ConsumerWidget {
 
   /// 유저 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공하면 완료 토스트를 띄운다.
-  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  /// (실패 시 notifier 가 error → 토스트로 처리)
   Future<void> _reportMember(
     BuildContext context,
     WidgetRef ref,
@@ -479,7 +482,7 @@ class GroupPage extends ConsumerWidget {
 
   /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
   /// 성공하면 차단이 반영된 상세를 다시 조회하고 완료 토스트를 띄운다.
-  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  /// (실패 시 notifier 가 error → 토스트로 처리)
   Future<void> _blockMember(
     BuildContext context,
     WidgetRef ref,

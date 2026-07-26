@@ -6,6 +6,7 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/cycle_shot_status.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/bottom_sheet/report_sheets.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
@@ -55,8 +56,13 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 신고 등 액션 실패를 토스트로 안내한다.
     // (초기 조회 실패는 본문에 표시되므로 갤러리가 로드된 뒤의 에러만 다룬다)
     ref.listen(cyclePhotoGalleryNotifierProvider(cycleId), (prev, next) {
-      if (next.gallery != null && next.errorMessage.isNotEmpty) {
-        Toast.showToast(context, next.errorMessage, type: ToastType.error);
+      final error = next.error;
+      if (next.gallery != null && error != null) {
+        Toast.showToast(
+          context,
+          error.message(AppLocalizations.of(context)),
+          type: ToastType.error,
+        );
         ref
             .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
             .clearError();
@@ -85,10 +91,12 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         bottom: false,
         child: switch (gallery) {
           // 조회 완료 전: 로딩 인디케이터 또는 에러 메시지.
-          null =>
-            state.errorMessage.isNotEmpty
-                ? Center(child: AppText.body(state.errorMessage))
-                : const Center(child: CupertinoActivityIndicator()),
+          null => switch (state.error) {
+            final error? => Center(
+              child: AppText.body(error.message(AppLocalizations.of(context))),
+            ),
+            _ => const Center(child: CupertinoActivityIndicator()),
+          },
           _ => _buildContent(
             context,
             ref,
@@ -437,7 +445,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   /// [userId] 유저(멤버·스타터·댓글 작성자 공용)를 차단한다. 먼저 확인
   /// 다이얼로그를 띄우고, 확인 시에만 진행한다. 성공하면 차단이 반영된
   /// (사진 가림) 갤러리를 다시 조회하고 완료 토스트를 띄운 뒤 true 를
-  /// 반환한다. (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  /// 반환한다. (실패 시 notifier 가 error → 토스트로 처리)
   Future<bool> _blockUser(
     BuildContext context,
     WidgetRef ref, {
@@ -478,7 +486,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공 시 검토 상태가 반영된 갤러리를 다시 조회하고 완료 토스트를 띄운다.
-  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  /// (실패 시 notifier 가 error → 토스트로 처리)
   Future<void> _reportPhoto(
     BuildContext context,
     WidgetRef ref,

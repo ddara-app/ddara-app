@@ -1,5 +1,6 @@
 import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 
 class CyclePhotoGalleryState {
   /// 사이클 갤러리 데이터. 조회 전엔 null.
@@ -15,8 +16,9 @@ class CyclePhotoGalleryState {
   /// 갤러리 조회 중 여부.
   final bool isLoading;
 
-  /// 조회 실패 메시지. 비어 있으면 에러 없음.
-  final String errorMessage;
+  /// 조회·액션 실패 종류. (토스트용 일회성 — 문구는 화면이 l10n 으로 매핑,
+  /// 소비 후 clearError 로 비운다)
+  final GroupActionError? error;
 
   /// 댓글 액션 실패 종류. (토스트용 일회성 — 문구는 화면이 l10n 으로 매핑,
   /// 소비 후 clearCommentError 로 비운다)
@@ -27,7 +29,7 @@ class CyclePhotoGalleryState {
     this.myUserId,
     this.blockedUserIds = const {},
     this.isLoading = false,
-    this.errorMessage = '',
+    this.error,
     this.commentError,
   });
 
@@ -39,7 +41,8 @@ class CyclePhotoGalleryState {
     int? myUserId,
     Set<int>? blockedUserIds,
     bool? isLoading,
-    String? errorMessage,
+    GroupActionError? error,
+    bool clearError = false,
     CommentActionError? commentError,
     bool clearCommentError = false,
   }) {
@@ -48,9 +51,11 @@ class CyclePhotoGalleryState {
       myUserId: myUserId ?? this.myUserId,
       blockedUserIds: blockedUserIds ?? this.blockedUserIds,
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
-      // copyWith(commentError: null) 은 기존 값을 유지하므로 리셋은 clear 로만.
-      commentError: clearCommentError ? null : (commentError ?? this.commentError),
+      // copyWith(error: null) 은 기존 값을 유지하므로 리셋은 clear 로만.
+      error: clearError ? null : (error ?? this.error),
+      commentError: clearCommentError
+          ? null
+          : (commentError ?? this.commentError),
     );
   }
 }
