@@ -7,6 +7,10 @@ abstract interface class CommentRepository {
   /// [shotId] 사진의 댓글 목록을 조회한다.
   Future<List<Comment>> getComments(int shotId);
 
+  /// [shotId] 사진의 댓글을 읽음 처리한다.
+  /// (이후 조회에서 해당 사진의 hasUnreadComments 가 false 로 내려온다)
+  Future<void> markCommentsRead(int shotId);
+
   /// [commentId] 댓글을 삭제한다.
   Future<void> deleteComment(int commentId);
 

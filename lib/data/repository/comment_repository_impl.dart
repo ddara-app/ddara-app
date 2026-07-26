@@ -85,6 +85,30 @@ class CommentRepositoryImpl implements CommentRepository {
   }
 
   @override
+  Future<void> markCommentsRead(int shotId) async {
+    try {
+      await _commentDataSource.markCommentsRead(shotId);
+    } on DioException catch (e) {
+      final code = e.response?.data is Map
+          ? CommentErrorCode.fromValue(e.response?.data['code'])
+          : null;
+
+      switch (code) {
+        case CommentErrorCode.notGroupMember:
+          // 403 — 해당 사진이 속한 모임의 멤버가 아님
+          throw NotGroupMemberException();
+
+        case CommentErrorCode.shotNotFound:
+          // 404 — 사진 없음
+          throw ShotNotFoundException();
+
+        default:
+          throw NetworkException();
+      }
+    }
+  }
+
+  @override
   Future<void> deleteComment(int commentId) async {
     try {
       await _commentDataSource.deleteComment(commentId);

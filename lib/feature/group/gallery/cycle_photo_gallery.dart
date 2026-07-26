@@ -98,13 +98,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
           CyclePhotoGalleryLoadError(:final error) => Center(
             child: AppText.body(error.message(AppLocalizations.of(context))),
           ),
-          CyclePhotoGalleryLoaded() => _buildContent(
-            context,
-            ref,
-            state.gallery,
-            state.myUserId,
-            state.blockedUserIds,
-          ),
+          CyclePhotoGalleryLoaded() => _buildContent(context, ref, state),
         },
       ),
     );
@@ -113,11 +107,12 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   Widget _buildContent(
     BuildContext context,
     WidgetRef ref,
-    CycleGallery gallery,
-    int myUserId,
-    Set<int> blockedUserIds,
+    CyclePhotoGalleryLoaded state,
   ) {
     final l10n = AppLocalizations.of(context);
+    final gallery = state.gallery;
+    final myUserId = state.myUserId;
+    final blockedUserIds = state.blockedUserIds;
     final cycle = gallery.cycle;
 
     // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
@@ -151,6 +146,12 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       }
     }
 
+    // 스타터 사진에 읽지 않은 댓글이 있는지. (이 화면에서 이미 열어 봤으면 해제)
+    final starterCommentUnread = state.isCommentUnread(
+      cycle.starterShotId,
+      hasUnreadComments: cycle.hasUnreadComments,
+    );
+
     // 스타터 대표 사진 크게 보기. (사진이 없으면 열지 않는다)
     // 헤더에서 보이던 프레임 그대로 보여준다. 댓글은 스타터 shot id 로 등록·조회한다.
     VoidCallback? openStarterViewer;
@@ -167,6 +168,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         title: cycle.starterNickname,
         body: cycle.topic,
         openCommentSheet: withComments,
+        commentUnread: starterCommentUnread,
       );
       openStarterViewer = () => show();
       openStarterComments = () => show(withComments: true);
@@ -224,7 +226,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             onImageTap: openStarterViewer,
             // 우상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
             onComment: openStarterComments,
-            commentUnread: cycle.hasUnreadComments,
+            commentUnread: starterCommentUnread,
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
           const SizedBox(height: AppSpacing.s6),
@@ -246,10 +248,9 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
               context,
               ref,
               l10n: l10n,
+              state: state,
               member: members[index],
               cycle: cycle,
-              myUserId: myUserId,
-              blockedUserIds: blockedUserIds,
               isDoneCycle: isDoneCycle,
               starterBlocked: starterBlocked,
             ),
@@ -265,16 +266,15 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     BuildContext context,
     WidgetRef ref, {
     required AppLocalizations l10n,
+    required CyclePhotoGalleryLoaded state,
     required CycleGalleryMember member,
     required CycleGalleryCycle cycle,
-    required int myUserId,
-    required Set<int> blockedUserIds,
     required bool isDoneCycle,
     required bool starterBlocked,
   }) {
-    final isMe = member.userId == myUserId;
+    final isMe = member.userId == state.myUserId;
     // 차단한 멤버는 사진을 아예 로드하지 않고 자리표시만 보여준다.
-    final isBlockedMember = blockedUserIds.contains(member.userId);
+    final isBlockedMember = state.blockedUserIds.contains(member.userId);
     // 신고 접수로 검토 중인 사진. (검토 안내 자리표시로 가린다)
     final isReported = member.status == CycleShotStatus.reported;
     final imageUrl = isBlockedMember || isReported ? null : member.imageUrl;
@@ -293,6 +293,11 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     final heroTag = canView ? 'gallery-photo-${member.userId}' : null;
     // 댓글 등록 대상 shot id. (미업로드면 null → 댓글 불가)
     final shotId = member.shotId;
+    // 읽지 않은 댓글이 있는지. (이 화면에서 이미 열어 봤으면 해제)
+    final commentUnread = state.isCommentUnread(
+      shotId,
+      hasUnreadComments: member.hasUnreadComments,
+    );
 
     // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
     // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
@@ -313,6 +318,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         body: cycle.topic,
         locked: locked,
         openCommentSheet: withComments,
+        commentUnread: commentUnread,
       );
       openViewer = () => show();
       openComments = () => show(withComments: true);
@@ -328,7 +334,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       onTap: openViewer,
       // 우측 상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
       onComment: openComments,
-      commentUnread: member.hasUnreadComments,
+      commentUnread: commentUnread,
       // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
       // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
       // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로 역시 숨긴다.
@@ -397,6 +403,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     double? aspectRatio,
     bool locked = false,
     bool openCommentSheet = false,
+    bool commentUnread = false,
   }) {
     // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
     // (뷰어는 갤러리가 떠 있어야만 열리므로 여기선 항상 Loaded 다)
@@ -422,7 +429,19 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       locked: locked,
       // 댓글 버튼으로 들어왔으면 시트를 연 채로 시작한다.
       openCommentSheet: openCommentSheet,
-      onLoadComments: handlers.onLoadComments,
+      // 카드의 댓글 버튼과 같은 강조 표시를 뷰어 말풍선에도 유지한다.
+      commentUnread: commentUnread,
+      // 댓글 시트를 열어 목록을 받아왔으면 읽은 것으로 본다.
+      // (돌아왔을 때 카드의 강조 표시가 내려간다)
+      onLoadComments: () async {
+        final comments = await handlers.onLoadComments();
+        if (comments != null) {
+          ref
+              .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+              .markCommentsRead(shotId);
+        }
+        return comments;
+      },
       onSubmitComment: handlers.onSubmitComment,
       onDeleteComment: handlers.onDeleteComment,
       onEditComment: handlers.onEditComment,
