@@ -2,13 +2,17 @@ import 'package:ddara/core/exception/cycle_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/model/group/group_action_error.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/starter/util/starter_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StarterNotifier extends AutoDisposeNotifier<StarterState> {
+class StarterNotifier extends AutoDisposeNotifier<StarterState>
+    with AutoDisposeGuard<StarterState> {
   @override
   StarterState build() {
+    watchDispose();
+
     return const StarterState();
   }
 
@@ -23,10 +27,7 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
 
   /// 촬영 완료 → 촬영본을 본문(info)에 바로 반영하고 본문으로 전환.
   void capture(String path) {
-    state = state.copyWith(
-      step: StarterStep.info,
-      photoPath: path,
-    );
+    state = state.copyWith(step: StarterStep.info, photoPath: path);
   }
 
   /// 에러 토스트를 띄운 뒤 호출해, 같은 에러가 다시 노출되지 않게 비운다.
@@ -35,7 +36,9 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
   }
 
   /// 업로드 실패를 상태에 반영하고 로딩을 내린다.
+  /// (업로드 중 화면을 벗어났으면 반영하지 않는다)
   void _fail(GroupActionError error) {
+    if (isDisposed) return;
     state = state.copyWith(isLoading: false, error: error);
   }
 
@@ -54,13 +57,12 @@ class StarterNotifier extends AutoDisposeNotifier<StarterState> {
     final useCase = ref.read(starterUploadUseCase);
 
     try {
-      final result = await useCase(
-        groupId,
-        state.concept,
-        photoPath,
-      );
+      final result = await useCase(groupId, state.concept, photoPath);
 
-      state = state.copyWith(isLoading: false);
+      // 업로드 중 화면을 벗어났으면 상태만 건드리지 않고 결과는 그대로 넘긴다.
+      // (호출부가 mounted 를 확인해 이동 여부를 정한다)
+      if (!isDisposed) state = state.copyWith(isLoading: false);
+
       return result.cycleId;
     } on InvalidStarterInputException {
       _fail(GroupActionError.starterInvalidInput);

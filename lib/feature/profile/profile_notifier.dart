@@ -1,6 +1,7 @@
 import 'package:ddara/core/exception/profile_exception.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/router/app_router.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
@@ -8,15 +9,13 @@ import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
-  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
-  /// (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
-  bool _disposed = false;
-
+class ProfileNotifier extends AutoDisposeNotifier<ProfileState>
+    with AutoDisposeGuard<ProfileState> {
   @override
   ProfileState build() {
-    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
-    ref.onDispose(() => _disposed = true);
+    // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
+    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    watchDispose();
     // 진입 시 프로필 정보를 자동 조회. (build 는 동기라 fire-and-forget)
     _load();
 
@@ -25,7 +24,7 @@ class ProfileNotifier extends AutoDisposeNotifier<ProfileState> {
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
   void _update(ProfileState Function(ProfileState state) updater) {
-    if (_disposed) return;
+    if (isDisposed) return;
     state = updater(state);
   }
 

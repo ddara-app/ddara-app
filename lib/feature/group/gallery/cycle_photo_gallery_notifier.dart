@@ -8,6 +8,7 @@ import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/model/profile/profile.dart';
 import 'package:ddara/core/model/report/report_reason.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
@@ -15,9 +16,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CyclePhotoGalleryNotifier
     extends AutoDisposeFamilyNotifier<CyclePhotoGalleryState, int>
-    with CommentActions<CyclePhotoGalleryState> {
+    with
+        CommentActions<CyclePhotoGalleryState>,
+        AutoDisposeGuard<CyclePhotoGalleryState> {
   @override
   CyclePhotoGalleryState build(int cycleId) {
+    watchDispose();
     // 진입 시 cycleId 로 갤러리를 조회한다. (build 는 동기라 fire-and-forget)
     _loadGallery(cycleId);
 
@@ -39,6 +43,8 @@ class CyclePhotoGalleryNotifier
         getProfileUseCase(),
         ref.read(getBlockedUserIdsUseCaseProvider)(),
       ]);
+      // 화면을 벗어난 뒤 도착한 결과는 버린다.
+      if (isDisposed) return;
       state = state.copyWith(
         isLoading: false,
         gallery: results[0] as CycleGallery,
@@ -56,7 +62,9 @@ class CyclePhotoGalleryNotifier
   }
 
   /// 실패를 상태에 반영하고 로딩을 내린 뒤 false 를 돌려준다.
+  /// (화면을 벗어난 뒤 도착한 실패는 반영하지 않는다)
   bool _fail(GroupActionError error) {
+    if (isDisposed) return false;
     state = state.copyWith(isLoading: false, error: error);
     return false;
   }
@@ -137,6 +145,8 @@ class CyclePhotoGalleryNotifier
 
   @override
   void onCommentError(CommentActionError error) {
+    // 뷰어를 닫고 화면을 벗어난 뒤 도착한 실패는 반영하지 않는다.
+    if (isDisposed) return;
     state = state.copyWith(commentError: error);
   }
 

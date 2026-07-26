@@ -1,11 +1,13 @@
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/model/group/group_action_error.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/history/util/history_list_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HistoryListNotifier
-    extends AutoDisposeFamilyNotifier<HistoryListState, int> {
+    extends AutoDisposeFamilyNotifier<HistoryListState, int>
+    with AutoDisposeGuard<HistoryListState> {
   /// 가장 마지막에 시작한 조회의 번호. 응답이 도착했을 때 이 값과 다르면
   /// 그 사이 새 조회가 시작된 것이므로 결과를 버린다.
   /// (필터를 빠르게 바꿀 때 옛 응답이 최신 목록을 덮는 것을 막는다)
@@ -13,6 +15,7 @@ class HistoryListNotifier
 
   @override
   HistoryListState build(int groupId) {
+    watchDispose();
     // 진입 시 groupId 로 히스토리 목록을 조회한다. (build 는 동기라 fire-and-forget)
     _load(groupId);
 
@@ -37,8 +40,8 @@ class HistoryListNotifier
         month: month,
       );
       final blockedUserIds = await ref.read(getBlockedUserIdsUseCaseProvider)();
-      // 기다리는 동안 더 새 조회가 시작됐으면 이 결과는 버린다.
-      if (id != _requestId) return;
+      // 화면을 벗어났거나(폐기) 더 새 조회가 시작됐으면 이 결과는 버린다.
+      if (isDisposed || id != _requestId) return;
       state = state.copyWith(
         isLoading: false,
         historyList: historyList,
@@ -54,10 +57,10 @@ class HistoryListNotifier
     }
   }
 
-  /// 조회 실패를 상태에 반영한다. 이미 더 새 조회가 시작됐다면 무시한다 —
-  /// 옛 요청의 실패로 최신 조회의 로딩·목록이 흐트러지지 않게 한다.
+  /// 조회 실패를 상태에 반영한다. 폐기됐거나 이미 더 새 조회가 시작됐다면
+  /// 무시한다 — 옛 요청의 실패로 최신 조회의 로딩·목록이 흐트러지지 않게 한다.
   void _fail(int id, GroupActionError error) {
-    if (id != _requestId) return;
+    if (isDisposed || id != _requestId) return;
     state = state.copyWith(isLoading: false, error: error);
   }
 }

@@ -1,18 +1,17 @@
 import 'package:ddara/core/model/block/blocked_users.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/blocked/util/blocked_users_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState> {
-  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
-  /// (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
-  bool _disposed = false;
-
+class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState>
+    with AutoDisposeGuard<BlockedUsersState> {
   @override
   BlockedUsersState build() {
-    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
-    ref.onDispose(() => _disposed = true);
+    // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
+    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    watchDispose();
     // 진입 시 차단 목록을 조회한다. (build 는 동기라 fire-and-forget)
     _load();
 
@@ -21,7 +20,7 @@ class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState> {
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
   void _update(BlockedUsersState Function(BlockedUsersState state) updater) {
-    if (_disposed) return;
+    if (isDisposed) return;
     state = updater(state);
   }
 

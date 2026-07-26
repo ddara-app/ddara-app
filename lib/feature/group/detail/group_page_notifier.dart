@@ -6,11 +6,13 @@ import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/model/report/group_report_reason.dart';
 import 'package:ddara/core/model/report/user_report_reason.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
+class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int>
+    with AutoDisposeGuard<GroupPageState> {
   /// 가장 마지막에 시작한 조회의 번호. 응답이 도착했을 때 이 값과 다르면
   /// 그 사이 새 조회가 시작된 것이므로 결과를 버린다.
   /// (당겨서 새로고침을 연달아 하거나 차단·닉네임 변경 후 재조회가 겹칠 때,
@@ -19,6 +21,7 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
 
   @override
   GroupPageState build(int groupId) {
+    watchDispose();
     // GroupPage 가 넘긴 groupId 로 진입 시 자동 조회. (build 는 동기라 fire-and-forget)
     _load(groupId);
 
@@ -37,8 +40,8 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
         getHistoryCyclesUseCase(groupId),
         ref.read(getBlockedUserIdsUseCaseProvider)(),
       ]);
-      // 기다리는 동안 더 새 조회가 시작됐으면 이 결과는 버린다.
-      if (id != _requestId) return;
+      // 화면을 벗어났거나(폐기) 더 새 조회가 시작됐으면 이 결과는 버린다.
+      if (isDisposed || id != _requestId) return;
       state = state.copyWith(
         isLoading: false,
         groupDetail: results[0] as GroupDetail,
@@ -55,10 +58,10 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
     }
   }
 
-  /// 조회 실패를 상태에 반영한다. 이미 더 새 조회가 시작됐다면 무시한다 —
-  /// 옛 요청의 실패로 최신 조회의 로딩·본문이 흐트러지지 않게 한다.
+  /// 조회 실패를 상태에 반영한다. 폐기됐거나 이미 더 새 조회가 시작됐다면
+  /// 무시한다 — 옛 요청의 실패로 최신 조회의 로딩·본문이 흐트러지지 않게 한다.
   void _failLoad(int id, GroupActionError error) {
-    if (id != _requestId) return;
+    if (isDisposed || id != _requestId) return;
     state = state.copyWith(isLoading: false, error: error);
   }
 
@@ -104,10 +107,9 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int> {
   /// 액션 실패를 상태에 반영하고 false 를 돌려준다.
   /// (로딩을 세운 액션은 [stopLoading] 으로 함께 내린다)
   bool _fail(GroupActionError error, {bool stopLoading = false}) {
-    state = state.copyWith(
-      isLoading: stopLoading ? false : null,
-      error: error,
-    );
+    // 화면을 벗어난 뒤 도착한 실패는 반영하지 않는다.
+    if (isDisposed) return false;
+    state = state.copyWith(isLoading: stopLoading ? false : null, error: error);
     return false;
   }
 

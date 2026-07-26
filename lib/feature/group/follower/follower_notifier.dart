@@ -2,13 +2,17 @@ import 'package:ddara/core/exception/cycle_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/model/group/group_action_error.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/follower/util/follower_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FollowerNotifier extends AutoDisposeNotifier<FollowerState> {
+class FollowerNotifier extends AutoDisposeNotifier<FollowerState>
+    with AutoDisposeGuard<FollowerState> {
   @override
   FollowerState build() {
+    watchDispose();
+
     return const FollowerState();
   }
 
@@ -18,7 +22,9 @@ class FollowerNotifier extends AutoDisposeNotifier<FollowerState> {
   }
 
   /// 업로드 실패를 상태에 반영하고 로딩을 내린다.
+  /// (업로드 중 화면을 벗어났으면 반영하지 않는다)
   void _fail(GroupActionError error) {
+    if (isDisposed) return;
     state = state.copyWith(isLoading: false, error: error);
   }
 
@@ -38,7 +44,10 @@ class FollowerNotifier extends AutoDisposeNotifier<FollowerState> {
     try {
       final result = await useCase(cycleId, path);
 
-      state = state.copyWith(isLoading: false);
+      // 업로드 중 화면을 벗어났으면 상태만 건드리지 않고 결과는 그대로 넘긴다.
+      // (호출부가 mounted 를 확인해 이동 여부를 정한다)
+      if (!isDisposed) state = state.copyWith(isLoading: false);
+
       return result.cycleId;
     } on StarterImageUploadException {
       _fail(GroupActionError.imageUploadFailed);

@@ -1,23 +1,23 @@
 import 'package:ddara/core/model/profile/notification_settings.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/profile/settings/util/notification_settings_state.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NotificationSettingsNotifier
-    extends AutoDisposeNotifier<NotificationSettingsState> {
-  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
-  /// (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
-  bool _disposed = false;
-
+    extends AutoDisposeNotifier<NotificationSettingsState>
+    with AutoDisposeGuard<NotificationSettingsState> {
   @override
   NotificationSettingsState build() {
-    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
-    ref.onDispose(() => _disposed = true);
+    // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
+    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    watchDispose();
     // 진입 시 서버 설정과 권한을 자동 조회. (build 는 동기라 fire-and-forget)
     _load();
+
     return const NotificationSettingsState(isLoading: true);
   }
 
@@ -25,7 +25,7 @@ class NotificationSettingsNotifier
   void _update(
     NotificationSettingsState Function(NotificationSettingsState state) updater,
   ) {
-    if (_disposed) return;
+    if (isDisposed) return;
     state = updater(state);
   }
 
