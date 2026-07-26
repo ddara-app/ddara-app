@@ -784,12 +784,6 @@ abstract class AppLocalizations {
   /// **'수정'**
   String get editNicknameSubmit;
 
-  /// No description provided for @groupDetailLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'모임 정보를 불러오지 못했어요.'**
-  String get groupDetailLoadError;
-
   /// No description provided for @groupDetailEmptyTitle.
   ///
   /// In ko, this message translates to:

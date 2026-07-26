@@ -6,8 +6,6 @@ import 'package:ddara/core/design_system/component/loading/app_loading_overlay.d
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_action_error.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
-import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/util/tap_guard.dart';
@@ -52,8 +50,11 @@ class GroupPage extends ConsumerWidget {
     final state = ref.watch(groupPageNotifierProvider(groupId));
 
     ref.listen(groupPageNotifierProvider(groupId), (prev, next) {
-      // 실패 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
-      final error = next.error;
+      if (next is! GroupPageLoaded) return;
+
+      // 액션 실패는 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
+      // (초기 조회 실패는 본문에 표시되므로 여기서 다루지 않는다)
+      final error = next.actionError;
       if (error != null) {
         Toast.showToast(
           context,
@@ -61,12 +62,14 @@ class GroupPage extends ConsumerWidget {
           type: ToastType.error,
         );
         // 토스트로 소비했으니 비워, 이후 상태 변경 때 같은 에러가 재노출되지 않게 한다.
-        ref.read(groupPageNotifierProvider(groupId).notifier).clearError();
+        ref
+            .read(groupPageNotifierProvider(groupId).notifier)
+            .clearActionError();
       }
 
       // 진입해 상세가 처음 로드된 시점을 조회 이벤트로 남긴다.
       final detail = next.groupDetail;
-      if (prev?.groupDetail == null && detail != null) {
+      if (prev is! GroupPageLoaded) {
         MixpanelManager.instance.track(
           'group_page_viewed',
           properties: {'group_id': groupId},
@@ -107,11 +110,16 @@ class GroupPage extends ConsumerWidget {
       },
       child: CupertinoPageScaffold(
         navigationBar: AppBar(
-          title: state.groupDetail?.name ?? '',
+          // 조회 전·실패 시에는 제목이 없으므로 빈 문자열.
+          title: state is GroupPageLoaded ? state.groupDetail.name : '',
           onBack: () => _back(context, ref),
           trailing: AppBarIconButton(
-            // 상세 로딩·나가기·닉네임 변경이 진행되는 동안 메뉴 재진입을 차단한다.
-            onPressed: tapGuard(state.isLoading, () => _showMenu(context, ref)),
+            // 상세가 뜨기 전이거나 나가기·닉네임 변경이 진행되는 동안 메뉴
+            // 진입을 차단한다. (메뉴 항목이 모두 상세를 전제로 한다)
+            onPressed: tapGuard(
+              state is! GroupPageLoaded || state.isBusy,
+              () => _showMenu(context, ref),
+            ),
             child: const AppIcon(
               AppIcons.moreVertical,
               size: 24,
@@ -215,13 +223,16 @@ class GroupPage extends ConsumerWidget {
   /// 닉네임 수정 바텀시트를 띄우고, 입력을 받으면 변경을 요청한다.
   /// (실패 시 notifier 가 error → 토스트로 처리, 성공 시 상세 재조회로 반영)
   Future<void> _editNickname(BuildContext context, WidgetRef ref) async {
-    final detail = ref.read(groupPageNotifierProvider(groupId)).groupDetail;
+    // 메뉴는 상세가 뜬 뒤에만 열리므로 여기선 항상 Loaded 다.
+    final state = ref.read(groupPageNotifierProvider(groupId));
+    if (state is! GroupPageLoaded) return;
+    final detail = state.groupDetail;
 
     final nickName = await EditNicknameSheet.show(
       context,
-      groupName: detail?.name ?? '',
+      groupName: detail.name,
       // 멤버가 이미 쓰는 닉네임은 시트에서 중복 에러로 미리 막는다.
-      takenNicknames: {...?detail?.members.map((m) => m.nickname)},
+      takenNicknames: detail.members.map((m) => m.nickname).toSet(),
     );
     if (nickName == null || !context.mounted) return;
 
@@ -264,13 +275,6 @@ class GroupPage extends ConsumerWidget {
   }
 
   Widget _body(BuildContext context, WidgetRef ref, GroupPageState state) {
-    final l10n = AppLocalizations.of(context);
-    // 최초 조회 전에는 보여줄 본문이 없으므로 화면 전체가 로딩이다.
-    // (차단·닉네임 변경 등 이후의 로딩은 본문을 유지한 채 오버레이로 덮는다)
-    if (state.isLoading && state.groupDetail == null) {
-      return const Center(child: CupertinoActivityIndicator());
-    }
-
     // 최상단에서 아래로 당기면 상세·히스토리를 다시 조회한다.
     Future<void> onRefresh() => refreshWithMinDuration(
       () => ref.read(groupPageNotifierProvider(groupId).notifier).refresh(),
@@ -282,60 +286,52 @@ class GroupPage extends ConsumerWidget {
       parent: AlwaysScrollableScrollPhysics(),
     );
 
-    final groupDetail = state.groupDetail;
-    if (groupDetail == null) {
+    return switch (state) {
+      // 최초 조회 전에는 보여줄 본문이 없으므로 화면 전체가 로딩이다.
+      GroupPageLoading() => const Center(child: CupertinoActivityIndicator()),
       // 최초 조회 실패 화면에서도 당겨서 재시도할 수 있게 한다.
-      return CustomScrollView(
+      GroupPageLoadError(:final error) => CustomScrollView(
         physics: physics,
         slivers: [
           CupertinoSliverRefreshControl(onRefresh: onRefresh),
           SliverFillRemaining(
             hasScrollBody: false,
             child: Center(
-              child: AppText.body(
-                state.error?.message(l10n) ?? l10n.groupDetailLoadError,
-              ),
+              child: AppText.body(error.message(AppLocalizations.of(context))),
             ),
           ),
         ],
-      );
-    }
-
-    final cycles = state.historyCycles?.cycles ?? const [];
-
-    return Stack(
-      children: [
-        CustomScrollView(
-          physics: physics,
-          slivers: [
-            CupertinoSliverRefreshControl(onRefresh: onRefresh),
-            SliverPadding(
-              // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
-              // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
-              padding: EdgeInsets.only(
-                top: AppSpacing.s6,
-                bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+      ),
+      GroupPageLoaded() => Stack(
+        children: [
+          CustomScrollView(
+            physics: physics,
+            slivers: [
+              CupertinoSliverRefreshControl(onRefresh: onRefresh),
+              SliverPadding(
+                // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
+                // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
+                padding: EdgeInsets.only(
+                  top: AppSpacing.s6,
+                  bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: _content(context, ref, state),
+                ),
               ),
-              sliver: SliverToBoxAdapter(
-                child: _content(context, ref, state, groupDetail, cycles),
-              ),
-            ),
-          ],
-        ),
-        // 차단·닉네임 변경 등 처리 중에는 본문을 그대로 둔 채 덮는다.
-        // (본문이 살아 있어 완료 후 스크롤 위치가 그대로 유지된다)
-        if (state.isLoading) const AppLoadingOverlay(),
-      ],
-    );
+            ],
+          ),
+          // 차단·닉네임 변경 등 처리 중에는 본문을 그대로 둔 채 덮는다.
+          // (본문이 살아 있어 완료 후 스크롤 위치가 그대로 유지된다)
+          if (state.isBusy) const AppLoadingOverlay(),
+        ],
+      ),
+    };
   }
 
-  Widget _content(
-    BuildContext context,
-    WidgetRef ref,
-    GroupPageState state,
-    GroupDetail groupDetail,
-    List<HistoryCycle> cycles,
-  ) {
+  Widget _content(BuildContext context, WidgetRef ref, GroupPageLoaded state) {
+    final groupDetail = state.groupDetail;
+    final cycles = state.historyCycles.cycles;
     final l10n = AppLocalizations.of(context);
     // 현재 사용자 id. (본인 프로필에는 신고·차단 메뉴를 띄우지 않기 위함)
     // id 만 보므로 닉네임·이미지 변경으로는 다시 그리지 않는다.
@@ -444,12 +440,7 @@ class GroupPage extends ConsumerWidget {
                       'group_history_cycle_clicked',
                       properties: {'group_id': groupId, 'cycle_id': cycleId},
                     );
-                    _pushThenRefresh(
-                      context,
-                      ref,
-                      RoutePath.follower,
-                      cycleId,
-                    );
+                    _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
                   },
                 ),
         ),

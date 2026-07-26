@@ -378,9 +378,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get editNicknameSubmit => '수정';
 
   @override
-  String get groupDetailLoadError => '모임 정보를 불러오지 못했어요.';
-
-  @override
   String get groupDetailEmptyTitle => '아직 따라찍기가 없어요';
 
   @override

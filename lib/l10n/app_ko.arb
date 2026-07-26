@@ -276,7 +276,6 @@
   "editNicknameEmptyError": "닉네임을 입력해주세요.",
   "editNicknameSubmit": "수정",
 
-  "groupDetailLoadError": "모임 정보를 불러오지 못했어요.",
   "groupDetailEmptyTitle": "아직 따라찍기가 없어요",
   "groupHeaderStart": "내가 먼저 시작하기",
   "groupHeaderTakePhoto": "따라찍으러 가기",

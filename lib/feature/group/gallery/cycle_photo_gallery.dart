@@ -15,6 +15,7 @@ import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
 import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
 import 'package:ddara/feature/group/widget/started_header.dart';
@@ -51,13 +52,14 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(cyclePhotoGalleryNotifierProvider(cycleId));
-    final gallery = state.gallery;
 
     // 신고 등 액션 실패를 토스트로 안내한다.
     // (초기 조회 실패는 본문에 표시되므로 갤러리가 로드된 뒤의 에러만 다룬다)
     ref.listen(cyclePhotoGalleryNotifierProvider(cycleId), (prev, next) {
-      final error = next.error;
-      if (next.gallery != null && error != null) {
+      if (next is! CyclePhotoGalleryLoaded) return;
+
+      final error = next.actionError;
+      if (error != null) {
         Toast.showToast(
           context,
           error.message(AppLocalizations.of(context)),
@@ -65,7 +67,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         );
         ref
             .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
-            .clearError();
+            .clearActionError();
       }
       // 댓글 액션 실패는 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
       final commentError = next.commentError;
@@ -82,25 +84,24 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     });
 
     return CupertinoPageScaffold(
-      // 조회 전엔 제목이 없으므로 빈 문자열.
+      // 조회 전·실패 시에는 제목이 없으므로 빈 문자열.
       navigationBar: AppBar(
-        title: state.groupName,
+        title: state is CyclePhotoGalleryLoaded ? state.groupName : '',
         onBack: () => context.pop(),
       ),
       child: SafeArea(
         bottom: false,
-        child: switch (gallery) {
-          // 조회 완료 전: 로딩 인디케이터 또는 에러 메시지.
-          null => switch (state.error) {
-            final error? => Center(
-              child: AppText.body(error.message(AppLocalizations.of(context))),
-            ),
-            _ => const Center(child: CupertinoActivityIndicator()),
-          },
-          _ => _buildContent(
+        child: switch (state) {
+          CyclePhotoGalleryLoading() => const Center(
+            child: CupertinoActivityIndicator(),
+          ),
+          CyclePhotoGalleryLoadError(:final error) => Center(
+            child: AppText.body(error.message(AppLocalizations.of(context))),
+          ),
+          CyclePhotoGalleryLoaded() => _buildContent(
             context,
             ref,
-            gallery,
+            state.gallery,
             state.myUserId,
             state.blockedUserIds,
           ),
@@ -113,7 +114,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     BuildContext context,
     WidgetRef ref,
     CycleGallery gallery,
-    int? myUserId,
+    int myUserId,
     Set<int> blockedUserIds,
   ) {
     final l10n = AppLocalizations.of(context);
@@ -265,7 +266,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     required AppLocalizations l10n,
     required CycleGalleryMember member,
     required CycleGalleryCycle cycle,
-    required int? myUserId,
+    required int myUserId,
     required Set<int> blockedUserIds,
     required bool isDoneCycle,
     required bool starterBlocked,
@@ -396,10 +397,13 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     bool openCommentSheet = false,
   }) {
     // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
+    // (뷰어는 갤러리가 떠 있어야만 열리므로 여기선 항상 Loaded 다)
     final state = ref.read(cyclePhotoGalleryNotifierProvider(cycleId));
-    final me = state.gallery?.members
-        .where((member) => member.userId == state.myUserId)
-        .firstOrNull;
+    final me = state is CyclePhotoGalleryLoaded
+        ? state.gallery.members
+              .where((member) => member.userId == state.myUserId)
+              .firstOrNull
+        : null;
 
     final handlers = _commentHandlers(context, ref, shotId);
     showPhotoViewer(
@@ -436,8 +440,10 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       context: context,
       notifier: ref.read(cyclePhotoGalleryNotifierProvider(cycleId).notifier),
       shotId: shotId,
-      myUserId: () =>
-          ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId,
+      myUserId: () {
+        final state = ref.read(cyclePhotoGalleryNotifierProvider(cycleId));
+        return state is CyclePhotoGalleryLoaded ? state.myUserId : null;
+      },
       onBlockComment: (comment) => _blockCommentAuthor(context, ref, comment),
     );
   }
