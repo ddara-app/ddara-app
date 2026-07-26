@@ -184,24 +184,30 @@ class _MyAppState extends ConsumerState<MyApp> {
     }
   }
 
-  /// 알림 탭 시 payload(data)의 type·id 로 해당 화면으로 이동한다.
+  /// 알림 탭 시 payload(data)의 id 로 해당 화면으로 이동한다.
   ///
-  /// - MEMBER_JOIN → 그룹 상세(groupId)
-  /// - NEW_CYCLE·CYCLE_COMPLETED·DEADLINE → 사이클 갤러리(cycleId)
+  /// - cycleId 가 있으면(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE·FRIEND_SHOT·COMMENT)
+  ///   사이클 갤러리로.
+  /// - 없고 groupId 만 있으면(MEMBER_JOIN·STARTER_ASSIGNED) 모임 상세로.
+  ///
+  /// 알림 목록의 탭 처리(notification_page)와 같은 규칙이라, 알림 종류가 늘어도
+  /// 두 진입점이 함께 대응한다. (FCM data 는 값이 모두 문자열이라 파싱해서 쓴다)
   void _handleNotificationTap(Map<String, dynamic> data) {
     final router = ref.read(routerProvider);
-    switch (data['type']) {
-      case 'MEMBER_JOIN':
-        final groupId = int.tryParse('${data['groupId']}');
-        if (groupId != null) router.push(RoutePath.group, extra: groupId);
-      case 'NEW_CYCLE':
-      case 'CYCLE_COMPLETED':
-      case 'DEADLINE':
-        final cycleId = int.tryParse('${data['cycleId']}');
-        if (cycleId != null) router.push(RoutePath.follower, extra: cycleId);
-      default:
-        debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
+
+    final cycleId = int.tryParse('${data['cycleId']}');
+    if (cycleId != null) {
+      router.push(RoutePath.follower, extra: cycleId);
+      return;
     }
+
+    final groupId = int.tryParse('${data['groupId']}');
+    if (groupId != null) {
+      router.push(RoutePath.group, extra: groupId);
+      return;
+    }
+
+    debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
   }
 
   /// 콜드 스타트 시 스플래시를 네트워크에 묶지 않기 위해, 로컬 토큰으로 낙관적

@@ -22,7 +22,9 @@ extension NotificationSettingsMapper on NotificationSettingsResponse {
     return NotificationSettings(
       allowAll: allowAll,
       followShot: activity.followShot,
-      deadlineVote: activity.deadlineVote,
+      friendShot: activity.friendShot,
+      starterAssigned: activity.starterAssigned,
+      comment: activity.comment,
       memberJoin: etc.memberJoin,
     );
   }
@@ -35,7 +37,9 @@ extension NotificationSettingsRequestMapper on NotificationSettings {
       allowAll: allowAll,
       activity: ActivityNotificationRequest(
         followShot: followShot,
-        deadlineVote: deadlineVote,
+        friendShot: friendShot,
+        starterAssigned: starterAssigned,
+        comment: comment,
       ),
       etc: EtcNotificationRequest(memberJoin: memberJoin),
     );

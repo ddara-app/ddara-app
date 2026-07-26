@@ -1672,31 +1672,7 @@ abstract class AppLocalizations {
   /// **'알림을 불러오지 못했어요.'**
   String get notificationLoadFailed;
 
-  /// No description provided for @notificationLabelMemberJoin.
-  ///
-  /// In ko, this message translates to:
-  /// **'모임 합류'**
-  String get notificationLabelMemberJoin;
-
-  /// No description provided for @notificationLabelNewCycle.
-  ///
-  /// In ko, this message translates to:
-  /// **'따라찍기 시작'**
-  String get notificationLabelNewCycle;
-
-  /// No description provided for @notificationLabelCycleCompleted.
-  ///
-  /// In ko, this message translates to:
-  /// **'따라찍기 종료'**
-  String get notificationLabelCycleCompleted;
-
-  /// No description provided for @notificationLabelDeadline.
-  ///
-  /// In ko, this message translates to:
-  /// **'마감 임박'**
-  String get notificationLabelDeadline;
-
-  /// No description provided for @notificationLabelDefault.
+  /// 알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다.
   ///
   /// In ko, this message translates to:
   /// **'알림'**
@@ -1711,8 +1687,14 @@ abstract class AppLocalizations {
   /// No description provided for @notificationMessageNewCycle.
   ///
   /// In ko, this message translates to:
-  /// **'‘{groupName}’ 모임에서 새로운 따라찍기가 시작됐어요'**
-  String notificationMessageNewCycle(String groupName);
+  /// **'‘{groupName}’에서 {actor}님이 새 따라찍기를 올렸어요'**
+  String notificationMessageNewCycle(String groupName, String actor);
+
+  /// NEW_CYCLE payload 에 스타터 닉네임이 없을 때의 대체 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 새 따라찍기가 시작됐어요'**
+  String notificationMessageNewCycleNoActor(String groupName);
 
   /// No description provided for @notificationMessageCycleCompleted.
   ///
@@ -1734,6 +1716,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'‘{groupName}’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?'**
   String notificationMessageDeadline(String groupName);
+
+  /// No description provided for @notificationMessageStarterAssigned.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 랜덤 스타터를 확인해보세요'**
+  String notificationMessageStarterAssigned(String groupName);
+
+  /// No description provided for @notificationMessageFriendShot.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요'**
+  String notificationMessageFriendShot(String actor, String groupName);
+
+  /// No description provided for @notificationMessageComment.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요'**
+  String notificationMessageComment(String actor, String groupName);
 
   /// No description provided for @notificationMessageDefault.
   ///
@@ -1804,26 +1804,50 @@ abstract class AppLocalizations {
   /// No description provided for @notificationFollowShot.
   ///
   /// In ko, this message translates to:
-  /// **'따라찍기 차례'**
+  /// **'따라찍기 알림'**
   String get notificationFollowShot;
 
   /// No description provided for @notificationFollowShotCaption.
   ///
   /// In ko, this message translates to:
-  /// **'새 따라찍기가 열리거나 내 차례일 때'**
+  /// **'새 따라찍기가 열리거나 마감될 때'**
   String get notificationFollowShotCaption;
 
-  /// No description provided for @notificationDeadlineVote.
+  /// No description provided for @notificationFriendShot.
   ///
   /// In ko, this message translates to:
-  /// **'마감·투표 알림'**
-  String get notificationDeadlineVote;
+  /// **'다른 친구의 따라찍기 알림'**
+  String get notificationFriendShot;
 
-  /// No description provided for @notificationDeadlineVoteCaption.
+  /// No description provided for @notificationFriendShotCaption.
   ///
   /// In ko, this message translates to:
-  /// **'따라찍기 마감 · 베스트 투표'**
-  String get notificationDeadlineVoteCaption;
+  /// **'같은 모임의 친구가 따라찍기를 올렸을 때'**
+  String get notificationFriendShotCaption;
+
+  /// No description provided for @notificationStarterAssigned.
+  ///
+  /// In ko, this message translates to:
+  /// **'랜덤 스타터 알림'**
+  String get notificationStarterAssigned;
+
+  /// No description provided for @notificationStarterAssignedCaption.
+  ///
+  /// In ko, this message translates to:
+  /// **'랜덤 스타터 지정됐을 때'**
+  String get notificationStarterAssignedCaption;
+
+  /// No description provided for @notificationComment.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글 알림'**
+  String get notificationComment;
+
+  /// No description provided for @notificationCommentCaption.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 사진에 댓글이 달릴 때'**
+  String get notificationCommentCaption;
 
   /// No description provided for @notificationSectionEtc.
   ///

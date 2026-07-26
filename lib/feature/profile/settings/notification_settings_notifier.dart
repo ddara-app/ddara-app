@@ -47,7 +47,9 @@ class NotificationSettingsNotifier
           isLoading: false,
           allowAll: allowAll,
           followShot: settings.followShot,
-          deadlineVote: settings.deadlineVote,
+          friendShot: settings.friendShot,
+          starterAssigned: settings.starterAssigned,
+          comment: settings.comment,
           memberJoin: settings.memberJoin,
           permissionGranted: permissionGranted,
         ),
@@ -114,15 +116,27 @@ class NotificationSettingsNotifier
     return result;
   }
 
-  /// '따라찍기 차례' 알림 변경.
+  /// '따라찍기 알림' 변경. (새 따라찍기가 열리거나 마감될 때)
   Future<void> changeFollowShot(bool value) async {
     _update((s) => s.copyWith(followShot: value));
     await _persist();
   }
 
-  /// '마감·투표 알림' 변경.
-  Future<void> changeDeadlineVote(bool value) async {
-    _update((s) => s.copyWith(deadlineVote: value));
+  /// '다른 친구의 따라찍기 알림' 변경.
+  Future<void> changeFriendShot(bool value) async {
+    _update((s) => s.copyWith(friendShot: value));
+    await _persist();
+  }
+
+  /// '랜덤 스타터 알림' 변경.
+  Future<void> changeStarterAssigned(bool value) async {
+    _update((s) => s.copyWith(starterAssigned: value));
+    await _persist();
+  }
+
+  /// '댓글 알림' 변경.
+  Future<void> changeComment(bool value) async {
+    _update((s) => s.copyWith(comment: value));
     await _persist();
   }
 
@@ -143,7 +157,9 @@ class NotificationSettingsNotifier
     final settings = NotificationSettings(
       allowAll: state.allowAll,
       followShot: state.followShot,
-      deadlineVote: state.deadlineVote,
+      friendShot: state.friendShot,
+      starterAssigned: state.starterAssigned,
+      comment: state.comment,
       memberJoin: state.memberJoin,
     );
 
@@ -157,7 +173,9 @@ class NotificationSettingsNotifier
         (s) => s.copyWith(
           allowAll: saved.allowAll,
           followShot: saved.followShot,
-          deadlineVote: saved.deadlineVote,
+          friendShot: saved.friendShot,
+          starterAssigned: saved.starterAssigned,
+          comment: saved.comment,
           memberJoin: saved.memberJoin,
         ),
       );

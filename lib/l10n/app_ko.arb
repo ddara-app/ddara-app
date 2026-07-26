@@ -610,11 +610,10 @@
   "@notificationLoadFailed": {
     "description": "알림 목록 조회 실패 본문"
   },
-  "notificationLabelMemberJoin": "모임 합류",
-  "notificationLabelNewCycle": "따라찍기 시작",
-  "notificationLabelCycleCompleted": "따라찍기 종료",
-  "notificationLabelDeadline": "마감 임박",
   "notificationLabelDefault": "알림",
+  "@notificationLabelDefault": {
+    "description": "알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다."
+  },
   "notificationMessageMemberJoin": "{actor}님이 ‘{groupName}’ 모임에 합류했어요",
   "@notificationMessageMemberJoin": {
     "placeholders": {
@@ -622,8 +621,16 @@
       "groupName": { "type": "String" }
     }
   },
-  "notificationMessageNewCycle": "‘{groupName}’ 모임에서 새로운 따라찍기가 시작됐어요",
+  "notificationMessageNewCycle": "‘{groupName}’에서 {actor}님이 새 따라찍기를 올렸어요",
   "@notificationMessageNewCycle": {
+    "placeholders": {
+      "groupName": { "type": "String" },
+      "actor": { "type": "String" }
+    }
+  },
+  "notificationMessageNewCycleNoActor": "‘{groupName}’에서 새 따라찍기가 시작됐어요",
+  "@notificationMessageNewCycleNoActor": {
+    "description": "NEW_CYCLE payload 에 스타터 닉네임이 없을 때의 대체 문구",
     "placeholders": {
       "groupName": { "type": "String" }
     }
@@ -644,6 +651,26 @@
   "notificationMessageDeadline": "‘{groupName}’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?",
   "@notificationMessageDeadline": {
     "placeholders": {
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageStarterAssigned": "‘{groupName}’에서 랜덤 스타터를 확인해보세요",
+  "@notificationMessageStarterAssigned": {
+    "placeholders": {
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageFriendShot": "‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요",
+  "@notificationMessageFriendShot": {
+    "placeholders": {
+      "actor": { "type": "String" },
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageComment": "‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요",
+  "@notificationMessageComment": {
+    "placeholders": {
+      "actor": { "type": "String" },
       "groupName": { "type": "String" }
     }
   },
@@ -677,10 +704,14 @@
   "notificationSettingsTitle": "알림 설정",
   "notificationAllow": "알림 허용",
   "notificationSectionActivity": "활동",
-  "notificationFollowShot": "따라찍기 차례",
-  "notificationFollowShotCaption": "새 따라찍기가 열리거나 내 차례일 때",
-  "notificationDeadlineVote": "마감·투표 알림",
-  "notificationDeadlineVoteCaption": "따라찍기 마감 · 베스트 투표",
+  "notificationFollowShot": "따라찍기 알림",
+  "notificationFollowShotCaption": "새 따라찍기가 열리거나 마감될 때",
+  "notificationFriendShot": "다른 친구의 따라찍기 알림",
+  "notificationFriendShotCaption": "같은 모임의 친구가 따라찍기를 올렸을 때",
+  "notificationStarterAssigned": "랜덤 스타터 알림",
+  "notificationStarterAssignedCaption": "랜덤 스타터 지정됐을 때",
+  "notificationComment": "댓글 알림",
+  "notificationCommentCaption": "내 사진에 댓글이 달릴 때",
   "notificationSectionEtc": "기타",
   "notificationMemberJoin": "친구 참여 알림",
   "notificationMemberJoinCaption": "내가 보낸 초대를 친구가 받았을 때",

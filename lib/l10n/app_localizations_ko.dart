@@ -850,18 +850,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationLoadFailed => '알림을 불러오지 못했어요.';
 
   @override
-  String get notificationLabelMemberJoin => '모임 합류';
-
-  @override
-  String get notificationLabelNewCycle => '따라찍기 시작';
-
-  @override
-  String get notificationLabelCycleCompleted => '따라찍기 종료';
-
-  @override
-  String get notificationLabelDeadline => '마감 임박';
-
-  @override
   String get notificationLabelDefault => '알림';
 
   @override
@@ -870,8 +858,13 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String notificationMessageNewCycle(String groupName) {
-    return '‘$groupName’ 모임에서 새로운 따라찍기가 시작됐어요';
+  String notificationMessageNewCycle(String groupName, String actor) {
+    return '‘$groupName’에서 $actor님이 새 따라찍기를 올렸어요';
+  }
+
+  @override
+  String notificationMessageNewCycleNoActor(String groupName) {
+    return '‘$groupName’에서 새 따라찍기가 시작됐어요';
   }
 
   @override
@@ -890,6 +883,21 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String notificationMessageDeadline(String groupName) {
     return '‘$groupName’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?';
+  }
+
+  @override
+  String notificationMessageStarterAssigned(String groupName) {
+    return '‘$groupName’에서 랜덤 스타터를 확인해보세요';
+  }
+
+  @override
+  String notificationMessageFriendShot(String actor, String groupName) {
+    return '‘$groupName’에서 $actor님이 따라찍기를 올렸어요';
+  }
+
+  @override
+  String notificationMessageComment(String actor, String groupName) {
+    return '‘$groupName’에서 $actor님이 내 사진에 댓글을 남겼어요';
   }
 
   @override
@@ -938,16 +946,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationSectionActivity => '활동';
 
   @override
-  String get notificationFollowShot => '따라찍기 차례';
+  String get notificationFollowShot => '따라찍기 알림';
 
   @override
-  String get notificationFollowShotCaption => '새 따라찍기가 열리거나 내 차례일 때';
+  String get notificationFollowShotCaption => '새 따라찍기가 열리거나 마감될 때';
 
   @override
-  String get notificationDeadlineVote => '마감·투표 알림';
+  String get notificationFriendShot => '다른 친구의 따라찍기 알림';
 
   @override
-  String get notificationDeadlineVoteCaption => '따라찍기 마감 · 베스트 투표';
+  String get notificationFriendShotCaption => '같은 모임의 친구가 따라찍기를 올렸을 때';
+
+  @override
+  String get notificationStarterAssigned => '랜덤 스타터 알림';
+
+  @override
+  String get notificationStarterAssignedCaption => '랜덤 스타터 지정됐을 때';
+
+  @override
+  String get notificationComment => '댓글 알림';
+
+  @override
+  String get notificationCommentCaption => '내 사진에 댓글이 달릴 때';
 
   @override
   String get notificationSectionEtc => '기타';
