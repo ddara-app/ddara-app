@@ -208,6 +208,7 @@ extension GroupListMapper on GroupListResponse {
                       topic: group.currentCycle!.topic,
                       deadlineAt: group.currentCycle!.deadlineAt,
                     ),
+              showStarterBorder: group.showStarterBorder,
             ),
           )
           .toList(),

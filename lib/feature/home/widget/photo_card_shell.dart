@@ -20,6 +20,9 @@ const double photoCardAspectRatio = AppRatio.photo;
 /// 잠금 사진에 씌우는 블러 세기. (멤버 사진 카드와 동일)
 const double _lockedBlurSigma = 12;
 
+/// 카드를 강조할 때 두르는 테두리 굵기.
+const double _borderWidth = 2;
+
 /// 홈 카드 그리드의 공통 카드 껍데기.
 ///
 /// 대표 이미지 위에 하단 스크림을 깔고, 그 위에 제목·부제(좌하단)와
@@ -39,6 +42,7 @@ class PhotoCardShell extends StatelessWidget {
     this.topLabel,
     this.topIndicatorColor,
     this.topAction,
+    this.borderColor,
     this.blocked = false,
     this.underReview = false,
     this.locked = false,
@@ -66,6 +70,9 @@ class PhotoCardShell extends StatelessWidget {
   /// 주입한 쪽에서 정한다. null 이면 표시하지 않는다.
   /// ([topLabel] 과 자리가 겹치므로 둘 중 하나만 쓴다)
   final Widget? topAction;
+
+  /// 카드를 강조하는 테두리 색. null 이면 테두리를 두르지 않는다.
+  final Color? borderColor;
 
   /// 사진을 올린 멤버를 차단한 상태인지 여부.
   final bool blocked;
@@ -99,6 +106,16 @@ class PhotoCardShell extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadius.lg),
             ),
           ),
+          // 테두리는 사진 위에 그려야 하므로 foreground 로 얹는다.
+          // (decoration 은 자식 뒤라 꽉 찬 이미지에 가려진다)
+          foregroundDecoration: borderColor == null
+              ? null
+              : ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    side: BorderSide(color: borderColor!, width: _borderWidth),
+                  ),
+                ),
           child: Stack(
             children: [
               // 배경: 차단·검토 자리표시 / 잠금 블러 / 대표 이미지.

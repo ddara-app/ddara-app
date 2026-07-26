@@ -31,6 +31,7 @@ _GroupResponse _$GroupResponseFromJson(Map<String, dynamic> json) =>
               json['currentCycle'] as Map<String, dynamic>,
             ),
       createdAt: DateTime.parse(json['createdAt'] as String),
+      showStarterBorder: json['showStarterBorder'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$GroupResponseToJson(_GroupResponse instance) =>
@@ -44,6 +45,7 @@ Map<String, dynamic> _$GroupResponseToJson(_GroupResponse instance) =>
       'thumbnailUserId': instance.thumbnailUserId,
       'currentCycle': instance.currentCycle,
       'createdAt': instance.createdAt.toIso8601String(),
+      'showStarterBorder': instance.showStarterBorder,
     };
 
 _CurrentCycleResponse _$CurrentCycleResponseFromJson(
