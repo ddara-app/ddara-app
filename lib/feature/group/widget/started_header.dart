@@ -6,7 +6,7 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
-import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
+import 'package:ddara/core/widget/effect/baked_progressive_blur_image.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -367,10 +367,17 @@ class _StartedHeaderState extends State<StartedHeader> {
   }
 
   /// 하단 스크림 구간(heightFactor 0.45)에 맞춰 아래로 갈수록 흐려지는 배경.
+  ///
+  /// 헤더는 화면 폭 전체를 차지하는 큰 영역인데다 스크롤되는 본문 안에 있어,
+  /// 매 프레임 다층 블러를 계산하는 라이브 방식으로는 프레임이 드랍된다.
+  /// 디코딩 직후 1회만 굽는 베이크 방식을 쓴다.
+  /// (docs/tech_notes/progressive_blur_cost.md)
   Widget _blurredBackground() {
-    // 차단·검토 자리표시는 민무늬 배경이라 그라데이션 블러가 필요 없다.
-    if (_obscured) return _backgroundImage();
-    return ProgressiveBlurImage(
+    // 차단·검토 자리표시와 사진 없음(빈 썸네일)은 민무늬라 블러가 필요 없다.
+    final url = _imageUrl;
+    if (_obscured || url.isEmpty) return _backgroundImage();
+    return BakedProgressiveBlurImage(
+      imageUrl: url,
       sharpUntil: 0.55,
       builder: (_) => _backgroundImage(),
     );
