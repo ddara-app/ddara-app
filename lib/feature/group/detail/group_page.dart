@@ -165,15 +165,11 @@ class GroupPage extends ConsumerWidget {
             child: AppText.title(l10n.groupMenuEditNickname),
           ),
           CupertinoActionSheetAction(
-            isDestructiveAction: true,
             onPressed: () {
               Navigator.of(sheetContext).pop();
               _reportGroup(context, ref);
             },
-            child: AppText.title(
-              l10n.groupMenuReport,
-              color: AppColors.statusDanger,
-            ),
+            child: AppText.title(l10n.groupMenuReport),
           ),
           CupertinoActionSheetAction(
             isDestructiveAction: true,
