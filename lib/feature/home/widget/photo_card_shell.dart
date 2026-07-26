@@ -37,6 +37,7 @@ class PhotoCardShell extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.topLabel,
+    this.topIndicatorColor,
     this.topAction,
     this.blocked = false,
     this.underReview = false,
@@ -56,6 +57,10 @@ class PhotoCardShell extends StatelessWidget {
 
   /// 우상단에 표시할 짧은 라벨. null 이면 표시하지 않는다.
   final String? topLabel;
+
+  /// [topLabel] 오른쪽에 붙는 상태 점의 색. null 이면 점을 그리지 않는다.
+  /// (진행 중 / 진행 종료를 색으로 한눈에 구분)
+  final Color? topIndicatorColor;
 
   /// 카드 상단에 얹을 위젯. 좌우 여백(s3) 안을 가득 쓸 수 있고, 정렬은
   /// 주입한 쪽에서 정한다. null 이면 표시하지 않는다.
@@ -130,18 +135,36 @@ class PhotoCardShell extends StatelessWidget {
               // 잠금: 가운데 자물쇠.
               if (locked)
                 const Center(
-                  child: AppIcon(AppIcons.lock, size: 32, color: AppColors.textPrimary),
+                  child: AppIcon(
+                    AppIcons.lock,
+                    size: 32,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              // 상단 우측 라벨. (모임 카드의 남은 시간 등)
+              // 상단 우측 라벨. (모임 카드의 남은 시간·진행 종료 등)
               if (topLabel != null)
                 Positioned(
                   top: AppSpacing.s3,
                   left: AppSpacing.s3,
                   right: AppSpacing.s3,
-                  child: AppText.caption(
-                    topLabel!,
-                    color: AppColors.textPrimary,
-                    textAlign: TextAlign.right,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: AppText.caption(
+                          topLabel!,
+                          color: AppColors.textPrimary,
+                          textAlign: TextAlign.right,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (topIndicatorColor != null) ...[
+                        const SizedBox(width: AppSpacing.s3),
+                        _StatusDot(color: topIndicatorColor!),
+                      ],
+                    ],
                   ),
                 ),
               // 상단 오버레이. (피드 카드의 댓글 버튼·댓글 미리보기)
@@ -197,6 +220,25 @@ class PhotoCardShell extends StatelessWidget {
       fit: BoxFit.cover,
       placeholder: (_, _) => const EmptyThumbnail(),
       errorWidget: (_, _, _) => const EmptyThumbnail(),
+    );
+  }
+}
+
+/// 상단 라벨 옆에 붙는 상태 점.
+class _StatusDot extends StatelessWidget {
+  const _StatusDot({required this.color});
+
+  /// 점 지름.
+  static const double _size = 6;
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: _size,
+      height: _size,
+      decoration: ShapeDecoration(color: color, shape: const CircleBorder()),
     );
   }
 }

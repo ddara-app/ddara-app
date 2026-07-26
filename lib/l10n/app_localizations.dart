@@ -526,10 +526,10 @@ abstract class AppLocalizations {
   /// **'{minutes}분 남음'**
   String meetingRemainingMinutes(int minutes);
 
-  /// 마감 시각이 지난 사이클
+  /// 마감 시각이 지난 사이클. 모임 카드 우상단 라벨
   ///
   /// In ko, this message translates to:
-  /// **'마감'**
+  /// **'진행 종료'**
   String get meetingClosed;
 
   /// No description provided for @groupCreateTitle.

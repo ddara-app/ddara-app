@@ -48,6 +48,11 @@ abstract final class AppColors {
   static const Color statusSuccess = AppColorPrimitives.green500;
   static const Color statusWarning = AppColorPrimitives.yellow500;
   static const Color statusDanger = AppColorPrimitives.red500;
+
+  /// 끝난 상태 표시. (진행 중을 뜻하는 [statusSuccess] 와 짝을 이루는 무채색 —
+  /// 모임 카드의 '진행 종료' 인디케이터 등)
+  static const Color statusClosed = AppColorPrimitives.grayscale800;
+
   static const Color statusSuccessBg = AppColorPrimitives.green900;
   static const Color statusWarningBg = AppColorPrimitives.yellow900;
   static const Color statusDangerBg = AppColorPrimitives.red900;
