@@ -130,8 +130,8 @@ class _NotificationSettingsPageState
                       onChanged: notifier.changeFriendShot,
                     ),
                     _ToggleRow(
-                      label: l10n.notificationRandomStarter,
-                      caption: l10n.notificationRandomStarterCaption,
+                      label: l10n.notificationStarterAssigned,
+                      caption: l10n.notificationStarterAssignedCaption,
                       value: state.starterAssigned,
                       onChanged: notifier.changeStarterAssigned,
                     ),

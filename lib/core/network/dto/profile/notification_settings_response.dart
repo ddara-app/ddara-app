@@ -4,7 +4,8 @@ part 'notification_settings_response.freezed.dart';
 part 'notification_settings_response.g.dart';
 
 @freezed
-abstract class NotificationSettingsResponse with _$NotificationSettingsResponse {
+abstract class NotificationSettingsResponse
+    with _$NotificationSettingsResponse {
   const factory NotificationSettingsResponse({
     // 전체 알림 허용 여부.
     required bool allowAll,
@@ -19,7 +20,8 @@ abstract class NotificationSettingsResponse with _$NotificationSettingsResponse 
 }
 
 @freezed
-abstract class ActivityNotificationResponse with _$ActivityNotificationResponse {
+abstract class ActivityNotificationResponse
+    with _$ActivityNotificationResponse {
   const factory ActivityNotificationResponse({
     // 따라찍기 알림. (NEW_CYCLE · CYCLE_COMPLETED · DEADLINE)
     required bool followShot,
@@ -27,7 +29,7 @@ abstract class ActivityNotificationResponse with _$ActivityNotificationResponse 
     required bool friendShot,
     // 랜덤 스타터 알림. (STARTER_ASSIGNED)
     required bool starterAssigned,
-    // 댓글 알림.
+    // 댓글 알림. (COMMENT)
     required bool comment,
   }) = _ActivityNotificationResponse;
 

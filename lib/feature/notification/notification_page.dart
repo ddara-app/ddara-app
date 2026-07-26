@@ -46,9 +46,10 @@ class NotificationPage extends ConsumerWidget {
       NotificationLoadError() => Center(
         child: AppText.body(l10n.notificationLoadFailed),
       ),
-      NotificationLoaded(:final items, :final blockedUserIds) => items.isEmpty
-          ? const Center(child: NotificationEmpty())
-          : _list(context, items, blockedUserIds),
+      NotificationLoaded(:final items, :final blockedUserIds) =>
+        items.isEmpty
+            ? const Center(child: NotificationEmpty())
+            : _list(context, items, blockedUserIds),
     };
   }
 
@@ -90,8 +91,11 @@ class NotificationPage extends ConsumerWidget {
 
   /// 알림 탭 시 이동할 화면.
   ///
-  /// cycleId 가 있으면(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE) 해당 사이클 갤러리로,
-  /// 없고 groupId 만 있으면(MEMBER_JOIN) 해당 모임 화면으로 이동한다.
+  /// cycleId 가 있으면(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE·FRIEND_SHOT·COMMENT)
+  /// 해당 사이클 갤러리로, 없고 groupId 만 있으면(MEMBER_JOIN·STARTER_ASSIGNED)
+  /// 해당 모임 화면으로 이동한다.
+  /// (COMMENT 의 shotId 로 사진 뷰어까지 바로 여는 건 갤러리 라우트가 사이클
+  ///  단위라 지원하지 않는다 — 갤러리에서 사진을 골라 들어간다)
   VoidCallback? _onTap(BuildContext context, NotificationItem item) {
     final cycleId = item.payload.cycleId;
     if (cycleId != null) {

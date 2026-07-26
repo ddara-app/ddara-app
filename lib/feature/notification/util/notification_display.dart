@@ -7,24 +7,26 @@ import 'package:ddara/l10n/app_localizations.dart';
 ///
 /// 문자열은 전부 l10n 에서 가져오므로, 위젯이 [AppLocalizations] 를 넘겨 호출한다.
 extension NotificationDisplay on NotificationItem {
-  /// 썸네일을 박스(배경·라운드) 없이 이미지 그대로 보여줄지 여부.
+  /// 알림 분류 라벨. (예: '따라찍기 알림')
   ///
-  /// MEMBER_JOIN·DEADLINE 은 payload 이미지가 앱 로고라, 사진용 박스 없이
-  /// 로고만 그대로 노출한다.
-  bool get showsBareThumbnail =>
-      type == NotificationType.memberJoin || type == NotificationType.deadline;
-
-  /// 알림 분류 라벨. (예: '모임 합류')
+  /// 알림 설정 화면의 항목명을 그대로 쓴다 — 설정에서 끈 항목과 목록에 뜬
+  /// 알림이 같은 이름으로 보여야 어떤 토글이 이 알림을 막는지 알 수 있다.
+  /// 그래서 한 항목이 여러 타입을 덮는 경우(따라찍기 알림 = 시작·종료·마감)
+  /// 라벨도 하나로 묶인다.
   String displayLabel(AppLocalizations l10n) {
     switch (type) {
-      case NotificationType.memberJoin:
-        return l10n.notificationLabelMemberJoin;
       case NotificationType.newCycle:
-        return l10n.notificationLabelNewCycle;
       case NotificationType.cycleCompleted:
-        return l10n.notificationLabelCycleCompleted;
       case NotificationType.deadline:
-        return l10n.notificationLabelDeadline;
+        return l10n.notificationFollowShot;
+      case NotificationType.friendShot:
+        return l10n.notificationFriendShot;
+      case NotificationType.starterAssigned:
+        return l10n.notificationStarterAssigned;
+      case NotificationType.comment:
+        return l10n.notificationComment;
+      case NotificationType.memberJoin:
+        return l10n.notificationMemberJoin;
       case NotificationType.unknown:
         return l10n.notificationLabelDefault;
     }
@@ -38,7 +40,13 @@ extension NotificationDisplay on NotificationItem {
         final actor = payload.actorNickname ?? '';
         return l10n.notificationMessageMemberJoin(actor, groupName);
       case NotificationType.newCycle:
-        return l10n.notificationMessageNewCycle(groupName);
+        // 스타터 닉네임이 오지 않는 경우가 있어(payload 에 actorNickname 이
+        // 없는 계약) 이름 없는 문구로 대체한다.
+        final starter = payload.actorNickname;
+        if (starter == null || starter.isEmpty) {
+          return l10n.notificationMessageNewCycleNoActor(groupName);
+        }
+        return l10n.notificationMessageNewCycle(groupName, starter);
       case NotificationType.cycleCompleted:
         return l10n.notificationMessageCycleCompleted(groupName);
       case NotificationType.deadline:
@@ -50,6 +58,18 @@ extension NotificationDisplay on NotificationItem {
           );
         }
         return l10n.notificationMessageDeadline(groupName);
+      case NotificationType.starterAssigned:
+        return l10n.notificationMessageStarterAssigned(groupName);
+      case NotificationType.friendShot:
+        return l10n.notificationMessageFriendShot(
+          groupName,
+          payload.actorNickname ?? '',
+        );
+      case NotificationType.comment:
+        return l10n.notificationMessageComment(
+          groupName,
+          payload.actorNickname ?? '',
+        );
       case NotificationType.unknown:
         return l10n.notificationMessageDefault;
     }

@@ -9,6 +9,15 @@ enum NotificationType {
   // 마감(투표) 알림.
   deadline('DEADLINE'),
 
+  // 랜덤 스타터가 지정됨.
+  starterAssigned('STARTER_ASSIGNED'),
+
+  // 같은 모임의 친구가 따라찍기를 올림.
+  friendShot('FRIEND_SHOT'),
+
+  // 내 사진에 댓글이 달림.
+  comment('COMMENT'),
+
   // 그룹에 새 멤버가 참여함.
   memberJoin('MEMBER_JOIN'),
 

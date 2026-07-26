@@ -329,7 +329,7 @@ mixin _$ActivityNotificationResponse {
 // 따라찍기 알림. (NEW_CYCLE · CYCLE_COMPLETED · DEADLINE)
  bool get followShot;// 다른 친구의 따라찍기 알림.
  bool get friendShot;// 랜덤 스타터 알림. (STARTER_ASSIGNED)
- bool get starterAssigned;// 댓글 알림.
+ bool get starterAssigned;// 댓글 알림. (COMMENT)
  bool get comment;
 /// Create a copy of ActivityNotificationResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -536,7 +536,7 @@ class _ActivityNotificationResponse implements ActivityNotificationResponse {
 @override final  bool friendShot;
 // 랜덤 스타터 알림. (STARTER_ASSIGNED)
 @override final  bool starterAssigned;
-// 댓글 알림.
+// 댓글 알림. (COMMENT)
 @override final  bool comment;
 
 /// Create a copy of ActivityNotificationResponse

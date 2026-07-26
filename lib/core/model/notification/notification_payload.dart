@@ -9,19 +9,23 @@ abstract class NotificationPayload with _$NotificationPayload {
   const factory NotificationPayload({
     required int? groupId,
     required String? groupName,
-    // MEMBER_JOIN 등 참여자 정보가 있는 알림에만 존재.
+    // MEMBER_JOIN·FRIEND_SHOT·COMMENT 등 참여자 정보가 있는 알림에만 존재.
     required String? actorNickname,
     // NEW_CYCLE 등 사이클 관련 알림에만 존재.
     required int? cycleId,
+    // 댓글이 달린 사진 id. COMMENT 외에는 null.
+    required int? shotId,
     // 사이클 마감 시각. DEADLINE 알림에서 남은 시간 계산에 사용. 없으면 null.
     required DateTime? deadlineAt,
-    // 서버가 계산한 마감까지 남은 분. DEADLINE 알림에만 존재.
+    // 서버가 계산한 마감까지 남은 단계(60·30·5·1). DEADLINE 알림에만 존재.
     required int? remainingMinutes,
-    // 알림 아바타에 쓸 이미지 URL. 없으면 null → 기본 아바타.
+    // 알림 썸네일 이미지 URL. 스타터 원본 가이드샷이 있는 알림
+    // (NEW_CYCLE·CYCLE_COMPLETED)에만 값이 오고, 나머지는 null → 기본 썸네일.
     required String? imageUrl,
-    // 썸네일(스타터 샷)이 신고 접수로 검토 중인지 여부. (NEW_CYCLE 에만 존재)
+    // 썸네일(스타터 샷)이 신고 접수로 검토 중인지 여부.
+    // (NEW_CYCLE·CYCLE_COMPLETED 에만 존재)
     required bool imageUnderReview,
-    // 썸네일을 올린 스타터의 userId. NEW_CYCLE 외에는 null.
+    // 썸네일을 올린 스타터의 userId. NEW_CYCLE·CYCLE_COMPLETED 외에는 null.
     required int? starterUserId,
   }) = _NotificationPayload;
 }

@@ -53,6 +53,7 @@ _NotificationPayloadResponse _$NotificationPayloadResponseFromJson(
   groupName: json['groupName'] as String?,
   actorNickname: json['actorNickname'] as String?,
   cycleId: (json['cycleId'] as num?)?.toInt(),
+  shotId: (json['shotId'] as num?)?.toInt(),
   deadlineAt: json['deadlineAt'] == null
       ? null
       : DateTime.parse(json['deadlineAt'] as String),
@@ -69,6 +70,7 @@ Map<String, dynamic> _$NotificationPayloadResponseToJson(
   'groupName': instance.groupName,
   'actorNickname': instance.actorNickname,
   'cycleId': instance.cycleId,
+  'shotId': instance.shotId,
   'deadlineAt': instance.deadlineAt?.toIso8601String(),
   'remainingMinutes': instance.remainingMinutes,
   'imageUrl': instance.imageUrl,
