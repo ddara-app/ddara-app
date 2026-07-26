@@ -116,34 +116,36 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: AppSpacing.s5,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    height: 465,
-                    padding: const EdgeInsets.all(AppSpacing.s4),
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      color: AppColors.bgSurface,
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                      // 사진이 있으면 카드를 가득 채워 보여준다.
-                      image: hasPhoto
-                          ? DecorationImage(
-                              image: FileImage(File(photoPath)),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
+                  // 모임 헤더·갤러리 카드와 같은 사진 프레임으로 보여준다.
+                  AspectRatio(
+                    aspectRatio: AppRatio.photo,
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.s4),
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: AppColors.bgSurface,
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        // 사진이 있으면 카드를 가득 채워 보여준다.
+                        image: hasPhoto
+                            ? DecorationImage(
+                                image: FileImage(File(photoPath)),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
+                      child: hasPhoto
+                          ? null
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TakePhotoButton(
+                                  size: TakePhotoButtonSize.large,
+                                  onPressed: notifier.goToCamera,
+                                ),
+                              ],
+                            ),
                     ),
-                    // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
-                    child: hasPhoto
-                        ? null
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TakePhotoButton(
-                                size: TakePhotoButtonSize.large,
-                                onPressed: notifier.goToCamera,
-                              ),
-                            ],
-                          ),
                   ),
                   AppTextField(
                     label: l10n.starterConceptLabel,

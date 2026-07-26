@@ -348,12 +348,8 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                         image: widget.guideImage!,
                         opacity: _guideOpacity,
                         // 원본 전체가 아니라 모임 상세 헤더에서 보이던 프레임만
-                        // 가이드로 쓴다. (헤더 프레임: 가로 = 화면 - 좌우 s4
-                        // 패딩, 세로 478 고정 — StartedHeader 참조)
-                        frameAspectRatio:
-                            (MediaQuery.sizeOf(context).width -
-                                AppSpacing.s4 * 2) /
-                            478,
+                        // 가이드로 쓴다. (사진 프레임 비율 공용)
+                        frameAspectRatio: AppRatio.photo,
                       ),
                     ),
                   },

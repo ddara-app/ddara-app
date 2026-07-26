@@ -143,8 +143,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     }
 
     // 스타터 대표 사진 크게 보기. (사진이 없으면 열지 않는다)
-    // 헤더 프레임 그대로 보여준다 — 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정.
-    // (StartedHeader 참조) 댓글은 스타터 shot id 로 등록·조회한다.
+    // 헤더에서 보이던 프레임 그대로 보여준다. 댓글은 스타터 shot id 로 등록·조회한다.
     VoidCallback? openStarterViewer;
     VoidCallback? openStarterComments;
     final starterImageUrl = cycle.starterImageUrl;
@@ -154,8 +153,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         ref,
         shotId: cycle.starterShotId,
         image: CachedNetworkImageProvider(starterImageUrl),
-        aspectRatio:
-            (MediaQuery.of(context).size.width - AppSpacing.s4 * 2) / 478,
+        aspectRatio: AppRatio.photo,
         // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
         title: cycle.starterNickname,
         body: cycle.topic,
@@ -214,7 +212,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     nickname: cycle.starterNickname,
                   ),
             // 스타터 대표 사진 탭 → 헤더에서 보이던 프레임 그대로 크게 보여준다.
-            // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
             onImageTap: openStarterViewer,
             // 우상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
             onComment: openStarterComments,
@@ -223,41 +220,29 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
           const SizedBox(height: AppSpacing.s6),
           AppText.headlineLarge(gallery.groupName),
           // 제목↔그리드 간격 s4 는 Column spacing 으로 처리.
-          // 멤버 사진 카드 2칸 그리드. (카드 높이는 225 고정)
-          LayoutBuilder(
-            builder: (context, constraints) {
-              // 카드 한 장의 실제 폭. (2열 - 열 간격) 오버레이의 카드 사본 크기와
-              // 크게 보기 비율 계산에 쓴다.
-              final cardWidth = (constraints.maxWidth - AppSpacing.s3) / 2;
-              // 카드 한 장의 실제 비율. 크게 보기에서 카드와 동일한 프레임으로
-              // 잘라 보여주는 데 쓴다. (고정 높이 225)
-              final cardAspectRatio = cardWidth / 225;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: AppSpacing.s3,
-                  mainAxisSpacing: AppSpacing.s3,
-                  mainAxisExtent: 225,
-                ),
-                itemCount: members.length,
-                itemBuilder: (context, index) => _memberTile(
-                  context,
-                  ref,
-                  l10n: l10n,
-                  member: members[index],
-                  cycle: cycle,
-                  myUserId: myUserId,
-                  blockedUserIds: blockedUserIds,
-                  isDoneCycle: isDoneCycle,
-                  starterBlocked: starterBlocked,
-                  cardWidth: cardWidth,
-                  cardAspectRatio: cardAspectRatio,
-                ),
-              );
-            },
+          // 멤버 사진 카드 2칸 그리드. (카드 비율은 MemberPhotoCard 가 정한다)
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: AppSpacing.s3,
+              mainAxisSpacing: AppSpacing.s3,
+              childAspectRatio: AppRatio.photo,
+            ),
+            itemCount: members.length,
+            itemBuilder: (context, index) => _memberTile(
+              context,
+              ref,
+              l10n: l10n,
+              member: members[index],
+              cycle: cycle,
+              myUserId: myUserId,
+              blockedUserIds: blockedUserIds,
+              isDoneCycle: isDoneCycle,
+              starterBlocked: starterBlocked,
+            ),
           ),
         ],
       ),
@@ -276,8 +261,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     required Set<int> blockedUserIds,
     required bool isDoneCycle,
     required bool starterBlocked,
-    required double cardWidth,
-    required double cardAspectRatio,
   }) {
     final isMe = member.userId == myUserId;
     // 차단한 멤버는 사진을 아예 로드하지 않고 자리표시만 보여준다.
@@ -314,7 +297,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         image: image,
         heroTag: heroTag,
         // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
-        aspectRatio: cardAspectRatio,
+        aspectRatio: AppRatio.photo,
         // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
         title: member.nickname,
         body: cycle.topic,

@@ -11,10 +11,11 @@ import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
-/// 홈 카드의 가로:세로 비율. (디자인 기준 186×245)
+/// 홈 카드의 가로:세로 비율.
 ///
-/// 카드에서 보이던 프레임 그대로 사진을 크게 볼 때도 같은 값을 쓴다.
-const double photoCardAspectRatio = 186 / 245;
+/// 갤러리 카드·모임 헤더와 같은 사진 프레임([AppRatio.photo])을 쓴다.
+/// 카드에서 보이던 프레임 그대로 사진을 크게 볼 때도 같은 값이다.
+const double photoCardAspectRatio = AppRatio.photo;
 
 /// 잠금 사진에 씌우는 블러 세기. (멤버 사진 카드와 동일)
 const double _lockedBlurSigma = 12;

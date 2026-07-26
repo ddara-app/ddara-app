@@ -425,9 +425,10 @@ class GroupPage extends ConsumerWidget {
             ],
           ),
           // 히스토리가 있으면 사진 카드들을, 없으면 같은 높이의 빈 상태 안내를 보여준다.
+          // (카드 높이 + HistoryPhotos 의 상하 s4 패딩)
           body: cycles.isEmpty
               ? SizedBox(
-                  height: 225 + AppSpacing.s4 * 2,
+                  height: HistoryPhotos.cardHeight + AppSpacing.s4 * 2,
                   child: Center(child: AppText.body(l10n.groupHistoryEmpty)),
                 )
               : HistoryPhotos(

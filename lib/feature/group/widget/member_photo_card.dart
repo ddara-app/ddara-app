@@ -82,9 +82,8 @@ class MemberPhotoCard extends StatelessWidget {
 
     final card = ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: SizedBox(
-        width: double.infinity,
-        height: 225,
+      child: AspectRatio(
+        aspectRatio: AppRatio.photo,
         child: Stack(
           children: [
             // 배경: 차단·검토 자리표시 / 이미지(잠금 시 블러) / surface.

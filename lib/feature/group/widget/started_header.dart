@@ -181,9 +181,9 @@ class _StartedHeaderState extends State<StartedHeader> {
     final onImageTap = _obscured ? null : widget.onImageTap;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: SizedBox(
-        width: double.infinity,
-        height: 478,
+      // 촬영 확인·갤러리 카드와 같은 프레임으로 보여준다.
+      child: AspectRatio(
+        aspectRatio: AppRatio.photo,
         child: Stack(
           children: [
             // 배경: 스타터 대표 이미지. (아래로 갈수록 부드럽게 블러)
