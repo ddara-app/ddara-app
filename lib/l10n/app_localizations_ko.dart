@@ -616,6 +616,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get starterConceptLengthError => '20자 이내로 입력해 주세요';
 
   @override
+  String randomStarterResultTitle(String name) {
+    return '이번 스타터는 $name님이에요!';
+  }
+
+  @override
+  String get randomStarterResultSubtitle => '첫 판을 시작해 친구들에게 보내보세요';
+
+  @override
+  String get randomStarterLoadFailed => '스타터 정보를 불러오지 못했어요';
+
+  @override
   String get followerCameraTitle => '따라찍기';
 
   @override

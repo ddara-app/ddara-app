@@ -9,6 +9,7 @@ import '../../data/provider/repository_provider.dart';
 import '../../feature/group_create/group_create_page.dart';
 import '../../feature/group/follower/follower_camera_page.dart';
 import '../../feature/group/gallery/cycle_photo_gallery.dart';
+import '../../feature/group/random_starter/random_starter_page.dart';
 import '../../feature/group/starter/starter_page.dart';
 import '../../feature/group/detail/group_page.dart';
 import '../../feature/group/history/history_list_page.dart';
@@ -269,6 +270,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePath.starter,
         builder: (_, state) => StarterPage(groupId: state.extra! as int),
+      ),
+      // 스타터 랜덤 지정 공개 모션. CTA 는 공개된 스타터(GroupMember)를
+      // 결과로 pop 하므로, 이후 진행은 push 한 호출부가 결정한다.
+      //
+      // 모임 진입 직후 자동으로 열리는 화면이라, 슬라이드로 밀고 들어오면
+      // 사용자가 누르지 않은 이동처럼 느껴진다. 페이드로 부드럽게 전환한다.
+      GoRoute(
+        path: RoutePath.randomStarter,
+        pageBuilder: (_, state) => CustomTransitionPage(
+          key: state.pageKey,
+          transitionDuration: const Duration(milliseconds: 400),
+          transitionsBuilder: (_, animation, _, child) => FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            child: child,
+          ),
+          child: RandomStarterPage(args: state.extra! as RandomStarterArgs),
+        ),
       ),
       GoRoute(
         path: RoutePath.followerCamera,

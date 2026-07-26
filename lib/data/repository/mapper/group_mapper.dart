@@ -48,6 +48,7 @@ extension InviteGroupMapper on InviteGroupResponse {
 extension GroupDetailMapper on GroupDetailResponse {
   GroupDetail toDomain() {
     final cycle = currentCycle;
+    final next = nextStarter;
 
     return GroupDetail(
       groupId: groupId,
@@ -77,6 +78,13 @@ extension GroupDetailMapper on GroupDetailResponse {
               startedAt: cycle.startedAt,
               deadlineAt: cycle.deadlineAt,
               uploadedUserIds: cycle.uploadedUserIds,
+            ),
+      nextStarter: next == null
+          ? null
+          : GroupNextStarter(
+              userId: next.userId,
+              nickname: next.nickname,
+              seen: next.seen,
             ),
       createdAt: createdAt,
     );

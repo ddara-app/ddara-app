@@ -37,6 +37,7 @@ import '../usecase/group/get_history_cycles_use_case.dart';
 import '../usecase/group/get_history_list_use_case.dart';
 import '../usecase/group/get_invite_group_use_case.dart';
 import '../usecase/group/join_group_use_case.dart';
+import '../usecase/group/mark_next_starter_seen_use_case.dart';
 
 final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
   return LoginUseCase(ref.read(authRepositoryProvider));
@@ -83,6 +84,12 @@ final joinGroupUseCaseProvider = Provider<JoinGroupUseCase>((ref) {
 final exitGroupUseCaseProvider = Provider<ExitGroupUseCase>((ref) {
   return ExitGroupUseCase(ref.read(groupRepositoryProvider));
 });
+
+final markNextStarterSeenUseCaseProvider = Provider<MarkNextStarterSeenUseCase>(
+  (ref) {
+    return MarkNextStarterSeenUseCase(ref.read(groupRepositoryProvider));
+  },
+);
 
 final getHistoryCyclesUseCaseProvider = Provider<GetHistoryCyclesUseCase>((
   ref,

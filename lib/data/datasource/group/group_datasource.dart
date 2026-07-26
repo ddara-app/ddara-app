@@ -64,6 +64,10 @@ class GroupDataSource {
     await _dio.delete('$_baseUrl/$groupId/members/me');
   }
 
+  Future<void> markNextStarterSeen(int groupId) async {
+    await _dio.post('$_baseUrl/$groupId/next-starter/seen');
+  }
+
   Future<HistoryCyclesResponse> getHistoryCycles(
     int groupId, {
     int? year,
