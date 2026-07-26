@@ -1,7 +1,7 @@
 import 'dart:async' show unawaited;
 
 import 'package:ddara/core/comment/comment_actions.dart';
-import 'package:ddara/core/widget/image/comment/comment_report_sheet.dart';
+import 'package:ddara/core/widget/bottom_sheet/report_sheets.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment_mapper.dart';
 import 'package:ddara/core/widget/toast/toast.dart';

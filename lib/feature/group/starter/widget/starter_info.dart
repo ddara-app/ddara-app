@@ -5,6 +5,7 @@ import 'package:ddara/core/design_system/component/text_field/app_text_field.dar
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
@@ -48,7 +49,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
   }
 
   /// 게시 확인을 받고 촬영본을 올린다. 성공하면 방금 만들어진 사이클로 이동한다.
-  /// (실패 시 notifier 가 errorMessage 를 채우고 화면이 토스트로 안내한다)
+  /// (실패 시 notifier 가 error 를 채우고 화면이 토스트로 안내한다)
   Future<void> _upload() async {
     final l10n = AppLocalizations.of(context);
     // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
@@ -82,8 +83,9 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
 
     // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
     ref.listen(starterNotifierProvider, (prev, next) {
-      if (next.errorMessage.isNotEmpty) {
-        Toast.showToast(context, next.errorMessage, type: ToastType.error);
+      final error = next.error;
+      if (error != null) {
+        Toast.showToast(context, error.message(l10n), type: ToastType.error);
         notifier.clearError();
       }
     });
@@ -116,34 +118,36 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: AppSpacing.s5,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    height: 465,
-                    padding: const EdgeInsets.all(AppSpacing.s4),
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      color: AppColors.bgSurface,
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                      // 사진이 있으면 카드를 가득 채워 보여준다.
-                      image: hasPhoto
-                          ? DecorationImage(
-                              image: FileImage(File(photoPath)),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
+                  // 모임 헤더·갤러리 카드와 같은 사진 프레임으로 보여준다.
+                  AspectRatio(
+                    aspectRatio: AppRatio.photo,
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.s4),
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: AppColors.bgSurface,
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        // 사진이 있으면 카드를 가득 채워 보여준다.
+                        image: hasPhoto
+                            ? DecorationImage(
+                                image: FileImage(File(photoPath)),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
+                      child: hasPhoto
+                          ? null
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TakePhotoButton(
+                                  size: TakePhotoButtonSize.large,
+                                  onPressed: notifier.goToCamera,
+                                ),
+                              ],
+                            ),
                     ),
-                    // 사진이 없을 때만 가운데에 촬영 버튼을 표시한다.
-                    child: hasPhoto
-                        ? null
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TakePhotoButton(
-                                size: TakePhotoButtonSize.large,
-                                onPressed: notifier.goToCamera,
-                              ),
-                            ],
-                          ),
                   ),
                   AppTextField(
                     label: l10n.starterConceptLabel,

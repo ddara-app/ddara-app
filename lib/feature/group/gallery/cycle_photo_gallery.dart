@@ -5,14 +5,18 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/core/model/group/cycle_shot_status.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/widget/bottom_sheet/report_sheets.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
-import 'package:ddara/feature/group/gallery/widget/photo_report_sheet.dart';
+import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
+import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
 import 'package:ddara/feature/group/widget/started_header.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -48,16 +52,22 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(cyclePhotoGalleryNotifierProvider(cycleId));
-    final gallery = state.gallery;
 
     // 신고 등 액션 실패를 토스트로 안내한다.
     // (초기 조회 실패는 본문에 표시되므로 갤러리가 로드된 뒤의 에러만 다룬다)
     ref.listen(cyclePhotoGalleryNotifierProvider(cycleId), (prev, next) {
-      if (next.gallery != null && next.errorMessage.isNotEmpty) {
-        Toast.showToast(context, next.errorMessage, type: ToastType.error);
+      if (next is! CyclePhotoGalleryLoaded) return;
+
+      final error = next.actionError;
+      if (error != null) {
+        Toast.showToast(
+          context,
+          error.message(AppLocalizations.of(context)),
+          type: ToastType.error,
+        );
         ref
             .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
-            .clearError();
+            .clearActionError();
       }
       // 댓글 액션 실패는 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
       final commentError = next.commentError;
@@ -74,23 +84,24 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     });
 
     return CupertinoPageScaffold(
-      // 조회 전엔 제목이 없으므로 빈 문자열.
+      // 조회 전·실패 시에는 제목이 없으므로 빈 문자열.
       navigationBar: AppBar(
-        title: state.groupName,
+        title: state is CyclePhotoGalleryLoaded ? state.groupName : '',
         onBack: () => context.pop(),
       ),
       child: SafeArea(
         bottom: false,
-        child: switch (gallery) {
-          // 조회 완료 전: 로딩 인디케이터 또는 에러 메시지.
-          null =>
-            state.errorMessage.isNotEmpty
-                ? Center(child: AppText.body(state.errorMessage))
-                : const Center(child: CupertinoActivityIndicator()),
-          _ => _buildContent(
+        child: switch (state) {
+          CyclePhotoGalleryLoading() => const Center(
+            child: CupertinoActivityIndicator(),
+          ),
+          CyclePhotoGalleryLoadError(:final error) => Center(
+            child: AppText.body(error.message(AppLocalizations.of(context))),
+          ),
+          CyclePhotoGalleryLoaded() => _buildContent(
             context,
             ref,
-            gallery,
+            state.gallery,
             state.myUserId,
             state.blockedUserIds,
           ),
@@ -103,7 +114,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     BuildContext context,
     WidgetRef ref,
     CycleGallery gallery,
-    int? myUserId,
+    int myUserId,
     Set<int> blockedUserIds,
   ) {
     final l10n = AppLocalizations.of(context);
@@ -116,10 +127,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
 
     // 본인이 스타터인지 여부.
+    // (사진을 볼 수 있는지는 서버가 멤버별 status 로 내려준다 — 여기서 계산하지 않는다)
     final iAmStarter = cycle.starterUserId == myUserId;
-    // 스타터이거나 본인이 사진을 올렸으면 모든 멤버의 사진을 볼 수 있다.
-    // 그 외(스타터 아님 + 미업로드)면 사진이 있는 멤버는 블러+자물쇠로 가린다.
-    final canSeeAll = iAmStarter || gallery.viewerUploaded;
 
     // 스타터는 헤더에 노출되므로 그리드에서는 제외한다.
     final nonStarters = gallery.members.where((m) => !m.isStarter).toList();
@@ -143,8 +152,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     }
 
     // 스타터 대표 사진 크게 보기. (사진이 없으면 열지 않는다)
-    // 헤더 프레임 그대로 보여준다 — 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정.
-    // (StartedHeader 참조) 댓글은 스타터 shot id 로 등록·조회한다.
+    // 헤더에서 보이던 프레임 그대로 보여준다. 댓글은 스타터 shot id 로 등록·조회한다.
     VoidCallback? openStarterViewer;
     VoidCallback? openStarterComments;
     final starterImageUrl = cycle.starterImageUrl;
@@ -154,8 +162,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         ref,
         shotId: cycle.starterShotId,
         image: CachedNetworkImageProvider(starterImageUrl),
-        aspectRatio:
-            (MediaQuery.of(context).size.width - AppSpacing.s4 * 2) / 478,
+        aspectRatio: AppRatio.photo,
         // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
         title: cycle.starterNickname,
         body: cycle.topic,
@@ -214,7 +221,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                     nickname: cycle.starterNickname,
                   ),
             // 스타터 대표 사진 탭 → 헤더에서 보이던 프레임 그대로 크게 보여준다.
-            // (헤더 프레임: 가로 = 화면 - 좌우 s4 패딩, 세로 478 고정 — StartedHeader 참조)
             onImageTap: openStarterViewer,
             // 우상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
             onComment: openStarterComments,
@@ -223,42 +229,29 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
           const SizedBox(height: AppSpacing.s6),
           AppText.headlineLarge(gallery.groupName),
           // 제목↔그리드 간격 s4 는 Column spacing 으로 처리.
-          // 멤버 사진 카드 2칸 그리드. (카드 높이는 225 고정)
-          LayoutBuilder(
-            builder: (context, constraints) {
-              // 카드 한 장의 실제 폭. (2열 - 열 간격) 오버레이의 카드 사본 크기와
-              // 크게 보기 비율 계산에 쓴다.
-              final cardWidth = (constraints.maxWidth - AppSpacing.s3) / 2;
-              // 카드 한 장의 실제 비율. 크게 보기에서 카드와 동일한 프레임으로
-              // 잘라 보여주는 데 쓴다. (고정 높이 225)
-              final cardAspectRatio = cardWidth / 225;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: AppSpacing.s3,
-                  mainAxisSpacing: AppSpacing.s3,
-                  mainAxisExtent: 225,
-                ),
-                itemCount: members.length,
-                itemBuilder: (context, index) => _memberTile(
-                  context,
-                  ref,
-                  l10n: l10n,
-                  member: members[index],
-                  cycle: cycle,
-                  myUserId: myUserId,
-                  blockedUserIds: blockedUserIds,
-                  isDoneCycle: isDoneCycle,
-                  canSeeAll: canSeeAll,
-                  starterBlocked: starterBlocked,
-                  cardWidth: cardWidth,
-                  cardAspectRatio: cardAspectRatio,
-                ),
-              );
-            },
+          // 멤버 사진 카드 2칸 그리드. (카드 비율은 MemberPhotoCard 가 정한다)
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: AppSpacing.s3,
+              mainAxisSpacing: AppSpacing.s3,
+              childAspectRatio: AppRatio.photo,
+            ),
+            itemCount: members.length,
+            itemBuilder: (context, index) => _memberTile(
+              context,
+              ref,
+              l10n: l10n,
+              member: members[index],
+              cycle: cycle,
+              myUserId: myUserId,
+              blockedUserIds: blockedUserIds,
+              isDoneCycle: isDoneCycle,
+              starterBlocked: starterBlocked,
+            ),
           ),
         ],
       ),
@@ -273,23 +266,21 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     required AppLocalizations l10n,
     required CycleGalleryMember member,
     required CycleGalleryCycle cycle,
-    required int? myUserId,
+    required int myUserId,
     required Set<int> blockedUserIds,
     required bool isDoneCycle,
-    required bool canSeeAll,
     required bool starterBlocked,
-    required double cardWidth,
-    required double cardAspectRatio,
   }) {
     final isMe = member.userId == myUserId;
     // 차단한 멤버는 사진을 아예 로드하지 않고 자리표시만 보여준다.
     final isBlockedMember = blockedUserIds.contains(member.userId);
     // 신고 접수로 검토 중인 사진. (검토 안내 자리표시로 가린다)
-    final isReported = member.status.toLowerCase() == 'reported';
+    final isReported = member.status == CycleShotStatus.reported;
     final imageUrl = isBlockedMember || isReported ? null : member.imageUrl;
     // 잠긴(블러) 사진. 크게 볼 때도 블러+자물쇠는 유지하지만,
     // 뷰어와 댓글에는 접근할 수 있다.
-    final locked = !isDoneCycle && !canSeeAll;
+    // (뷰어 맥락까지 반영한 판정은 서버가 status 로 내려준다)
+    final locked = member.status == CycleShotStatus.locked;
     final ImageProvider? image = imageUrl == null
         ? null
         : CachedNetworkImageProvider(imageUrl);
@@ -315,7 +306,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         image: image,
         heroTag: heroTag,
         // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
-        aspectRatio: cardAspectRatio,
+        aspectRatio: AppRatio.photo,
         // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
         title: member.nickname,
         body: cycle.topic,
@@ -362,10 +353,13 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 타인의 보이는 사진만 신고·차단할 수 있다. (본인·잠김·차단 제외)
     if (isMe || !canView || shotId == null) return card;
 
-    return _MenuPhotoCard(
-      cardWidth: cardWidth,
+    return AnchoredContextMenu(
       // 사본은 Hero 태그 충돌을 피해 태그·콜백 없이 만든다.
-      copy: MemberPhotoCard(name: member.nickname, image: image),
+      // (오버레이에는 그리드 제약이 없어 원본 카드 폭을 그대로 준다)
+      overlayBuilder: (_, targetSize) => SizedBox(
+        width: targetSize.width,
+        child: MemberPhotoCard(name: member.nickname, image: image),
+      ),
       // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
       actions: [
         (
@@ -403,10 +397,13 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     bool openCommentSheet = false,
   }) {
     // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
+    // (뷰어는 갤러리가 떠 있어야만 열리므로 여기선 항상 Loaded 다)
     final state = ref.read(cyclePhotoGalleryNotifierProvider(cycleId));
-    final me = state.gallery?.members
-        .where((member) => member.userId == state.myUserId)
-        .firstOrNull;
+    final me = state is CyclePhotoGalleryLoaded
+        ? state.gallery.members
+              .where((member) => member.userId == state.myUserId)
+              .firstOrNull
+        : null;
 
     final handlers = _commentHandlers(context, ref, shotId);
     showPhotoViewer(
@@ -443,8 +440,10 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       context: context,
       notifier: ref.read(cyclePhotoGalleryNotifierProvider(cycleId).notifier),
       shotId: shotId,
-      myUserId: () =>
-          ref.read(cyclePhotoGalleryNotifierProvider(cycleId)).myUserId,
+      myUserId: () {
+        final state = ref.read(cyclePhotoGalleryNotifierProvider(cycleId));
+        return state is CyclePhotoGalleryLoaded ? state.myUserId : null;
+      },
       onBlockComment: (comment) => _blockCommentAuthor(context, ref, comment),
     );
   }
@@ -452,7 +451,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   /// [userId] 유저(멤버·스타터·댓글 작성자 공용)를 차단한다. 먼저 확인
   /// 다이얼로그를 띄우고, 확인 시에만 진행한다. 성공하면 차단이 반영된
   /// (사진 가림) 갤러리를 다시 조회하고 완료 토스트를 띄운 뒤 true 를
-  /// 반환한다. (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  /// 반환한다. (실패 시 notifier 가 error → 토스트로 처리)
   Future<bool> _blockUser(
     BuildContext context,
     WidgetRef ref, {
@@ -493,7 +492,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공 시 검토 상태가 반영된 갤러리를 다시 조회하고 완료 토스트를 띄운다.
-  /// (실패 시 notifier 가 errorMessage → 토스트로 처리)
+  /// (실패 시 notifier 가 error → 토스트로 처리)
   Future<void> _reportPhoto(
     BuildContext context,
     WidgetRef ref,
@@ -515,146 +514,4 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   }
 }
 
-/// 롱프레스 메뉴의 항목 하나. (라벨 + 글자색 + 선택 콜백)
-typedef _MenuAction = ({String label, Color? color, VoidCallback onSelect});
-
-/// 롱프레스하면 카드 위쪽에 컨텍스트 메뉴(오버레이)를 띄우는 사진 카드 래퍼.
-///
-/// 멤버 아바타 메뉴와 동일하게 배경을 블러 + 살짝 어둡게 하고, 대상 카드
-/// 사본을 스크림 위로 띄운 채 메뉴를 보여준다. 바깥을 탭하면 닫힌다.
-class _MenuPhotoCard extends StatefulWidget {
-  const _MenuPhotoCard({
-    required this.child,
-    required this.copy,
-    required this.cardWidth,
-    required this.actions,
-  });
-
-  final Widget child;
-
-  /// 스크림 위로 띄울 카드 사본. (Hero 태그 충돌을 피해 태그·콜백 없이 만든 카드)
-  final Widget copy;
-
-  /// 사본에 적용할 카드 폭. (오버레이에는 그리드 제약이 없어 직접 지정)
-  final double cardWidth;
-
-  /// 메뉴에 나열할 항목들. (위에서부터 순서대로)
-  final List<_MenuAction> actions;
-
-  @override
-  State<_MenuPhotoCard> createState() => _MenuPhotoCardState();
-}
-
-class _MenuPhotoCardState extends State<_MenuPhotoCard> {
-  /// 카드 위치를 메뉴가 따라가게 잇는 링크.
-  final LayerLink _link = LayerLink();
-
-  /// 열려 있는 메뉴 라우트. 닫혀 있으면 null.
-  Route<void>? _menuRoute;
-
-  void _open() {
-    if (_menuRoute != null) return;
-    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
-    // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
-    final route = RawDialogRoute<void>(
-      barrierColor: AppColorPrimitives.black60,
-      barrierLabel: AppLocalizations.of(context).commonCancel,
-      transitionDuration: Duration.zero,
-      pageBuilder: (dialogContext, _, _) => _buildOverlay(dialogContext),
-    );
-    _menuRoute = route;
-    Navigator.of(context).push(route).then((_) => _menuRoute = null);
-  }
-
-  /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
-  void _select(BuildContext dialogContext, VoidCallback onSelect) {
-    Navigator.of(dialogContext).pop();
-    onSelect();
-  }
-
-  @override
-  void dispose() {
-    // 카드가 사라지면(목록 갱신 등) 열려 있던 메뉴 라우트도 함께 닫는다.
-    final route = _menuRoute;
-    if (route != null && route.isActive) {
-      route.navigator?.removeRoute(route);
-    }
-    super.dispose();
-  }
-
-  Widget _buildOverlay(BuildContext dialogContext) {
-    return Stack(
-      children: [
-        // 대상 카드 사본을 스크림 위로 띄워 선명하게 유지한다.
-        // (원본 위치에 정확히 겹치므로 카드만 떠오른 것처럼 보인다)
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.topLeft,
-          child: IgnorePointer(
-            child: SizedBox(width: widget.cardWidth, child: widget.copy),
-          ),
-        ),
-        // 카드 위쪽(좌측 정렬)에 앵커. (카드 위로 s2 만큼 띄움)
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.bottomLeft,
-          offset: const Offset(0, -AppSpacing.s2),
-          child: _menu(dialogContext),
-        ),
-      ],
-    );
-  }
-
-  Widget _menu(BuildContext dialogContext) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.borderDefault),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColorPrimitives.black40,
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
-      child: IntrinsicWidth(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < widget.actions.length; i++) ...[
-              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s4,
-                  vertical: AppSpacing.s3,
-                ),
-                minimumSize: Size.zero,
-                onPressed: () =>
-                    _select(dialogContext, widget.actions[i].onSelect),
-                child: AppText.body(
-                  widget.actions[i].label,
-                  color: widget.actions[i].color,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _link,
-      child: GestureDetector(onLongPress: _open, child: widget.child),
-    );
-  }
-}
+// (롱프레스 컨텍스트 메뉴는 feature/group/widget/anchored_context_menu.dart 공용)

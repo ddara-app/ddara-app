@@ -784,12 +784,6 @@ abstract class AppLocalizations {
   /// **'수정'**
   String get editNicknameSubmit;
 
-  /// No description provided for @groupDetailLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'모임 정보를 불러오지 못했어요.'**
-  String get groupDetailLoadError;
-
   /// No description provided for @groupDetailEmptyTitle.
   ///
   /// In ko, this message translates to:
@@ -1413,6 +1407,156 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'신고하지 못했어요.'**
   String get commentErrorReportFailed;
+
+  /// No description provided for @groupErrorNotGroupMember.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 모임의 멤버가 아니에요.'**
+  String get groupErrorNotGroupMember;
+
+  /// No description provided for @groupErrorGroupNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'존재하지 않는 모임이에요.'**
+  String get groupErrorGroupNotFound;
+
+  /// No description provided for @groupErrorCycleNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'존재하지 않는 회차예요.'**
+  String get groupErrorCycleNotFound;
+
+  /// No description provided for @groupErrorUnauthorized.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인이 필요해요.'**
+  String get groupErrorUnauthorized;
+
+  /// No description provided for @groupErrorNetwork.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결이 불안정해요.'**
+  String get groupErrorNetwork;
+
+  /// No description provided for @groupErrorGroupLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 정보를 불러오지 못했어요.'**
+  String get groupErrorGroupLoadFailed;
+
+  /// No description provided for @groupErrorGalleryLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 불러오지 못했어요.'**
+  String get groupErrorGalleryLoadFailed;
+
+  /// No description provided for @groupErrorHistoryLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 따라찍기를 불러오지 못했어요.'**
+  String get groupErrorHistoryLoadFailed;
+
+  /// No description provided for @groupErrorExitFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임에서 나가지 못했어요.'**
+  String get groupErrorExitFailed;
+
+  /// No description provided for @groupErrorReportInvalidInput.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 내용이 올바르지 않아요.'**
+  String get groupErrorReportInvalidInput;
+
+  /// No description provided for @groupErrorReportShotNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 삭제된 사진이에요.'**
+  String get groupErrorReportShotNotFound;
+
+  /// No description provided for @groupErrorReportUserNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임에 없는 사용자예요.'**
+  String get groupErrorReportUserNotFound;
+
+  /// No description provided for @groupErrorReportFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하지 못했어요.'**
+  String get groupErrorReportFailed;
+
+  /// No description provided for @groupErrorBlockSelf.
+  ///
+  /// In ko, this message translates to:
+  /// **'자기 자신은 차단할 수 없어요.'**
+  String get groupErrorBlockSelf;
+
+  /// No description provided for @groupErrorBlockTargetNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'존재하지 않는 사용자예요.'**
+  String get groupErrorBlockTargetNotFound;
+
+  /// No description provided for @groupErrorBlockFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단하지 못했어요.'**
+  String get groupErrorBlockFailed;
+
+  /// No description provided for @groupErrorNicknameInvalid.
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임은 2~10자로 입력해주세요.'**
+  String get groupErrorNicknameInvalid;
+
+  /// No description provided for @groupErrorNicknameDuplicate.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 누가 쓰고 있어요. 다른 이름은 어때요?'**
+  String get groupErrorNicknameDuplicate;
+
+  /// No description provided for @groupErrorNicknameChangeFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임을 변경하지 못했어요.'**
+  String get groupErrorNicknameChangeFailed;
+
+  /// No description provided for @groupErrorStarterInvalidInput.
+  ///
+  /// In ko, this message translates to:
+  /// **'컨셉 또는 이미지가 올바르지 않아요.'**
+  String get groupErrorStarterInvalidInput;
+
+  /// No description provided for @groupErrorImageUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 업로드에 실패했어요.'**
+  String get groupErrorImageUploadFailed;
+
+  /// No description provided for @groupErrorNotEnoughMembers.
+  ///
+  /// In ko, this message translates to:
+  /// **'활동 멤버가 3명 이상이어야 시작할 수 있어요.'**
+  String get groupErrorNotEnoughMembers;
+
+  /// No description provided for @groupErrorCycleAlreadyInProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 진행 중인 회차가 있어요.'**
+  String get groupErrorCycleAlreadyInProgress;
+
+  /// No description provided for @groupErrorStarterUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기를 시작하지 못했어요.'**
+  String get groupErrorStarterUploadFailed;
+
+  /// No description provided for @groupErrorFollowerUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 올리지 못했어요.'**
+  String get groupErrorFollowerUploadFailed;
 
   /// 전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 제목
   ///

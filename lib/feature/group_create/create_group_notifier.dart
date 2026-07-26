@@ -1,25 +1,25 @@
 import 'package:ddara/core/exception/group_create_error.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group_create/util/create_group_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState> {
-  /// autoDispose 폐기 후 in-flight 응답이 state 를 만지지 않도록 하는 가드.
-  /// (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
-  bool _disposed = false;
-
+class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState>
+    with AutoDisposeGuard<CreateGroupState> {
   @override
   CreateGroupState build() {
-    _disposed = false; // invalidate 재빌드(같은 인스턴스) 대비 리셋.
-    ref.onDispose(() => _disposed = true);
+    // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
+    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    watchDispose();
+
     return CreateGroupState();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
   void _update(CreateGroupState Function(CreateGroupState state) updater) {
-    if (_disposed) return;
+    if (isDisposed) return;
     state = updater(state);
   }
 

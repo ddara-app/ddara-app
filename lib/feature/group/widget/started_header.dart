@@ -8,6 +8,7 @@ import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
+import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -101,15 +102,6 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 헤더 펼침 여부. (true: 큰 이미지 헤더 / false: 축소된 헤더)
   bool _expanded = true;
 
-  /// 헤더 위치를 신고 메뉴가 따라가게 잇는 링크.
-  final LayerLink _link = LayerLink();
-
-  /// 열려 있는 신고 메뉴 라우트. 닫혀 있으면 null.
-  Route<void>? _menuRoute;
-
-  /// 오버레이에 띄울 헤더 사본 크기. (메뉴를 열 때 측정)
-  Size? _copySize;
-
   /// 대표로 보여줄 스타터 사진 URL. 없으면 빈 문자열.
   String get _imageUrl => widget.info.imageUrl ?? '';
 
@@ -135,136 +127,50 @@ class _StartedHeaderState extends State<StartedHeader> {
 
   void _toggle() => setState(() => _expanded = !_expanded);
 
-  void _openMenu() {
-    if (_menuRoute != null) return;
-    // 사본이 원본 헤더와 정확히 겹치도록 현재 크기를 기억해 둔다.
-    _copySize = context.size;
-    // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
-    // 되도록 한다. (스크림·바깥 탭 닫기는 라우트 배리어가 처리)
-    final route = RawDialogRoute<void>(
-      barrierColor: AppColorPrimitives.black60,
-      barrierLabel: AppLocalizations.of(context).commonCancel,
-      transitionDuration: Duration.zero,
-      pageBuilder: (dialogContext, _, _) => _buildMenuOverlay(dialogContext),
-    );
-    _menuRoute = route;
-    Navigator.of(context).push(route).then((_) => _menuRoute = null);
-  }
-
-  /// 메뉴를 닫은 뒤 선택한 항목의 콜백을 실행한다.
-  void _select(BuildContext dialogContext, VoidCallback onSelect) {
-    Navigator.of(dialogContext).pop();
-    onSelect();
-  }
-
-  @override
-  void dispose() {
-    // 헤더가 사라지면(화면 전환 등) 열려 있던 메뉴 라우트도 함께 닫는다.
-    final route = _menuRoute;
-    if (route != null && route.isActive) {
-      route.navigator?.removeRoute(route);
-    }
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _link,
-      child: AnimatedCrossFade(
-        duration: const Duration(milliseconds: 250),
-        // 위 고정 헤더라 접힐 때 위에서부터 높이가 줄도록 상단 기준 정렬.
-        alignment: Alignment.topCenter,
-        crossFadeState: _expanded
-            ? CrossFadeState.showFirst
-            : CrossFadeState.showSecond,
-        firstChild: _buildExpanded(),
-        secondChild: _buildCollapsed(),
-      ),
-    );
-  }
-
-  /// 컨텍스트 메뉴(신고·차단) 오버레이. 배경을 블러 처리하고 헤더 사본 위에
-  /// 메뉴를 띄운다.
-  Widget _buildMenuOverlay(BuildContext dialogContext) {
-    final copySize = _copySize;
-    return Stack(
-      children: [
-        // 대상 헤더(이미지) 사본을 스크림 위로 띄워 선명하게 유지한다.
-        if (copySize != null)
-          CompositedTransformFollower(
-            link: _link,
-            targetAnchor: Alignment.topLeft,
-            followerAnchor: Alignment.topLeft,
-            child: IgnorePointer(
-              child: SizedBox.fromSize(
-                size: copySize,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  child: _blurredBackground(),
-                ),
-              ),
-            ),
-          ),
-        // 헤더가 화면 상단에 붙어 있어 메뉴는 이미지 안쪽 좌상단에 앵커한다.
-        CompositedTransformFollower(
-          link: _link,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.topLeft,
-          offset: const Offset(AppSpacing.s3, AppSpacing.s3),
-          child: _menu(dialogContext),
-        ),
-      ],
-    );
-  }
-
-  Widget _menu(BuildContext dialogContext) {
     final l10n = AppLocalizations.of(context);
-    // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
-    final actions = <({String label, VoidCallback onSelect})>[
-      if (widget.onBlock != null)
-        (label: l10n.memberBlock, onSelect: widget.onBlock!),
-      if (widget.onReport != null)
-        (label: l10n.report, onSelect: widget.onReport!),
-    ];
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.borderDefault),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColorPrimitives.black40,
-            blurRadius: 12,
-            offset: Offset(0, 4),
+    final content = AnimatedCrossFade(
+      duration: const Duration(milliseconds: 250),
+      // 위 고정 헤더라 접힐 때 위에서부터 높이가 줄도록 상단 기준 정렬.
+      alignment: Alignment.topCenter,
+      crossFadeState: _expanded
+          ? CrossFadeState.showFirst
+          : CrossFadeState.showSecond,
+      firstChild: _buildExpanded(),
+      secondChild: _buildCollapsed(),
+    );
+
+    // 접은 상태에서는 대표 이미지가 배경으로만 남으므로 메뉴를 띄우지 않는다.
+    if (!_expanded || !_canOpenMenu) return content;
+
+    // 헤더가 화면 상단에 붙어 있어 위쪽 공간이 없다 — 메뉴를 이미지 안쪽에 띄운다.
+    return AnchoredContextMenu(
+      placement: ContextMenuPlacement.insideTopLeft,
+      // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
+      actions: [
+        if (widget.onBlock != null)
+          (
+            label: l10n.memberBlock,
+            color: AppColors.statusDanger,
+            onSelect: widget.onBlock!,
           ),
-        ],
-      ),
-      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
-      child: IntrinsicWidth(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < actions.length; i++) ...[
-              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s4,
-                  vertical: AppSpacing.s3,
-                ),
-                minimumSize: Size.zero,
-                onPressed: () => _select(dialogContext, actions[i].onSelect),
-                child: AppText.body(
-                  actions[i].label,
-                  color: AppColors.statusDanger,
-                ),
-              ),
-            ],
-          ],
+        if (widget.onReport != null)
+          (
+            label: l10n.report,
+            color: AppColors.statusDanger,
+            onSelect: widget.onReport!,
+          ),
+      ],
+      // 사본은 헤더와 같은 크기·모서리로 배경 이미지만 다시 그린다.
+      overlayBuilder: (_, targetSize) => SizedBox.fromSize(
+        size: targetSize,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          child: _blurredBackground(),
         ),
       ),
+      child: content,
     );
   }
 
@@ -275,18 +181,17 @@ class _StartedHeaderState extends State<StartedHeader> {
     final onImageTap = _obscured ? null : widget.onImageTap;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: SizedBox(
-        width: double.infinity,
-        height: 478,
+      // 촬영 확인·갤러리 카드와 같은 프레임으로 보여준다.
+      child: AspectRatio(
+        aspectRatio: AppRatio.photo,
         child: Stack(
           children: [
-            // 배경: 스타터 대표 이미지.
-            // (아래로 갈수록 부드럽게 블러, 탭하면 크게 보기, 길게 누르면
-            // 신고·차단 메뉴)
+            // 배경: 스타터 대표 이미지. (아래로 갈수록 부드럽게 블러)
+            // 탭하면 크게 보기. 길게 누르면 뜨는 신고·차단 메뉴는 헤더 전체를
+            // 감싼 AnchoredContextMenu 가 처리한다.
             Positioned.fill(
               child: GestureDetector(
                 onTap: onImageTap,
-                onLongPress: _canOpenMenu ? _openMenu : null,
                 child: _blurredBackground(),
               ),
             ),

@@ -2,9 +2,11 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
+import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/history/provider/notifier_provider.dart';
 import 'package:ddara/feature/group/history/util/history_list_state.dart';
 import 'package:ddara/feature/group/history/widget/history_month_section.dart';
@@ -48,6 +50,19 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(historyListNotifierProvider(widget.groupId));
 
+    // 필터 재조회 실패를 토스트로 안내한다. (보던 목록은 그대로 둔다)
+    // 초기 조회 실패는 본문에 표시되므로 목록이 뜬 뒤의 에러만 다룬다.
+    ref.listen(historyListNotifierProvider(widget.groupId), (prev, next) {
+      if (next is! HistoryListLoaded) return;
+
+      final error = next.actionError;
+      if (error == null) return;
+      Toast.showToast(context, error.message(l10n), type: ToastType.error);
+      ref
+          .read(historyListNotifierProvider(widget.groupId).notifier)
+          .clearActionError();
+    });
+
     return CupertinoPageScaffold(
       navigationBar: AppBar(
         title: l10n.groupHistoryTitle,
@@ -71,8 +86,12 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
               children: [
                 // 조회 전(로딩)엔 통계가 없어 0/0 으로 보여준다.
                 RecordSection(
-                  myCount: state.historyList?.stats.myCount ?? 0,
-                  totalCount: state.historyList?.stats.totalCount ?? 0,
+                  myCount: state is HistoryListLoaded
+                      ? state.historyList.stats.myCount
+                      : 0,
+                  totalCount: state is HistoryListLoaded
+                      ? state.historyList.stats.totalCount
+                      : 0,
                 ),
                 _filterSection(l10n),
                 ..._monthSections(l10n, state, visibleSections),
@@ -137,13 +156,17 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
     HistoryListState state,
     List<_MonthSection> sections,
   ) {
-    if (state.historyList == null) {
+    if (state is! HistoryListLoaded) {
       return [
         SizedBox(
           width: double.infinity,
-          child: state.errorMessage.isNotEmpty
-              ? AppText.body(state.errorMessage, textAlign: TextAlign.center)
-              : const CupertinoActivityIndicator(),
+          child: switch (state) {
+            HistoryListLoadError(:final error) => AppText.body(
+              error.message(l10n),
+              textAlign: TextAlign.center,
+            ),
+            _ => const CupertinoActivityIndicator(),
+          },
         ),
       ];
     }
@@ -178,8 +201,8 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
 
   /// 사이클을 년·월 단위 섹션으로 묶는다. (목록 순서 유지 · 조회 전엔 빈 목록)
   List<_MonthSection> _groupedSections(HistoryListState state) {
-    final cycles = state.historyList?.cycles;
-    if (cycles == null) return const [];
+    if (state is! HistoryListLoaded) return const [];
+    final cycles = state.historyList.cycles;
 
     final grouped = <(int, int), List<HistoryListCycle>>{};
     for (final cycle in cycles) {

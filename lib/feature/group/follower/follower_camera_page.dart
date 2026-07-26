@@ -1,6 +1,7 @@
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
+import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
@@ -47,7 +48,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
 
   /// 게시 확인을 받고 촬영본을 올린다. 성공하면 스택 아래 갤러리를 새로고침한
   /// 뒤 이 화면을 닫아 그 갤러리로 돌아간다.
-  /// (실패 시 notifier 가 errorMessage 를 채우고 화면이 토스트로 안내한다)
+  /// (실패 시 notifier 가 error 를 채우고 화면이 토스트로 안내한다)
   Future<void> _upload(String path) async {
     final l10n = AppLocalizations.of(context);
     // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
@@ -87,8 +88,9 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
 
     // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
     ref.listen(followerNotifierProvider, (prev, next) {
-      if (next.errorMessage.isNotEmpty) {
-        Toast.showToast(context, next.errorMessage, type: ToastType.error);
+      final error = next.error;
+      if (error != null) {
+        Toast.showToast(context, error.message(l10n), type: ToastType.error);
         notifier.clearError();
       }
     });

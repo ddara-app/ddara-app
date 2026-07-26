@@ -1,3 +1,5 @@
+import 'package:ddara/l10n/app_localizations.dart';
+
 /// 유저 신고 사유.
 /// (`POST /api/reports` 의 targetType=USER 에서 허용되는 reasonCode 와 1:1 매핑)
 enum UserReportReason {
@@ -17,4 +19,20 @@ enum UserReportReason {
 
   /// 서버로 보내는 reasonCode 문자열.
   final String code;
+}
+
+/// 신고 사유 시트에 노출할 표시 라벨.
+extension UserReportReasonLabel on UserReportReason {
+  String label(AppLocalizations l10n) {
+    switch (this) {
+      case UserReportReason.nickname:
+        return l10n.userReportReasonNickname;
+      case UserReportReason.profileImage:
+        return l10n.userReportReasonProfileImage;
+      case UserReportReason.harassment:
+        return l10n.userReportReasonHarassment;
+      case UserReportReason.etc:
+        return l10n.userReportReasonEtc;
+    }
+  }
 }
