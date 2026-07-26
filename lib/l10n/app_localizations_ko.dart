@@ -240,7 +240,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get meetingClosed => '마감';
+  String get meetingClosed => '진행 종료';
 
   @override
   String get groupCreateTitle => '모임 이름을 정해주세요';
