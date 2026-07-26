@@ -21,10 +21,14 @@ abstract class NotificationSettingsRequest with _$NotificationSettingsRequest {
 @freezed
 abstract class ActivityNotificationRequest with _$ActivityNotificationRequest {
   const factory ActivityNotificationRequest({
-    // 따라찍기 알림.
+    // 따라찍기 알림. (NEW_CYCLE · CYCLE_COMPLETED · DEADLINE)
     required bool followShot,
-    // 마감 투표 알림.
-    required bool deadlineVote,
+    // 다른 친구의 따라찍기 알림.
+    required bool friendShot,
+    // 랜덤 스타터 알림. (STARTER_ASSIGNED)
+    required bool starterAssigned,
+    // 댓글 알림.
+    required bool comment,
   }) = _ActivityNotificationRequest;
 
   factory ActivityNotificationRequest.fromJson(Map<String, dynamic> json) =>

@@ -1804,26 +1804,50 @@ abstract class AppLocalizations {
   /// No description provided for @notificationFollowShot.
   ///
   /// In ko, this message translates to:
-  /// **'따라찍기 차례'**
+  /// **'따라찍기 알림'**
   String get notificationFollowShot;
 
   /// No description provided for @notificationFollowShotCaption.
   ///
   /// In ko, this message translates to:
-  /// **'새 따라찍기가 열리거나 내 차례일 때'**
+  /// **'새 따라찍기가 열리거나 마감될 때'**
   String get notificationFollowShotCaption;
 
-  /// No description provided for @notificationDeadlineVote.
+  /// No description provided for @notificationFriendShot.
   ///
   /// In ko, this message translates to:
-  /// **'마감·투표 알림'**
-  String get notificationDeadlineVote;
+  /// **'다른 친구의 따라찍기 알림'**
+  String get notificationFriendShot;
 
-  /// No description provided for @notificationDeadlineVoteCaption.
+  /// No description provided for @notificationFriendShotCaption.
   ///
   /// In ko, this message translates to:
-  /// **'따라찍기 마감 · 베스트 투표'**
-  String get notificationDeadlineVoteCaption;
+  /// **'같은 모임의 친구가 따라찍기를 올렸을 때'**
+  String get notificationFriendShotCaption;
+
+  /// No description provided for @notificationRandomStarter.
+  ///
+  /// In ko, this message translates to:
+  /// **'랜덤 스타터 알림'**
+  String get notificationRandomStarter;
+
+  /// No description provided for @notificationRandomStarterCaption.
+  ///
+  /// In ko, this message translates to:
+  /// **'랜덤 스타터 지정됐을 때'**
+  String get notificationRandomStarterCaption;
+
+  /// No description provided for @notificationComment.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글 알림'**
+  String get notificationComment;
+
+  /// No description provided for @notificationCommentCaption.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 사진에 댓글이 달릴 때'**
+  String get notificationCommentCaption;
 
   /// No description provided for @notificationSectionEtc.
   ///

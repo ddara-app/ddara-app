@@ -1,17 +1,23 @@
 /// 알림 설정 화면 상태.
 ///
-/// 서버에 저장되는 알림 선호값(allowAll·followShot·deadlineVote·memberJoin)과
-/// OS 알림 권한 허용 여부([permissionGranted])를 함께 보관한다.
+/// 서버에 저장되는 알림 선호값과 OS 알림 권한 허용 여부([permissionGranted])를
+/// 함께 보관한다.
 class NotificationSettingsState {
   /// '알림 허용' 서버 저장값. 권한이 없으면 false 로 낮춰 저장한다.
   /// (서버가 이 값으로 FCM 전송 여부를 판단한다)
   final bool allowAll;
 
-  /// '따라찍기 차례' 알림.
+  /// '따라찍기 알림'. (새 따라찍기가 열리거나 마감될 때)
   final bool followShot;
 
-  /// '마감·투표 알림'.
-  final bool deadlineVote;
+  /// '다른 친구의 따라찍기 알림'.
+  final bool friendShot;
+
+  /// '랜덤 스타터 알림'.
+  final bool starterAssigned;
+
+  /// '댓글 알림'.
+  final bool comment;
 
   /// '친구 참여 알림'.
   final bool memberJoin;
@@ -30,7 +36,9 @@ class NotificationSettingsState {
   const NotificationSettingsState({
     this.allowAll = true,
     this.followShot = true,
-    this.deadlineVote = true,
+    this.friendShot = true,
+    this.starterAssigned = true,
+    this.comment = true,
     this.memberJoin = true,
     this.permissionGranted = false,
     this.isLoading = false,
@@ -39,7 +47,9 @@ class NotificationSettingsState {
   NotificationSettingsState copyWith({
     bool? allowAll,
     bool? followShot,
-    bool? deadlineVote,
+    bool? friendShot,
+    bool? starterAssigned,
+    bool? comment,
     bool? memberJoin,
     bool? permissionGranted,
     bool? isLoading,
@@ -47,7 +57,9 @@ class NotificationSettingsState {
     return NotificationSettingsState(
       allowAll: allowAll ?? this.allowAll,
       followShot: followShot ?? this.followShot,
-      deadlineVote: deadlineVote ?? this.deadlineVote,
+      friendShot: friendShot ?? this.friendShot,
+      starterAssigned: starterAssigned ?? this.starterAssigned,
+      comment: comment ?? this.comment,
       memberJoin: memberJoin ?? this.memberJoin,
       permissionGranted: permissionGranted ?? this.permissionGranted,
       isLoading: isLoading ?? this.isLoading,

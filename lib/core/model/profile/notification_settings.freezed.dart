@@ -15,9 +15,11 @@ T _$identity<T>(T value) => value;
 mixin _$NotificationSettings {
 
 // 전체 알림 허용 여부.
- bool get allowAll;// 따라찍기 알림.
- bool get followShot;// 마감 투표 알림.
- bool get deadlineVote;// 멤버 참여 알림.
+ bool get allowAll;// 따라찍기 알림. (NEW_CYCLE · CYCLE_COMPLETED · DEADLINE)
+ bool get followShot;// 다른 친구의 따라찍기 알림.
+ bool get friendShot;// 랜덤 스타터 알림. (STARTER_ASSIGNED)
+ bool get starterAssigned;// 댓글 알림.
+ bool get comment;// 멤버 참여 알림. (MEMBER_JOIN)
  bool get memberJoin;
 /// Create a copy of NotificationSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -29,16 +31,16 @@ $NotificationSettingsCopyWith<NotificationSettings> get copyWith => _$Notificati
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationSettings&&(identical(other.allowAll, allowAll) || other.allowAll == allowAll)&&(identical(other.followShot, followShot) || other.followShot == followShot)&&(identical(other.deadlineVote, deadlineVote) || other.deadlineVote == deadlineVote)&&(identical(other.memberJoin, memberJoin) || other.memberJoin == memberJoin));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationSettings&&(identical(other.allowAll, allowAll) || other.allowAll == allowAll)&&(identical(other.followShot, followShot) || other.followShot == followShot)&&(identical(other.friendShot, friendShot) || other.friendShot == friendShot)&&(identical(other.starterAssigned, starterAssigned) || other.starterAssigned == starterAssigned)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.memberJoin, memberJoin) || other.memberJoin == memberJoin));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,allowAll,followShot,deadlineVote,memberJoin);
+int get hashCode => Object.hash(runtimeType,allowAll,followShot,friendShot,starterAssigned,comment,memberJoin);
 
 @override
 String toString() {
-  return 'NotificationSettings(allowAll: $allowAll, followShot: $followShot, deadlineVote: $deadlineVote, memberJoin: $memberJoin)';
+  return 'NotificationSettings(allowAll: $allowAll, followShot: $followShot, friendShot: $friendShot, starterAssigned: $starterAssigned, comment: $comment, memberJoin: $memberJoin)';
 }
 
 
@@ -49,7 +51,7 @@ abstract mixin class $NotificationSettingsCopyWith<$Res>  {
   factory $NotificationSettingsCopyWith(NotificationSettings value, $Res Function(NotificationSettings) _then) = _$NotificationSettingsCopyWithImpl;
 @useResult
 $Res call({
- bool allowAll, bool followShot, bool deadlineVote, bool memberJoin
+ bool allowAll, bool followShot, bool friendShot, bool starterAssigned, bool comment, bool memberJoin
 });
 
 
@@ -66,11 +68,13 @@ class _$NotificationSettingsCopyWithImpl<$Res>
 
 /// Create a copy of NotificationSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? allowAll = null,Object? followShot = null,Object? deadlineVote = null,Object? memberJoin = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? allowAll = null,Object? followShot = null,Object? friendShot = null,Object? starterAssigned = null,Object? comment = null,Object? memberJoin = null,}) {
   return _then(_self.copyWith(
 allowAll: null == allowAll ? _self.allowAll : allowAll // ignore: cast_nullable_to_non_nullable
 as bool,followShot: null == followShot ? _self.followShot : followShot // ignore: cast_nullable_to_non_nullable
-as bool,deadlineVote: null == deadlineVote ? _self.deadlineVote : deadlineVote // ignore: cast_nullable_to_non_nullable
+as bool,friendShot: null == friendShot ? _self.friendShot : friendShot // ignore: cast_nullable_to_non_nullable
+as bool,starterAssigned: null == starterAssigned ? _self.starterAssigned : starterAssigned // ignore: cast_nullable_to_non_nullable
+as bool,comment: null == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
 as bool,memberJoin: null == memberJoin ? _self.memberJoin : memberJoin // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
@@ -157,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool allowAll,  bool followShot,  bool deadlineVote,  bool memberJoin)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool allowAll,  bool followShot,  bool friendShot,  bool starterAssigned,  bool comment,  bool memberJoin)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationSettings() when $default != null:
-return $default(_that.allowAll,_that.followShot,_that.deadlineVote,_that.memberJoin);case _:
+return $default(_that.allowAll,_that.followShot,_that.friendShot,_that.starterAssigned,_that.comment,_that.memberJoin);case _:
   return orElse();
 
 }
@@ -178,10 +182,10 @@ return $default(_that.allowAll,_that.followShot,_that.deadlineVote,_that.memberJ
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool allowAll,  bool followShot,  bool deadlineVote,  bool memberJoin)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool allowAll,  bool followShot,  bool friendShot,  bool starterAssigned,  bool comment,  bool memberJoin)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationSettings():
-return $default(_that.allowAll,_that.followShot,_that.deadlineVote,_that.memberJoin);case _:
+return $default(_that.allowAll,_that.followShot,_that.friendShot,_that.starterAssigned,_that.comment,_that.memberJoin);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +202,10 @@ return $default(_that.allowAll,_that.followShot,_that.deadlineVote,_that.memberJ
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool allowAll,  bool followShot,  bool deadlineVote,  bool memberJoin)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool allowAll,  bool followShot,  bool friendShot,  bool starterAssigned,  bool comment,  bool memberJoin)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationSettings() when $default != null:
-return $default(_that.allowAll,_that.followShot,_that.deadlineVote,_that.memberJoin);case _:
+return $default(_that.allowAll,_that.followShot,_that.friendShot,_that.starterAssigned,_that.comment,_that.memberJoin);case _:
   return null;
 
 }
@@ -213,16 +217,20 @@ return $default(_that.allowAll,_that.followShot,_that.deadlineVote,_that.memberJ
 
 
 class _NotificationSettings implements NotificationSettings {
-  const _NotificationSettings({required this.allowAll, required this.followShot, required this.deadlineVote, required this.memberJoin});
+  const _NotificationSettings({required this.allowAll, required this.followShot, required this.friendShot, required this.starterAssigned, required this.comment, required this.memberJoin});
   
 
 // 전체 알림 허용 여부.
 @override final  bool allowAll;
-// 따라찍기 알림.
+// 따라찍기 알림. (NEW_CYCLE · CYCLE_COMPLETED · DEADLINE)
 @override final  bool followShot;
-// 마감 투표 알림.
-@override final  bool deadlineVote;
-// 멤버 참여 알림.
+// 다른 친구의 따라찍기 알림.
+@override final  bool friendShot;
+// 랜덤 스타터 알림. (STARTER_ASSIGNED)
+@override final  bool starterAssigned;
+// 댓글 알림.
+@override final  bool comment;
+// 멤버 참여 알림. (MEMBER_JOIN)
 @override final  bool memberJoin;
 
 /// Create a copy of NotificationSettings
@@ -235,16 +243,16 @@ _$NotificationSettingsCopyWith<_NotificationSettings> get copyWith => __$Notific
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationSettings&&(identical(other.allowAll, allowAll) || other.allowAll == allowAll)&&(identical(other.followShot, followShot) || other.followShot == followShot)&&(identical(other.deadlineVote, deadlineVote) || other.deadlineVote == deadlineVote)&&(identical(other.memberJoin, memberJoin) || other.memberJoin == memberJoin));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationSettings&&(identical(other.allowAll, allowAll) || other.allowAll == allowAll)&&(identical(other.followShot, followShot) || other.followShot == followShot)&&(identical(other.friendShot, friendShot) || other.friendShot == friendShot)&&(identical(other.starterAssigned, starterAssigned) || other.starterAssigned == starterAssigned)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.memberJoin, memberJoin) || other.memberJoin == memberJoin));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,allowAll,followShot,deadlineVote,memberJoin);
+int get hashCode => Object.hash(runtimeType,allowAll,followShot,friendShot,starterAssigned,comment,memberJoin);
 
 @override
 String toString() {
-  return 'NotificationSettings(allowAll: $allowAll, followShot: $followShot, deadlineVote: $deadlineVote, memberJoin: $memberJoin)';
+  return 'NotificationSettings(allowAll: $allowAll, followShot: $followShot, friendShot: $friendShot, starterAssigned: $starterAssigned, comment: $comment, memberJoin: $memberJoin)';
 }
 
 
@@ -255,7 +263,7 @@ abstract mixin class _$NotificationSettingsCopyWith<$Res> implements $Notificati
   factory _$NotificationSettingsCopyWith(_NotificationSettings value, $Res Function(_NotificationSettings) _then) = __$NotificationSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- bool allowAll, bool followShot, bool deadlineVote, bool memberJoin
+ bool allowAll, bool followShot, bool friendShot, bool starterAssigned, bool comment, bool memberJoin
 });
 
 
@@ -272,11 +280,13 @@ class __$NotificationSettingsCopyWithImpl<$Res>
 
 /// Create a copy of NotificationSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? allowAll = null,Object? followShot = null,Object? deadlineVote = null,Object? memberJoin = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? allowAll = null,Object? followShot = null,Object? friendShot = null,Object? starterAssigned = null,Object? comment = null,Object? memberJoin = null,}) {
   return _then(_NotificationSettings(
 allowAll: null == allowAll ? _self.allowAll : allowAll // ignore: cast_nullable_to_non_nullable
 as bool,followShot: null == followShot ? _self.followShot : followShot // ignore: cast_nullable_to_non_nullable
-as bool,deadlineVote: null == deadlineVote ? _self.deadlineVote : deadlineVote // ignore: cast_nullable_to_non_nullable
+as bool,friendShot: null == friendShot ? _self.friendShot : friendShot // ignore: cast_nullable_to_non_nullable
+as bool,starterAssigned: null == starterAssigned ? _self.starterAssigned : starterAssigned // ignore: cast_nullable_to_non_nullable
+as bool,comment: null == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
 as bool,memberJoin: null == memberJoin ? _self.memberJoin : memberJoin // ignore: cast_nullable_to_non_nullable
 as bool,
   ));

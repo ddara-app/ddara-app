@@ -28,14 +28,18 @@ _ActivityNotificationRequest _$ActivityNotificationRequestFromJson(
   Map<String, dynamic> json,
 ) => _ActivityNotificationRequest(
   followShot: json['followShot'] as bool,
-  deadlineVote: json['deadlineVote'] as bool,
+  friendShot: json['friendShot'] as bool,
+  starterAssigned: json['starterAssigned'] as bool,
+  comment: json['comment'] as bool,
 );
 
 Map<String, dynamic> _$ActivityNotificationRequestToJson(
   _ActivityNotificationRequest instance,
 ) => <String, dynamic>{
   'followShot': instance.followShot,
-  'deadlineVote': instance.deadlineVote,
+  'friendShot': instance.friendShot,
+  'starterAssigned': instance.starterAssigned,
+  'comment': instance.comment,
 };
 
 _EtcNotificationRequest _$EtcNotificationRequestFromJson(

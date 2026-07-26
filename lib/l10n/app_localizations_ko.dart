@@ -938,16 +938,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationSectionActivity => '활동';
 
   @override
-  String get notificationFollowShot => '따라찍기 차례';
+  String get notificationFollowShot => '따라찍기 알림';
 
   @override
-  String get notificationFollowShotCaption => '새 따라찍기가 열리거나 내 차례일 때';
+  String get notificationFollowShotCaption => '새 따라찍기가 열리거나 마감될 때';
 
   @override
-  String get notificationDeadlineVote => '마감·투표 알림';
+  String get notificationFriendShot => '다른 친구의 따라찍기 알림';
 
   @override
-  String get notificationDeadlineVoteCaption => '따라찍기 마감 · 베스트 투표';
+  String get notificationFriendShotCaption => '같은 모임의 친구가 따라찍기를 올렸을 때';
+
+  @override
+  String get notificationRandomStarter => '랜덤 스타터 알림';
+
+  @override
+  String get notificationRandomStarterCaption => '랜덤 스타터 지정됐을 때';
+
+  @override
+  String get notificationComment => '댓글 알림';
+
+  @override
+  String get notificationCommentCaption => '내 사진에 댓글이 달릴 때';
 
   @override
   String get notificationSectionEtc => '기타';
