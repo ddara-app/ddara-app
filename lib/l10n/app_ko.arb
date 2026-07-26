@@ -441,14 +441,6 @@
   "starterConceptPlaceholder": "예) 마라탕 또 먹기",
   "starterConceptLengthError": "20자 이내로 입력해 주세요",
 
-  "randomStarterTitle": "스타터 정하기",
-  "@randomStarterTitle": {
-    "description": "스타터 랜덤 지정 슬롯머신 화면 제목"
-  },
-  "randomStarterReplay": "다시 보기",
-  "@randomStarterReplay": {
-    "description": "슬롯머신 공개 모션 다시 재생 버튼"
-  },
   "randomStarterResultTitle": "이번 스타터는 {name}님이에요!",
   "@randomStarterResultTitle": {
     "description": "슬롯머신 결과로 공개된 스타터 안내",

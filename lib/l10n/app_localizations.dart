@@ -1204,18 +1204,6 @@ abstract class AppLocalizations {
   /// **'20자 이내로 입력해 주세요'**
   String get starterConceptLengthError;
 
-  /// 스타터 랜덤 지정 슬롯머신 화면 제목
-  ///
-  /// In ko, this message translates to:
-  /// **'스타터 정하기'**
-  String get randomStarterTitle;
-
-  /// 슬롯머신 공개 모션 다시 재생 버튼
-  ///
-  /// In ko, this message translates to:
-  /// **'다시 보기'**
-  String get randomStarterReplay;
-
   /// 슬롯머신 결과로 공개된 스타터 안내
   ///
   /// In ko, this message translates to:

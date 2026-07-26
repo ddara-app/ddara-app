@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
-import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
@@ -232,29 +231,13 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
             : Column(
                 children: [
                   Expanded(
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.s4,
-                            ),
-                            child: _buildHero(),
-                          ),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.s4,
                         ),
-                        // 다시보기는 당분간 노출하지 않는다. (기능은 유지)
-                        Positioned(
-                          right: AppSpacing.s4,
-                          bottom: AppSpacing.s6,
-                          child: Visibility(
-                            visible: false,
-                            child: AppTextButton.body(
-                              label: l10n.randomStarterReplay,
-                              onPressed: _done ? _play : null,
-                            ),
-                          ),
-                        ),
-                      ],
+                        child: _buildHero(),
+                      ),
                     ),
                   ),
                   Padding(
