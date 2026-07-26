@@ -164,6 +164,7 @@ extension CycleGalleryMapper on CycleGalleryResponse {
         starterShotId: cycle.starterShotId,
         starterImageUrl: cycle.starterImageUrl,
         starterImageUnderReview: cycle.starterImageUnderReview,
+        hasUnreadComments: cycle.hasUnreadComments,
         status: cycle.status,
         deadlineAt: cycle.deadlineAt,
       ),
@@ -179,6 +180,7 @@ extension CycleGalleryMapper on CycleGalleryResponse {
               status: CycleShotStatus.from(member.status),
               imageUrl: member.imageUrl,
               uploadedAt: member.uploadedAt,
+              hasUnreadComments: member.hasUnreadComments,
             ),
           )
           .toList(),

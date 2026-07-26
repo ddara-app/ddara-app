@@ -25,6 +25,7 @@ class MemberPhotoCard extends StatelessWidget {
     this.onTakePhoto,
     this.onTap,
     this.onComment,
+    this.commentUnread = false,
     this.heroTag,
     this.isLocked = false,
     this.isBlocked = false,
@@ -48,6 +49,9 @@ class MemberPhotoCard extends StatelessWidget {
   /// 우측 상단 댓글 버튼을 눌렀을 때의 콜백. 크게 보기를 댓글이 열린 채로
   /// 여는 데 쓴다. null 이면 버튼을 표시하지 않는다. (사진이 없는 카드 등)
   final VoidCallback? onComment;
+
+  /// 아직 읽지 않은 댓글이 있는지 여부. true 면 댓글 버튼을 강조 아이콘으로 바꾼다.
+  final bool commentUnread;
 
   /// 크게 보기 전환에 쓸 Hero 태그. null 이면 Hero 전환을 하지 않는다.
   final Object? heroTag;
@@ -145,7 +149,13 @@ class MemberPhotoCard extends StatelessWidget {
                         color: AppColors.overlayScrim,
                         shape: BoxShape.circle,
                       ),
-                      child: const AppIcon(AppIcons.comment, size: 16),
+                      // 읽지 않은 댓글이 있으면 점이 찍힌 말풍선으로 바꾼다.
+                      child: AppIcon(
+                        commentUnread
+                            ? AppIcons.commentActive
+                            : AppIcons.comment,
+                        size: 16,
+                      ),
                     ),
                   ),
                 ),

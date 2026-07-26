@@ -45,6 +45,8 @@ class CyclePhotoGalleryNotifier
       ]);
       // 화면을 벗어난 뒤 도착한 결과는 버린다.
       if (isDisposed) return;
+      // readShotIds 는 인계하지 않는다 — 그 사이 새 댓글이 달렸을 수 있어
+      // 방금 받은 서버 값이 항상 더 정확하다.
       state = CyclePhotoGalleryLoaded(
         gallery: results[0] as CycleGallery,
         myUserId: (results[1] as Profile).id,
@@ -165,6 +167,27 @@ class CyclePhotoGalleryNotifier
     final current = state;
     if (current is! CyclePhotoGalleryLoaded) return;
     state = current.copyWith(commentError: error);
+  }
+
+  /// [shotId] 사진의 댓글을 읽음 처리한다.
+  ///
+  /// 서버에 읽음을 남기고, 화면에도 즉시 반영한다 — 서버 응답을 기다리거나
+  /// 갤러리를 다시 조회하지 않아도 뷰어를 닫는 순간 강조가 사라지도록.
+  ///
+  /// 실패해도 알리지 않는다 — 사용자가 한 동작(댓글 보기)은 이미 성공했고,
+  /// 서버에 표시가 남지 않았다면 다음에 이 갤러리에 들어와 댓글을 열 때
+  /// 다시 시도된다. (화면 안에서는 이미 읽음으로 보이므로 재요청하지 않는다)
+  Future<void> markCommentsRead(int shotId) async {
+    final current = state;
+    if (current is! CyclePhotoGalleryLoaded) return;
+    if (current.readShotIds.contains(shotId)) return;
+    state = current.copyWith(readShotIds: {...current.readShotIds, shotId});
+
+    try {
+      await ref.read(markCommentsReadUseCaseProvider)(shotId);
+    } catch (_) {
+      // 무시. (다음에 댓글을 열 때 다시 시도된다)
+    }
   }
 
   /// 댓글 액션 에러를 소비한 뒤(토스트로 노출 후) 다시 비운다.

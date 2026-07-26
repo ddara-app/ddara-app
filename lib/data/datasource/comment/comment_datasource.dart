@@ -26,6 +26,11 @@ class CommentDataSource {
     return CommentListResponse.fromJson(response.data);
   }
 
+  /// [shotId] 사진의 댓글을 읽음 처리한다. (응답 본문 없음)
+  Future<void> markCommentsRead(int shotId) async {
+    await _dio.post('/api/shots/$shotId/comments/read');
+  }
+
   /// [commentId] 댓글을 삭제한다. (응답 본문 없음)
   Future<void> deleteComment(int commentId) async {
     await _dio.delete('/api/comments/$commentId');
