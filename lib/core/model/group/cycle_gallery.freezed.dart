@@ -601,9 +601,8 @@ mixin _$CycleGalleryMember {
 
  int get userId;// 멤버가 올린 사진의 shot id. 미업로드면 null. (사진 신고의 targetId 로 사용)
  int? get shotId; String get nickname;// 프로필 이미지 URL. 없으면 null.
- String? get profileImageUrl; bool get isStarter;// 사진 카드 상태.
-// (open: 공개 / empty: 미업로드 / locked: 잠금 / reported: 신고 검토 중)
- String get status;// 멤버가 따라찍은 사진 URL. 없으면 null.
+ String? get profileImageUrl; bool get isStarter;// 사진 카드 상태. (서버 문자열을 enum 으로 변환해 담는다)
+ CycleShotStatus get status;// 멤버가 따라찍은 사진 URL. 없으면 null.
  String? get imageUrl;// 업로드 시각. 미업로드면 null.
  DateTime? get uploadedAt;
 /// Create a copy of CycleGalleryMember
@@ -636,7 +635,7 @@ abstract mixin class $CycleGalleryMemberCopyWith<$Res>  {
   factory $CycleGalleryMemberCopyWith(CycleGalleryMember value, $Res Function(CycleGalleryMember) _then) = _$CycleGalleryMemberCopyWithImpl;
 @useResult
 $Res call({
- int userId, int? shotId, String nickname, String? profileImageUrl, bool isStarter, String status, String? imageUrl, DateTime? uploadedAt
+ int userId, int? shotId, String nickname, String? profileImageUrl, bool isStarter, CycleShotStatus status, String? imageUrl, DateTime? uploadedAt
 });
 
 
@@ -661,7 +660,7 @@ as int?,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_n
 as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,isStarter: null == isStarter ? _self.isStarter : isStarter // ignore: cast_nullable_to_non_nullable
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as CycleShotStatus,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,uploadedAt: freezed == uploadedAt ? _self.uploadedAt : uploadedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -748,7 +747,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  CycleShotStatus status,  String? imageUrl,  DateTime? uploadedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CycleGalleryMember() when $default != null:
 return $default(_that.userId,_that.shotId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
@@ -769,7 +768,7 @@ return $default(_that.userId,_that.shotId,_that.nickname,_that.profileImageUrl,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  CycleShotStatus status,  String? imageUrl,  DateTime? uploadedAt)  $default,) {final _that = this;
 switch (_that) {
 case _CycleGalleryMember():
 return $default(_that.userId,_that.shotId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
@@ -789,7 +788,7 @@ return $default(_that.userId,_that.shotId,_that.nickname,_that.profileImageUrl,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  String status,  String? imageUrl,  DateTime? uploadedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  int? shotId,  String nickname,  String? profileImageUrl,  bool isStarter,  CycleShotStatus status,  String? imageUrl,  DateTime? uploadedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _CycleGalleryMember() when $default != null:
 return $default(_that.userId,_that.shotId,_that.nickname,_that.profileImageUrl,_that.isStarter,_that.status,_that.imageUrl,_that.uploadedAt);case _:
@@ -814,9 +813,8 @@ class _CycleGalleryMember implements CycleGalleryMember {
 // 프로필 이미지 URL. 없으면 null.
 @override final  String? profileImageUrl;
 @override final  bool isStarter;
-// 사진 카드 상태.
-// (open: 공개 / empty: 미업로드 / locked: 잠금 / reported: 신고 검토 중)
-@override final  String status;
+// 사진 카드 상태. (서버 문자열을 enum 으로 변환해 담는다)
+@override final  CycleShotStatus status;
 // 멤버가 따라찍은 사진 URL. 없으면 null.
 @override final  String? imageUrl;
 // 업로드 시각. 미업로드면 null.
@@ -852,7 +850,7 @@ abstract mixin class _$CycleGalleryMemberCopyWith<$Res> implements $CycleGallery
   factory _$CycleGalleryMemberCopyWith(_CycleGalleryMember value, $Res Function(_CycleGalleryMember) _then) = __$CycleGalleryMemberCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, int? shotId, String nickname, String? profileImageUrl, bool isStarter, String status, String? imageUrl, DateTime? uploadedAt
+ int userId, int? shotId, String nickname, String? profileImageUrl, bool isStarter, CycleShotStatus status, String? imageUrl, DateTime? uploadedAt
 });
 
 
@@ -877,7 +875,7 @@ as int?,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_n
 as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,isStarter: null == isStarter ? _self.isStarter : isStarter // ignore: cast_nullable_to_non_nullable
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as CycleShotStatus,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,uploadedAt: freezed == uploadedAt ? _self.uploadedAt : uploadedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

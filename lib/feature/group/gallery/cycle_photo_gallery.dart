@@ -5,6 +5,7 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/core/model/group/cycle_shot_status.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
@@ -116,10 +117,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     final isDoneCycle = cycle.status.toLowerCase() == 'done';
 
     // 본인이 스타터인지 여부.
+    // (사진을 볼 수 있는지는 서버가 멤버별 status 로 내려준다 — 여기서 계산하지 않는다)
     final iAmStarter = cycle.starterUserId == myUserId;
-    // 스타터이거나 본인이 사진을 올렸으면 모든 멤버의 사진을 볼 수 있다.
-    // 그 외(스타터 아님 + 미업로드)면 사진이 있는 멤버는 블러+자물쇠로 가린다.
-    final canSeeAll = iAmStarter || gallery.viewerUploaded;
 
     // 스타터는 헤더에 노출되므로 그리드에서는 제외한다.
     final nonStarters = gallery.members.where((m) => !m.isStarter).toList();
@@ -252,7 +251,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
                   myUserId: myUserId,
                   blockedUserIds: blockedUserIds,
                   isDoneCycle: isDoneCycle,
-                  canSeeAll: canSeeAll,
                   starterBlocked: starterBlocked,
                   cardWidth: cardWidth,
                   cardAspectRatio: cardAspectRatio,
@@ -276,7 +274,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     required int? myUserId,
     required Set<int> blockedUserIds,
     required bool isDoneCycle,
-    required bool canSeeAll,
     required bool starterBlocked,
     required double cardWidth,
     required double cardAspectRatio,
@@ -285,11 +282,12 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 차단한 멤버는 사진을 아예 로드하지 않고 자리표시만 보여준다.
     final isBlockedMember = blockedUserIds.contains(member.userId);
     // 신고 접수로 검토 중인 사진. (검토 안내 자리표시로 가린다)
-    final isReported = member.status.toLowerCase() == 'reported';
+    final isReported = member.status == CycleShotStatus.reported;
     final imageUrl = isBlockedMember || isReported ? null : member.imageUrl;
     // 잠긴(블러) 사진. 크게 볼 때도 블러+자물쇠는 유지하지만,
     // 뷰어와 댓글에는 접근할 수 있다.
-    final locked = !isDoneCycle && !canSeeAll;
+    // (뷰어 맥락까지 반영한 판정은 서버가 status 로 내려준다)
+    final locked = member.status == CycleShotStatus.locked;
     final ImageProvider? image = imageUrl == null
         ? null
         : CachedNetworkImageProvider(imageUrl);

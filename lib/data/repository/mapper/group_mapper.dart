@@ -1,6 +1,7 @@
 import 'package:ddara/core/model/group/create_group.dart';
 import 'package:ddara/core/model/group/change_nickname.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/core/model/group/cycle_shot_status.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/model/group/history_list.dart';
@@ -167,7 +168,7 @@ extension CycleGalleryMapper on CycleGalleryResponse {
               nickname: member.nickname,
               profileImageUrl: member.profileImageUrl,
               isStarter: member.isStarter,
-              status: member.status,
+              status: CycleShotStatus.from(member.status),
               imageUrl: member.imageUrl,
               uploadedAt: member.uploadedAt,
             ),
