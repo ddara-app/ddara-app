@@ -224,6 +224,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             onImageTap: openStarterViewer,
             // 우상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
             onComment: openStarterComments,
+            commentUnread: cycle.hasUnreadComments,
           ),
           // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
           const SizedBox(height: AppSpacing.s6),
@@ -327,6 +328,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       onTap: openViewer,
       // 우측 상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
       onComment: openComments,
+      commentUnread: member.hasUnreadComments,
       // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
       // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
       // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로 역시 숨긴다.

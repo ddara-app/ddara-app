@@ -60,6 +60,7 @@ class StartedHeader extends StatefulWidget {
     required this.info,
     this.onImageTap,
     this.onComment,
+    this.commentUnread = false,
     this.onReport,
     this.onBlock,
     this.starterBlocked = false,
@@ -79,6 +80,10 @@ class StartedHeader extends StatefulWidget {
   /// 우상단 댓글 버튼을 눌렀을 때의 콜백. (크게 보기를 댓글이 열린 채로 여는 데
   /// 쓴다) null 이면 버튼을 표시하지 않는다. (펼친 상태·사진이 보일 때만 노출)
   final VoidCallback? onComment;
+
+  /// 스타터 사진에 아직 읽지 않은 댓글이 있는지 여부.
+  /// true 면 댓글 버튼을 강조 아이콘으로 바꾼다.
+  final bool commentUnread;
 
   /// 대표 이미지를 롱프레스해 '신고하기'를 선택했을 때.
   /// null 이면 메뉴에 신고 항목이 뜨지 않는다. (펼친 상태에서만 동작)
@@ -248,7 +253,13 @@ class _StartedHeaderState extends State<StartedHeader> {
                         color: AppColors.overlayScrim,
                         shape: BoxShape.circle,
                       ),
-                      child: const AppIcon(AppIcons.comment, size: 24),
+                      // 읽지 않은 댓글이 있으면 점이 찍힌 말풍선으로 바꾼다.
+                      child: AppIcon(
+                        widget.commentUnread
+                            ? AppIcons.commentActive
+                            : AppIcons.comment,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),
