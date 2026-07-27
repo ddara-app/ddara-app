@@ -161,9 +161,9 @@ class PhotoCardShell extends StatelessWidget {
               // 상단 우측 라벨. (모임 카드의 남은 시간·진행 종료 등)
               if (topLabel != null)
                 Positioned(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s3,
-                  right: AppSpacing.s3,
+                  top: AppSpacing.s4,
+                  left: AppSpacing.s4,
+                  right: AppSpacing.s4,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -188,9 +188,9 @@ class PhotoCardShell extends StatelessWidget {
               // 좌우 여백만 잡아 주고, 그 안에서의 정렬은 주입한 쪽이 정한다.
               if (topAction != null)
                 Positioned(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s3,
-                  right: AppSpacing.s3,
+                  top: AppSpacing.s4,
+                  left: AppSpacing.s4,
+                  right: AppSpacing.s4,
                   child: topAction!,
                 ),
               // 하단: 제목 · 부제 (가독성은 위의 스크림 레이어가 담당)
@@ -200,13 +200,12 @@ class PhotoCardShell extends StatelessWidget {
                 bottom: 0,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.s3,
-                    vertical: AppSpacing.s3,
+                    horizontal: AppSpacing.s4,
+                    vertical: AppSpacing.s4,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: AppSpacing.s1,
                     children: [
                       AppText.title(
                         title,

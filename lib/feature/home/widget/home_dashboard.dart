@@ -76,7 +76,7 @@ class HomeDashboard extends StatelessWidget {
     return Container(
       // 폭은 열에 맞춰 stretch 되고 높이는 고정. (_dashboardHeight 주석 참고)
       height: _dashboardHeight,
-      padding: const EdgeInsets.all(AppSpacing.s4),
+      padding: const EdgeInsets.all(AppSpacing.s5),
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         gradient: const LinearGradient(
@@ -99,7 +99,7 @@ class HomeDashboard extends StatelessWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: AppSpacing.s1,
+                  spacing: AppSpacing.s2,
                   children: [
                     AppText.display(value),
                     AppText.caption(caption),
@@ -115,7 +115,7 @@ class HomeDashboard extends StatelessWidget {
               currentIndex: pageIndex,
               count: pageCount,
               size: 6,
-              spacing: AppSpacing.s1,
+              spacing: AppSpacing.s2,
             ),
           ),
         ],

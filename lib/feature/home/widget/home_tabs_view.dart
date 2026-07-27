@@ -65,9 +65,9 @@ class _HomeTabsViewState extends State<HomeTabsView> {
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.s5,
-                AppSpacing.s4,
                 AppSpacing.s5,
-                AppSpacing.s3,
+                AppSpacing.s5,
+                AppSpacing.s7,
               ),
               child: HomeTabHeader(
                 controller: _pageController,

@@ -25,12 +25,14 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.color,
     this.foregroundColor,
-  }) : variant = AppButtonVariant.primary;
+  }) : variant = AppButtonVariant.primary,
+       backgroundColor = null;
 
   const AppButton.outline({
     super.key,
     required this.label,
     required this.onPressed,
+    this.backgroundColor,
   }) : variant = AppButtonVariant.outline,
        color = null,
        foregroundColor = null;
@@ -44,6 +46,12 @@ class AppButton extends StatelessWidget {
 
   /// primary 변형의 글자색 override. null 이면 기본값(textOnAccent).
   final Color? foregroundColor;
+
+  /// outline 변형의 배경색. null 이면 투명.
+  ///
+  /// 백드롭 위에 띄우는 경우처럼 뒤 콘텐츠가 비치면 안 될 때
+  /// 앱 배경색([AppColors.bgBase])을 지정한다.
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +82,7 @@ class AppButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             alignment: Alignment.center,
             decoration: BoxDecoration(
+              color: backgroundColor,
               borderRadius: BorderRadius.circular(AppRadius.md),
               border: Border.all(
                 color: isEnabled

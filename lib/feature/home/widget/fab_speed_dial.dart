@@ -27,7 +27,7 @@
 
 import 'dart:math' as math;
 
-import 'package:ddara/core/design_system/component/button/app_pill_button.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,6 +45,9 @@ const double _itemRise = 20;
 
 /// 다이얼(FAB·메뉴) 위치. 제자리 FAB 와 Overlay 의 × 가 동일 좌표를 쓰도록 공유.
 const double _dialInset = AppSpacing.s5;
+
+/// 메뉴 항목 최소 너비. 라벨이 짧아도 버튼이 지나치게 좁아지지 않게 한다.
+const double _menuMinWidth = 120;
 
 
 /// Speed-dial 메뉴 항목 하나. (라벨·강조 여부·탭 동작)
@@ -185,17 +188,25 @@ class _SpeedDialFabState extends State<SpeedDialFab>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    // IntrinsicWidth + stretch = 항목들을 가장 긴 항목 기준 동일 폭으로
-                    IntrinsicWidth(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (var i = 0; i < widget.actions.length; i++)
-                            _buildItem(i),
-                        ],
+                    // IntrinsicWidth + stretch = 항목들을 가장 긴 항목 기준 동일 폭으로.
+                    // (그 폭이 최소 너비보다 좁으면 최소 너비를 쓴다)
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: _menuMinWidth,
+                      ),
+                      child: IntrinsicWidth(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: AppSpacing.s3,
+                          children: [
+                            for (var i = 0; i < widget.actions.length; i++)
+                              _buildItem(i),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.s3),
+                    const SizedBox(height: AppSpacing.s4),
                     _buildMainFab(rotate: true),
                   ],
                 ),
@@ -231,18 +242,17 @@ class _SpeedDialFabState extends State<SpeedDialFab>
           ),
         );
       },
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.s3),
-        child: action.filled
-            ? AppPillButton(
-                label: action.label,
-                onPressed: () => _onActionTap(action),
-              )
-            : AppPillButton.outline(
-                label: action.label,
-                onPressed: () => _onActionTap(action),
-              ),
-      ),
+      child: action.filled
+          ? AppButton(
+              label: action.label,
+              onPressed: () => _onActionTap(action),
+            )
+          : AppButton.outline(
+              label: action.label,
+              onPressed: () => _onActionTap(action),
+              // 백드롭 위라 투명이면 뒤 콘텐츠가 비쳐 보인다.
+              backgroundColor: AppColors.bgBase,
+            ),
     );
   }
 

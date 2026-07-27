@@ -78,7 +78,7 @@ class CardGridView<T> extends StatelessWidget {
                 // 핵심: 두 열을 위 기준으로 정렬해야 고정 위젯이 만든 오프셋이 유지된다.
                 crossAxisAlignment: CrossAxisAlignment.start,
                 // 두 열 사이 간격.
-                spacing: AppSpacing.s3,
+                spacing: AppSpacing.s4,
                 children: [
                   // 좌측 열: 짝수 인덱스 카드 (0, 2, 4 …)
                   Expanded(

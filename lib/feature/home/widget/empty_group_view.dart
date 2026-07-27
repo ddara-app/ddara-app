@@ -27,7 +27,7 @@ class EmptyGroupView extends StatelessWidget {
                 description: l10n.emptyGroupDescription,
                 centered: true,
               ),
-              SizedBox(height: AppSpacing.s3),
+              SizedBox(height: AppSpacing.s4),
               Image.asset(
                 'assets/images/photo_image.png',
                 width: 160,
@@ -39,16 +39,16 @@ class EmptyGroupView extends StatelessWidget {
 
         // 하단 액션 영역
         Padding(
-          // 하단 여백은 s6, 항목 사이 간격은 s3.
+          // 하단 여백은 s7, 항목 사이 간격은 s4.
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.s5,
             0,
             AppSpacing.s5,
-            AppSpacing.s6,
+            AppSpacing.s7,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: AppSpacing.s3,
+            spacing: AppSpacing.s4,
             children: [
               AppButton(
                 label: l10n.groupCreate,

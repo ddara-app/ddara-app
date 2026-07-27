@@ -115,12 +115,12 @@ class _CommentPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // 좌측은 아바타가 원형이라 여백을 적게(s1), 우측은 글자라 s2 로 맞춘다.
+      // 좌측은 아바타가 원형이라 여백을 적게(s2), 우측은 글자라 s3 으로 맞춘다.
       padding: const EdgeInsets.only(
-        left: AppSpacing.s1,
-        right: AppSpacing.s2,
-        top: AppSpacing.s1,
-        bottom: AppSpacing.s1,
+        left: AppSpacing.s2,
+        right: AppSpacing.s3,
+        top: AppSpacing.s2,
+        bottom: AppSpacing.s2,
       ),
       decoration: ShapeDecoration(
         color: AppColors.overlayScrim,
