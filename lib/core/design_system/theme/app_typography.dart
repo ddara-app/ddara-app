@@ -87,13 +87,13 @@ abstract final class AppTypography {
     letterSpacing: 14 * -0.01,
   );
 
-  /// Caption · 12 / Regular · 행간 130% · 자간 -1%
+  /// Caption · 12 / Regular · 행간 155% · 자간 -1%
   /// 제일 작은 글자 (시간·상태 표시).
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    height: 1.30,
+    height: 1.55,
     letterSpacing: 12 * -0.01,
   );
 }
