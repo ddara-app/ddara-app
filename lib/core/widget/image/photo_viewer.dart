@@ -324,8 +324,8 @@ class _PhotoViewerState extends State<PhotoViewer>
         content,
         if (!_sheetVisible)
           Positioned(
-            right: AppSpacing.s3,
-            bottom: AppSpacing.s3,
+            right: AppSpacing.s4,
+            bottom: AppSpacing.s4,
             child: GestureDetector(
               onTap: _openSheet,
               child: Container(
