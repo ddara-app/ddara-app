@@ -25,7 +25,7 @@ class CommentEditingBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.s3),
+      padding: const EdgeInsets.only(bottom: AppSpacing.s4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -49,7 +49,7 @@ class CommentEditingBanner extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.s2),
+          const SizedBox(height: AppSpacing.s3),
           // 수정 대상 댓글 아이템. (목록과 동일한 형태, 내용은 최대 2줄)
           CommentContent(comment: comment, contentMaxLines: 2),
         ],

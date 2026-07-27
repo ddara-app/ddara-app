@@ -659,20 +659,20 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
           Container(
             width: 36,
             height: 4,
-            margin: const EdgeInsets.only(top: AppSpacing.s3),
+            margin: const EdgeInsets.only(top: AppSpacing.s4),
             decoration: BoxDecoration(
               color: AppColors.borderStrong,
               borderRadius: BorderRadius.circular(AppRadius.full),
             ),
           ),
           // 헤더: 유저 닉네임 + 따라찍기 주제.
-          // (핸들과 간격 s7, 아래 댓글 목록과 간격 s2)
+          // (핸들과 간격 s8, 아래 댓글 목록과 간격 s3)
           Padding(
             padding: const EdgeInsets.only(
-              top: AppSpacing.s7,
-              left: AppSpacing.s4,
-              right: AppSpacing.s4,
-              bottom: AppSpacing.s2,
+              top: AppSpacing.s8,
+              left: AppSpacing.s5,
+              right: AppSpacing.s5,
+              bottom: AppSpacing.s3,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -717,13 +717,13 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
       builder: (context, visibleComments) => ListView.builder(
         controller: _commentScrollController,
         physics: _bodyPhysics,
-        // 오른쪽은 s2. 아이콘 버튼 내부 여백 12를 더해 아이콘이 화면 끝에서
-        // s5(20) 떨어지도록 맞춘다.
+        // 오른쪽은 s3. 아이콘 버튼 내부 여백 12를 더해 아이콘이 화면 끝에서
+        // s6(20) 떨어지도록 맞춘다.
         padding: const EdgeInsets.only(
-          left: AppSpacing.s4,
-          right: AppSpacing.s2,
-          top: AppSpacing.s2,
-          bottom: AppSpacing.s2,
+          left: AppSpacing.s5,
+          right: AppSpacing.s3,
+          top: AppSpacing.s3,
+          bottom: AppSpacing.s3,
         ),
         itemCount: visibleComments.length,
         itemBuilder: (context, index) => CommentItem(
@@ -769,7 +769,7 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
         // 홈 인디케이터 영역 회피분. 키보드가 올라온 만큼 줄여 패딩이
         // 튀지 않고 연속적으로 변한다.
         bottom:
-            AppSpacing.s4 +
+            AppSpacing.s5 +
             math.max(0, MediaQuery.paddingOf(context).bottom - keyboardInset),
       ),
       child: Column(
@@ -779,9 +779,9 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
           const AppDivider(color: AppColors.borderSubtle),
           Padding(
             padding: const EdgeInsets.only(
-              left: AppSpacing.s4,
-              right: AppSpacing.s4,
-              top: AppSpacing.s3,
+              left: AppSpacing.s5,
+              right: AppSpacing.s5,
+              top: AppSpacing.s4,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

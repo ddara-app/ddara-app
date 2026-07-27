@@ -15,10 +15,10 @@ class SheetScaffold extends StatelessWidget {
     super.key,
     required this.child,
     this.contentPadding = const EdgeInsets.fromLTRB(
+      AppSpacing.s6,
       AppSpacing.s5,
-      AppSpacing.s4,
-      AppSpacing.s5,
-      AppSpacing.s5,
+      AppSpacing.s6,
+      AppSpacing.s6,
     ),
   });
 
@@ -53,7 +53,7 @@ class SheetScaffold extends StatelessWidget {
                 child: Container(
                   width: _handleSize.width,
                   height: _handleSize.height,
-                  margin: const EdgeInsets.only(top: AppSpacing.s3),
+                  margin: const EdgeInsets.only(top: AppSpacing.s4),
                   decoration: const ShapeDecoration(
                     color: AppColors.borderStrong,
                     shape: StadiumBorder(),

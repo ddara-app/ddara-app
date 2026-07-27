@@ -97,7 +97,7 @@ class _ReportReasonSheetState<T extends Object>
       // 좌우 여백은 행마다 다르게 두므로 본문 안에서 각자 잡는다.
       contentPadding: EdgeInsets.only(
         // 키보드가 올라오면 그만큼 콘텐츠를 위로 밀어 올린다.
-        bottom: AppSpacing.s5 + MediaQuery.of(context).viewInsets.bottom,
+        bottom: AppSpacing.s6 + MediaQuery.of(context).viewInsets.bottom,
       ),
       // 키보드가 올라오는 등 세로 공간이 부족하면 본문만 스크롤된다.
       child: SingleChildScrollView(
@@ -108,10 +108,10 @@ class _ReportReasonSheetState<T extends Object>
             // 제목 + 안내.
             Padding(
               padding: const EdgeInsets.only(
-                top: AppSpacing.s5,
-                left: AppSpacing.s4,
-                right: AppSpacing.s4,
-                bottom: AppSpacing.s3,
+                top: AppSpacing.s6,
+                left: AppSpacing.s5,
+                right: AppSpacing.s5,
+                bottom: AppSpacing.s4,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -133,9 +133,9 @@ class _ReportReasonSheetState<T extends Object>
             if (_reason == widget.etcReason)
               Padding(
                 padding: const EdgeInsets.only(
-                  left: AppSpacing.s4,
-                  right: AppSpacing.s4,
-                  bottom: AppSpacing.s5,
+                  left: AppSpacing.s5,
+                  right: AppSpacing.s5,
+                  bottom: AppSpacing.s6,
                 ),
                 child: AppTextField(
                   controller: _detailController,
@@ -146,9 +146,9 @@ class _ReportReasonSheetState<T extends Object>
               ),
             Padding(
               padding: const EdgeInsets.only(
-                top: AppSpacing.s2,
-                left: AppSpacing.s4,
-                right: AppSpacing.s4,
+                top: AppSpacing.s3,
+                left: AppSpacing.s5,
+                right: AppSpacing.s5,
               ),
               // 사유 미선택('기타'는 상세 미입력 포함) 시 비활성화한다.
               child: AppButton(
@@ -183,9 +183,9 @@ class _ReasonRow extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onSelect,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s4),
+        padding: const EdgeInsets.all(AppSpacing.s5),
         child: Row(
-          spacing: AppSpacing.s3,
+          spacing: AppSpacing.s4,
           children: [
             AppCheckbox(value: selected, onChanged: (_) => onSelect()),
             AppText.label(label, color: AppColors.textPrimary),

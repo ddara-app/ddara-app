@@ -95,17 +95,17 @@ class InviteShareSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return SheetScaffold(
-      // 핸들-본문 간격: 기존 핸들 하단 마진(s4) + 항목 간격(s3) = s7.
+      // 핸들-본문 간격: 기존 핸들 하단 마진(s5) + 항목 간격(s4) = s8.
       contentPadding: const EdgeInsets.fromLTRB(
-        AppSpacing.s5,
-        AppSpacing.s7,
-        AppSpacing.s5,
-        AppSpacing.s7,
+        AppSpacing.s6,
+        AppSpacing.s8,
+        AppSpacing.s6,
+        AppSpacing.s8,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s3,
+        spacing: AppSpacing.s4,
         children: [
           if (memberShortage)
             TitleDescription(
@@ -118,9 +118,9 @@ class InviteShareSheet extends StatelessWidget {
               l10n.inviteShareTitle,
               textAlign: TextAlign.center,
             ),
-          const SizedBox(height: AppSpacing.s2),
+          const SizedBox(height: AppSpacing.s3),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.s3),
+            padding: const EdgeInsets.all(AppSpacing.s4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -180,7 +180,7 @@ class _CircleAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      spacing: AppSpacing.s2,
+      spacing: AppSpacing.s3,
       children: [
         CupertinoButton(
           padding: EdgeInsets.zero,

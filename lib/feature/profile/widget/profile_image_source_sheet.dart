@@ -52,7 +52,7 @@ class ProfileImageSourceSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AppText.headlineMedium(l10n.profileImageSourceTitle),
-          const SizedBox(height: AppSpacing.s3),
+          const SizedBox(height: AppSpacing.s4),
           _SourceTile(
             icon: AppIcons.cameraDefault,
             label: l10n.profileImageSourceCamera,
@@ -92,13 +92,13 @@ class _SourceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
       minimumSize: Size.zero,
       onPressed: onTap,
       child: Row(
         children: [
           AppIcon(icon, size: 24, color: AppColors.textPrimary),
-          const SizedBox(width: AppSpacing.s3),
+          const SizedBox(width: AppSpacing.s4),
           AppText.body(label),
         ],
       ),

@@ -84,11 +84,11 @@ class _EditNicknameSheetState extends State<EditNicknameSheet> {
   Widget build(BuildContext context) {
     return SheetScaffold(
       contentPadding: EdgeInsets.fromLTRB(
+        AppSpacing.s6,
         AppSpacing.s5,
-        AppSpacing.s4,
-        AppSpacing.s5,
+        AppSpacing.s6,
         // 키보드가 올라오면 그만큼 콘텐츠를 위로 밀어 올린다.
-        AppSpacing.s5 + MediaQuery.of(context).viewInsets.bottom,
+        AppSpacing.s6 + MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -99,7 +99,7 @@ class _EditNicknameSheetState extends State<EditNicknameSheet> {
             onChanged: _onChanged,
             errorText: _errorText,
           ),
-          const SizedBox(height: AppSpacing.s6),
+          const SizedBox(height: AppSpacing.s7),
           AppButton(
             label: AppLocalizations.of(context).editNicknameSubmit,
             onPressed: _submit,
