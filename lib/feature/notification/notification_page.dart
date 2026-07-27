@@ -4,6 +4,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
+import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/notification/provider/notifier_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
@@ -63,20 +64,11 @@ class NotificationPage extends ConsumerWidget {
     return LazyRevealList(
       items: items,
       pageSize: _pageSize,
-      builder: (context, visibleItems) => SingleChildScrollView(
-        // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
-        physics: const ClampingScrollPhysics(),
-        // 상단 s3, 좌우 s4, 하단 s6 + Safe Area 인셋 여백. (마지막 알림이
-        // 홈 인디케이터와 겹치지 않도록)
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.s5,
-          AppSpacing.s3,
-          AppSpacing.s5,
-          AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-        ),
+      // 페이지 여백·스크롤 정책은 공용 ScrollablePageBody 를 따른다.
+      builder: (context, visibleItems) => ScrollablePageBody(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppSpacing.s3,
+          spacing: AppSpacing.s4,
           children: [
             for (final notification in visibleItems)
               NotificationTile(

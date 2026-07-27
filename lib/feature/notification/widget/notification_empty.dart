@@ -22,7 +22,7 @@ class NotificationEmpty extends StatelessWidget {
           description: l10n.notificationEmptyDescription,
           centered: true,
         ),
-        const SizedBox(height: AppSpacing.s3),
+        const SizedBox(height: AppSpacing.s4),
         Image.asset(
           'assets/images/empty_notification.png',
           width: _imageWidth,

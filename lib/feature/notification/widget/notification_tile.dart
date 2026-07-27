@@ -51,10 +51,10 @@ class NotificationTile extends StatelessWidget {
       onTap: onTap,
       // 누르는 동안 살짝 밝게. (앱 전반의 Cupertino 페이드와 일관)
       pressedColor: AppColors.bgSurfaceAlt,
-      padding: const EdgeInsets.all(AppSpacing.s4),
+      padding: const EdgeInsets.all(AppSpacing.s5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpacing.s3,
+        spacing: AppSpacing.s4,
         children: [
           _NotificationThumbnail(
             imageUrl: thumbnailObscured ? null : payload.imageUrl,
@@ -63,11 +63,10 @@ class NotificationTile extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpacing.s2,
+              spacing: AppSpacing.s3,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: AppSpacing.s1,
                   children: [
                     Expanded(
                       child: AppText.caption(
