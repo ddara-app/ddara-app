@@ -103,8 +103,8 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
             padding: const EdgeInsets.only(
               left: AppSpacing.s5,
               right: AppSpacing.s5,
-              top: AppSpacing.s2,
-              bottom: AppSpacing.s6,
+              top: AppSpacing.s3,
+              bottom: AppSpacing.s7,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

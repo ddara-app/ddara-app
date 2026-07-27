@@ -52,14 +52,13 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: AppSpacing.s1,
       children: [
         TitleDescription(
           title: l10n.groupCreateTitle,
           description: l10n.groupCreateSubtitle,
         ),
         // body 다음 간격 s6. (spacing s1 이 SizedBox 양옆에 붙으므로 s1+s4+s1=s6)
-        const SizedBox(height: AppSpacing.s4),
+        const SizedBox(height: AppSpacing.s7),
         AppTextField(
           label: l10n.groupCreateNameLabel,
           placeholder: l10n.groupCreateNamePlaceholder,
@@ -68,7 +67,7 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
           errorText: nameError,
           onChanged: notifier.groupNameOnChanged,
         ),
-        const SizedBox(height: AppSpacing.s4),
+        const SizedBox(height: AppSpacing.s7),
         AppTextField(
           label: l10n.groupCreateIntroLabel,
           placeholder: l10n.groupCreateIntroPlaceholder,
