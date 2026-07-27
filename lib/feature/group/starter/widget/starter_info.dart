@@ -113,10 +113,15 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
           // 키보드가 올라와 높이가 줄면 내용을 스크롤시켜 오버플로를 막는다.
           // 공간이 충분하면 Spacer 가 버튼을 하단에 고정한다.
           child: ScrollablePageBody(
+            // 사진 프레임이 커서 상단도 하단과 같은 여백을 준다.
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.s5,
+              vertical: AppSpacing.s7,
+            ),
             child: IntrinsicHeight(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: AppSpacing.s5,
+                spacing: AppSpacing.s6,
                 children: [
                   // 모임 헤더·갤러리 카드와 같은 사진 프레임으로 보여준다.
                   AspectRatio(

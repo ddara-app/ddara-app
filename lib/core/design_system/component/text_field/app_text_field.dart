@@ -101,7 +101,7 @@ class _AppTextFieldState extends State<AppTextField> {
       onTap: _focusNode.requestFocus,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.s5),
         decoration: ShapeDecoration(
           color: AppColors.bgSurface,
           shape: RoundedRectangleBorder(

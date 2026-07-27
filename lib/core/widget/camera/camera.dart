@@ -281,7 +281,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
     if (_permissionDenied) {
       final l10n = AppLocalizations.of(context);
       return Padding(
-        padding: const EdgeInsets.all(AppSpacing.s5),
+        padding: const EdgeInsets.all(AppSpacing.s6),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -290,17 +290,17 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
               size: 48,
               color: AppColors.textSecondary,
             ),
-            const SizedBox(height: AppSpacing.s4),
+            const SizedBox(height: AppSpacing.s5),
             AppText.headlineMedium(
               l10n.cameraPermissionTitle,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.s2),
+            const SizedBox(height: AppSpacing.s3),
             AppText.body(
               l10n.cameraPermissionDescription,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.s5),
+            const SizedBox(height: AppSpacing.s6),
             AppButton(
               label: l10n.permissionGoToSettings,
               onPressed: () =>
@@ -344,22 +344,25 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                     // 고스트 확대: 가운데 90% 창으로 프리뷰 크기 그대로 보여준다.
                     // (창 밖 가장자리는 잘림 — 창·이미지 배치는 GhostGuideView 가 처리)
                     GuideViewMode.ghostZoom => Positioned.fill(
-                      child: GhostGuideView(
-                        image: widget.guideImage!,
-                        opacity: _guideOpacity,
-                        // 원본 전체가 아니라 모임 상세 헤더에서 보이던 프레임만
-                        // 가이드로 쓴다. (사진 프레임 비율 공용)
-                        frameAspectRatio: AppRatio.photo,
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.s4),
+                        child: GhostGuideView(
+                          image: widget.guideImage!,
+                          opacity: _guideOpacity,
+                          // 원본 전체가 아니라 모임 상세 헤더에서 보이던 프레임만
+                          // 가이드로 쓴다. (사진 프레임 비율 공용)
+                          frameAspectRatio: AppRatio.photo,
+                        ),
                       ),
                     ),
                   },
                 // 프리뷰 우측 하단: 플래시 · 카메라 전환 (배경 없이 흰색 아이콘).
                 Positioned(
-                  right: AppSpacing.s4,
-                  bottom: AppSpacing.s4,
+                  right: AppSpacing.s5,
+                  bottom: AppSpacing.s5,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    spacing: AppSpacing.s2,
+                    spacing: AppSpacing.s3,
                     children: [
                       _PreviewControlButton(
                         icon: _flashOn ? AppIcons.flashOn : AppIcons.flashOff,
@@ -397,7 +400,7 @@ class _PreviewControlButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
-      padding: const EdgeInsets.all(AppSpacing.s2),
+      padding: const EdgeInsets.all(AppSpacing.s3),
       minimumSize: Size.zero,
       onPressed: onPressed,
       child: AppIcon(icon, size: 24, color: AppColors.textPrimary),
