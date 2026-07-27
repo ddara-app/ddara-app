@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -100,7 +100,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
   /// 권한 요청 결과(허용/거부/영구거부)를 Mixpanel 로 전송한다.
   /// permission: camera·notification·photos, result: PermissionResult.name.
   void _trackPermissionResult(String permission, PermissionResult result) {
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'permission_result',
       properties: {'permission': permission, 'result': result.name},
     );

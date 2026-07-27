@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/firebase_analytics_manager.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -123,6 +124,9 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: refresh,
+    // 화면 전환을 Firebase Analytics 의 screen_view 로 자동 기록한다.
+    // (라우트 이름이 없는 화면은 경로가 그대로 화면 이름이 된다)
+    observers: [FirebaseAnalyticsManager.observer],
     redirect: (context, state) async {
       // 라우터를 재생성하지 않으므로 매 평가 시 최신 인증 상태를 읽는다.
       final isLoggedIn = ref.read(authStateProvider).valueOrNull ?? false;

@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -30,7 +30,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     if (_pageViewTracked) return;
     _pageViewTracked = true;
     final social = GoRouterState.of(context).extra as SocialLoginType;
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'signup_page_viewed',
       properties: {'provider': social.name},
     );
@@ -60,7 +60,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
       switch (next.submit) {
         case SignUpSuccess():
-          MixpanelManager.instance.track(
+          AppAnalytics.track(
             'signup_succeeded',
             properties: {'provider': social.name},
           );

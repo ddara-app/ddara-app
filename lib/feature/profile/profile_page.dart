@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
@@ -37,7 +37,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    MixpanelManager.instance.track('profile_page_viewed');
+    AppAnalytics.track('profile_page_viewed');
   }
 
   /// 프로필 조회 실패 안내 + 재시도.
@@ -87,7 +87,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ProfileHeader(
                   name: loaded.name,
                   imageUrl: loaded.profileImageUrl,
-                  onEditPressed: () => MixpanelManager.instance.track(
+                  onEditPressed: () => AppAnalytics.track(
                     'profile_image_edit_clicked',
                   ),
                   // 업로드가 진행되는 동안 소스 선택(중복 업로드)을 차단한다.

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -29,7 +29,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   void initState() {
     super.initState();
-    MixpanelManager.instance.track('login_page_viewed');
+    AppAnalytics.track('login_page_viewed');
   }
 
   /// 실패 사유(enum)를 사용자 노출 문구로 매핑한다.
@@ -42,7 +42,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _onSocialLogin(SocialLoginType type) {
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'login_attempted',
       properties: {'provider': type.name},
     );
@@ -61,7 +61,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.listen(loginNotifierProvider, (previous, next) {
       switch (next) {
         case LoginSuccess(:final social):
-          MixpanelManager.instance.track(
+          AppAnalytics.track(
             'login_succeeded',
             properties: {'provider': social.name},
           );
@@ -69,14 +69,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           routeAfterAuth(ref, GoRouter.of(context));
 
         case SignupRequired():
-          MixpanelManager.instance.track(
+          AppAnalytics.track(
             'login_signup_required',
             properties: {'provider': next.social.name},
           );
           context.push(RoutePath.signup, extra: next.social);
 
         case LoginFail(:final social, :final type, :final debugMessage):
-          MixpanelManager.instance.track(
+          AppAnalytics.track(
             'login_failed',
             properties: {
               'provider': social.name,

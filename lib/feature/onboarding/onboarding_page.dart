@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/logo/logo.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -93,14 +93,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   // step 은 사용자에게 보이는 순서 그대로 1부터 센다.
   void _trackStepViewed(int index) {
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'onboarding_step_viewed(${index + 1})',
       properties: {'step': index + 1},
     );
   }
 
   Future<void> _start() async {
-    MixpanelManager.instance.track('onboarding_completed');
+    AppAnalytics.track('onboarding_completed');
     await ref.read(onboardingSeenProvider.notifier).complete();
     if (!mounted) return;
 

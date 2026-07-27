@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
@@ -117,7 +117,7 @@ class AccountManagePage extends ConsumerWidget {
   }) {
     if (!context.mounted) return;
     if (success) {
-      MixpanelManager.instance.track(trackEvent);
+      AppAnalytics.track(trackEvent);
       context.go(RoutePath.login);
     } else if (fail) {
       Toast.showToast(context, failMessage, type: ToastType.error);

@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -30,7 +30,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
   @override
   void initState() {
     super.initState();
-    MixpanelManager.instance.track('group_create_page_viewed');
+    AppAnalytics.track('group_create_page_viewed');
   }
 
   /// 뒤로가기: 닉네임 스텝이면 이름 스텝으로, 첫 스텝이면 화면을 닫는다.
@@ -58,7 +58,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
 
     ref.listen(createGroupNotifierProvider, (prev, next) {
       if (prev?.createGroupId == -1 && next.createGroupId > -1) {
-        MixpanelManager.instance.track(
+        AppAnalytics.track(
           'group_create_succeeded',
           properties: {'group_id': next.createGroupId},
         );

@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
@@ -116,7 +116,7 @@ class GroupPage extends ConsumerWidget {
       // 진입해 상세가 처음 로드된 시점을 조회 이벤트로 남긴다.
       final detail = next.groupDetail;
       if (prev is! GroupPageLoaded) {
-        MixpanelManager.instance.track(
+        AppAnalytics.track(
           'group_page_viewed',
           properties: {'group_id': groupId},
         );
@@ -343,7 +343,7 @@ class GroupPage extends ConsumerWidget {
         .read(groupPageNotifierProvider(groupId).notifier)
         .changeNickName(nickName);
     if (success) {
-      MixpanelManager.instance.track(
+      AppAnalytics.track(
         'group_nickname_changed',
         properties: {'group_id': groupId},
       );
@@ -369,7 +369,7 @@ class GroupPage extends ConsumerWidget {
         .exitGroup();
     if (!success || !context.mounted) return;
 
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'group_exit_succeeded',
       properties: {'group_id': groupId},
     );
@@ -529,7 +529,7 @@ class GroupPage extends ConsumerWidget {
                 label: l10n.groupHistoryMore,
                 // 지난 따라찍기 전체 목록으로 이동. (복귀 시 상세 갱신)
                 onPressed: () {
-                  MixpanelManager.instance.track(
+                  AppAnalytics.track(
                     'group_history_more_clicked',
                     properties: {'group_id': groupId},
                   );
@@ -556,7 +556,7 @@ class GroupPage extends ConsumerWidget {
                   blockedUserIds: state.blockedUserIds,
                   // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
                   onCycleTap: (cycleId) {
-                    MixpanelManager.instance.track(
+                    AppAnalytics.track(
                       'group_history_cycle_clicked',
                       properties: {'group_id': groupId, 'cycle_id': cycleId},
                     );

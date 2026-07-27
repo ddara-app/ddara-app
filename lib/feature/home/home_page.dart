@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/logo/logo.dart';
@@ -33,7 +33,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     // 아직 어떤 화면인지 확정되지 않았으므로 보류.
     if (state is! HomeLoaded) return;
     _viewTracked = true;
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'home_viewed',
       properties: {
         'state': state.groups.isEmpty ? 'empty' : 'list',

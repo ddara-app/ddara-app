@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/model/group/group_action_error.dart';
@@ -40,7 +40,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
   @override
   void initState() {
     super.initState();
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'follower_page_viewed',
       properties: {'cycle_id': widget.cycleId},
     );
@@ -64,7 +64,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
         .upload(widget.cycleId, path);
     if (cycleId == null || !mounted) return;
 
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'follower_photo_posted',
       properties: {'cycle_id': cycleId},
     );

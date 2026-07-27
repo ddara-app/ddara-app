@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -68,7 +68,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
   void initState() {
     super.initState();
     // joinable: 진입 시점에 실제로 참여 가능한 모임이었는지. (만원·이미참여·조회실패 구분용)
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'group_join_page_viewed',
       properties: {'joinable': _canJoin},
     );
@@ -109,7 +109,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
       // 참여 성공 시 모임 화면으로 이동. (홈 목록을 무효화해 새 모임이 반영되게 한다)
       // 모임 화면의 뒤로가기(AppBar·OS)는 GroupPage 가 항상 홈으로 처리한다.
       if (prev?.joinedGroupId == -1 && next.joinedGroupId > -1) {
-        MixpanelManager.instance.track(
+        AppAnalytics.track(
           'group_join_succeeded',
           properties: {'group_id': next.joinedGroupId},
         );

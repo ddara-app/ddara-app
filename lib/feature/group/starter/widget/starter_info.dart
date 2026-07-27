@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/text_field/app_text_field.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -65,7 +65,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
         .upload(widget.groupId);
     if (cycleId == null || !mounted) return;
 
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'starter_photo_posted',
       properties: {'group_id': widget.groupId, 'cycle_id': cycleId},
     );

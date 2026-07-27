@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -42,7 +43,7 @@ Future<void> main() async {
     await dotenv.load(fileName: '.env');
     KakaoSdk.init(nativeAppKey: dotenv.get("KAKAO_NATIVE_APP_KEY"));
     await MixpanelManager.init();
-    await _initCrashReporting();
+    await _initFirebase();
     _registerFcmBackgroundHandler();
     SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayStyle);
 
@@ -67,11 +68,11 @@ Future<void> main() async {
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
-/// Firebase 초기화 + Crashlytics 에러 보고 연결 + Performance 수집 설정.
+/// Firebase 초기화 + Crashlytics 에러 보고 연결 + Performance·Analytics 수집 설정.
 ///
 /// Doze 복귀 직후 Play Services 불안정 등으로 초기화가 멈추거나 실패해도 앱은
 /// 계속 실행한다. (Crashlytics 없이 동작 — 스플래시만 붙잡지 않는다)
-Future<void> _initCrashReporting() async {
+Future<void> _initFirebase() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -89,6 +90,13 @@ Future<void> _initCrashReporting() async {
     // 디버그 빌드의 성능 데이터가 콘솔 지표를 오염시키지 않도록
     // Performance 수집은 릴리스 빌드에서만 켠다.
     await FirebasePerformance.instance.setPerformanceCollectionEnabled(
+      kReleaseMode,
+    );
+
+    // 같은 이유로 Analytics 수집도 릴리스 빌드에서만 켠다.
+    // (개발 중 이벤트 확인은 DebugView 를 켜고 확인한다 —
+    //  docs/tech_stack.md 의 Firebase Analytics 항목 참고)
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
       kReleaseMode,
     );
   } catch (_) {

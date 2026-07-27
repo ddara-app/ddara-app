@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
@@ -43,7 +43,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   @override
   void initState() {
     super.initState();
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'gallery_page_viewed',
       properties: {'cycle_id': cycleId},
     );
