@@ -76,7 +76,7 @@ class AppDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s6),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s7),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 328),
           child: Container(
@@ -90,15 +90,15 @@ class AppDialog extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(
-                    top: AppSpacing.s7,
-                    left: AppSpacing.s6,
-                    right: AppSpacing.s6,
-                    bottom: AppSpacing.s6,
+                    top: AppSpacing.s8,
+                    left: AppSpacing.s7,
+                    right: AppSpacing.s7,
+                    bottom: AppSpacing.s7,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: AppSpacing.s3,
+                    spacing: AppSpacing.s4,
                     children: [
                       AppText.headlineMedium(title, textAlign: TextAlign.center),
                       if (message != null)
@@ -108,10 +108,10 @@ class AppDialog extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
-                    top: AppSpacing.s3,
-                    left: AppSpacing.s5,
-                    right: AppSpacing.s5,
-                    bottom: AppSpacing.s6,
+                    top: AppSpacing.s4,
+                    left: AppSpacing.s6,
+                    right: AppSpacing.s6,
+                    bottom: AppSpacing.s7,
                   ),
                   child: Row(
                     children: [
@@ -123,7 +123,7 @@ class AppDialog extends StatelessWidget {
                           onPressed: () => Navigator.of(context).pop(false),
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.s2),
+                      const SizedBox(width: AppSpacing.s3),
                       Expanded(
                         child: AppButton(
                           label: confirmLabel,
