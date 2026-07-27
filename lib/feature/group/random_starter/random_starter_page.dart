@@ -243,9 +243,9 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
                       AppSpacing.s5,
-                      AppSpacing.s3,
+                      AppSpacing.s4,
                       AppSpacing.s5,
-                      AppSpacing.s6,
+                      AppSpacing.s7,
                     ),
                     // 공개 모션이 끝나기 전에는 비활성 버튼을 보여주는 대신
                     // 아예 감춰 두고, 끝나는 순간 페이드로 나타낸다.
