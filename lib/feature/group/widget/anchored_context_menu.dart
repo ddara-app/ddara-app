@@ -114,7 +114,7 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
         return (
           target: _alignRight ? Alignment.topRight : Alignment.topLeft,
           follower: _alignRight ? Alignment.bottomRight : Alignment.bottomLeft,
-          offset: const Offset(0, -AppSpacing.s2),
+          offset: const Offset(0, -AppSpacing.s3),
         );
       case ContextMenuPlacement.aboveDiagonal:
         // 대상 모서리에 메뉴 모서리를 s1 만큼 겹쳐 대각선으로 붙인다.
@@ -122,15 +122,15 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
           target: _alignRight ? Alignment.topLeft : Alignment.topRight,
           follower: _alignRight ? Alignment.bottomRight : Alignment.bottomLeft,
           offset: Offset(
-            _alignRight ? AppSpacing.s1 : -AppSpacing.s1,
-            AppSpacing.s1,
+            _alignRight ? AppSpacing.s2 : -AppSpacing.s2,
+            AppSpacing.s2,
           ),
         );
       case ContextMenuPlacement.insideTopLeft:
         return (
           target: Alignment.topLeft,
           follower: Alignment.topLeft,
-          offset: const Offset(AppSpacing.s3, AppSpacing.s3),
+          offset: const Offset(AppSpacing.s4, AppSpacing.s4),
         );
     }
   }
@@ -190,8 +190,8 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
               if (i > 0) Container(height: 1, color: AppColors.borderDefault),
               CupertinoButton(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s4,
-                  vertical: AppSpacing.s3,
+                  horizontal: AppSpacing.s5,
+                  vertical: AppSpacing.s4,
                 ),
                 minimumSize: Size.zero,
                 onPressed: () =>

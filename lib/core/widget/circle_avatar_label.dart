@@ -38,7 +38,7 @@ class CircleAvatarLabel extends StatelessWidget {
   static const double circleSize = 60;
 
   /// 원형 콘텐츠와 라벨 사이 간격.
-  static const double labelGap = AppSpacing.s2;
+  static const double labelGap = AppSpacing.s3;
 
   /// 차단 멤버 닉네임 취소선 굵기. (폰트 기본 굵기의 배수)
   static const double strikeThickness = 2.0;
