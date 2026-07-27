@@ -234,7 +234,7 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.s4,
+                          horizontal: AppSpacing.s5,
                         ),
                         child: _buildHero(),
                       ),
@@ -242,9 +242,9 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.s4,
+                      AppSpacing.s5,
                       AppSpacing.s3,
-                      AppSpacing.s4,
+                      AppSpacing.s5,
                       AppSpacing.s6,
                     ),
                     // 공개 모션이 끝나기 전에는 비활성 버튼을 보여주는 대신

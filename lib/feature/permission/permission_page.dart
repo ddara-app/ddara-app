@@ -120,8 +120,8 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
         child: Padding(
           padding: const EdgeInsets.only(
             top: AppSpacing.s2,
-            left: AppSpacing.s4,
-            right: AppSpacing.s4,
+            left: AppSpacing.s5,
+            right: AppSpacing.s5,
             bottom: AppSpacing.s4,
           ),
           child: Column(

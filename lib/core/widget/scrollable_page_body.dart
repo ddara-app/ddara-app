@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 ///
 /// 콘텐츠가 화면에 들어가면 스크롤 없음, 작은 기기·큰 글자 설정에서는 스크롤로
 /// 전환되도록 뷰포트 높이를 최소 높이로 강제한다. 페이지 표준 패딩 정책을
-/// 한곳에 모은다 — 상 s3 · 좌우 s4(Page 규칙) · 하 s6 + Safe Area 인셋
+/// 한곳에 모은다 — 상 s3 · 좌우 s5(16, Page 규칙) · 하 s6 + Safe Area 인셋
 /// (하단까지 배경을 잇되 마지막 항목이 홈 인디케이터와 겹치지 않도록).
 class ScrollablePageBody extends StatelessWidget {
   const ScrollablePageBody({super.key, required this.child});
@@ -23,8 +23,8 @@ class ScrollablePageBody extends StatelessWidget {
             // (minHeight 초과) ConstrainedBox 안쪽에 둔다.
             padding: EdgeInsets.only(
               top: AppSpacing.s3,
-              left: AppSpacing.s4,
-              right: AppSpacing.s4,
+              left: AppSpacing.s5,
+              right: AppSpacing.s5,
               bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
             ),
             child: child,

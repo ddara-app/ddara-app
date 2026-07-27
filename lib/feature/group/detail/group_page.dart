@@ -466,7 +466,7 @@ class GroupPage extends ConsumerWidget {
       children: [
         // 좌우 여백은 일단 헤더에만 적용한다.
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
           child: GroupHeader(
             // 진행 중인 사이클을 그대로 전달. null 이면 헤더가 빈 상태를 보여준다.
             progress: groupDetail.currentCycle,

@@ -72,8 +72,8 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(
-            left: AppSpacing.s4,
-            right: AppSpacing.s4,
+            left: AppSpacing.s5,
+            right: AppSpacing.s5,
             bottom: AppSpacing.s4,
           ),
           child: Column(

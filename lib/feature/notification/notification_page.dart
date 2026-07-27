@@ -69,9 +69,9 @@ class NotificationPage extends ConsumerWidget {
         // 상단 s3, 좌우 s4, 하단 s6 + Safe Area 인셋 여백. (마지막 알림이
         // 홈 인디케이터와 겹치지 않도록)
         padding: EdgeInsets.fromLTRB(
-          AppSpacing.s4,
+          AppSpacing.s5,
           AppSpacing.s3,
-          AppSpacing.s4,
+          AppSpacing.s5,
           AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
         ),
         child: Column(

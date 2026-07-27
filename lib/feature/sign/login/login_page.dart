@@ -106,7 +106,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     width: double.infinity,
                     height: double.infinity,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.s4,
+                      horizontal: AppSpacing.s5,
                     ),
                     clipBehavior: Clip.antiAlias,
                     decoration: const BoxDecoration(),
@@ -130,9 +130,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 // 소셜 로그인 영역
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.s4,
+                    AppSpacing.s5,
                     0,
-                    AppSpacing.s4,
+                    AppSpacing.s5,
                     AppSpacing.s4,
                   ),
                   child: Column(

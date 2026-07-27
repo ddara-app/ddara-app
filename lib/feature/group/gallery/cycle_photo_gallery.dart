@@ -182,8 +182,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       padding: EdgeInsets.only(
         top: AppSpacing.s6,
         bottom: AppSpacing.s8 + MediaQuery.of(context).padding.bottom,
-        left: AppSpacing.s4,
-        right: AppSpacing.s4,
+        left: AppSpacing.s5,
+        right: AppSpacing.s5,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,

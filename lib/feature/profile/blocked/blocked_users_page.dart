@@ -63,8 +63,8 @@ class BlockedUsersPage extends ConsumerWidget {
     // (빈 목록은 위에서 조기 반환하므로 안내도 함께 숨는다)
     return ListView.builder(
       padding: EdgeInsets.only(
-        left: AppSpacing.s4,
-        right: AppSpacing.s4,
+        left: AppSpacing.s5,
+        right: AppSpacing.s5,
         // 마지막 항목이 홈 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
         bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
       ),

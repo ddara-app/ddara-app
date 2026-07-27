@@ -44,7 +44,7 @@ class Members extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       // 첫 아바타는 좌측 여백을 두고 시작하되, 스와이프하면 여백째 밀려나
       // 가장자리까지 넘어가도록 스크롤 콘텐츠 안쪽 패딩으로 준다.
-      padding: const EdgeInsets.only(left: AppSpacing.s4),
+      padding: const EdgeInsets.only(left: AppSpacing.s5),
       child: Row(
         spacing: AppSpacing.s2,
         children: [

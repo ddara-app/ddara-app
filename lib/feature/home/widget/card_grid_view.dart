@@ -63,12 +63,12 @@ class CardGridView<T> extends StatelessWidget {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Padding(
-              // 위는 탭 헤더가 있어 s4, 좌우 s4. (하단은 FAB 에 가리지 않도록
-              // 버튼 높이 + Safe Area 인셋만큼 더 여유)
+              // 위는 탭 헤더가 있어 s4, 좌우 s5(16, Page 규칙). (하단은 FAB 에
+              // 가리지 않도록 버튼 높이 + Safe Area 인셋만큼 더 여유)
               padding: EdgeInsets.fromLTRB(
+                AppSpacing.s5,
                 AppSpacing.s4,
-                AppSpacing.s4,
-                AppSpacing.s4,
+                AppSpacing.s5,
                 AppSpacing.s6 +
                     SpeedDialFab.size +
                     AppSpacing.s4 +

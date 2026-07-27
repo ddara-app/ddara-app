@@ -47,7 +47,7 @@ class GroupPageSkeleton extends StatelessWidget {
       children: [
         // 좌우 여백은 본문과 동일하게 헤더에만 적용한다.
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
           child: _header(l10n),
         ),
         GroupSection(
@@ -121,7 +121,7 @@ class GroupPageSkeleton extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(left: AppSpacing.s4),
+      padding: const EdgeInsets.only(left: AppSpacing.s5),
       child: Row(
         spacing: AppSpacing.s2,
         children: [

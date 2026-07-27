@@ -153,8 +153,8 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(
-              left: AppSpacing.s4,
-              right: AppSpacing.s4,
+              left: AppSpacing.s5,
+              right: AppSpacing.s5,
               top: AppSpacing.s2,
               bottom: AppSpacing.s4,
             ),
