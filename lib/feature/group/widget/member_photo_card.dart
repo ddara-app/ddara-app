@@ -142,9 +142,9 @@ class MemberPhotoCard extends StatelessWidget {
                   child: GestureDetector(
                     onTap: onComment,
                     child: Container(
-                      // 아이콘 16 + 패딩 s2(8)×2 = 지름 32 원.
+                      // 아이콘 16 + 패딩 s3(8)×2 = 지름 32 원.
                       // (뷰어 우하단 말풍선의 축소판 — 지름 48)
-                      padding: const EdgeInsets.all(AppSpacing.s2),
+                      padding: const EdgeInsets.all(AppSpacing.s3),
                       decoration: const BoxDecoration(
                         color: AppColors.overlayScrim,
                         shape: BoxShape.circle,

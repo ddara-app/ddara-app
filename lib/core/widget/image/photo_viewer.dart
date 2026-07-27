@@ -329,8 +329,8 @@ class _PhotoViewerState extends State<PhotoViewer>
             child: GestureDetector(
               onTap: _openSheet,
               child: Container(
-                // 아이콘 24 + 패딩 s3(12)×2 = 지름 48 원.
-                padding: const EdgeInsets.all(AppSpacing.s3),
+                // 아이콘 24 + 패딩 s4(12)×2 = 지름 48 원.
+                padding: const EdgeInsets.all(AppSpacing.s4),
                 decoration: const BoxDecoration(
                   color: AppColors.overlayScrim,
                   shape: BoxShape.circle,

@@ -162,8 +162,8 @@ class _CommentButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        // 아이콘 16 + 패딩 s2(8)×2 = 지름 32 원.
-        padding: const EdgeInsets.all(AppSpacing.s2),
+        // 아이콘 16 + 패딩 s3(8)×2 = 지름 32 원.
+        padding: const EdgeInsets.all(AppSpacing.s3),
         decoration: const BoxDecoration(
           color: AppColors.overlayScrim,
           shape: BoxShape.circle,
