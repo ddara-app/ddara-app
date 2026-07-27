@@ -133,12 +133,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     AppSpacing.s5,
                     0,
                     AppSpacing.s5,
-                    AppSpacing.s4,
+                    AppSpacing.s8,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: AppSpacing.s3,
+                    spacing: AppSpacing.s4,
                     children: [
                       SocialLoginButton(
                         label: l10n.loginKakao,
@@ -173,7 +173,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         label: l10n.loginViewPolicies,
                         onPressed: () => context.push(RoutePath.termsPolicy),
                       ),
-                      const SizedBox(height: AppSpacing.s4),
                     ],
                   ),
                 ),
