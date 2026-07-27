@@ -65,20 +65,40 @@ class _TermsPageState extends State<TermsPage> {
     _notify();
   }
 
+  /// 전체 동의 행. (체크박스·라벨을 포함한 영역 전체가 토글)
+  ///
+  /// 개별 약관 행([_TermItem])과 달리 상세보기('>')가 없고, 라벨이 강조된다.
+  Widget _agreeAll(AppLocalizations l10n) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      alignment: Alignment.centerLeft,
+      onPressed: () => _toggleAll(!_allAgreed),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          spacing: AppSpacing.s4,
+          children: [
+            AppCheckbox(value: _allAgreed, onChanged: _toggleAll, size: 20),
+            Expanded(
+              child: AppText.label(
+                l10n.termsAgreeAll,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Container(
+    // 페이지 여백은 SignUpPage 가 준다. (이 위젯은 본문만 그린다)
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
-      padding: const EdgeInsets.only(
-        top: AppSpacing.s2,
-        left: AppSpacing.s5,
-        right: AppSpacing.s5,
-        bottom: AppSpacing.s4,
-      ),
-      clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -87,7 +107,7 @@ class _TermsPageState extends State<TermsPage> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: AppSpacing.s6,
+            spacing: AppSpacing.s7,
             children: [
               // 헤더
               TitleDescription(
@@ -98,42 +118,15 @@ class _TermsPageState extends State<TermsPage> {
               // 동의 목록 카드
               AppSurface(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s4,
-                  vertical: AppSpacing.s1,
+                  horizontal: AppSpacing.s5,
+                  vertical: AppSpacing.s2,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 전체 동의 (영역 전체가 토글)
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.centerLeft,
-                      onPressed: () => _toggleAll(!_allAgreed),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.s4,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: AppSpacing.s3,
-                          children: [
-                            AppCheckbox(
-                              value: _allAgreed,
-                              onChanged: _toggleAll,
-                              size: 22,
-                            ),
-                            Expanded(
-                              child: AppText.label(
-                                l10n.termsAgreeAll,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    _agreeAll(l10n),
 
                     // 구분선
                     const AppDivider(),
@@ -221,6 +214,7 @@ class _TermItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // 체크박스·라벨 영역 전체가 체크 토글 ('>' 영역은 제외).
@@ -230,10 +224,10 @@ class _TermItem extends StatelessWidget {
             alignment: Alignment.centerLeft,
             onPressed: () => onChanged(!value),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: AppSpacing.s3,
+                spacing: AppSpacing.s4,
                 children: [
                   AppCheckbox(value: value, onChanged: onChanged),
                   Expanded(child: AppText.body(label)),
@@ -246,10 +240,8 @@ class _TermItem extends StatelessWidget {
         // 약관 상세보기. 탭 시 약관 내용 페이지로 이동.
         if (onDetailTap != null)
           CupertinoButton(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppSpacing.s4,
-              horizontal: AppSpacing.s3,
-            ),
+            // 버튼 영역이 카드 안쪽 여백 끝에 붙는다. (아이콘은 그 안에서 중앙)
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
             onPressed: onDetailTap,
             child: const AppIcon(
               AppIcons.chevronForward,

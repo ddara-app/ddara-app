@@ -2,6 +2,7 @@ import 'package:ddara/core/analytics/mixpanel_manager.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
+import 'package:ddara/core/design_system/foundation/app_spacing.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/sign/signup/provider/notifier_provider.dart';
@@ -85,10 +86,19 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
           children: [
             // 약관 동의가 유일한 단계 → 동의 후 버튼을 누르면 바로 가입한다.
             // (닉네임·생일은 입력받지 않고, 닉네임은 소셜 프로필 이름으로 대체)
-            TermsPage(
-              initialAgreed: state.termsAgreed,
-              onNextButtonClicked: notifier.signUp,
-              onAgreementChanged: notifier.termsAgreedChanged,
+            Padding(
+              // 본문 여백. 좌우는 Page 규칙(s5), 하단은 버튼 아래 여백(s7).
+              padding: const EdgeInsets.only(
+                top: AppSpacing.s3,
+                left: AppSpacing.s5,
+                right: AppSpacing.s5,
+                bottom: AppSpacing.s7,
+              ),
+              child: TermsPage(
+                initialAgreed: state.termsAgreed,
+                onNextButtonClicked: notifier.signUp,
+                onAgreementChanged: notifier.termsAgreedChanged,
+              ),
             ),
 
             // 회원가입 처리 중 로딩 오버레이 (입력 차단 + 인디케이터)
