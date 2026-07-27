@@ -188,7 +188,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: AppSpacing.s4,
+        spacing: AppSpacing.s5,
         children: [
           StartedHeader(
             info: StarterHeaderInfo(
@@ -228,10 +228,10 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             onComment: openStarterComments,
             commentUnread: starterCommentUnread,
           ),
-          // 헤더↔제목 간격 s14(56): Column spacing(s4)×2 + 이 SizedBox(s6).
+          // 헤더↔제목 간격 52: Column spacing(s5)×2 + 이 SizedBox(s6).
           const SizedBox(height: AppSpacing.s6),
           AppText.headlineLarge(gallery.groupName),
-          // 제목↔그리드 간격 s4 는 Column spacing 으로 처리.
+          // 제목↔그리드 간격 s5 는 Column spacing 으로 처리.
           // 멤버 사진 카드 2칸 그리드. (카드 비율은 MemberPhotoCard 가 정한다)
           GridView.builder(
             shrinkWrap: true,
@@ -239,8 +239,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             padding: EdgeInsets.zero,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: AppSpacing.s3,
-              mainAxisSpacing: AppSpacing.s3,
+              crossAxisSpacing: AppSpacing.s4,
+              mainAxisSpacing: AppSpacing.s4,
               childAspectRatio: AppRatio.photo,
             ),
             itemCount: members.length,

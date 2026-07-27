@@ -138,7 +138,10 @@ class MemberPhotoCard extends StatelessWidget {
               Align(
                 alignment: Alignment.topRight,
                 child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.s3),
+                  padding: const EdgeInsets.only(
+                    top: AppSpacing.s4,
+                    right: AppSpacing.s4,
+                  ),
                   child: GestureDetector(
                     onTap: onComment,
                     child: Container(
@@ -168,8 +171,8 @@ class MemberPhotoCard extends StatelessWidget {
                   padding: const EdgeInsets.all(AppSpacing.s3),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.s3,
-                      vertical: AppSpacing.s1,
+                      horizontal: AppSpacing.s4,
+                      vertical: AppSpacing.s2,
                     ),
                     decoration: ShapeDecoration(
                       color: AppColors.overlayScrim,
@@ -177,7 +180,7 @@ class MemberPhotoCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppRadius.sm),
                       ),
                     ),
-                    child: AppText.label(name, color: AppColors.textPrimary),
+                    child: AppText.caption(name, color: AppColors.textPrimary),
                   ),
                 ),
               ),

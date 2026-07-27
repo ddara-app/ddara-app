@@ -30,8 +30,8 @@ class TakePhotoButton extends StatelessWidget {
       onPressed: onPressed,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: isLarge ? AppSpacing.s5 : AppSpacing.s4,
-          vertical: isLarge ? AppSpacing.s3 : AppSpacing.s2,
+          horizontal: isLarge ? AppSpacing.s6 : AppSpacing.s5,
+          vertical: isLarge ? AppSpacing.s4 : AppSpacing.s3,
         ),
         decoration: const ShapeDecoration(
           color: AppColors.textPrimary,
