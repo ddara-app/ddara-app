@@ -119,10 +119,11 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(
-            top: AppSpacing.s2,
+            top: AppSpacing.s3,
             left: AppSpacing.s5,
             right: AppSpacing.s5,
-            bottom: AppSpacing.s4,
+            // 하단 버튼 아래 여백.
+            bottom: AppSpacing.s7,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -137,7 +138,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
 
               // 필수 접근 권한
               SectionLabel(l10n.permissionSectionRequired),
-              const SizedBox(height: AppSpacing.s3),
+              const SizedBox(height: AppSpacing.s4),
               PermissionItem(
                 icon: AppIcons.cameraDefault,
                 title: l10n.permissionCamera,
@@ -153,7 +154,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
 
               // 선택 접근 권한
               SectionLabel(l10n.permissionSectionOptional),
-              const SizedBox(height: AppSpacing.s3),
+              const SizedBox(height: AppSpacing.s4),
               PermissionItem(
                 icon: AppIcons.bell,
                 title: l10n.permissionNotification,
@@ -165,7 +166,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                   permission.notificationStatus,
                 ),
               ),
-              const SizedBox(height: AppSpacing.s3),
+              const SizedBox(height: AppSpacing.s4),
               PermissionItem(
                 icon: AppIcons.galleryDefault,
                 title: l10n.permissionStorage,
