@@ -18,14 +18,14 @@ const double _iconSize = 24;
 
 /// 아이콘(24)이 버튼(48) 안에서 가운데 정렬되며 생기는 한쪽 여백(12).
 /// leading/trailing 슬롯 여백에서 이만큼 빼서 아이콘을 본문 패딩에 정렬한다.
-/// (슬롯 4 + 내부 여백 12 = 아이콘 왼쪽 끝 16 = s4)
+/// (슬롯 4 + 내부 여백 12 = 아이콘 왼쪽 끝 16 = s5)
 const double _iconInset = (_buttonSize - _iconSize) / 2;
 
 /// 뒤로가기 chevron 글리프의 광학 보정값.
 ///
 /// `arrow_back_ios_new` 는 획 폭이 24px 박스보다 좁아 박스 중앙에 그려지므로,
-/// 박스를 s4 에 정렬해도 **보이는 획**은 그보다 오른쪽에서 시작한다. 글리프를
-/// 이만큼 왼쪽으로 당겨 획 시작점이 s4 에 오도록 맞춘다. (실기기에서 획
+/// 박스를 s5 에 정렬해도 **보이는 획**은 그보다 오른쪽에서 시작한다. 글리프를
+/// 이만큼 왼쪽으로 당겨 획 시작점이 s5 에 오도록 맞춘다. (실기기에서 획
 /// 시작점을 재서 조정할 것 — 터치 영역에는 영향 없음)
 const double _backGlyphOpticalOffset = 5;
 
@@ -65,8 +65,8 @@ class AppBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
     this.trailing,
     this.backgroundColor,
     this.padding = const EdgeInsetsDirectional.only(
-      start: AppSpacing.s4,
-      end: AppSpacing.s4,
+      start: AppSpacing.s5,
+      end: AppSpacing.s5,
     ),
   });
 
