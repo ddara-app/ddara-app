@@ -42,12 +42,12 @@ class StarterResultReveal extends StatelessWidget {
               size: StarterReelLayout.itemHeight,
               imageUrl: starter.profileImageUrl,
             ),
-            const SizedBox(height: AppSpacing.s4),
+            const SizedBox(height: AppSpacing.s5),
             AppText.headlineLarge(
               l10n.randomStarterResultTitle(starter.nickname),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.s1),
+            const SizedBox(height: AppSpacing.s2),
             AppText.body(
               l10n.randomStarterResultSubtitle,
               textAlign: TextAlign.center,

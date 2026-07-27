@@ -323,7 +323,7 @@ class CommentContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: AppSpacing.s5,
+      spacing: AppSpacing.s4,
       children: [
         ProfileAvatar(size: 32, imageUrl: comment.profileImageUrl),
         Expanded(
@@ -342,7 +342,7 @@ class CommentContent extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.s2,
+                      horizontal: AppSpacing.s1,
                     ),
                     child: AppText.caption('·', color: AppColors.textDisabled),
                   ),
@@ -361,7 +361,7 @@ class CommentContent extends StatelessWidget {
                   // 수정된 댓글은 시간 옆에 '· 수정됨' 을 덧붙인다.
                   if (comment.isEdited) ...[
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.s2),
+                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.s1),
                       child: AppText.caption('·', color: AppColors.textDisabled),
                     ),
                     AppText.caption(

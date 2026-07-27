@@ -15,9 +15,9 @@ class SheetScaffold extends StatelessWidget {
     super.key,
     required this.child,
     this.contentPadding = const EdgeInsets.fromLTRB(
-      AppSpacing.s6,
       AppSpacing.s5,
-      AppSpacing.s6,
+      AppSpacing.s4,
+      AppSpacing.s5,
       AppSpacing.s6,
     ),
   });

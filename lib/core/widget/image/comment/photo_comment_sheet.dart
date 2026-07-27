@@ -666,13 +666,13 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
             ),
           ),
           // 헤더: 유저 닉네임 + 따라찍기 주제.
-          // (핸들과 간격 s8, 아래 댓글 목록과 간격 s3)
+          // (핸들과 간격 s7, 아래 댓글 목록과 간격 s2)
           Padding(
             padding: const EdgeInsets.only(
-              top: AppSpacing.s8,
+              top: AppSpacing.s7,
               left: AppSpacing.s5,
               right: AppSpacing.s5,
-              bottom: AppSpacing.s3,
+              bottom: AppSpacing.s2,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

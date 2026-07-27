@@ -97,9 +97,9 @@ class InviteShareSheet extends StatelessWidget {
     return SheetScaffold(
       // 핸들-본문 간격: 기존 핸들 하단 마진(s5) + 항목 간격(s4) = s8.
       contentPadding: const EdgeInsets.fromLTRB(
-        AppSpacing.s6,
+        AppSpacing.s5,
         AppSpacing.s8,
-        AppSpacing.s6,
+        AppSpacing.s5,
         AppSpacing.s8,
       ),
       child: Column(
