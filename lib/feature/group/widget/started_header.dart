@@ -207,8 +207,9 @@ class _StartedHeaderState extends State<StartedHeader> {
               maxAlpha: 0.5,
             ),
             // 콘텐츠: 하단 진행 정보. (진행 상태 표시는 진행 정보 안으로 옮겼다)
+            // 접힌 상태의 바 하단 패딩(s6)과 같은 값으로 맞춘다.
             Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.s5),
+              padding: const EdgeInsets.only(bottom: AppSpacing.s6),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -219,9 +220,9 @@ class _StartedHeaderState extends State<StartedHeader> {
             // 기본은 우상단이고, 댓글 버튼이 그 자리를 쓰면 좌상단으로 비켜난다.
             Padding(
               padding: EdgeInsets.only(
-                top: AppSpacing.s4,
-                left: _showCommentButton ? AppSpacing.s4 : 0,
-                right: _showCommentButton ? 0 : AppSpacing.s4,
+                top: AppSpacing.s5,
+                left: _showCommentButton ? AppSpacing.s5 : 0,
+                right: _showCommentButton ? 0 : AppSpacing.s5,
               ),
               child: Align(
                 alignment: _showCommentButton
@@ -239,8 +240,8 @@ class _StartedHeaderState extends State<StartedHeader> {
             if (_showCommentButton)
               Padding(
                 padding: const EdgeInsets.only(
-                  top: AppSpacing.s4,
-                  right: AppSpacing.s4,
+                  top: AppSpacing.s5,
+                  right: AppSpacing.s5,
                 ),
                 child: Align(
                   alignment: Alignment.topRight,
@@ -295,7 +296,7 @@ class _StartedHeaderState extends State<StartedHeader> {
             // 텍스트 대비를 위한 어두운 오버레이 + 진행 정보.
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s5),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s6),
               color: AppColors.overlayScrimSoft,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -314,18 +315,20 @@ class _StartedHeaderState extends State<StartedHeader> {
   Widget _buildInfoRow() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.end,
+        // 주제가 길어도 토글 버튼에 붙지 않도록.
+        spacing: AppSpacing.s4,
         children: [
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpacing.s1,
+              spacing: AppSpacing.s3,
               children: [
                 // 좌상단에 있던 진행 상태(검정 60% pill)를 주제 위로 옮기고,
                 // 같은 배경 안에서 가운데 점으로 참여 인원(아이콘 + n/총원)을 잇는다.
@@ -351,13 +354,13 @@ class _StartedHeaderState extends State<StartedHeader> {
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        // 아이콘과 인원수는 한 덩어리로 읽히도록 s1 만 띄운다.
+                        // 아이콘과 인원수는 한 덩어리로 읽히도록 s2 만 띄운다.
                         const AppIcon(
                           AppIcons.people,
                           size: 14,
                           color: AppColors.textPrimary,
                         ),
-                        const SizedBox(width: AppSpacing.s1),
+                        const SizedBox(width: AppSpacing.s2),
                         AppText.caption(
                           '${widget.info.participantCount}'
                           '/${widget.memberCount}',

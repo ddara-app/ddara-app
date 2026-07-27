@@ -7,7 +7,7 @@ class GroupSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.body,
-    this.spacing = AppSpacing.s5,
+    this.spacing = AppSpacing.s6,
     this.titlePadding = const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
   });
 

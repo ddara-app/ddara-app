@@ -57,7 +57,7 @@ class GroupHeader extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const EmptyHeader(),
-          const SizedBox(height: AppSpacing.s6),
+          const SizedBox(height: AppSpacing.s7),
           // 멤버가 부족하면 시작 버튼을 비활성화한다.
           AppButton(
             label: l10n.groupHeaderStart,
@@ -89,7 +89,7 @@ class GroupHeader extends StatelessWidget {
           // (차단·검토 중이면 헤더가 자체적으로 탭을 막는다)
           onImageTap: onStarterImageTap,
         ),
-        const SizedBox(height: AppSpacing.s5),
+        const SizedBox(height: AppSpacing.s6),
         // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로
         // 촬영 버튼을 비활성화한다.
         AppButton(

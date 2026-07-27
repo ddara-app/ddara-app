@@ -138,16 +138,17 @@ class GroupPageSkeleton extends StatelessWidget {
   /// 히스토리 자리. 실제 카드와 같은 크기·간격으로 늘어놓는다.
   Widget _history() {
     return SizedBox(
-      height: HistoryPhotos.cardHeight + AppSpacing.s4 * 2,
+      height: HistoryPhotos.cardHeight + AppSpacing.s5 * 2,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: const NeverScrollableScrollPhysics(),
+        // 본문 HistoryPhotos 와 같은 자리에서 시작하도록 맞춘다.
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s4,
-          vertical: AppSpacing.s4,
+          horizontal: AppSpacing.s6,
+          vertical: AppSpacing.s5,
         ),
         child: Row(
-          spacing: AppSpacing.s3,
+          spacing: AppSpacing.s4,
           children: [
             for (var i = 0; i < _placeholderHistoryCount; i++)
               Container(

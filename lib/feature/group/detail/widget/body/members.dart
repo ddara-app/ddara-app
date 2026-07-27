@@ -46,7 +46,7 @@ class Members extends StatelessWidget {
       // 가장자리까지 넘어가도록 스크롤 콘텐츠 안쪽 패딩으로 준다.
       padding: const EdgeInsets.only(left: AppSpacing.s5),
       child: Row(
-        spacing: AppSpacing.s2,
+        spacing: AppSpacing.s3,
         children: [
           for (final member in members)
             _MemberAvatar(

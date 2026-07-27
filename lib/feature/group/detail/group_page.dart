@@ -391,8 +391,8 @@ class GroupPage extends ConsumerWidget {
 
     // 본문 슬리버 패딩. 조회 전 골격과 본문이 같은 자리에서 시작하도록 공유한다.
     final bodyPadding = EdgeInsets.only(
-      top: AppSpacing.s6,
-      bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+      top: AppSpacing.s7,
+      bottom: AppSpacing.s7 + MediaQuery.of(context).padding.bottom,
     );
 
     return switch (state) {
@@ -462,7 +462,7 @@ class GroupPage extends ConsumerWidget {
       // 상단부터 쌓되 가로는 중앙 정렬.
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: AppSpacing.s8,
+      spacing: AppSpacing.s9,
       children: [
         // 좌우 여백은 일단 헤더에만 적용한다.
         Padding(
@@ -544,10 +544,10 @@ class GroupPage extends ConsumerWidget {
             ],
           ),
           // 히스토리가 있으면 사진 카드들을, 없으면 같은 높이의 빈 상태 안내를 보여준다.
-          // (카드 높이 + HistoryPhotos 의 상하 s4 패딩)
+          // (카드 높이 + HistoryPhotos 의 상하 s5 패딩)
           body: cycles.isEmpty
               ? SizedBox(
-                  height: HistoryPhotos.cardHeight + AppSpacing.s4 * 2,
+                  height: HistoryPhotos.cardHeight + AppSpacing.s5 * 2,
                   child: Center(child: AppText.body(l10n.groupHistoryEmpty)),
                 )
               : HistoryPhotos(

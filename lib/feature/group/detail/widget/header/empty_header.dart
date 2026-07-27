@@ -14,15 +14,17 @@ class EmptyHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Padding(
-      // 상하 s7, 좌우 s5 여백.
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s5,
-        vertical: AppSpacing.s7,
+      // 상 s7 · 하 s8 · 좌우 s5 여백.
+      padding: const EdgeInsets.only(
+        left: AppSpacing.s5,
+        right: AppSpacing.s5,
+        top: AppSpacing.s7,
+        bottom: AppSpacing.s8,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s2,
+        spacing: AppSpacing.s3,
         children: [
           HeaderTitle(
             title: l10n.groupDetailEmptyTitle,

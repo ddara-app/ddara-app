@@ -48,10 +48,10 @@ class HistoryPhotos extends StatelessWidget {
       physics: const ClampingScrollPhysics(),
       // 회전/겹침으로 삐져나온 모서리가 잘리지 않도록 여백. (오른쪽은 overhang 만큼 더)
       padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s6,
         AppSpacing.s5,
-        AppSpacing.s4,
-        AppSpacing.s5 + _overhang,
-        AppSpacing.s4,
+        AppSpacing.s6 + _overhang,
+        AppSpacing.s5,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -191,7 +191,7 @@ class _PhotoCard extends StatelessWidget {
             _thumbnail(context),
             // 우측 상단: 참여 인원
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.s3),
+              padding: const EdgeInsets.all(AppSpacing.s4),
               child: Align(
                 alignment: Alignment.topRight,
                 child: AppText.caption(
@@ -204,7 +204,7 @@ class _PhotoCard extends StatelessWidget {
             ),
             // 좌측 하단: 제목 + 날짜
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.s3),
+              padding: const EdgeInsets.all(AppSpacing.s4),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
