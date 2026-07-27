@@ -74,7 +74,7 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
           padding: const EdgeInsets.only(
             left: AppSpacing.s5,
             right: AppSpacing.s5,
-            bottom: AppSpacing.s4,
+            bottom: AppSpacing.s7,
           ),
           child: Column(
             children: [
@@ -82,13 +82,13 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset('assets/images/permission.png'),
-                    const SizedBox(height: AppSpacing.s3),
                     TitleDescription(
                       title: l10n.requiredPermissionTitle,
                       description: l10n.requiredPermissionDescription,
                       centered: true,
                     ),
+                    const SizedBox(height: AppSpacing.s4),
+                    Image.asset('assets/images/permission.png'),
                   ],
                 ),
               ),
