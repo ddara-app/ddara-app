@@ -107,18 +107,17 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
           padding: const EdgeInsets.only(
             left: AppSpacing.s5,
             right: AppSpacing.s5,
-            top: AppSpacing.s4,
-            bottom: AppSpacing.s4,
+            top: AppSpacing.s3,
+            bottom: AppSpacing.s7,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: AppSpacing.s3,
             children: [
               TitleDescription(
                 title: l10n.groupJoinHeadline,
                 description: l10n.groupJoinSubtitle,
               ),
-              const SizedBox(height: AppSpacing.s2),
+              const SizedBox(height: AppSpacing.s7),
               AppTextField(
                 label: l10n.groupJoinCodeLabel,
                 placeholder: l10n.groupJoinCodePlaceholder,

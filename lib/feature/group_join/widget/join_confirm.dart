@@ -54,11 +54,10 @@ class JoinConfirm extends StatelessWidget {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        spacing: AppSpacing.s7,
+        spacing: AppSpacing.s8,
         children: [
           Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: AppSpacing.s1,
             children: [
               AppText.display(groupName, textAlign: TextAlign.center),
               AppText.body(subtitle, textAlign: TextAlign.center),
@@ -66,7 +65,7 @@ class JoinConfirm extends StatelessWidget {
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: AppSpacing.s3,
+            spacing: AppSpacing.s4,
             children: [
               _MemberAvatars(avatarUrls: memberAvatarUrls),
               AppText.body(memberSummary, textAlign: TextAlign.center),

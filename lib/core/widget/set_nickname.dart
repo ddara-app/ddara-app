@@ -47,15 +47,13 @@ class _SetNicknameState extends State<SetNickname> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      // 바깥 간격 s2 → 입력 필드와 caption 사이가 s2.
-      spacing: AppSpacing.s2,
       children: [
         TitleDescription(
           title: l10n.setNicknameTitle(widget.groupName),
           description: l10n.setNicknameDescription,
         ),
         // body 다음 간격 s6. (바깥 spacing s2 가 SizedBox 양옆에 붙으므로 s2+s2+s2=s6)
-        const SizedBox(height: AppSpacing.s2),
+        const SizedBox(height: AppSpacing.s7),
         AppTextField(
           placeholder: l10n.setNicknamePlaceholder,
           controller: _controller,
@@ -63,6 +61,7 @@ class _SetNicknameState extends State<SetNickname> {
           errorText: widget.errorText,
           onChanged: widget.onChanged,
         ),
+        const SizedBox(height: AppSpacing.s3),
         AppText.caption(l10n.setNicknameCaption),
       ],
     );

@@ -147,7 +147,7 @@ class _AppTextFieldState extends State<AppTextField> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: AppSpacing.s2,
+      spacing: AppSpacing.s3,
       children: children,
     );
   }
