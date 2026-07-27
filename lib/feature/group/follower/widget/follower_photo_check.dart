@@ -61,23 +61,31 @@ class FollowerPhotoCheck extends StatelessWidget {
               maintainState: true,
               child: CameraBottom(onViewModeChanged: (_) {}),
             ),
-            Positioned(
-              left: AppSpacing.s5,
-              right: AppSpacing.s5,
-              bottom: AppSpacing.s6,
-              child: Row(
-                spacing: AppSpacing.s3,
-                children: [
-                  Expanded(
-                    child: AppButton.outline(
-                      label: l10n.photoRetake,
-                      onPressed: onRetake,
-                    ),
+            // 촬영 화면의 컨트롤 영역 한가운데에 버튼을 놓는다.
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s5,
+                ),
+                child: Center(
+                  child: Row(
+                    spacing: AppSpacing.s4,
+                    children: [
+                      Expanded(
+                        child: AppButton.outline(
+                          label: l10n.photoRetake,
+                          onPressed: onRetake,
+                        ),
+                      ),
+                      Expanded(
+                        child: AppButton(
+                          label: l10n.photoUpload,
+                          onPressed: onUpload,
+                        ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: AppButton(label: l10n.photoUpload, onPressed: onUpload),
-                  ),
-                ],
+                ),
               ),
             ),
           ],
