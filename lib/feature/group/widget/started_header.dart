@@ -440,16 +440,16 @@ class _StartedHeaderState extends State<StartedHeader> {
   String _statusText() {
     final l10n = AppLocalizations.of(context);
     if (widget.info.isDone) {
-      return l10n.remainingDeadline; // '마감'
+      return l10n.meetingClosed; // '진행 종료'
     }
     return l10n.startedHeaderRemaining(_remainingText(widget.info.deadlineAt));
   }
 
-  /// 마감(deadline)까지 남은 시간 표시 문자열. ('14시간' / '30분' / '마감')
+  /// 마감(deadline)까지 남은 시간 표시 문자열. ('14시간' / '30분' / '진행 종료')
   String _remainingText(DateTime deadline) {
     final l10n = AppLocalizations.of(context);
     final remaining = deadline.difference(DateTime.now());
-    if (remaining.isNegative) return l10n.remainingDeadline;
+    if (remaining.isNegative) return l10n.meetingClosed;
     if (remaining.inHours >= 1) return l10n.remainingHours(remaining.inHours);
     return l10n.remainingMinutes(remaining.inMinutes);
   }
