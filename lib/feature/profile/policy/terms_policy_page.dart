@@ -1,5 +1,4 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
-import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/policy/policy_viewer_page.dart';
@@ -43,24 +42,21 @@ class TermsPolicyPage extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: ScrollablePageBody(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.s5,
-            children: [
-              ProfileSection(
-                label: l10n.termsPolicyTitle,
-                children: [
-                  for (final policy in _policies(l10n))
-                    ProfileRow(
-                      label: policy.title,
-                      trailing: const ProfileChevron(),
-                      onTap: () =>
-                          context.push(RoutePath.policyViewer, extra: policy),
-                    ),
-                ],
-              ),
-            ],
+          // 섹션이 하나뿐이라 Column 없이 폭만 채운다.
+          child: SizedBox(
+            width: double.infinity,
+            child: ProfileSection(
+              label: l10n.termsPolicyTitle,
+              children: [
+                for (final policy in _policies(l10n))
+                  ProfileRow(
+                    label: policy.title,
+                    trailing: const ProfileChevron(),
+                    onTap: () =>
+                        context.push(RoutePath.policyViewer, extra: policy),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

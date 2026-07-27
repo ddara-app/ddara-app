@@ -39,7 +39,7 @@ class ProfileHeader extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s2,
+        spacing: AppSpacing.s3,
         children: [
           // 아바타 밖으로 삐져나오는 편집 버튼의 테두리가 잘리지 않도록 clip 을 해제한다.
           Stack(

@@ -82,7 +82,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpacing.s5,
+              spacing: AppSpacing.s6,
               children: [
                 ProfileHeader(
                   name: loaded.name,

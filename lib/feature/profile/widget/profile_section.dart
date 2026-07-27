@@ -42,7 +42,7 @@ class ProfileSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText.label(label),
-        const SizedBox(height: AppSpacing.s3),
+        const SizedBox(height: AppSpacing.s4),
         AppSurface(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -102,7 +102,7 @@ class ProfileRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final row = Padding(
-      padding: const EdgeInsets.all(AppSpacing.s4),
+      padding: const EdgeInsets.all(AppSpacing.s5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

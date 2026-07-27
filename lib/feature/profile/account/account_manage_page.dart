@@ -63,41 +63,38 @@ class AccountManagePage extends ConsumerWidget {
       child: SafeArea(
         bottom: false,
         child: ScrollablePageBody(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ProfileSection(
-                label: l10n.profileSectionAccount,
-                children: [
-                  ProfileRow(
-                    label: l10n.profileLinkedAccount,
-                    // 이 화면은 프로필(로드 완료) 화면에서만 진입하지만,
-                    // 타입상 로드 전이면 빈 값으로 표시한다.
-                    value: switch (state.load) {
-                      final ProfileLoaded loaded =>
-                        loaded.provider?.label ?? '',
-                      _ => '',
-                    },
+          // 섹션이 하나뿐이라 Column 없이 폭만 채운다.
+          child: SizedBox(
+            width: double.infinity,
+            child: ProfileSection(
+              label: l10n.profileSectionAccount,
+              children: [
+                ProfileRow(
+                  label: l10n.profileLinkedAccount,
+                  // 이 화면은 프로필(로드 완료) 화면에서만 진입하지만,
+                  // 타입상 로드 전이면 빈 값으로 표시한다.
+                  value: switch (state.load) {
+                    final ProfileLoaded loaded => loaded.provider?.label ?? '',
+                    _ => '',
+                  },
+                ),
+                ProfileRow(
+                  label: l10n.profileLogout,
+                  // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
+                  onTap: tapGuard(
+                    _isAccountActionRunning(state),
+                    () => _confirmLogout(context, ref),
                   ),
-                  ProfileRow(
-                    label: l10n.profileLogout,
-                    // 로그아웃·탈퇴 중엔 두 행 모두 차단한다. (교차 실행 방지)
-                    onTap: tapGuard(
-                      _isAccountActionRunning(state),
-                      () => _confirmLogout(context, ref),
-                    ),
+                ),
+                ProfileRow(
+                  label: l10n.profileWithdraw,
+                  onTap: tapGuard(
+                    _isAccountActionRunning(state),
+                    () => _confirmWithdraw(context, ref),
                   ),
-                  ProfileRow(
-                    label: l10n.profileWithdraw,
-                    onTap: tapGuard(
-                      _isAccountActionRunning(state),
-                      () => _confirmWithdraw(context, ref),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

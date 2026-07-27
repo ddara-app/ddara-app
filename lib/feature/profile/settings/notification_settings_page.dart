@@ -101,7 +101,7 @@ class _NotificationSettingsPageState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.s5,
+            spacing: AppSpacing.s6,
             children: [
               _SettingCard(
                 children: [
@@ -166,8 +166,8 @@ class _NotificationSettingsPageState
 /// 알림 설정 항목을 담는 카드.
 ///
 /// bg-surface 배경의 둥근 카드 안에 [children] 을 세로로 쌓고, 항목 사이에는
-/// [AppSpacing.s4] 간격을 둔다. (카드 자체가 좌우 [AppSpacing.s5]·상하
-/// [AppSpacing.s3] 패딩을 갖는다.)
+/// [AppSpacing.s5] 간격을 둔다. (카드 자체가 좌우 [AppSpacing.s6]·상하
+/// [AppSpacing.s4] 패딩을 갖는다.)
 class _SettingCard extends StatelessWidget {
   const _SettingCard({required this.children});
 
@@ -178,13 +178,13 @@ class _SettingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppSurface(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s5,
-        vertical: AppSpacing.s3,
+        horizontal: AppSpacing.s6,
+        vertical: AppSpacing.s4,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: AppSpacing.s4,
+        spacing: AppSpacing.s5,
         children: children,
       ),
     );
@@ -221,6 +221,8 @@ class _ToggleRow extends StatelessWidget {
     final caption = this.caption;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
+      // 라벨이 길어 Expanded 를 꽉 채워도 스위치에 붙지 않도록.
+      spacing: AppSpacing.s4,
       children: [
         Expanded(
           child: caption == null
@@ -228,14 +230,12 @@ class _ToggleRow extends StatelessWidget {
               : Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: AppSpacing.s1,
                   children: [
                     AppText.body(label, color: AppColors.textPrimary),
                     AppText.caption(caption),
                   ],
                 ),
         ),
-        const SizedBox(width: AppSpacing.s3),
         CupertinoSwitch(
           value: value,
           activeTrackColor: AppColors.accentDefault,

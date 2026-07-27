@@ -52,12 +52,12 @@ class PolicyViewerPage extends StatelessWidget {
               data: _stripLeadingTitle(snapshot.data!),
               selectable: true,
               padding: EdgeInsets.only(
-                top: AppSpacing.s3,
+                top: AppSpacing.s4,
                 left: AppSpacing.s5,
                 right: AppSpacing.s5,
                 // 하단 Safe Area 까지 스크롤 영역을 잇되, 마지막 줄이 홈
                 // 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
-                bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+                bottom: AppSpacing.s7 + MediaQuery.of(context).padding.bottom,
               ),
               styleSheet: _styleSheet,
             );
