@@ -29,7 +29,7 @@ class PageIndicator extends StatelessWidget {
   /// 점 하나의 지름. (예: 온보딩 8, 홈 6)
   final double size;
 
-  /// 점 사이의 간격. (예: 온보딩 [AppSpacing.s2], 홈 [AppSpacing.s1])
+  /// 점 사이의 간격. (예: 온보딩 [AppSpacing.s3], 홈 [AppSpacing.s1])
   final double spacing;
 
   @override

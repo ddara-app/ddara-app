@@ -19,10 +19,6 @@ class OnboardingPage extends ConsumerStatefulWidget {
 }
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
-  /// 스텝 제목·설명이 좌우로 전환되는 영역의 고정 높이.
-  /// (문구 길이가 달라도 로고·인디케이터가 움직이지 않도록 고정)
-  static const _swipeAreaHeight = 120.0;
-
   final _controller = PageController();
   int _index = 0;
 
@@ -133,45 +129,77 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             onHorizontalDragEnd: _onHorizontalDragEnd,
             onHorizontalDragCancel: () =>
                 _snapToPage((_controller.page ?? _index.toDouble()).round()),
-            child: Column(
+            child: Stack(
               children: [
-                // 로고·텍스트·인디케이터를 한 덩어리로 화면 중앙에 모은다.
-                Expanded(
+                // 로고·텍스트·인디케이터를 한 덩어리로 화면 정중앙에 모은다.
+                // (버튼을 아래에 겹쳐 띄우므로 버튼 높이에 밀리지 않는다)
+                Center(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: AppSpacing.s7,
                     children: [
                       // 페이지가 바뀌어도 고정되는 로고
                       const LogoLarge(),
-                      const SizedBox(height: AppSpacing.s6),
-                      // 제목·설명만 좌우로 스와이프되는 영역 (고정 높이)
-                      SizedBox(
-                        height: _swipeAreaHeight,
-                        child: PageView.builder(
-                          controller: _controller,
-                          itemCount: steps.length,
-                          onPageChanged: (index) {
-                            _trackStepViewed(index);
-                            setState(() => _index = index);
-                          },
-                          itemBuilder: (_, index) => OnboardingStepContent(
-                            title: steps[index].title,
-                            description: steps[index].body,
+                      // 제목·설명만 좌우로 스와이프되는 영역.
+                      //
+                      // 높이는 가장 긴 스텝 문구에 맞춰 정해진다 — 보이지 않는
+                      // 사본들을 겹쳐 Stack 높이를 만들고 그 위에 PageView 를
+                      // 얹는다. 고정 상수 없이도 스텝을 넘길 때 로고·인디케이터가
+                      // 움직이지 않고, 큰 글자 설정에서도 잘리지 않는다.
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          for (final step in steps)
+                            Opacity(
+                              opacity: 0,
+                              child: OnboardingStepContent(
+                                title: step.title,
+                                description: step.body,
+                              ),
+                            ),
+                          Positioned.fill(
+                            child: PageView.builder(
+                              controller: _controller,
+                              itemCount: steps.length,
+                              onPageChanged: (index) {
+                                _trackStepViewed(index);
+                                setState(() => _index = index);
+                              },
+                              itemBuilder: (_, index) => OnboardingStepContent(
+                                title: steps[index].title,
+                                description: steps[index].body,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: AppSpacing.s6),
                       // 페이지가 바뀌어도 고정되며, 활성 점만 애니메이션으로 전환되는 인디케이터
-                      PageIndicator(currentIndex: _index),
+                      PageIndicator(
+                        currentIndex: _index,
+                        spacing: AppSpacing.s3,
+                      ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(AppSpacing.s4),
-                  child: AppButton(
-                    label: isLastPage
-                        ? l10n.onboardingStart
-                        : l10n.onboardingNext,
-                    onPressed: isLastPage ? _start : _goNext,
+                // 하단 버튼. 좌우를 0 으로 고정해 풀폭을 확보한다.
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Padding(
+                    // 좌우는 Page 규칙(s5), 하단은 화면 끝 기준 s7.
+                    padding: const EdgeInsets.only(
+                      top: AppSpacing.s4,
+                      left: AppSpacing.s5,
+                      right: AppSpacing.s5,
+                      bottom: AppSpacing.s7,
+                    ),
+                    child: AppButton(
+                      label: isLastPage
+                          ? l10n.onboardingStart
+                          : l10n.onboardingNext,
+                      onPressed: isLastPage ? _start : _goNext,
+                    ),
                   ),
                 ),
               ],
