@@ -137,7 +137,7 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s1,
+        spacing: AppSpacing.s2,
         children: [
           AppText.headlineMedium(label),
           AppIcon(

@@ -51,34 +51,40 @@ class HistoryListItem extends StatelessWidget {
       pressedColor: AppColors.bgSurface,
       // 탭 → 해당 사이클의 사진 갤러리로 이동.
       onTap: () => context.push(RoutePath.follower, extra: cycle.cycleId),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s4,
-        children: [
-          _thumbnail(context),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpacing.s1,
-              children: [
-                // 차단한 스타터의 따라찍기는 주제 대신 차단 안내 문구를 보여준다.
-                AppText.titleLarge(
-                  thumbnailBlocked ? l10n.blockedCycleTopic : cycle.topic,
-                  color: thumbnailBlocked ? AppColors.textSecondary : null,
-                ),
-                AppText.caption(
-                  _dateLabel(l10n, cycle.date),
-                  color: AppColors.textSecondary,
-                ),
-                AppText.caption(
-                  l10n.historyParticipantCount(cycle.participantCount),
-                  color: AppColors.textSecondary,
-                ),
-                _participantAvatars(),
-              ],
+      // 세로 제약이 무한대인 스크롤 안이라, stretch 전에 높이를 확정해야 한다.
+      // (안 그러면 자식이 무한 높이를 받아 레이아웃이 깨진다)
+      child: IntrinsicHeight(
+        child: Row(
+          // 텍스트 묶음이 썸네일 높이를 채우고 아바타가 바닥에 붙도록 늘린다.
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpacing.s4,
+          children: [
+            _thumbnail(context),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 차단한 스타터의 따라찍기는 주제 대신 차단 안내 문구를 보여준다.
+                  AppText.titleLarge(
+                    thumbnailBlocked ? l10n.blockedCycleTopic : cycle.topic,
+                    color: thumbnailBlocked ? AppColors.textSecondary : null,
+                  ),
+                  AppText.caption(
+                    _dateLabel(l10n, cycle.date),
+                    color: AppColors.textSecondary,
+                  ),
+                  AppText.caption(
+                    l10n.historyParticipantCount(cycle.participantCount),
+                    color: AppColors.textSecondary,
+                  ),
+                  // 남는 공간을 밀어내 프로필 목록을 바닥에 붙인다.
+                  const Spacer(),
+                  _participantAvatars(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
