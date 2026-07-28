@@ -72,10 +72,12 @@
                     android:scheme="kakao${KAKAO_NATIVE_APP_KEY}" />
             </intent-filter>
         </activity>
-        <!-- image_cropper(uCrop) 크롭 화면. AppCompat 테마 필수. -->
+        <!-- image_cropper(uCrop) 크롭 화면. AppCompat 테마 필수.
+             screenOrientation 은 선언하지 않는다 — targetSdk 36(Android 16)부터
+             대형 화면에서 방향 제한이 무시되며, Play 콘솔이 지원 중단된 파라미터로 경고한다.
+             (앱의 다른 화면도 방향 제한이 없어 동작상 일관됨) -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!-- FCM 알림(notification 메시지)이 백그라운드/종료 상태에서 표시될 기본 채널.
