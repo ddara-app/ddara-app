@@ -5,6 +5,19 @@ import 'package:flutter/cupertino.dart';
 /// 프리뷰 보조 모드. (원본 사진을 어떻게 겹쳐 보여줄지)
 enum GuideViewMode { cornerMini, ghostZoom }
 
+/// 모드 전환으로 인정하는 최소 가로 스와이프 속도. (px/s)
+const double _swipeVelocityThreshold = 200;
+
+/// 가로 스와이프 속도로 전환할 모드를 고른다. 살짝 흔들린 정도면 null.
+///
+/// 토글 버튼 배치와 방향을 맞춘다 — 왼쪽으로 밀면 오른쪽 항목(고스트 확대),
+/// 오른쪽으로 밀면 왼쪽 항목(코너 미니뷰)이 선택된다.
+/// 프리뷰와 토글 Row 가 같은 규칙을 쓰도록 여기서 한 번만 정한다.
+GuideViewMode? guideModeForSwipe(double velocity) {
+  if (velocity.abs() < _swipeVelocityThreshold) return null;
+  return velocity < 0 ? GuideViewMode.ghostZoom : GuideViewMode.cornerMini;
+}
+
 /// 프리뷰 바로 아래에 붙는 모드 토글. ('코너 미니뷰' / '고스트 확대')
 ///
 /// 선택 상태는 갖지 않고 [mode] 를 그대로 그린다. 프리뷰 스와이프로도 모드가
@@ -35,6 +48,12 @@ class CameraModeToggle extends StatelessWidget {
     onChanged(next);
   }
 
+  /// 토글 위에서의 가로 스와이프. (프리뷰 스와이프와 같은 방향 규칙)
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    final next = guideModeForSwipe(details.primaryVelocity ?? 0);
+    if (next != null) _select(next);
+  }
+
   /// 두 버튼을 딱 붙인 묶음을 좌우로 슬라이드해, 선택된 버튼이 중앙에 오게 한다.
   /// 버튼 간격은 일정하게 유지되고 전환은 부드럽게 슬라이딩한다.
   /// - 코너 미니뷰 선택: 묶음을 오른쪽으로 → [중앙] 코너 미니뷰, [우측] 고스트 확대
@@ -49,27 +68,33 @@ class CameraModeToggle extends StatelessWidget {
       maintainSize: true,
       maintainAnimation: true,
       maintainState: true,
-      child: Align(
-        alignment: Alignment.center,
-        child: AnimatedSlide(
-          duration: _duration,
-          curve: Curves.easeInOut,
-          // 묶음(두 버튼) 너비의 1/4 만큼 이동하면 선택 버튼이 중앙에 온다.
-          offset: Offset(cornerSelected ? 0.25 : -0.25, 0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _ModeButton(
-                label: l10n.cameraModeCornerMini,
-                selected: cornerSelected,
-                onPressed: () => _select(GuideViewMode.cornerMini),
-              ),
-              _ModeButton(
-                label: l10n.cameraModeGhostZoom,
-                selected: !cornerSelected,
-                onPressed: () => _select(GuideViewMode.ghostZoom),
-              ),
-            ],
+      // 버튼 밖 빈 자리에서도 스와이프가 먹도록 줄 전체에서 제스처를 받는다.
+      // (버튼 탭은 제스처 아레나에서 탭이 우선되어 그대로 동작한다)
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragEnd: _onHorizontalDragEnd,
+        child: Align(
+          alignment: Alignment.center,
+          child: AnimatedSlide(
+            duration: _duration,
+            curve: Curves.easeInOut,
+            // 묶음(두 버튼) 너비의 1/4 만큼 이동하면 선택 버튼이 중앙에 온다.
+            offset: Offset(cornerSelected ? 0.25 : -0.25, 0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _ModeButton(
+                  label: l10n.cameraModeCornerMini,
+                  selected: cornerSelected,
+                  onPressed: () => _select(GuideViewMode.cornerMini),
+                ),
+                _ModeButton(
+                  label: l10n.cameraModeGhostZoom,
+                  selected: !cornerSelected,
+                  onPressed: () => _select(GuideViewMode.ghostZoom),
+                ),
+              ],
+            ),
           ),
         ),
       ),

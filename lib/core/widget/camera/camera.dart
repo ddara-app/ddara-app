@@ -59,9 +59,6 @@ class Camera extends ConsumerStatefulWidget {
   ConsumerState<Camera> createState() => _CameraState();
 }
 
-/// 모드 전환으로 인정하는 최소 스와이프 속도. (px/s)
-const double _swipeVelocityThreshold = 200;
-
 class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   CameraController? _controller;
   Future<void>? _initFuture;
@@ -252,19 +249,13 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
     widget.onViewModeChanged?.call(mode);
   }
 
-  /// 프리뷰 가로 스와이프로 모드를 전환한다. 토글 버튼 배치와 방향을 맞춰,
-  /// 왼쪽으로 밀면 오른쪽 항목(고스트 확대), 오른쪽으로 밀면 왼쪽 항목
-  /// (코너 미니뷰)이 선택된다. (모드가 없는 화면에서는 무시)
+  /// 프리뷰 가로 스와이프로 모드를 전환한다. 방향·감도는 토글 Row 와 같은
+  /// 규칙([guideModeForSwipe])을 쓴다. (모드가 없는 화면에서는 무시)
   void _onHorizontalDragEnd(DragEndDetails details) {
     if (!widget.showViewMode) return;
 
-    final velocity = details.primaryVelocity ?? 0;
-    // 살짝 흔들린 정도는 전환으로 보지 않는다.
-    if (velocity.abs() < _swipeVelocityThreshold) return;
-
-    _onViewModeChanged(
-      velocity < 0 ? GuideViewMode.ghostZoom : GuideViewMode.cornerMini,
-    );
+    final next = guideModeForSwipe(details.primaryVelocity ?? 0);
+    if (next != null) _onViewModeChanged(next);
   }
 
   void _onOpacityChanged(String label) {
