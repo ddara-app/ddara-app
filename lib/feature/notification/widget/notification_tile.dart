@@ -1,4 +1,7 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -14,6 +17,14 @@ const double _thumbnailSize = 72;
 /// payload 에 이미지가 없을 때 보여줄 기본 썸네일.
 /// (72×72 라운드 배경 + 워드마크가 포함된 완성형 asset)
 const String _defaultThumbnailAsset = 'assets/images/notification_default.svg';
+
+/// 잠금 사진에 씌우는 블러 세기.
+/// 홈 카드(12)를 72px 썸네일 크기에 맞춰 줄인 값 — 같은 세기를 쓰면
+/// 사진이 완전히 뭉개져 자물쇠만 남는다.
+const double _lockedBlurSigma = 6;
+
+/// 잠금 썸네일 가운데 자물쇠 크기. (홈 카드 32 를 썸네일 비율에 맞춘 값)
+const double _lockIconSize = 20;
 
 /// 알림 목록의 항목 한 개.
 ///
@@ -58,6 +69,8 @@ class NotificationTile extends StatelessWidget {
         children: [
           _NotificationThumbnail(
             imageUrl: thumbnailObscured ? null : payload.imageUrl,
+            // 잠긴 사진은 지우지 않고 블러로 가린다. (가릴 사진이 있을 때만)
+            locked: !thumbnailObscured && payload.locked,
           ),
           Expanded(
             child: Column(
@@ -96,13 +109,19 @@ class NotificationTile extends StatelessWidget {
 
 /// 알림 좌측 썸네일. 72×72 정사각형(라운드 8) 박스에 payload 이미지를 채운다.
 ///
-/// 사진이 오는 알림(NEW_CYCLE·CYCLE_COMPLETED 의 스타터 가이드샷)만 박스에
-/// 담고, [imageUrl] 이 없으면 배경·라운드가 이미 포함된 완성형 기본 썸네일을
-/// 박스 없이 그대로 그린다. (박스가 겹쳐 이중 라운드가 생기지 않게 한다)
+/// 사진이 오는 알림(NEW_CYCLE·CYCLE_COMPLETED 의 스타터 가이드샷,
+/// FRIEND_SHOT·COMMENT 의 인증샷)만 박스에 담고, [imageUrl] 이 없으면
+/// 배경·라운드가 이미 포함된 완성형 기본 썸네일을 박스 없이 그대로 그린다.
+/// (박스가 겹쳐 이중 라운드가 생기지 않게 한다)
+///
+/// [locked] 면 사진을 블러 처리하고 가운데에 자물쇠를 얹는다. (홈 카드와 동일)
 class _NotificationThumbnail extends StatelessWidget {
-  const _NotificationThumbnail({this.imageUrl});
+  const _NotificationThumbnail({this.imageUrl, this.locked = false});
 
   final String? imageUrl;
+
+  /// 잠긴 사진인지 여부. (블러 + 자물쇠)
+  final bool locked;
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +145,30 @@ class _NotificationThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.xs),
         ),
       ),
-      child: _image(context, url),
+      child: locked ? _lockedImage(context, url) : _image(context, url),
+    );
+  }
+
+  /// 잠금 상태의 썸네일. 사진을 흐리게 깔고 가운데에 자물쇠를 얹는다.
+  Widget _lockedImage(BuildContext context, String url) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ImageFiltered(
+          imageFilter: ImageFilter.blur(
+            sigmaX: _lockedBlurSigma,
+            sigmaY: _lockedBlurSigma,
+          ),
+          child: _image(context, url),
+        ),
+        const Center(
+          child: AppIcon(
+            AppIcons.lock,
+            size: _lockIconSize,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
     );
   }
 
