@@ -23,6 +23,7 @@ class Camera extends ConsumerStatefulWidget {
     super.key,
     this.showOpacity = false,
     this.showViewMode = false,
+    this.initialViewMode = GuideViewMode.cornerMini,
     this.guideImage,
     this.onOpacityChanged,
     this.onViewModeChanged,
@@ -35,6 +36,9 @@ class Camera extends ConsumerStatefulWidget {
 
   /// 모드 토글('코너 미니뷰'/'고스트 확대') 영역 표시 여부.
   final bool showViewMode;
+
+  /// 화면을 열었을 때 선택돼 있을 프리뷰 보조 모드.
+  final GuideViewMode initialViewMode;
 
   /// 따라찍기 가이드(친구가 미리 찍은) 사진. null 이면 미니뷰를 표시하지 않는다.
   final ImageProvider? guideImage;
@@ -55,6 +59,9 @@ class Camera extends ConsumerStatefulWidget {
   ConsumerState<Camera> createState() => _CameraState();
 }
 
+/// 모드 전환으로 인정하는 최소 스와이프 속도. (px/s)
+const double _swipeVelocityThreshold = 200;
+
 class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   CameraController? _controller;
   Future<void>? _initFuture;
@@ -65,7 +72,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
   List<CameraDescription> _cameras = const [];
   int _cameraIndex = 0;
-  GuideViewMode _guideMode = GuideViewMode.cornerMini;
+  late GuideViewMode _guideMode = widget.initialViewMode;
 
   // 투명도 탭 기본 선택('40')과 맞춘다.
   double _guideOpacity = 0.4;
@@ -240,8 +247,24 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   }
 
   void _onViewModeChanged(GuideViewMode mode) {
+    if (_guideMode == mode) return;
     setState(() => _guideMode = mode);
     widget.onViewModeChanged?.call(mode);
+  }
+
+  /// 프리뷰 가로 스와이프로 모드를 전환한다. 토글 버튼 배치와 방향을 맞춰,
+  /// 왼쪽으로 밀면 오른쪽 항목(고스트 확대), 오른쪽으로 밀면 왼쪽 항목
+  /// (코너 미니뷰)이 선택된다. (모드가 없는 화면에서는 무시)
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    if (!widget.showViewMode) return;
+
+    final velocity = details.primaryVelocity ?? 0;
+    // 살짝 흔들린 정도는 전환으로 보지 않는다.
+    if (velocity.abs() < _swipeVelocityThreshold) return;
+
+    _onViewModeChanged(
+      velocity < 0 ? GuideViewMode.ghostZoom : GuideViewMode.cornerMini,
+    );
   }
 
   void _onOpacityChanged(String label) {
@@ -325,11 +348,12 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
         Flexible(
           child: AspectRatio(
             aspectRatio: AppRatio.photo,
-            // 프리뷰 영역 어디서든 핀치로 줌인/아웃. (버튼 탭은 제스처
-            // 아레나에서 탭이 우선되어 그대로 동작한다)
+            // 프리뷰 영역 어디서든 핀치로 줌인/아웃, 가로 스와이프로 모드
+            // 전환. (버튼 탭은 제스처 아레나에서 탭이 우선되어 그대로 동작한다)
             child: GestureDetector(
               onScaleStart: _onScaleStart,
               onScaleUpdate: _onScaleUpdate,
+              onHorizontalDragEnd: _onHorizontalDragEnd,
               child: Stack(
                 children: [
                   Positioned.fill(
@@ -389,6 +413,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
         const SizedBox(height: AppSpacing.s5),
         CameraModeToggle(
           visible: widget.showViewMode,
+          mode: _guideMode,
           onChanged: _onViewModeChanged,
         ),
         CameraBottom(onCapture: _capture),

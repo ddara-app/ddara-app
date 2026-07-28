@@ -7,35 +7,32 @@ enum GuideViewMode { cornerMini, ghostZoom }
 
 /// 프리뷰 바로 아래에 붙는 모드 토글. ('코너 미니뷰' / '고스트 확대')
 ///
-/// 선택 상태는 내부에서 관리하고, 바뀌면 [onChanged] 로 알린다.
+/// 선택 상태는 갖지 않고 [mode] 를 그대로 그린다. 프리뷰 스와이프로도 모드가
+/// 바뀌므로 상태를 화면(부모)이 들고 있어야 두 조작이 어긋나지 않는다.
 /// [visible] 이 false 여도 높이는 유지해, 모드 전환으로 프리뷰가 줄었다
 /// 늘었다 하지 않게 한다.
-class CameraModeToggle extends StatefulWidget {
+class CameraModeToggle extends StatelessWidget {
   const CameraModeToggle({
     super.key,
     this.visible = false,
+    required this.mode,
     required this.onChanged,
   });
 
   /// 토글 표시 여부. (false 면 자리만 차지한다)
   final bool visible;
 
+  /// 현재 선택된 모드.
+  final GuideViewMode mode;
+
   /// 모드가 바뀌었을 때 선택된 모드를 전달한다.
   final ValueChanged<GuideViewMode> onChanged;
 
-  @override
-  State<CameraModeToggle> createState() => _CameraModeToggleState();
-}
-
-class _CameraModeToggleState extends State<CameraModeToggle> {
   static const _duration = Duration(milliseconds: 250);
 
-  GuideViewMode _mode = GuideViewMode.cornerMini;
-
-  void _select(GuideViewMode mode) {
-    if (_mode == mode) return;
-    setState(() => _mode = mode);
-    widget.onChanged(mode);
+  void _select(GuideViewMode next) {
+    if (mode == next) return;
+    onChanged(next);
   }
 
   /// 두 버튼을 딱 붙인 묶음을 좌우로 슬라이드해, 선택된 버튼이 중앙에 오게 한다.
@@ -45,10 +42,10 @@ class _CameraModeToggleState extends State<CameraModeToggle> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final cornerSelected = _mode == GuideViewMode.cornerMini;
+    final cornerSelected = mode == GuideViewMode.cornerMini;
 
     return Visibility(
-      visible: widget.visible,
+      visible: visible,
       maintainSize: true,
       maintainAnimation: true,
       maintainState: true,

@@ -53,7 +53,7 @@ class FollowerPhotoCheck extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.s5),
-        CameraModeToggle(onChanged: (_) {}),
+        CameraModeToggle(mode: GuideViewMode.cornerMini, onChanged: (_) {}),
         // 하단: 카메라 컨트롤 영역을 유지한 채 다시찍기/올리기 버튼을 올린다.
         Stack(
           children: [
