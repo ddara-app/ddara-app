@@ -16,7 +16,7 @@ class CameraBottom extends StatelessWidget {
         left: AppSpacing.s5,
         right: AppSpacing.s5,
         // 모드 토글과 촬영 버튼 사이 간격.
-        top: AppSpacing.s3,
+        top: AppSpacing.s4,
         bottom: AppSpacing.s8,
       ),
       // 간격이 자리마다 달라 Column spacing 대신 각자 여백을 준다.
