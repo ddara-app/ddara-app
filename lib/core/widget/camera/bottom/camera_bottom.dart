@@ -156,7 +156,7 @@ class _CaptureButton extends StatelessWidget {
       child: Container(
         width: _size,
         height: _size,
-        padding: const EdgeInsets.all(AppSpacing.s2),
+        padding: const EdgeInsets.all(AppSpacing.s1),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.textPrimary, width: 4),
