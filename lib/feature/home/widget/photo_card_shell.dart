@@ -40,6 +40,7 @@ class PhotoCardShell extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.topLabel,
+    this.topLabelColor = AppColors.textPrimary,
     this.topIndicatorColor,
     this.topAction,
     this.borderColor,
@@ -61,6 +62,9 @@ class PhotoCardShell extends StatelessWidget {
 
   /// 우상단에 표시할 짧은 라벨. null 이면 표시하지 않는다.
   final String? topLabel;
+
+  /// [topLabel] 글자 색. (끝난 회차처럼 힘을 뺄 때 secondary 로 낮춘다)
+  final Color topLabelColor;
 
   /// [topLabel] 오른쪽에 붙는 상태 점의 색. null 이면 점을 그리지 않는다.
   /// (진행 중 / 진행 종료를 색으로 한눈에 구분)
@@ -143,12 +147,12 @@ class PhotoCardShell extends StatelessWidget {
                     ? _image(null)
                     : BakedProgressiveBlurImage(
                         imageUrl: imageUrl,
-                        sharpUntil: 0.6,
+                        sharpUntil: photoFadeStart,
                         builder: (_) => _image(imageUrl),
                       ),
               ),
-              // 하단 스크림. (텍스트 가독성 확보)
-              const BottomScrim(color: AppColorPrimitives.pureBlack),
+              // 하단 스크림. (텍스트 가독성 확보 — 스타터 헤더와 공유)
+              const BottomScrim.photo(),
               // 잠금: 가운데 자물쇠.
               if (locked)
                 const Center(
@@ -159,6 +163,7 @@ class PhotoCardShell extends StatelessWidget {
                   ),
                 ),
               // 상단 우측 라벨. (모임 카드의 남은 시간·진행 종료 등)
+              // 라벨과 상태 점을 한 덩어리 pill 로 감싸 사진 위에서도 읽힌다.
               if (topLabel != null)
                 Positioned(
                   top: AppSpacing.s4,
@@ -166,21 +171,42 @@ class PhotoCardShell extends StatelessWidget {
                   right: AppSpacing.s4,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Flexible(
-                        child: AppText.caption(
-                          topLabel!,
-                          color: AppColors.textPrimary,
-                          textAlign: TextAlign.right,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.s4,
+                            vertical: AppSpacing.s2,
+                          ),
+                          decoration: ShapeDecoration(
+                            color: AppColors.overlayScrim,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.full,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                child: AppText.caption(
+                                  topLabel!,
+                                  color: topLabelColor,
+                                  textAlign: TextAlign.right,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (topIndicatorColor != null) ...[
+                                const SizedBox(width: AppSpacing.s3),
+                                _StatusDot(color: topIndicatorColor!),
+                              ],
+                            ],
+                          ),
                         ),
                       ),
-                      if (topIndicatorColor != null) ...[
-                        const SizedBox(width: AppSpacing.s3),
-                        _StatusDot(color: topIndicatorColor!),
-                      ],
                     ],
                   ),
                 ),

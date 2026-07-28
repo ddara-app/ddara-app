@@ -231,16 +231,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String meetingRemainingHours(int hours) {
-    return '$hours시간 남음';
+    return '마감 $hours시간 전';
   }
 
   @override
   String meetingRemainingMinutes(int minutes) {
-    return '$minutes분 남음';
+    return '마감 $minutes분 전';
   }
 
   @override
   String get meetingClosed => '진행 종료';
+
+  @override
+  String get meetingNotStarted => '스타터';
 
   @override
   String get groupCreateTitle => '모임 이름을 정해주세요';
@@ -537,7 +540,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String startedHeaderRemaining(String time) {
-    return '진행 중 · $time 남음';
+    return '진행 중 · 마감 $time 전';
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/widget/camera/camera.dart';
+import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 따라찍기 촬영 본문. (가이드 사진 위에 투명도·모드 컨트롤 포함)
@@ -24,6 +25,8 @@ class FollowerCamera extends StatelessWidget {
       // TODO: 모임 상태에 따라 투명도/모드 영역 표시 여부 결정.
       showOpacity: true,
       showViewMode: true,
+      // 따라찍기는 가이드 사진에 구도를 맞추는 게 먼저라 고스트 확대로 시작한다.
+      initialViewMode: GuideViewMode.ghostZoom,
       // 가이드 사진은 갤러리/상세에서 이미 본 스타터 사진이라 디스크 캐시를 공유한다.
       guideImage: guideImageUrl.isEmpty
           ? null
