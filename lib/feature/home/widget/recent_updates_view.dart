@@ -16,7 +16,6 @@ import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/feed_card.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
-import 'package:ddara/feature/home/widget/home_tab_header.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -101,11 +100,7 @@ class RecentUpdatesView extends ConsumerWidget {
 
     return CardGridView(
       items: items,
-      dashboard: HomeDashboard.updateCount(
-        count: state.feed.updateCount,
-        pageIndex: 1,
-        pageCount: homeTabCount,
-      ),
+      dashboard: HomeDashboard.updateCount(count: state.feed.updateCount),
       cardBuilder: (context, item) => FeedCard(
         item: item,
         // 차단한 멤버의 댓글은 미리보기에서 뺀다.

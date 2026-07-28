@@ -5,7 +5,6 @@ import 'package:ddara/feature/home/provider/notifier_provider.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
-import 'package:ddara/feature/home/widget/home_tab_header.dart';
 import 'package:ddara/feature/home/widget/meeting_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,11 +28,7 @@ class GroupListView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CardGridView(
       items: groups,
-      dashboard: HomeDashboard.groupCount(
-        count: groups.length,
-        pageIndex: 0,
-        pageCount: homeTabCount,
-      ),
+      dashboard: HomeDashboard.groupCount(count: groups.length),
       cardBuilder: (context, group) {
         // 차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다.
         final thumbnailBlocked = blockedUserIds.contains(group.thumbnailUserId);

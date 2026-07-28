@@ -1,4 +1,3 @@
-import 'package:ddara/core/design_system/component/indicator/page_indicator.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/group_constraints.dart';
@@ -22,38 +21,24 @@ enum _HomeDashboardVariant {
 /// 홈 화면 우측 상단에 고정되는 요약 위젯.
 ///
 /// 모임 리스트의 지그재그 오프셋을 위해 모임 카드보다 낮은 높이를 갖는다.
-/// 하단 점은 페이지 인디케이터 자리다.
 class HomeDashboard extends StatelessWidget {
   /// 현재 참여 중인 모임 개수([count]/[maxCount]) 대시보드.
   const HomeDashboard.groupCount({
     super.key,
     required this.count,
-    required this.pageIndex,
-    required this.pageCount,
     this.maxCount = maxJoinedGroupCount,
   }) : _variant = _HomeDashboardVariant.groupCount;
 
   /// 친구들의 업데이트 개수([count]개) 대시보드.
-  const HomeDashboard.updateCount({
-    super.key,
-    required this.count,
-    required this.pageIndex,
-    required this.pageCount,
-  }) : maxCount = 0,
-       _variant = _HomeDashboardVariant.updateCount;
+  const HomeDashboard.updateCount({super.key, required this.count})
+    : maxCount = 0,
+      _variant = _HomeDashboardVariant.updateCount;
 
   /// 표시할 개수. (외부 주입)
   final int count;
 
   /// 참여 가능한 최대 모임 개수. (groupCount 변형에서만 사용)
   final int maxCount;
-
-  /// 이 대시보드가 놓인 탭(페이지)의 인덱스. 대시보드는 페이지와 함께
-  /// 스와이프되므로, 점은 자기 탭 위치를 정적으로 켜두면 항상 맞다.
-  final int pageIndex;
-
-  /// 홈 탭(페이지) 개수. (인디케이터 점 개수)
-  final int pageCount;
 
   final _HomeDashboardVariant _variant;
 
@@ -88,36 +73,16 @@ class HomeDashboard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
       ),
+      // 라벨 · 값 · 설명을 s2 간격으로 쌓고, 인디케이터가 빠진 자리만큼
+      // 위아래 여백을 나눠 갖도록 세로 가운데에 둔다.
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpacing.s2,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppText.title(label, color: AppColors.textAccent),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: AppSpacing.s2,
-                  children: [
-                    AppText.display(value),
-                    AppText.caption(caption),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s1),
-          // 하단 페이지 인디케이터. 자기 탭 위치의 점을 켜두고, 가로 중앙에 배치한다.
-          Center(
-            child: PageIndicator(
-              currentIndex: pageIndex,
-              count: pageCount,
-              size: 6,
-              spacing: AppSpacing.s2,
-            ),
-          ),
+          AppText.title(label, color: AppColors.textAccent),
+          AppText.display(value),
+          AppText.caption(caption),
         ],
       ),
     );
