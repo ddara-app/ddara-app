@@ -5,9 +5,8 @@ part 'block_list_response.g.dart';
 
 @freezed
 abstract class BlockListResponse with _$BlockListResponse {
-  const factory BlockListResponse({
-    required List<BlockedUserResponse> blocks,
-  }) = _BlockListResponse;
+  const factory BlockListResponse({required List<BlockedUserResponse> blocks}) =
+      _BlockListResponse;
 
   factory BlockListResponse.fromJson(Map<String, dynamic> json) =>
       _$BlockListResponseFromJson(json);
@@ -18,6 +17,7 @@ abstract class BlockedUserResponse with _$BlockedUserResponse {
   const factory BlockedUserResponse({
     required int userId,
     required String name,
+    required String blockedNickname,
     required DateTime blockedAt,
   }) = _BlockedUserResponse;
 

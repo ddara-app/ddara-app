@@ -1,3 +1,5 @@
+import 'package:ddara/core/model/auth/social_login_type.dart';
+
 /// 로그아웃 진행 상태.
 enum LogoutStatus {
   /// 대기(미진행).
@@ -28,11 +30,40 @@ enum WithdrawStatus {
   fail,
 }
 
-/// 프로필 화면 상태.
-///
-/// 사용자 이름·가입일·앱 버전·연동 계정 등 서버에서 내려받는 정보와
-/// 로그아웃 진행 상태를 함께 보관한다.
-class ProfileState {
+/// 프로필 조회 실패 종류. (사용자 노출 문구는 화면에서 l10n 으로 매핑한다)
+enum ProfileLoadError {
+  /// 사용자를 찾을 수 없음. (탈퇴 등)
+  userNotFound,
+
+  /// 네트워크 등 그 외 조회 실패.
+  loadFailed,
+}
+
+/// 프로필 조회 결과. 로딩·실패·완료가 상호배타인 sealed 설계라
+/// "로딩 중인데 에러", "데이터 있는데 에러" 같은 조합이 타입상 불가능하다.
+sealed class ProfileLoadState {
+  const ProfileLoadState();
+}
+
+final class ProfileLoading extends ProfileLoadState {
+  const ProfileLoading();
+}
+
+/// 조회 실패. (문구 매핑은 화면 담당)
+final class ProfileLoadFailed extends ProfileLoadState {
+  const ProfileLoadFailed(this.error);
+
+  final ProfileLoadError error;
+}
+
+final class ProfileLoaded extends ProfileLoadState {
+  const ProfileLoaded({
+    required this.name,
+    this.profileImageUrl,
+    this.joinedAt,
+    this.provider,
+  });
+
   /// 사용자 이름(닉네임).
   final String name;
 
@@ -42,20 +73,39 @@ class ProfileState {
   /// 가입일.
   final DateTime? joinedAt;
 
-  /// 앱 버전. (예: 'v1.0.0')
+  /// 연동된 소셜 계정. 표시명(label) 변환은 화면이 담당한다.
+  /// (서버가 알 수 없는 provider 코드를 주면 null)
+  final SocialLoginType? provider;
+
+  ProfileLoaded copyWith({
+    String? profileImageUrl,
+    // 기본 이미지로 되돌릴 때 사용. (copyWith 의 null 은 '유지'라 별도 플래그)
+    bool clearProfileImageUrl = false,
+  }) {
+    return ProfileLoaded(
+      name: name,
+      profileImageUrl: clearProfileImageUrl
+          ? null
+          : (profileImageUrl ?? this.profileImageUrl),
+      joinedAt: joinedAt,
+      provider: provider,
+    );
+  }
+}
+
+/// 프로필 화면 상태.
+///
+/// 서로 독립인 채널을 분리해 보관한다 — 조회 결과([load])와 이미지 업로드·
+/// 로그아웃·탈퇴 진행 상태는 서로 조합이 자유롭다.
+class ProfileState {
+  /// 프로필 조회 결과. (로딩/실패/완료)
+  final ProfileLoadState load;
+
+  /// 앱 버전. (예: 'v1.0.0') 서버 조회와 무관하게 채워진다.
   final String appVersion;
-
-  /// 연동된 소셜 계정 이름. (예: '카카오')
-  final String linkedAccount;
-
-  /// 프로필 정보 로딩 여부.
-  final bool isLoading;
 
   /// 프로필 이미지 업로드 진행 여부. (중복 탭 방지 + 진행 표시)
   final bool isImageUploading;
-
-  /// 프로필 정보 로딩 실패 메시지. (없으면 빈 문자열)
-  final String errorMessage;
 
   /// 로그아웃 진행 상태.
   final LogoutStatus logoutStatus;
@@ -64,43 +114,24 @@ class ProfileState {
   final WithdrawStatus withdrawStatus;
 
   const ProfileState({
-    this.name = '',
-    this.profileImageUrl,
-    this.joinedAt,
+    this.load = const ProfileLoading(),
     this.appVersion = '',
-    this.linkedAccount = '',
-    this.isLoading = false,
     this.isImageUploading = false,
-    this.errorMessage = '',
     this.logoutStatus = LogoutStatus.idle,
     this.withdrawStatus = WithdrawStatus.idle,
   });
 
   ProfileState copyWith({
-    String? name,
-    String? profileImageUrl,
-    // 기본 이미지로 되돌릴 때 사용. (copyWith 의 null 은 '유지'라 별도 플래그)
-    bool clearProfileImageUrl = false,
-    DateTime? joinedAt,
+    ProfileLoadState? load,
     String? appVersion,
-    String? linkedAccount,
-    bool? isLoading,
     bool? isImageUploading,
-    String? errorMessage,
     LogoutStatus? logoutStatus,
     WithdrawStatus? withdrawStatus,
   }) {
     return ProfileState(
-      name: name ?? this.name,
-      profileImageUrl: clearProfileImageUrl
-          ? null
-          : (profileImageUrl ?? this.profileImageUrl),
-      joinedAt: joinedAt ?? this.joinedAt,
+      load: load ?? this.load,
       appVersion: appVersion ?? this.appVersion,
-      linkedAccount: linkedAccount ?? this.linkedAccount,
-      isLoading: isLoading ?? this.isLoading,
       isImageUploading: isImageUploading ?? this.isImageUploading,
-      errorMessage: errorMessage ?? this.errorMessage,
       logoutStatus: logoutStatus ?? this.logoutStatus,
       withdrawStatus: withdrawStatus ?? this.withdrawStatus,
     );

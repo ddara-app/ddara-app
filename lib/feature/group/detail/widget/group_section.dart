@@ -7,8 +7,8 @@ class GroupSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.body,
-    this.spacing = AppSpacing.s5,
-    this.titlePadding = const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+    this.spacing = AppSpacing.s6,
+    this.titlePadding = const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
   });
 
   /// 섹션 제목 영역. (예: 헤드라인, 또는 헤드라인 + 더보기 버튼 Row)

@@ -1,13 +1,12 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment_sheet.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// 이미지를 전체 화면으로 크게 보여주는 뷰어.
 ///
@@ -37,6 +36,7 @@ class PhotoViewer extends StatefulWidget {
     this.myProfileImageUrl,
     this.locked = false,
     this.openCommentSheet = false,
+    this.commentUnread = false,
   });
 
   /// 크게 보여줄 이미지.
@@ -84,6 +84,12 @@ class PhotoViewer extends StatefulWidget {
   /// true 면 말풍선을 거치지 않고 처음부터 시트가 올라온 상태로 시작한다.
   final bool openCommentSheet;
 
+  /// 뷰어를 열 때 기준으로, 아직 읽지 않은 댓글이 있는지 여부.
+  /// true 면 우하단 말풍선을 강조 아이콘으로 바꾼다. (카드의 댓글 버튼과 동일)
+  ///
+  /// 시트를 열었다 닫으면 읽은 것으로 보고 이 화면 안에서 강조를 해제한다.
+  final bool commentUnread;
+
   /// 목록 카드와 뷰어를 잇는 Hero 전환 태그. null 이면 전환 애니메이션 없이 표시.
   final Object? heroTag;
 
@@ -128,13 +134,25 @@ class _PhotoViewerState extends State<PhotoViewer>
   /// 닫기 버튼·말풍선의 Gone 상태 판단에 쓴다)
   bool _sheetVisible = false;
 
+  /// 시트를 한 번이라도 열었는지. (닫는 순간 읽음으로 볼지 판단)
+  bool _sheetOpened = false;
+
+  /// 시트를 열었다 닫아 댓글을 읽은 것으로 본 상태.
+  /// (말풍선 강조를 이 화면 안에서 해제하는 데만 쓴다 — 서버 읽음 처리는
+  ///  시트가 목록을 조회하는 시점에 호출부가 따로 한다)
+  bool _commentsRead = false;
+
   @override
   void initState() {
     super.initState();
     // 완전히 닫힌 순간에만 닫기 버튼·말풍선을 되살린다.
+    // 시트를 열었다 닫은 것이므로 그 사이 댓글을 읽은 것으로 보고 강조를 해제한다.
     _sheetController.addStatusListener((status) {
       if (status == AnimationStatus.dismissed) {
-        setState(() => _sheetVisible = false);
+        setState(() {
+          _sheetVisible = false;
+          if (_sheetOpened) _commentsRead = true;
+        });
       }
     });
     // 댓글을 눌러 들어왔으면 시트를 연 상태로 시작한다. 뷰어 자체가 페이드로
@@ -142,6 +160,7 @@ class _PhotoViewerState extends State<PhotoViewer>
     // (첫 조회는 시트가 loadOnInit 으로 알아서 한다)
     if (widget.openCommentSheet) {
       _sheetVisible = true;
+      _sheetOpened = true;
       _sheetController.value = 1;
     }
   }
@@ -154,7 +173,10 @@ class _PhotoViewerState extends State<PhotoViewer>
 
   /// 시트를 연다. (열 때마다 댓글 목록을 다시 조회한다)
   void _openSheet() {
-    setState(() => _sheetVisible = true);
+    setState(() {
+      _sheetVisible = true;
+      _sheetOpened = true;
+    });
     _sheetController.animateTo(1, curve: Curves.easeInOut);
     _sheetKey.currentState?.reload();
   }
@@ -226,8 +248,8 @@ class _PhotoViewerState extends State<PhotoViewer>
                 alignment: Alignment.topRight,
                 child: CupertinoButton(
                   onPressed: _closeViewer,
-                  child: const Icon(
-                    CupertinoIcons.xmark,
+                  child: const AppIcon(
+                    AppIcons.close,
                     color: AppColors.textPrimary,
                   ),
                 ),
@@ -276,7 +298,11 @@ class _PhotoViewerState extends State<PhotoViewer>
                 imageFilter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: rawPicture,
               ),
-              const LockIcon(size: 48, color: AppColors.textPrimary),
+              const AppIcon(
+                AppIcons.lock,
+                size: 48,
+                color: AppColors.textPrimary,
+              ),
             ],
           )
         : rawPicture;
@@ -298,21 +324,24 @@ class _PhotoViewerState extends State<PhotoViewer>
         content,
         if (!_sheetVisible)
           Positioned(
-            right: AppSpacing.s3,
-            bottom: AppSpacing.s3,
+            right: AppSpacing.s4,
+            bottom: AppSpacing.s4,
             child: GestureDetector(
               onTap: _openSheet,
               child: Container(
-                // 아이콘 24 + 패딩 s3(12)×2 = 지름 48 원.
-                padding: const EdgeInsets.all(AppSpacing.s3),
+                // 아이콘 24 + 패딩 s4(12)×2 = 지름 48 원.
+                padding: const EdgeInsets.all(AppSpacing.s4),
                 decoration: const BoxDecoration(
                   color: AppColors.overlayScrim,
                   shape: BoxShape.circle,
                 ),
-                child: SvgPicture.asset(
-                  'assets/images/ic_comment.svg',
-                  width: 24,
-                  height: 24,
+                // 읽지 않은 댓글이 있으면 점이 찍힌 말풍선으로 바꾼다.
+                // (시트를 열었다 닫았으면 읽은 것으로 보고 해제)
+                child: AppIcon(
+                  widget.commentUnread && !_commentsRead
+                      ? AppIcons.commentActive
+                      : AppIcons.comment,
+                  size: 24,
                 ),
               ),
             ),
@@ -328,7 +357,10 @@ Future<void> showPhotoViewer(
   required ImageProvider image,
   required Future<PhotoComment?> Function(String content) onSubmitComment,
   required Future<List<PhotoComment>?> Function() onLoadComments,
-  required Future<PhotoComment?> Function(PhotoComment comment, String newContent)
+  required Future<PhotoComment?> Function(
+    PhotoComment comment,
+    String newContent,
+  )
   onEditComment,
   required Future<bool> Function(PhotoComment comment) onDeleteComment,
   required Future<bool> Function(PhotoComment comment) onReportComment,
@@ -342,6 +374,7 @@ Future<void> showPhotoViewer(
   String? myProfileImageUrl,
   bool locked = false,
   bool openCommentSheet = false,
+  bool commentUnread = false,
 }) {
   return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder(
@@ -360,6 +393,7 @@ Future<void> showPhotoViewer(
         myProfileImageUrl: myProfileImageUrl,
         locked: locked,
         openCommentSheet: openCommentSheet,
+        commentUnread: commentUnread,
         onSubmitComment: onSubmitComment,
         onLoadComments: onLoadComments,
         onEditComment: onEditComment,

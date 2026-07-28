@@ -32,6 +32,8 @@ abstract class CycleGalleryCycleResponse with _$CycleGalleryCycleResponse {
     required String? starterImageUrl,
     // 스타터 사진이 신고 접수로 검토 중인지 여부.
     required bool starterImageUnderReview,
+    // 스타터 사진에 읽지 않은 댓글이 있는지 여부.
+    @Default(false) bool hasUnreadComments,
     required String status,
     required DateTime deadlineAt,
   }) = _CycleGalleryCycleResponse;
@@ -57,6 +59,8 @@ abstract class CycleGalleryMemberResponse with _$CycleGalleryMemberResponse {
     required String? imageUrl,
     // 업로드 시각. 미업로드면 null.
     required DateTime? uploadedAt,
+    // 이 멤버의 사진에 읽지 않은 댓글이 있는지 여부.
+    @Default(false) bool hasUnreadComments,
   }) = _CycleGalleryMemberResponse;
 
   factory CycleGalleryMemberResponse.fromJson(Map<String, dynamic> json) =>

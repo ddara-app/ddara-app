@@ -1,9 +1,8 @@
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/invite_group.dart';
-import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group_join/join_group_page.dart';
+import 'package:ddara/feature/group_join/landing/provider/invite_landing_provider.dart';
 import 'package:ddara/feature/group_join/landing/widget/ddara_invitation_animation.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,8 +26,10 @@ class InviteLandingPage extends ConsumerStatefulWidget {
 }
 
 class _InviteLandingPageState extends ConsumerState<InviteLandingPage> {
-  /// 조회된 모임 정보. (조회 전·실패 시 null)
-  InviteGroup? _group;
+  /// 문구('초대장이 도착했어요') 페이드인 지연.
+  /// DdaraInvitation 은 onReveal 을 제공하지 않아, 편지지가 열리는 프레임에
+  /// 맞춰 이만큼 지연 후 문구를 띄운다. (로띠 마커 기준의 경험값)
+  static const _textRevealDelay = Duration(milliseconds: 900);
 
   /// 조회 완료 여부. (성공·실패 모두 true)
   bool _fetchDone = false;
@@ -52,26 +53,10 @@ class _InviteLandingPageState extends ConsumerState<InviteLandingPage> {
     Future.microtask(
       () => ref.read(pendingInviteCodeProvider.notifier).state = null,
     );
-    // DdaraInvitation 은 onReveal 을 제공하지 않아, 편지지가 열릴 즈음에 맞춰
-    // 지연 후 문구를 페이드인한다.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    // 편지지가 열릴 즈음에 맞춰 지연 후 문구를 페이드인한다.
+    Future.delayed(_textRevealDelay, () {
       if (mounted) setState(() => _textVisible = true);
     });
-    _fetchGroup();
-  }
-
-  /// 초대 코드로 모임 정보를 조회한다. 실패해도 흐름은 그대로 진행한다.
-  Future<void> _fetchGroup() async {
-    try {
-      _group = await ref
-          .read(getInviteGroupUseCaseProvider)(widget.inviteCode);
-    } catch (_) {
-      // 실패해도 같은 화면으로 넘어간다. (_group 은 null 로 둔다)
-      _group = null;
-    } finally {
-      _fetchDone = true;
-      _goIfReady();
-    }
   }
 
   void _onAnimationComplete() {
@@ -96,14 +81,27 @@ class _InviteLandingPageState extends ConsumerState<InviteLandingPage> {
   /// 콘텐츠 페이드아웃이 끝나면 참여 확인 화면으로 전환한다.
   void _onFadeOutEnd() {
     if (!mounted || _visible) return;
+    // 조회 결과(실패·에러면 null)를 그대로 넘긴다. (전환 시점엔 조회가 끝나 있다)
+    final group = ref
+        .read(inviteLandingGroupProvider(widget.inviteCode))
+        .valueOrNull;
     context.pushReplacement(
       RoutePath.joinGroup,
-      extra: JoinGroupArgs(group: _group, inviteCode: widget.inviteCode),
+      extra: JoinGroupArgs(group: group, inviteCode: widget.inviteCode),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // 조회가 끝나면(성공·실패·에러 무관) 전환 준비를 진행한다. provider 를
+    // listen 하면 조회가 시작되고, 완료 시 애니메이션 완료와 맞춰 전환한다.
+    ref.listen(inviteLandingGroupProvider(widget.inviteCode), (prev, next) {
+      if (!next.isLoading && !_fetchDone) {
+        _fetchDone = true;
+        _goIfReady();
+      }
+    });
+
     return CupertinoPageScaffold(
       child: SafeArea(
         // 전환 시작 시 콘텐츠를 먼저 사라지게 한 뒤(_visible=false) 다음 화면으로 넘긴다.
@@ -127,9 +125,7 @@ class _InviteLandingPageState extends ConsumerState<InviteLandingPage> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                DdaraInvitationAnimation(
-                  onCompleted: _onAnimationComplete,
-                ),
+                DdaraInvitationAnimation(onCompleted: _onAnimationComplete),
               ],
             ),
           ),

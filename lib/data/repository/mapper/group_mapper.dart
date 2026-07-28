@@ -1,6 +1,7 @@
 import 'package:ddara/core/model/group/create_group.dart';
 import 'package:ddara/core/model/group/change_nickname.dart';
 import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/core/model/group/cycle_shot_status.dart';
 import 'package:ddara/core/model/group/group_detail.dart';
 import 'package:ddara/core/model/group/history_cycles.dart';
 import 'package:ddara/core/model/group/history_list.dart';
@@ -47,6 +48,7 @@ extension InviteGroupMapper on InviteGroupResponse {
 extension GroupDetailMapper on GroupDetailResponse {
   GroupDetail toDomain() {
     final cycle = currentCycle;
+    final next = nextStarter;
 
     return GroupDetail(
       groupId: groupId,
@@ -76,6 +78,13 @@ extension GroupDetailMapper on GroupDetailResponse {
               startedAt: cycle.startedAt,
               deadlineAt: cycle.deadlineAt,
               uploadedUserIds: cycle.uploadedUserIds,
+            ),
+      nextStarter: next == null
+          ? null
+          : GroupNextStarter(
+              userId: next.userId,
+              nickname: next.nickname,
+              seen: next.seen,
             ),
       createdAt: createdAt,
     );
@@ -155,6 +164,7 @@ extension CycleGalleryMapper on CycleGalleryResponse {
         starterShotId: cycle.starterShotId,
         starterImageUrl: cycle.starterImageUrl,
         starterImageUnderReview: cycle.starterImageUnderReview,
+        hasUnreadComments: cycle.hasUnreadComments,
         status: cycle.status,
         deadlineAt: cycle.deadlineAt,
       ),
@@ -167,9 +177,10 @@ extension CycleGalleryMapper on CycleGalleryResponse {
               nickname: member.nickname,
               profileImageUrl: member.profileImageUrl,
               isStarter: member.isStarter,
-              status: member.status,
+              status: CycleShotStatus.from(member.status),
               imageUrl: member.imageUrl,
               uploadedAt: member.uploadedAt,
+              hasUnreadComments: member.hasUnreadComments,
             ),
           )
           .toList(),
@@ -197,6 +208,7 @@ extension GroupListMapper on GroupListResponse {
                       topic: group.currentCycle!.topic,
                       deadlineAt: group.currentCycle!.deadlineAt,
                     ),
+              showStarterBorder: group.showStarterBorder,
             ),
           )
           .toList(),

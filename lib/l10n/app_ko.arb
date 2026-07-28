@@ -8,6 +8,7 @@
   "commonNext": "다음",
   "commonStart": "시작하기",
   "commonCancel": "취소",
+  "commonRetry": "다시 시도",
 
   "onboardingFirstTitle": "한 장 찍으면 인증샷이 시작",
   "@onboardingFirstTitle": {
@@ -62,6 +63,18 @@
   "@loginViewPolicies": {
     "description": "로그인 화면 약관·정책 확인 링크"
   },
+  "loginErrorUnauthorized": "로그인 인증에 실패했어요. 다시 시도해 주세요.",
+  "@loginErrorUnauthorized": {
+    "description": "로그인 실패 토스트 - 인증 실패"
+  },
+  "loginErrorNetwork": "네트워크 연결을 확인해 주세요.",
+  "@loginErrorNetwork": {
+    "description": "로그인 실패 토스트 - 네트워크 오류"
+  },
+  "loginErrorUnknown": "로그인에 실패했어요. 잠시 후 다시 시도해 주세요.",
+  "@loginErrorUnknown": {
+    "description": "로그인 실패 토스트 - 알 수 없는 오류"
+  },
 
   "termsTitle": "약관에 동의해 주세요",
   "@termsTitle": {
@@ -79,9 +92,25 @@
   "policyServiceTitle": "서비스 이용 약관",
   "policyPrivacyTitle": "개인정보 처리방침",
   "policyYouthTitle": "청소년 보호정책",
+  "signUpErrorInvalidInput": "입력값을 확인해 주세요.",
+  "@signUpErrorInvalidInput": {
+    "description": "회원가입 실패 토스트 - 잘못된 입력값"
+  },
+  "signUpErrorInvalidToken": "소셜 토큰이 만료되었거나 유효하지 않습니다.",
+  "@signUpErrorInvalidToken": {
+    "description": "회원가입 실패 토스트 - 소셜 토큰 만료·무효"
+  },
+  "signUpErrorUnsupportedProvider": "지원하지 않는 로그인 방식입니다.",
+  "@signUpErrorUnsupportedProvider": {
+    "description": "회원가입 실패 토스트 - 미지원 소셜 provider"
+  },
+  "signUpErrorUnknown": "회원가입에 실패했어요. 잠시 후 다시 시도해 주세요.",
+  "@signUpErrorUnknown": {
+    "description": "회원가입 실패 토스트 - 알 수 없는 오류"
+  },
 
   "permissionPageTitle": "권한 안내",
-  "permissionHeaderTitle": "ddara 권한 안내",
+  "permissionHeaderTitle": "이런 권한이 필요해요",
   "permissionHeaderDescription": "꼭 필요한 순간에만 권한을 요청해요.\n요청이 뜨면 허용해 주시면 돼요",
   "permissionSectionRequired": "필수 접근 권한",
   "permissionSectionOptional": "선택 접근 권한",
@@ -93,7 +122,7 @@
   "permissionStorageDescription": "앨범에서 사진을 올릴 때 사용해요",
   "permissionPhotos": "사진",
   "requiredPermissionTitle": "필수 권한을 허용해 주세요",
-  "requiredPermissionDescription": "필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.",
+  "requiredPermissionDescription": "카메라 권한이 있어야 따라찍기를 할 수 있어요",
   "permissionDialogTitle": "{permissionName} 권한이 필요해요",
   "@permissionDialogTitle": {
     "placeholders": { "permissionName": { "type": "String" } }
@@ -108,6 +137,14 @@
   "homeTabRecentUpdates": "최근 업데이트",
   "@homeTabRecentUpdates": {
     "description": "홈 상단 두 번째 탭"
+  },
+  "homeLoadFailed": "목록을 불러오지 못했어요.",
+  "@homeLoadFailed": {
+    "description": "홈 모임 목록 조회 실패 본문"
+  },
+  "feedLoadFailed": "최근 업데이트를 불러오지 못했어요.",
+  "@feedLoadFailed": {
+    "description": "최근 업데이트 피드 조회 실패 (본문·새로고침 실패 토스트 공용)"
   },
   "emptyGroupTitle": "아직 참여한 모임이 없어요",
   "emptyGroupDescription": "첫 판을 시작해 친구들에게 보내보세요",
@@ -163,9 +200,9 @@
       "minutes": { "type": "int" }
     }
   },
-  "meetingClosed": "마감",
+  "meetingClosed": "진행 종료",
   "@meetingClosed": {
-    "description": "마감 시각이 지난 사이클"
+    "description": "마감 시각이 지난 사이클. 모임 카드 우상단 라벨"
   },
 
   "groupCreateTitle": "모임 이름을 정해주세요",
@@ -177,7 +214,19 @@
   "groupCreateSubmit": "만들기",
   "groupCreateNameLengthError": "20자 이하로 입력해주세요",
   "groupCreateIntroLengthError": "100자 이하로 입력해주세요",
+  "groupCreateErrorInvalidName": "모임 이름을 확인해주세요.",
+  "groupCreateErrorUnauthorized": "로그인이 만료되었어요. 다시 로그인해 주세요.",
+  "groupCreateErrorLimitExceeded": "만들 수 있는 모임 개수(최대 20개)를 초과했어요.",
+  "groupCreateErrorUnknown": "네트워크 연결이 불안정해요.",
 
+  "groupJoinErrorInvalidInput": "입력값이 올바르지 않아요.",
+  "groupJoinErrorInvalidCode": "유효하지 않은 초대 코드예요.",
+  "groupJoinErrorGroupNotFound": "존재하지 않는 초대 코드예요.",
+  "groupJoinErrorAlreadyJoined": "이미 참여 중인 모임이에요.",
+  "groupJoinErrorGroupFull": "이미 꽉 찬 모임이에요. 만든 친구에게 물어봐 주세요.",
+  "groupJoinErrorLimitExceeded": "참여할 수 있는 모임 개수를 초과했어요.",
+  "groupJoinErrorDuplicateNickname": "이미 누가 쓰고 있어요. 다른 이름은 어때요?",
+  "groupJoinErrorUnknown": "네트워크 연결이 불안정해요.",
   "groupJoinTitle": "모임 참여",
   "groupJoinHeadline": "받은 초대 코드를 입력해주세요",
   "groupJoinSubtitle": "링크로 받았다면, 링크만 눌러도 바로 들어올 수 있어요",
@@ -227,7 +276,6 @@
   "editNicknameEmptyError": "닉네임을 입력해주세요.",
   "editNicknameSubmit": "수정",
 
-  "groupDetailLoadError": "모임 정보를 불러오지 못했어요.",
   "groupDetailEmptyTitle": "아직 따라찍기가 없어요",
   "groupHeaderStart": "내가 먼저 시작하기",
   "groupHeaderTakePhoto": "따라찍으러 가기",
@@ -393,6 +441,21 @@
   "starterConceptPlaceholder": "예) 마라탕 또 먹기",
   "starterConceptLengthError": "20자 이내로 입력해 주세요",
 
+  "randomStarterResultTitle": "이번 스타터는 {name}님이에요!",
+  "@randomStarterResultTitle": {
+    "description": "슬롯머신 결과로 공개된 스타터 안내",
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "randomStarterResultSubtitle": "첫 판을 시작해 친구들에게 보내보세요",
+  "@randomStarterResultSubtitle": {
+    "description": "스타터 공개 결과 아래 보조 안내"
+  },
+  "randomStarterLoadFailed": "스타터 정보를 불러오지 못했어요",
+  "@randomStarterLoadFailed": {
+    "description": "스타터가 멤버 목록에 없는 등 인자가 유효하지 않을 때 안내"
+  },
   "followerCameraTitle": "따라찍기",
   "photoRetake": "다시 찍기",
   "@photoRetake": {
@@ -470,6 +533,45 @@
   "@commentSendFailed": {
     "description": "전송에 실패한 댓글에서 작성 시각 자리에 대신 뜨는 표시"
   },
+  "commentErrorPhotoDeleted": "이미 삭제된 사진이에요.",
+  "commentErrorNotGroupMember": "해당 모임의 멤버가 아니에요.",
+  "commentErrorLoadFailed": "댓글을 불러오지 못했어요.",
+  "commentErrorInvalidInput": "댓글 내용을 확인해 주세요.",
+  "commentErrorPhotoLocked": "내 인증샷을 올려야 댓글을 달 수 있어요.",
+  "commentErrorPhotoUnderReview": "검토 중인 사진에는 댓글을 달 수 없어요.",
+  "commentErrorSubmitFailed": "댓글을 등록하지 못했어요.",
+  "commentErrorDeleteForbidden": "내가 작성한 댓글만 삭제할 수 있어요.",
+  "commentErrorAlreadyDeleted": "이미 삭제된 댓글이에요.",
+  "commentErrorDeleteFailed": "댓글을 삭제하지 못했어요.",
+  "commentErrorEditForbidden": "내가 작성한 댓글만 수정할 수 있어요.",
+  "commentErrorEditFailed": "댓글을 수정하지 못했어요.",
+  "commentErrorInvalidReport": "신고 내용이 올바르지 않아요.",
+  "commentErrorReportFailed": "신고하지 못했어요.",
+  "groupErrorNotGroupMember": "해당 모임의 멤버가 아니에요.",
+  "groupErrorGroupNotFound": "존재하지 않는 모임이에요.",
+  "groupErrorCycleNotFound": "존재하지 않는 회차예요.",
+  "groupErrorUnauthorized": "로그인이 필요해요.",
+  "groupErrorNetwork": "네트워크 연결이 불안정해요.",
+  "groupErrorGroupLoadFailed": "모임 정보를 불러오지 못했어요.",
+  "groupErrorGalleryLoadFailed": "사진을 불러오지 못했어요.",
+  "groupErrorHistoryLoadFailed": "지난 따라찍기를 불러오지 못했어요.",
+  "groupErrorExitFailed": "모임에서 나가지 못했어요.",
+  "groupErrorReportInvalidInput": "신고 내용이 올바르지 않아요.",
+  "groupErrorReportShotNotFound": "이미 삭제된 사진이에요.",
+  "groupErrorReportUserNotFound": "모임에 없는 사용자예요.",
+  "groupErrorReportFailed": "신고하지 못했어요.",
+  "groupErrorBlockSelf": "자기 자신은 차단할 수 없어요.",
+  "groupErrorBlockTargetNotFound": "존재하지 않는 사용자예요.",
+  "groupErrorBlockFailed": "차단하지 못했어요.",
+  "groupErrorNicknameInvalid": "닉네임은 2~10자로 입력해주세요.",
+  "groupErrorNicknameDuplicate": "이미 누가 쓰고 있어요. 다른 이름은 어때요?",
+  "groupErrorNicknameChangeFailed": "닉네임을 변경하지 못했어요.",
+  "groupErrorStarterInvalidInput": "컨셉 또는 이미지가 올바르지 않아요.",
+  "groupErrorImageUploadFailed": "이미지 업로드에 실패했어요.",
+  "groupErrorNotEnoughMembers": "활동 멤버가 3명 이상이어야 시작할 수 있어요.",
+  "groupErrorCycleAlreadyInProgress": "이미 진행 중인 회차가 있어요.",
+  "groupErrorStarterUploadFailed": "따라찍기를 시작하지 못했어요.",
+  "groupErrorFollowerUploadFailed": "사진을 올리지 못했어요.",
   "commentPendingLeaveTitle": "전송하지 못한 댓글이 있어요",
   "@commentPendingLeaveTitle": {
     "description": "전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 제목"
@@ -519,11 +621,14 @@
   "notificationTitle": "알림",
   "notificationEmptyTitle": "새로운 알림이 없어요",
   "notificationEmptyDescription": "알림을 받으면 여기에 표시돼요",
-  "notificationLabelMemberJoin": "모임 합류",
-  "notificationLabelNewCycle": "따라찍기 시작",
-  "notificationLabelCycleCompleted": "따라찍기 종료",
-  "notificationLabelDeadline": "마감 임박",
+  "notificationLoadFailed": "알림을 불러오지 못했어요.",
+  "@notificationLoadFailed": {
+    "description": "알림 목록 조회 실패 본문"
+  },
   "notificationLabelDefault": "알림",
+  "@notificationLabelDefault": {
+    "description": "알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다."
+  },
   "notificationMessageMemberJoin": "{actor}님이 ‘{groupName}’ 모임에 합류했어요",
   "@notificationMessageMemberJoin": {
     "placeholders": {
@@ -531,8 +636,16 @@
       "groupName": { "type": "String" }
     }
   },
-  "notificationMessageNewCycle": "‘{groupName}’ 모임에서 새로운 따라찍기가 시작됐어요",
+  "notificationMessageNewCycle": "‘{groupName}’에서 {actor}님이 새 따라찍기를 올렸어요",
   "@notificationMessageNewCycle": {
+    "placeholders": {
+      "groupName": { "type": "String" },
+      "actor": { "type": "String" }
+    }
+  },
+  "notificationMessageNewCycleNoActor": "‘{groupName}’에서 새 따라찍기가 시작됐어요",
+  "@notificationMessageNewCycleNoActor": {
+    "description": "NEW_CYCLE payload 에 스타터 닉네임이 없을 때의 대체 문구",
     "placeholders": {
       "groupName": { "type": "String" }
     }
@@ -553,6 +666,26 @@
   "notificationMessageDeadline": "‘{groupName}’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?",
   "@notificationMessageDeadline": {
     "placeholders": {
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageStarterAssigned": "‘{groupName}’에서 랜덤 스타터를 확인해보세요",
+  "@notificationMessageStarterAssigned": {
+    "placeholders": {
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageFriendShot": "‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요",
+  "@notificationMessageFriendShot": {
+    "placeholders": {
+      "actor": { "type": "String" },
+      "groupName": { "type": "String" }
+    }
+  },
+  "notificationMessageComment": "‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요",
+  "@notificationMessageComment": {
+    "placeholders": {
+      "actor": { "type": "String" },
       "groupName": { "type": "String" }
     }
   },
@@ -586,10 +719,14 @@
   "notificationSettingsTitle": "알림 설정",
   "notificationAllow": "알림 허용",
   "notificationSectionActivity": "활동",
-  "notificationFollowShot": "따라찍기 차례",
-  "notificationFollowShotCaption": "새 따라찍기가 열리거나 내 차례일 때",
-  "notificationDeadlineVote": "마감·투표 알림",
-  "notificationDeadlineVoteCaption": "따라찍기 마감 · 베스트 투표",
+  "notificationFollowShot": "따라찍기 알림",
+  "notificationFollowShotCaption": "새 따라찍기가 열리거나 마감될 때",
+  "notificationFriendShot": "다른 친구의 따라찍기 알림",
+  "notificationFriendShotCaption": "같은 모임의 친구가 따라찍기를 올렸을 때",
+  "notificationStarterAssigned": "랜덤 스타터 알림",
+  "notificationStarterAssignedCaption": "랜덤 스타터 지정됐을 때",
+  "notificationComment": "댓글 알림",
+  "notificationCommentCaption": "내 사진에 댓글이 달릴 때",
   "notificationSectionEtc": "기타",
   "notificationMemberJoin": "친구 참여 알림",
   "notificationMemberJoinCaption": "내가 보낸 초대를 친구가 받았을 때",
@@ -607,17 +744,41 @@
   "profileAppVersion": "앱 버전",
   "profileSectionAccount": "계정",
   "profileAccountManage": "계정 관리",
+  "profileErrorUserNotFound": "사용자를 찾을 수 없어요.",
+  "profileLoadFailed": "프로필 정보를 불러오지 못했어요.",
   "profileSectionManage": "관리",
   "profileBlockedUsers": "차단한 유저 목록",
   "blockedUsersTitle": "차단한 유저",
   "blockedUsersEmpty": "차단한 유저가 없어요",
+  "blockedUsersLoadFailed": "차단 목록을 불러오지 못했어요.",
+  "blockedUsersNicknameDate": "{nickname} · {date} 차단",
+  "@blockedUsersNicknameDate": {
+    "description": "차단 목록 항목의 모임 닉네임 · 차단 날짜 요약 (날짜 뒤 '차단' 표기)",
+    "placeholders": {
+      "nickname": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "blockedUsersNotice": "차단한 멤버의 사진은 내 화면에서만 보이지 않습니다.\n상대방에게는 차단 사실이 알려지지 않아요.",
   "blockedUsersUnblock": "차단 해제",
+  "blockedUsersUnblockConfirmTitle": "{name}님의 차단을 해제할까요?",
+  "@blockedUsersUnblockConfirmTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "blockedUsersUnblockConfirmBody": "이 멤버의 사진이 다시 보이게 됩니다.",
+  "blockedUsersUnblockConfirmAction": "해제하기",
   "blockedUsersUnblockedToast": "차단을 해제했어요.",
   "blockedUsersUnblockFailed": "차단을 해제하지 못했어요.",
   "blockedPhotoPlaceholder": "차단한 멤버의 사진입니다.",
   "photoUnderReviewPlaceholder": "신고 접수되어\n검토 중인 사진입니다",
   "photoUnderReviewPlaceholderShort": "신고 접수\n검토중",
   "blockedCycleTopic": "차단한 멤버의 따라찍기",
+  "galleryMyCardLabel": "나",
+  "@galleryMyCardLabel": {
+    "description": "사진 갤러리에서 본인 카드에 닉네임 대신 표시하는 라벨."
+  },
   "profileLinkedAccount": "연동 계정",
   "profileLogout": "로그아웃",
   "profileWithdraw": "회원 탈퇴",
@@ -641,6 +802,7 @@
       "email": { "type": "String" }
     }
   },
+  "profileImageCropTitle": "사진 편집",
   "profileImageSourceTitle": "프로필 사진 변경",
   "profileImageSourceCamera": "사진 촬영",
   "profileImageSourceGallery": "갤러리에서 선택",

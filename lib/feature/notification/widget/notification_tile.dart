@@ -51,24 +51,22 @@ class NotificationTile extends StatelessWidget {
       onTap: onTap,
       // 누르는 동안 살짝 밝게. (앱 전반의 Cupertino 페이드와 일관)
       pressedColor: AppColors.bgSurfaceAlt,
-      padding: const EdgeInsets.all(AppSpacing.s4),
+      padding: const EdgeInsets.all(AppSpacing.s5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpacing.s3,
+        spacing: AppSpacing.s4,
         children: [
           _NotificationThumbnail(
             imageUrl: thumbnailObscured ? null : payload.imageUrl,
-            bare: item.showsBareThumbnail,
           ),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpacing.s2,
+              spacing: AppSpacing.s3,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: AppSpacing.s1,
                   children: [
                     Expanded(
                       child: AppText.caption(
@@ -98,41 +96,26 @@ class NotificationTile extends StatelessWidget {
 
 /// 알림 좌측 썸네일. 72×72 정사각형(라운드 8) 박스에 payload 이미지를 채운다.
 ///
-/// [imageUrl] 이 없거나 로드 실패하면 bg-base 배경만 남긴다.
-/// [bare] 가 true 면 박스(배경·라운드) 없이 이미지만 그대로 그린다. (앱 로고 등)
+/// 사진이 오는 알림(NEW_CYCLE·CYCLE_COMPLETED 의 스타터 가이드샷)만 박스에
+/// 담고, [imageUrl] 이 없으면 배경·라운드가 이미 포함된 완성형 기본 썸네일을
+/// 박스 없이 그대로 그린다. (박스가 겹쳐 이중 라운드가 생기지 않게 한다)
 class _NotificationThumbnail extends StatelessWidget {
-  const _NotificationThumbnail({this.imageUrl, this.bare = false});
+  const _NotificationThumbnail({this.imageUrl});
 
   final String? imageUrl;
-  final bool bare;
 
   @override
   Widget build(BuildContext context) {
     final url = imageUrl;
-
-    if (bare) {
-      // 박스 없이 이미지만. (로고가 잘리지 않도록 contain)
+    if (url == null || url.isEmpty) {
       return SizedBox(
         width: _thumbnailSize,
         height: _thumbnailSize,
-        child: (url == null || url.isEmpty)
-            ? SvgPicture.asset(_defaultThumbnailAsset)
-            : CachedNetworkImage(
-                imageUrl: url,
-                fit: BoxFit.contain,
-                // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
-                memCacheWidth:
-                    (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
-                        .round(),
-                // 로딩 중·로드 실패 모두 기본 썸네일로 대체한다.
-                placeholder: (context, url) =>
-                    SvgPicture.asset(_defaultThumbnailAsset),
-                errorWidget: (context, url, error) =>
-                    SvgPicture.asset(_defaultThumbnailAsset),
-              ),
+        child: SvgPicture.asset(_defaultThumbnailAsset),
       );
     }
 
+    // 박스(bg-base 배경 + 라운드)에 이미지를 채운다. (잘림 방지 clip)
     return Container(
       width: _thumbnailSize,
       height: _thumbnailSize,
@@ -143,21 +126,22 @@ class _NotificationThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.xs),
         ),
       ),
-      child: (url == null || url.isEmpty)
-          ? SvgPicture.asset(_defaultThumbnailAsset)
-          : CachedNetworkImage(
-              imageUrl: url,
-              fit: BoxFit.cover,
-              // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
-              memCacheWidth:
-                  (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
-                      .round(),
-              // 로딩 중·로드 실패 모두 기본 썸네일로 대체한다.
-              placeholder: (context, url) =>
-                  SvgPicture.asset(_defaultThumbnailAsset),
-              errorWidget: (context, url, error) =>
-                  SvgPicture.asset(_defaultThumbnailAsset),
-            ),
+      child: _image(context, url),
+    );
+  }
+
+  /// payload 이미지를 박스에 채워 그린다.
+  /// 로딩 중·로드 실패면 기본 썸네일로 대체한다.
+  Widget _image(BuildContext context, String url) {
+    return CachedNetworkImage(
+      imageUrl: url,
+      fit: BoxFit.cover,
+      // 표시 한 변(물리 픽셀)에 맞춰 디코딩해 메모리 사용을 줄인다.
+      memCacheWidth: (_thumbnailSize * MediaQuery.devicePixelRatioOf(context))
+          .round(),
+      placeholder: (context, url) => SvgPicture.asset(_defaultThumbnailAsset),
+      errorWidget: (context, url, error) =>
+          SvgPicture.asset(_defaultThumbnailAsset),
     );
   }
 }

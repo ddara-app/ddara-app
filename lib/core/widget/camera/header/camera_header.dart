@@ -24,8 +24,8 @@ class CameraHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s4,
-        vertical: AppSpacing.s3,
+        horizontal: AppSpacing.s5,
+        vertical: AppSpacing.s4,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -39,7 +39,7 @@ class CameraHeader extends StatelessWidget {
             maintainState: true,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              spacing: AppSpacing.s3,
+              spacing: AppSpacing.s4,
               children: [
                 AppText.label(AppLocalizations.of(context).cameraOpacityLabel),
                 _OpacityTabs(onChanged: onOpacityChanged),
@@ -66,7 +66,7 @@ class _OpacityTabs extends StatefulWidget {
 class _OpacityTabsState extends State<_OpacityTabs> {
   static const _labels = ['0', '20', '40'];
   static const _itemSize = 24.0;
-  static const _spacing = AppSpacing.s2;
+  static const _spacing = AppSpacing.s3;
   static const _duration = Duration(milliseconds: 200);
 
   int _selectedIndex = _labels.length - 1;
@@ -90,7 +90,7 @@ class _OpacityTabsState extends State<_OpacityTabs> {
     final width = _labels.length * _itemSize + (_labels.length - 1) * _spacing;
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.s1),
+      padding: const EdgeInsets.all(AppSpacing.s2),
       decoration: ShapeDecoration(
         color: AppColors.bgSurface,
         shape: RoundedRectangleBorder(

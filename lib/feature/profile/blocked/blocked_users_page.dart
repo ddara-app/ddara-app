@@ -4,6 +4,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/block/blocked_users.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/profile/blocked/provider/notifier_provider.dart';
 import 'package:ddara/feature/profile/blocked/util/blocked_users_state.dart';
@@ -48,8 +49,8 @@ class BlockedUsersPage extends ConsumerWidget {
 
     final blockedUsers = state.blockedUsers;
     if (blockedUsers == null) {
-      // 조회 실패. (errorMessage 는 notifier 가 채운다)
-      return Center(child: AppText.body(state.errorMessage));
+      // 조회 실패. (로딩이 끝났는데 목록이 없으면 실패로 본다)
+      return Center(child: AppText.body(l10n.blockedUsersLoadFailed));
     }
 
     final users = blockedUsers.users;
@@ -57,27 +58,57 @@ class BlockedUsersPage extends ConsumerWidget {
       return Center(child: AppText.body(l10n.blockedUsersEmpty));
     }
 
+    // 안내 문구를 목록 마지막 항목(footer)으로 붙인다. 유저가 적으면 타일
+    // 바로 아래에, 많아지면 목록 끝(하단)으로 자연스럽게 밀려난다.
+    // (빈 목록은 위에서 조기 반환하므로 안내도 함께 숨는다)
     return ListView.builder(
       padding: EdgeInsets.only(
-        left: AppSpacing.s4,
-        right: AppSpacing.s4,
+        top: AppSpacing.s3,
+        left: AppSpacing.s5,
+        right: AppSpacing.s5,
         // 마지막 항목이 홈 인디케이터와 겹치지 않도록 인셋만큼 더 띄운다.
-        bottom: AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
+        bottom: AppSpacing.s7 + MediaQuery.of(context).padding.bottom,
       ),
-      itemCount: users.length,
-      itemBuilder: (context, index) => _BlockedUserTile(
-        user: users[index],
-        onUnblock: () => _unblock(context, ref, users[index].userId),
-      ),
+      itemCount: users.length + 1,
+      itemBuilder: (context, index) {
+        if (index == users.length) {
+          return Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.s5),
+            child: AppText.caption(
+              l10n.blockedUsersNotice,
+              textAlign: TextAlign.left,
+            ),
+          );
+        }
+        return _BlockedUserTile(
+          user: users[index],
+          // 이 항목이 해제 진행 중이면 버튼 자리에 로딩을 표시한다.
+          isUnblocking: state.unblockingUserIds.contains(users[index].userId),
+          onUnblock: () => _unblock(context, ref, users[index]),
+        );
+      },
     );
   }
 
-  /// 차단을 해제하고 결과를 토스트로 안내한다. (성공 시 목록은 notifier 가 재조회)
-  Future<void> _unblock(BuildContext context, WidgetRef ref, int userId) async {
+  /// 확인 다이얼로그를 띄우고, 확인 시에만 차단을 해제한 뒤 결과를 토스트로
+  /// 안내한다. (성공 시 목록은 notifier 가 재조회)
+  Future<void> _unblock(
+    BuildContext context,
+    WidgetRef ref,
+    BlockedUser user,
+  ) async {
     final l10n = AppLocalizations.of(context);
+    final ok = await AppDialog.show(
+      context,
+      title: l10n.blockedUsersUnblockConfirmTitle(user.name),
+      message: l10n.blockedUsersUnblockConfirmBody,
+      confirmLabel: l10n.blockedUsersUnblockConfirmAction,
+    );
+    if (!ok || !context.mounted) return;
+
     final success = await ref
         .read(blockedUsersNotifierProvider.notifier)
-        .unblock(userId);
+        .unblock(user.userId);
     if (!context.mounted) return;
 
     Toast.showToast(
@@ -92,9 +123,16 @@ class BlockedUsersPage extends ConsumerWidget {
 
 /// 차단한 유저 한 명. (기본 프로필 아이콘 + 차단 정보 + 차단 해제 버튼)
 class _BlockedUserTile extends StatelessWidget {
-  const _BlockedUserTile({required this.user, required this.onUnblock});
+  const _BlockedUserTile({
+    required this.user,
+    required this.isUnblocking,
+    required this.onUnblock,
+  });
 
   final BlockedUser user;
+
+  /// 이 항목의 차단 해제가 진행 중인지. true 면 버튼 대신 로딩을 표시한다.
+  final bool isUnblocking;
 
   /// '차단 해제' 버튼을 눌렀을 때.
   final VoidCallback onUnblock;
@@ -119,15 +157,26 @@ class _BlockedUserTile extends StatelessWidget {
                 spacing: AppSpacing.s1,
                 children: [
                   AppText.label(user.name, color: AppColors.textPrimary),
-                  AppText.caption(formatDate(user.blockedAt)),
+                  AppText.caption(
+                    AppLocalizations.of(context).blockedUsersNicknameDate(
+                      user.blockedNickname,
+                      formatDate(user.blockedAt),
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
-          _UnblockButton(
-            label: AppLocalizations.of(context).blockedUsersUnblock,
-            onPressed: onUnblock,
-          ),
+          if (isUnblocking)
+            const SizedBox(
+              width: _avatarSize,
+              child: Center(child: CupertinoActivityIndicator()),
+            )
+          else
+            _UnblockButton(
+              label: AppLocalizations.of(context).blockedUsersUnblock,
+              onPressed: onUnblock,
+            ),
         ],
       ),
     );
@@ -152,14 +201,16 @@ class _UnblockButton extends StatelessWidget {
       onPressed: onPressed,
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s3,
-          vertical: AppSpacing.s2,
+          horizontal: AppSpacing.s5,
+          vertical: AppSpacing.s3,
         ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.accentDefault),
+        decoration: ShapeDecoration(
+          // 완전히 둥근(pill) 아웃라인. (AppRadius 로는 살짝만 둥글다)
+          shape: const StadiumBorder(
+            side: BorderSide(color: AppColors.borderSelected),
+          ),
         ),
-        child: AppText.label(label, color: AppColors.accentDefault),
+        child: AppText.label(label, color: AppColors.textAccent),
       ),
     );
   }

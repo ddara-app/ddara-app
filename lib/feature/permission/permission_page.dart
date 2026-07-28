@@ -1,5 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
-import 'package:ddara/core/router/pending_invite.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -7,9 +6,8 @@ import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/permission_dialog.dart';
-import 'package:ddara/core/widget/icon/gallery_icon.dart';
 import 'package:ddara/core/widget/title_description.dart';
-import 'package:ddara/feature/permission/permission_request_recovery.dart';
+import 'package:ddara/feature/permission/util/permission_request_recovery.dart';
 import 'package:ddara/feature/permission/widget/permission_item.dart';
 import 'package:ddara/feature/permission/widget/section_label.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -26,69 +24,58 @@ class PermissionPage extends ConsumerStatefulWidget {
 
 class _PermissionPageState extends ConsumerState<PermissionPage>
     with WidgetsBindingObserver, PermissionRequestRecovery {
-  /// 권한 요청이 진행 중인지. 중복 탭·먹통 상태를 막고 버튼을 비활성화한다.
-  bool _busy = false;
-
   /// 확인 버튼: 카메라부터 순차로 권한을 요청한다.
   /// - 허용 → 홈
   /// - 이번 요청에서 프롬프트가 떴고 거부됨 → 필수 권한 안내 페이지
   /// - 이미 영구 거부라 프롬프트가 안 뜨는 경우 → 설정 안내 다이얼로그('취소' 시 필수 권한 안내)
-  Future<void> _onConfirm() async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      final permission = ref.read(permissionServiceProvider);
+  Future<void> _onConfirm() => runBusy(() async {
+    final permission = ref.read(permissionServiceProvider);
 
-      // 요청 '전' 상태로 프롬프트가 뜰지 판단한다.
-      // (iOS 는 첫 거부에도 결과가 permanentlyDenied 로 와서, 결과만으론 구분 불가)
-      final wasBlocked = await permission.isCameraPermanentlyDenied();
+    // 요청 '전' 상태로 프롬프트가 뜰지 판단한다.
+    // (iOS 는 첫 거부에도 결과가 permanentlyDenied 로 와서, 결과만으론 구분 불가)
+    final wasBlocked = await permission.isCameraPermanentlyDenied();
 
-      // 카메라 → 알림 → 저장공간 순차 요청.
-      // 뒤로가기로 다이얼로그를 닫아도 resume 시 상태를 재확인해 매듭짓는다.
-      final cameraResult = await awaitPermission(
-        permission.requestCamera,
-        permission.cameraStatus,
-      );
-      _trackPermissionResult('camera', cameraResult);
-      final notificationResult = await awaitPermission(
-        permission.requestNotification,
-        permission.notificationStatus,
-      );
-      _trackPermissionResult('notification', notificationResult);
-      final photosResult = await awaitPermission(
-        permission.requestPhotos,
-        permission.photosStatus,
-      );
-      _trackPermissionResult('photos', photosResult);
+    // 카메라 → 알림 → 저장공간 순차 요청.
+    // 뒤로가기로 다이얼로그를 닫아도 resume 시 상태를 재확인해 매듭짓는다.
+    final cameraResult = await awaitPermission(
+      permission.requestCamera,
+      permission.cameraStatus,
+    );
+    _trackPermissionResult('camera', cameraResult);
+    final notificationResult = await awaitPermission(
+      permission.requestNotification,
+      permission.notificationStatus,
+    );
+    _trackPermissionResult('notification', notificationResult);
+    final photosResult = await awaitPermission(
+      permission.requestPhotos,
+      permission.photosStatus,
+    );
+    _trackPermissionResult('photos', photosResult);
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      // 카메라 허용 → 보관된 초대코드가 있으면 모임 참여로, 없으면 홈으로.
-      if (cameraResult == PermissionResult.granted) {
-        ref.read(cameraNoticeAcknowledgedProvider.notifier).state = true;
-        if (!mounted) return;
-        await routeAfterAuth(ref, GoRouter.of(context));
-        return;
-      }
-
-      // 이미 영구 거부라 프롬프트가 안 뜨는 경우에만 설정 안내.
-      // '설정으로 이동' 시 머무르고, '취소' 시 필수 권한 안내 페이지로 이동.
-      if (wasBlocked) {
-        final goSettings = await showPermissionDialog(
-          context,
-          permission: permission,
-          permissionName: AppLocalizations.of(context).permissionCamera,
-        );
-        if (goSettings == true) return;
-        if (!mounted) return;
-      }
-
-      // 프롬프트가 떴고 거부됐거나, 설정 다이얼로그에서 취소 → 필수 권한 안내 페이지
-      context.go(RoutePath.requiredPermission);
-    } finally {
-      if (mounted) setState(() => _busy = false);
+    // 카메라 허용 → 보관된 초대코드가 있으면 모임 참여로, 없으면 홈으로.
+    if (cameraResult == PermissionResult.granted) {
+      await onCameraGranted(ref);
+      return;
     }
-  }
+
+    // 이미 영구 거부라 프롬프트가 안 뜨는 경우에만 설정 안내.
+    // '설정으로 이동' 시 머무르고, '취소' 시 필수 권한 안내 페이지로 이동.
+    if (wasBlocked) {
+      final goSettings = await showPermissionDialog(
+        context,
+        permission: permission,
+        permissionName: AppLocalizations.of(context).permissionCamera,
+      );
+      if (goSettings == true) return;
+      if (!mounted) return;
+    }
+
+    // 프롬프트가 떴고 거부됐거나, 설정 다이얼로그에서 취소 → 필수 권한 안내 페이지
+    context.go(RoutePath.requiredPermission);
+  });
 
   /// 권한을 요청하고, 영구 거부 상태면 설정 이동 안내를 띄운다.
   Future<void> _request(
@@ -96,30 +83,24 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
     String permissionName,
     Future<PermissionResult> Function() request,
     Future<PermissionResult> Function() readStatus,
-  ) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      final permission = ref.read(permissionServiceProvider);
-      final result = await awaitPermission(request, readStatus);
-      _trackPermissionResult(permissionKey, result);
-      if (result != PermissionResult.permanentlyDenied) return;
-      if (!mounted) return;
+  ) => runBusy(() async {
+    final permission = ref.read(permissionServiceProvider);
+    final result = await awaitPermission(request, readStatus);
+    _trackPermissionResult(permissionKey, result);
+    if (result != PermissionResult.permanentlyDenied) return;
+    if (!mounted) return;
 
-      await showPermissionDialog(
-        context,
-        permission: permission,
-        permissionName: permissionName,
-      );
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
+    await showPermissionDialog(
+      context,
+      permission: permission,
+      permissionName: permissionName,
+    );
+  });
 
   /// 권한 요청 결과(허용/거부/영구거부)를 Mixpanel 로 전송한다.
   /// permission: camera·notification·photos, result: PermissionResult.name.
   void _trackPermissionResult(String permission, PermissionResult result) {
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'permission_result',
       properties: {'permission': permission, 'result': result.name},
     );
@@ -128,7 +109,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final permission = ref.read(permissionServiceProvider);
+    final permission = ref.watch(permissionServiceProvider);
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -136,32 +117,30 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
         showBackButton: false,
       ),
       child: SafeArea(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
+        child: Padding(
           padding: const EdgeInsets.only(
-            top: 8,
-            left: 20,
-            right: 20,
-            bottom: 16,
+            top: AppSpacing.s3,
+            left: AppSpacing.s5,
+            right: AppSpacing.s5,
+            // 하단 버튼 아래 여백.
+            bottom: AppSpacing.s7,
           ),
-          clipBehavior: Clip.antiAlias,
-          decoration: const BoxDecoration(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 12,
             children: [
               // 헤더
               TitleDescription(
                 title: l10n.permissionHeaderTitle,
                 description: l10n.permissionHeaderDescription,
               ),
+              const SizedBox(height: AppSpacing.s9),
 
               // 필수 접근 권한
               SectionLabel(l10n.permissionSectionRequired),
+              const SizedBox(height: AppSpacing.s4),
               PermissionItem(
-                icon: CupertinoIcons.camera,
+                icon: AppIcons.cameraDefault,
                 title: l10n.permissionCamera,
                 description: l10n.permissionCameraDescription,
                 onTap: () => _request(
@@ -171,11 +150,13 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                   permission.cameraStatus,
                 ),
               ),
+              const SizedBox(height: AppSpacing.s7),
 
               // 선택 접근 권한
               SectionLabel(l10n.permissionSectionOptional),
+              const SizedBox(height: AppSpacing.s4),
               PermissionItem(
-                icon: CupertinoIcons.bell,
+                icon: AppIcons.bell,
                 title: l10n.permissionNotification,
                 description: l10n.permissionNotificationDescription,
                 onTap: () => _request(
@@ -185,11 +166,9 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
                   permission.notificationStatus,
                 ),
               ),
+              const SizedBox(height: AppSpacing.s4),
               PermissionItem(
-                leading: const GalleryIcon(
-                  size: 24,
-                  color: AppColors.textPrimary,
-                ),
+                icon: AppIcons.galleryDefault,
                 title: l10n.permissionStorage,
                 description: l10n.permissionStorageDescription,
                 onTap: () => _request(
@@ -205,7 +184,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
               // 하단 확인 버튼 (요청 중에는 비활성화)
               AppButton(
                 label: l10n.commonConfirm,
-                onPressed: _busy ? null : _onConfirm,
+                onPressed: isBusy ? null : _onConfirm,
               ),
             ],
           ),

@@ -27,7 +27,8 @@
 
 import 'dart:math' as math;
 
-import 'package:ddara/core/design_system/component/button/app_pill_button.dart';
+import 'package:ddara/core/design_system/component/button/app_button.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -45,8 +46,9 @@ const double _itemRise = 20;
 /// 다이얼(FAB·메뉴) 위치. 제자리 FAB 와 Overlay 의 × 가 동일 좌표를 쓰도록 공유.
 const double _dialInset = AppSpacing.s5;
 
-/// 메인 FAB 지름.
-const double _fabSize = 56;
+/// 메뉴 항목 최소 너비. 라벨이 짧아도 버튼이 지나치게 좁아지지 않게 한다.
+const double _menuMinWidth = 120;
+
 
 /// Speed-dial 메뉴 항목 하나. (라벨·강조 여부·탭 동작)
 class SpeedDialAction {
@@ -68,6 +70,9 @@ class SpeedDialAction {
 /// 백드롭·메뉴·×는 루트 Overlay 에 띄워 AppBar 를 포함한 화면 전체를 덮는다.
 class SpeedDialFab extends StatefulWidget {
   const SpeedDialFab({super.key, required this.actions});
+
+  /// 메인 FAB 지름. (홈 그리드가 FAB 에 가리지 않는 하단 패딩 계산에 참조)
+  static const double size = 56;
 
   /// 펼쳤을 때 위→아래로 나열할 액션. (아래 항목일수록 먼저 솟는다)
   final List<SpeedDialAction> actions;
@@ -165,9 +170,9 @@ class _SpeedDialFabState extends State<SpeedDialFab>
             onTap: _toggle,
             child: AnimatedBuilder(
               animation: _c,
+              // 스크림 토큰을 기반으로 진행도에 따라 0→50% 로 짙어진다.
               builder: (_, _) => ColoredBox(
-                color: const Color(0xFF000000)
-                    .withValues(alpha: _c.value * 0.5),
+                color: AppColors.overlayScrim.withValues(alpha: _c.value * 0.5),
               ),
             ),
           ),
@@ -183,17 +188,25 @@ class _SpeedDialFabState extends State<SpeedDialFab>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    // IntrinsicWidth + stretch = 항목들을 가장 긴 항목 기준 동일 폭으로
-                    IntrinsicWidth(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (var i = 0; i < widget.actions.length; i++)
-                            _buildItem(i),
-                        ],
+                    // IntrinsicWidth + stretch = 항목들을 가장 긴 항목 기준 동일 폭으로.
+                    // (그 폭이 최소 너비보다 좁으면 최소 너비를 쓴다)
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: _menuMinWidth,
+                      ),
+                      child: IntrinsicWidth(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: AppSpacing.s3,
+                          children: [
+                            for (var i = 0; i < widget.actions.length; i++)
+                              _buildItem(i),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.s3),
+                    const SizedBox(height: AppSpacing.s4),
                     _buildMainFab(rotate: true),
                   ],
                 ),
@@ -229,26 +242,25 @@ class _SpeedDialFabState extends State<SpeedDialFab>
           ),
         );
       },
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.s3),
-        child: action.filled
-            ? AppPillButton(
-                label: action.label,
-                onPressed: () => _onActionTap(action),
-              )
-            : AppPillButton.outline(
-                label: action.label,
-                onPressed: () => _onActionTap(action),
-              ),
-      ),
+      child: action.filled
+          ? AppButton(
+              label: action.label,
+              onPressed: () => _onActionTap(action),
+            )
+          : AppButton.outline(
+              label: action.label,
+              onPressed: () => _onActionTap(action),
+              // 백드롭 위라 투명이면 뒤 콘텐츠가 비쳐 보인다.
+              backgroundColor: AppColors.bgBase,
+            ),
     );
   }
 
   /// 메인 FAB. [rotate] 면 진행에 맞춰 + 가 × 로 45° 회전한다.
   /// 제자리(페이지) FAB 는 rotate=false(정지된 +), Overlay 의 FAB 는 rotate=true.
   Widget _buildMainFab({required bool rotate}) {
-    Widget icon = const Icon(
-      CupertinoIcons.add,
+    Widget icon = const AppIcon(
+      AppIcons.add,
       color: AppColors.textOnAccent,
       size: 28,
     );
@@ -265,8 +277,8 @@ class _SpeedDialFabState extends State<SpeedDialFab>
     return GestureDetector(
       onTap: _toggle,
       child: Container(
-        width: _fabSize,
-        height: _fabSize,
+        width: SpeedDialFab.size,
+        height: SpeedDialFab.size,
         alignment: Alignment.center,
         decoration: const BoxDecoration(
           color: AppColors.accentDefault,

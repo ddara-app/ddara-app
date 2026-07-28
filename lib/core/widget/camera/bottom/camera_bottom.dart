@@ -75,13 +75,13 @@ class _CameraBottomState extends State<CameraBottom> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        left: AppSpacing.s4,
-        right: AppSpacing.s4,
-        bottom: AppSpacing.s7,
+        left: AppSpacing.s5,
+        right: AppSpacing.s5,
+        bottom: AppSpacing.s8,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        spacing: AppSpacing.s4,
+        spacing: AppSpacing.s5,
         children: [
           // 모드 토글을 숨겨도 높이는 유지해, 하단 버튼 위치가 바뀌지 않게 한다.
           Visibility(
@@ -96,7 +96,7 @@ class _CameraBottomState extends State<CameraBottom> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [_CaptureButton(onPressed: widget.onCapture ?? () {})],
           ),
-          const SizedBox(height: AppSpacing.s3),
+          const SizedBox(height: AppSpacing.s4),
         ],
       ),
     );
@@ -125,7 +125,7 @@ class _ModeButton extends StatelessWidget {
       minimumSize: Size.zero,
       onPressed: onPressed,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s3),
+        padding: const EdgeInsets.all(AppSpacing.s4),
         child: AnimatedDefaultTextStyle(
           duration: _duration,
           curve: Curves.easeInOut,
@@ -156,7 +156,7 @@ class _CaptureButton extends StatelessWidget {
       child: Container(
         width: _size,
         height: _size,
-        padding: const EdgeInsets.all(AppSpacing.s1),
+        padding: const EdgeInsets.all(AppSpacing.s2),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.textPrimary, width: 4),

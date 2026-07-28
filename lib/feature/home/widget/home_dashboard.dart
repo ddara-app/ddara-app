@@ -1,8 +1,14 @@
 import 'package:ddara/core/design_system/component/indicator/page_indicator.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/model/group/group_constraints.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
+
+/// 대시보드 높이. 모임 카드보다 낮게 고정해, 우측 열 카드들이 이 높이 차이만큼
+/// 위로 덜 내려오며 지그재그 오프셋이 만들어진다. (카드 높이는 열 폭 ×
+/// photoCardAspectRatio 로 가변이라 토큰 스케일과 무관한 디자인 고정값)
+const double _dashboardHeight = 142;
 
 /// 대시보드에 담는 내용의 종류. (탭마다 문구 구성이 다르다)
 enum _HomeDashboardVariant {
@@ -24,7 +30,7 @@ class HomeDashboard extends StatelessWidget {
     required this.count,
     required this.pageIndex,
     required this.pageCount,
-    this.maxCount = 20,
+    this.maxCount = maxJoinedGroupCount,
   }) : _variant = _HomeDashboardVariant.groupCount;
 
   /// 친구들의 업데이트 개수([count]개) 대시보드.
@@ -68,15 +74,15 @@ class HomeDashboard extends StatelessWidget {
     };
 
     return Container(
-      // 높이는 카드보다 낮게 고정해 지그재그 오프셋을 만든다. (폭은 열에 맞춰 stretch)
-      height: 142,
-      padding: const EdgeInsets.all(AppSpacing.s4),
+      // 폭은 열에 맞춰 stretch 되고 높이는 고정. (_dashboardHeight 주석 참고)
+      height: _dashboardHeight,
+      padding: const EdgeInsets.all(AppSpacing.s5),
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         gradient: const LinearGradient(
           begin: Alignment(0.50, 0),
           end: Alignment(0.50, 1.00),
-          colors: [AppColors.bgSurface, AppColorPrimitives.sky900],
+          colors: [AppColors.bgSurface, AppColors.bgAccentDeep],
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -93,7 +99,7 @@ class HomeDashboard extends StatelessWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: AppSpacing.s1,
+                  spacing: AppSpacing.s2,
                   children: [
                     AppText.display(value),
                     AppText.caption(caption),
@@ -109,7 +115,7 @@ class HomeDashboard extends StatelessWidget {
               currentIndex: pageIndex,
               count: pageCount,
               size: 6,
-              spacing: AppSpacing.s1,
+              spacing: AppSpacing.s2,
             ),
           ),
         ],

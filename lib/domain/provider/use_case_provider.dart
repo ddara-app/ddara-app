@@ -1,6 +1,7 @@
 import 'package:ddara/core/auth/provider/auth_provider.dart';
 import 'package:ddara/domain/usecase/auth/login_use_case.dart';
 import 'package:ddara/domain/usecase/block/block_user_use_case.dart';
+import 'package:ddara/domain/usecase/block/get_blocked_user_ids_use_case.dart';
 import 'package:ddara/domain/usecase/block/get_blocked_users_use_case.dart';
 import 'package:ddara/domain/usecase/block/unblock_user_use_case.dart';
 import 'package:ddara/domain/usecase/auth/logout_use_case.dart';
@@ -9,6 +10,7 @@ import 'package:ddara/domain/usecase/comment/create_comment_use_case.dart';
 import 'package:ddara/domain/usecase/comment/delete_comment_use_case.dart';
 import 'package:ddara/domain/usecase/comment/edit_comment_use_case.dart';
 import 'package:ddara/domain/usecase/comment/get_comments_use_case.dart';
+import 'package:ddara/domain/usecase/comment/mark_comments_read_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/follower_upload_use_case.dart';
 import 'package:ddara/domain/usecase/feed/get_feed_use_case.dart';
 import 'package:ddara/domain/usecase/cycle/get_cycle_gallery_use_case.dart';
@@ -36,6 +38,7 @@ import '../usecase/group/get_history_cycles_use_case.dart';
 import '../usecase/group/get_history_list_use_case.dart';
 import '../usecase/group/get_invite_group_use_case.dart';
 import '../usecase/group/join_group_use_case.dart';
+import '../usecase/group/mark_next_starter_seen_use_case.dart';
 
 final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
   return LoginUseCase(ref.read(authRepositoryProvider));
@@ -82,6 +85,12 @@ final joinGroupUseCaseProvider = Provider<JoinGroupUseCase>((ref) {
 final exitGroupUseCaseProvider = Provider<ExitGroupUseCase>((ref) {
   return ExitGroupUseCase(ref.read(groupRepositoryProvider));
 });
+
+final markNextStarterSeenUseCaseProvider = Provider<MarkNextStarterSeenUseCase>(
+  (ref) {
+    return MarkNextStarterSeenUseCase(ref.read(groupRepositoryProvider));
+  },
+);
 
 final getHistoryCyclesUseCaseProvider = Provider<GetHistoryCyclesUseCase>((
   ref,
@@ -163,6 +172,12 @@ final getBlockedUsersUseCaseProvider = Provider<GetBlockedUsersUseCase>((ref) {
   return GetBlockedUsersUseCase(ref.read(blockRepositoryProvider));
 });
 
+final getBlockedUserIdsUseCaseProvider = Provider<GetBlockedUserIdsUseCase>((
+  ref,
+) {
+  return GetBlockedUserIdsUseCase(ref.read(blockRepositoryProvider));
+});
+
 final unblockUserUseCaseProvider = Provider<UnblockUserUseCase>((ref) {
   return UnblockUserUseCase(ref.read(blockRepositoryProvider));
 });
@@ -189,6 +204,12 @@ final createCommentUseCaseProvider = Provider<CreateCommentUseCase>((ref) {
 
 final getCommentsUseCaseProvider = Provider<GetCommentsUseCase>((ref) {
   return GetCommentsUseCase(ref.read(commentRepositoryProvider));
+});
+
+final markCommentsReadUseCaseProvider = Provider<MarkCommentsReadUseCase>((
+  ref,
+) {
+  return MarkCommentsReadUseCase(ref.read(commentRepositoryProvider));
 });
 
 final deleteCommentUseCaseProvider = Provider<DeleteCommentUseCase>((ref) {

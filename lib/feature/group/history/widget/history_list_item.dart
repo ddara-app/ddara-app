@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -47,38 +47,44 @@ class HistoryListItem extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return AppSurface(
       // 페이지 배경 위 맨 아이템이라 평소엔 투명, 누르는 동안만 살짝 밝게.
-      color: const Color(0x00000000),
+      color: AppColors.bgTransparent,
       pressedColor: AppColors.bgSurface,
       // 탭 → 해당 사이클의 사진 갤러리로 이동.
       onTap: () => context.push(RoutePath.follower, extra: cycle.cycleId),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s4,
-        children: [
-          _thumbnail(context),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpacing.s1,
-              children: [
-                // 차단한 스타터의 따라찍기는 주제 대신 차단 안내 문구를 보여준다.
-                AppText.titleLarge(
-                  thumbnailBlocked ? l10n.blockedCycleTopic : cycle.topic,
-                  color: thumbnailBlocked ? AppColors.textSecondary : null,
-                ),
-                AppText.caption(
-                  _dateLabel(l10n, cycle.date),
-                  color: AppColors.textSecondary,
-                ),
-                AppText.caption(
-                  l10n.historyParticipantCount(cycle.participantCount),
-                  color: AppColors.textSecondary,
-                ),
-                _participantAvatars(),
-              ],
+      // 세로 제약이 무한대인 스크롤 안이라, stretch 전에 높이를 확정해야 한다.
+      // (안 그러면 자식이 무한 높이를 받아 레이아웃이 깨진다)
+      child: IntrinsicHeight(
+        child: Row(
+          // 텍스트 묶음이 썸네일 높이를 채우고 아바타가 바닥에 붙도록 늘린다.
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpacing.s4,
+          children: [
+            _thumbnail(context),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 차단한 스타터의 따라찍기는 주제 대신 차단 안내 문구를 보여준다.
+                  AppText.titleLarge(
+                    thumbnailBlocked ? l10n.blockedCycleTopic : cycle.topic,
+                    color: thumbnailBlocked ? AppColors.textSecondary : null,
+                  ),
+                  AppText.caption(
+                    _dateLabel(l10n, cycle.date),
+                    color: AppColors.textSecondary,
+                  ),
+                  AppText.caption(
+                    l10n.historyParticipantCount(cycle.participantCount),
+                    color: AppColors.textSecondary,
+                  ),
+                  // 남는 공간을 밀어내 프로필 목록을 바닥에 붙인다.
+                  const Spacer(),
+                  _participantAvatars(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -93,7 +99,7 @@ class HistoryListItem extends StatelessWidget {
       decoration: ShapeDecoration(
         color: AppColors.bgSurface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
       ),
       child: _thumbnailContent(context),
@@ -106,7 +112,7 @@ class HistoryListItem extends StatelessWidget {
       return const ColoredBox(
         color: AppColors.bgSurfaceAlt,
         child: Center(
-          child: LockIcon(size: 32, color: AppColors.bgSurface),
+          child: AppIcon(AppIcons.lock, size: 32, color: AppColors.bgSurface),
         ),
       );
     }

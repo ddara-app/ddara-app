@@ -1,5 +1,5 @@
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -19,9 +19,9 @@ class CommentInputField extends StatelessWidget {
     this.locked = false,
   });
 
-  /// 전송 버튼(알약) 높이. 아이콘 24 + 상하 패딩(s1)×2.
+  /// 전송 버튼(알약) 높이. 아이콘 24 + 상하 패딩(s2)×2.
   /// 입력창 높이를 이 값 기준으로 잡아, 아이콘이 생겨도 높이가 변하지 않게 한다.
-  static const double _sendButtonHeight = 24 + AppSpacing.s1 * 2;
+  static const double _sendButtonHeight = 24 + AppSpacing.s2 * 2;
 
   /// 입력값 컨트롤러. (전송 버튼 표시 여부도 이 값으로 판단한다)
   final TextEditingController controller;
@@ -50,10 +50,10 @@ class CommentInputField extends StatelessWidget {
         width: double.infinity,
         // 우측은 전송 버튼(알약)이 자리하도록 좁게 둔다. (피그마 기준)
         padding: const EdgeInsets.only(
-          top: AppSpacing.s2,
-          left: AppSpacing.s5,
-          right: AppSpacing.s2,
-          bottom: AppSpacing.s2,
+          top: AppSpacing.s3,
+          left: AppSpacing.s6,
+          right: AppSpacing.s3,
+          bottom: AppSpacing.s3,
         ),
         decoration: ShapeDecoration(
           // 잠금(비활성)일 때만 pill 내부를 surface 로 채운다. 입력 가능할 때는
@@ -111,11 +111,11 @@ class _LockTail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.only(left: AppSpacing.s2, right: AppSpacing.s2),
+      padding: EdgeInsets.only(left: AppSpacing.s3, right: AppSpacing.s3),
       child: SizedBox(
         height: CommentInputField._sendButtonHeight,
         child: Center(
-          child: LockIcon(size: 20, color: AppColors.textDisabled),
+          child: AppIcon(AppIcons.lock, size: 20, color: AppColors.textDisabled),
         ),
       ),
     );
@@ -142,11 +142,11 @@ class _SendButton extends StatelessWidget {
         return GestureDetector(
           onTap: () => onSubmit(controller.text),
           child: Padding(
-            padding: const EdgeInsets.only(left: AppSpacing.s3),
+            padding: const EdgeInsets.only(left: AppSpacing.s4),
             child: Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.s3,
-                vertical: AppSpacing.s1,
+                horizontal: AppSpacing.s4,
+                vertical: AppSpacing.s2,
               ),
               decoration: ShapeDecoration(
                 color: AppColors.accentDefault,
@@ -154,8 +154,8 @@ class _SendButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadius.full),
                 ),
               ),
-              child: const Icon(
-                CupertinoIcons.arrow_up,
+              child: const AppIcon(
+                AppIcons.arrowUp,
                 size: 24,
                 color: AppColors.textPrimary,
               ),

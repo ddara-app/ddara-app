@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -7,7 +7,8 @@ import 'package:ddara/core/model/group/invite_group.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group_join/confirm/join_confirm.dart';
+import 'package:ddara/feature/group/detail/group_page.dart';
+import 'package:ddara/feature/group_join/widget/join_confirm.dart';
 import 'package:ddara/feature/group_join/provider/notifier_provider.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
 import 'package:ddara/feature/home/provider/notifier_provider.dart';
@@ -67,7 +68,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
   void initState() {
     super.initState();
     // joinable: 진입 시점에 실제로 참여 가능한 모임이었는지. (만원·이미참여·조회실패 구분용)
-    MixpanelManager.instance.track(
+    AppAnalytics.track(
       'group_join_page_viewed',
       properties: {'joinable': _canJoin},
     );
@@ -95,7 +96,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
     final nicknameError =
         validateNickname(l10n, state.nickname) ??
         (state.errorCode == GroupJoinErrorCode.duplicateGroupNickname
-            ? GroupJoinErrorCode.duplicateGroupNickname.message
+            ? GroupJoinErrorCode.duplicateGroupNickname.message(l10n)
             : null);
 
     // 스텝별 다음 진행 가능 조건.
@@ -108,12 +109,19 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
       // 참여 성공 시 모임 화면으로 이동. (홈 목록을 무효화해 새 모임이 반영되게 한다)
       // 모임 화면의 뒤로가기(AppBar·OS)는 GroupPage 가 항상 홈으로 처리한다.
       if (prev?.joinedGroupId == -1 && next.joinedGroupId > -1) {
-        MixpanelManager.instance.track(
+        AppAnalytics.track(
           'group_join_succeeded',
           properties: {'group_id': next.joinedGroupId},
         );
         ref.invalidate(homeNotifierProvider);
-        context.pushReplacement(RoutePath.group, extra: next.joinedGroupId);
+        // 초대 확인 스텝에서 받은 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
+        context.pushReplacement(
+          RoutePath.group,
+          extra: GroupPageArgs(
+            groupId: next.joinedGroupId,
+            groupName: group?.name,
+          ),
+        );
         return;
       }
 
@@ -121,7 +129,11 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
       // 닉네임 중복은 입력 필드 인라인으로 보여주므로 토스트에서 제외.
       if (errorCode != null &&
           errorCode != GroupJoinErrorCode.duplicateGroupNickname) {
-        Toast.showToast(context, errorCode.message, type: ToastType.error);
+        Toast.showToast(
+          context,
+          errorCode.message(l10n),
+          type: ToastType.error,
+        );
       }
     });
 
@@ -141,10 +153,10 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(
-              left: AppSpacing.s4,
-              right: AppSpacing.s4,
-              top: AppSpacing.s2,
-              bottom: AppSpacing.s4,
+              left: AppSpacing.s5,
+              right: AppSpacing.s5,
+              top: AppSpacing.s3,
+              bottom: AppSpacing.s7,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

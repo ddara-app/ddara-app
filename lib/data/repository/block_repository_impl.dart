@@ -14,9 +14,9 @@ class BlockRepositoryImpl implements BlockRepository {
   BlockRepositoryImpl(this._blockDataSource);
 
   @override
-  Future<void> blockUser(int userId) async {
+  Future<void> blockUser(int userId, {required int groupId}) async {
     try {
-      await _blockDataSource.blockUser(userId);
+      await _blockDataSource.blockUser(userId, groupId: groupId);
     } on DioException catch (e) {
       final code = e.response?.data is Map
           ? BlockErrorCode.fromValue(e.response?.data['code'])

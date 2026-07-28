@@ -1,23 +1,27 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
-import 'package:ddara/core/widget/effect/progressive_blur_image.dart';
-import 'package:ddara/core/widget/icon/lock_icon.dart';
+import 'package:ddara/core/widget/effect/baked_progressive_blur_image.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
-/// 홈 카드의 가로:세로 비율. (디자인 기준 186×245)
+/// 홈 카드의 가로:세로 비율.
 ///
-/// 카드에서 보이던 프레임 그대로 사진을 크게 볼 때도 같은 값을 쓴다.
-const double photoCardAspectRatio = 186 / 245;
+/// 갤러리 카드·모임 헤더와 같은 사진 프레임([AppRatio.photo])을 쓴다.
+/// 카드에서 보이던 프레임 그대로 사진을 크게 볼 때도 같은 값이다.
+const double photoCardAspectRatio = AppRatio.photo;
 
 /// 잠금 사진에 씌우는 블러 세기. (멤버 사진 카드와 동일)
 const double _lockedBlurSigma = 12;
+
+/// 카드를 강조할 때 두르는 테두리 굵기.
+const double _borderWidth = 2;
 
 /// 홈 카드 그리드의 공통 카드 껍데기.
 ///
@@ -36,7 +40,9 @@ class PhotoCardShell extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.topLabel,
+    this.topIndicatorColor,
     this.topAction,
+    this.borderColor,
     this.blocked = false,
     this.underReview = false,
     this.locked = false,
@@ -56,10 +62,17 @@ class PhotoCardShell extends StatelessWidget {
   /// 우상단에 표시할 짧은 라벨. null 이면 표시하지 않는다.
   final String? topLabel;
 
+  /// [topLabel] 오른쪽에 붙는 상태 점의 색. null 이면 점을 그리지 않는다.
+  /// (진행 중 / 진행 종료를 색으로 한눈에 구분)
+  final Color? topIndicatorColor;
+
   /// 카드 상단에 얹을 위젯. 좌우 여백(s3) 안을 가득 쓸 수 있고, 정렬은
   /// 주입한 쪽에서 정한다. null 이면 표시하지 않는다.
   /// ([topLabel] 과 자리가 겹치므로 둘 중 하나만 쓴다)
   final Widget? topAction;
+
+  /// 카드를 강조하는 테두리 색. null 이면 테두리를 두르지 않는다.
+  final Color? borderColor;
 
   /// 사진을 올린 멤버를 차단한 상태인지 여부.
   final bool blocked;
@@ -93,10 +106,21 @@ class PhotoCardShell extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadius.lg),
             ),
           ),
+          // 테두리는 사진 위에 그려야 하므로 foreground 로 얹는다.
+          // (decoration 은 자식 뒤라 꽉 찬 이미지에 가려진다)
+          foregroundDecoration: borderColor == null
+              ? null
+              : ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    side: BorderSide(color: borderColor!, width: _borderWidth),
+                  ),
+                ),
           child: Stack(
             children: [
               // 배경: 차단·검토 자리표시 / 잠금 블러 / 대표 이미지.
               // 잠기지 않은 사진은 하단 스크림 구간에 맞춰 아래로 갈수록 흐려진다.
+              // 점진 블러는 베이크 버전이라 디코딩 직후 1회만 계산해 캐시한다.
               // (잠금 사진은 이미 전체가 블러라 추가로 흐리지 않는다)
               Positioned.fill(
                 child: blocked
@@ -115,37 +139,58 @@ class PhotoCardShell extends StatelessWidget {
                         ),
                         child: _image(imageUrl),
                       )
-                    : ProgressiveBlurImage(
+                    : imageUrl == null
+                    ? _image(null)
+                    : BakedProgressiveBlurImage(
+                        imageUrl: imageUrl,
                         sharpUntil: 0.6,
                         builder: (_) => _image(imageUrl),
                       ),
               ),
-              // 하단 스크림. (텍스트 가독성 + 하단 경계를 배경과 자연스럽게 잇기)
-              const BottomScrim(),
+              // 하단 스크림. (텍스트 가독성 확보)
+              const BottomScrim(color: AppColorPrimitives.pureBlack),
               // 잠금: 가운데 자물쇠.
               if (locked)
                 const Center(
-                  child: LockIcon(size: 32, color: AppColors.textPrimary),
+                  child: AppIcon(
+                    AppIcons.lock,
+                    size: 32,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              // 상단 우측 라벨. (모임 카드의 남은 시간 등)
+              // 상단 우측 라벨. (모임 카드의 남은 시간·진행 종료 등)
               if (topLabel != null)
                 Positioned(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s3,
-                  right: AppSpacing.s3,
-                  child: AppText.caption(
-                    topLabel!,
-                    color: AppColors.textPrimary,
-                    textAlign: TextAlign.right,
+                  top: AppSpacing.s4,
+                  left: AppSpacing.s4,
+                  right: AppSpacing.s4,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: AppText.caption(
+                          topLabel!,
+                          color: AppColors.textPrimary,
+                          textAlign: TextAlign.right,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (topIndicatorColor != null) ...[
+                        const SizedBox(width: AppSpacing.s3),
+                        _StatusDot(color: topIndicatorColor!),
+                      ],
+                    ],
                   ),
                 ),
               // 상단 오버레이. (피드 카드의 댓글 버튼·댓글 미리보기)
               // 좌우 여백만 잡아 주고, 그 안에서의 정렬은 주입한 쪽이 정한다.
               if (topAction != null)
                 Positioned(
-                  top: AppSpacing.s3,
-                  left: AppSpacing.s3,
-                  right: AppSpacing.s3,
+                  top: AppSpacing.s4,
+                  left: AppSpacing.s4,
+                  right: AppSpacing.s4,
                   child: topAction!,
                 ),
               // 하단: 제목 · 부제 (가독성은 위의 스크림 레이어가 담당)
@@ -155,13 +200,12 @@ class PhotoCardShell extends StatelessWidget {
                 bottom: 0,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.s3,
-                    vertical: AppSpacing.s3,
+                    horizontal: AppSpacing.s4,
+                    vertical: AppSpacing.s4,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: AppSpacing.s1,
                     children: [
                       AppText.title(
                         title,
@@ -192,6 +236,25 @@ class PhotoCardShell extends StatelessWidget {
       fit: BoxFit.cover,
       placeholder: (_, _) => const EmptyThumbnail(),
       errorWidget: (_, _, _) => const EmptyThumbnail(),
+    );
+  }
+}
+
+/// 상단 라벨 옆에 붙는 상태 점.
+class _StatusDot extends StatelessWidget {
+  const _StatusDot({required this.color});
+
+  /// 점 지름.
+  static const double _size = 6;
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: _size,
+      height: _size,
+      decoration: ShapeDecoration(color: color, shape: const CircleBorder()),
     );
   }
 }

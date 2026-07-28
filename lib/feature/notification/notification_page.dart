@@ -4,6 +4,8 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
+import 'package:ddara/core/widget/scrollable_page_body.dart';
+import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/notification/provider/notifier_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:ddara/feature/notification/widget/notification_empty.dart';
@@ -35,47 +37,43 @@ class NotificationPage extends ConsumerWidget {
     );
   }
 
+  /// 조회 결과에 따라 화면을 분기한다.
+  /// 로딩 → 인디케이터 / 에러 → 안내 / 알림 없음 → 빈 상태 / 있으면 목록.
   Widget _body(BuildContext context, NotificationState state) {
-    // 첫 조회 중: 로딩 인디케이터.
-    if (state.isLoading) {
-      return const Center(child: CupertinoActivityIndicator());
-    }
+    final l10n = AppLocalizations.of(context);
+    return switch (state) {
+      NotificationLoading() => const Center(
+        child: CupertinoActivityIndicator(),
+      ),
+      NotificationLoadError() => Center(
+        child: AppText.body(l10n.notificationLoadFailed),
+      ),
+      NotificationLoaded(:final items, :final blockedUserIds) =>
+        items.isEmpty
+            ? const Center(child: NotificationEmpty())
+            : _list(context, items, blockedUserIds),
+    };
+  }
 
-    // 조회 실패: 에러 메시지.
-    if (state.errorMessage.isNotEmpty) {
-      return Center(child: AppText.body(state.errorMessage));
-    }
-
-    // 알림이 없으면 빈 상태 화면을 중앙에 보여준다.
-    if (state.isEmpty) {
-      return const Center(child: NotificationEmpty());
-    }
-
-    // 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
+  /// 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
+  Widget _list(
+    BuildContext context,
+    List<NotificationItem> items,
+    Set<int> blockedUserIds,
+  ) {
     return LazyRevealList(
-      items: state.items,
+      items: items,
       pageSize: _pageSize,
-      // 카테고리를 바꾸면 목록이 새로 조회되므로 첫 페이지부터 다시 드러낸다.
-      resetKey: state.category,
-      builder: (context, visibleItems) => SingleChildScrollView(
-        // 끝에서 더 당겨지는 바운스(overscroll)를 막고 가장자리에서 멈춘다.
-        physics: const ClampingScrollPhysics(),
-        // 상단 s3, 좌우 s5, 하단 s6 + Safe Area 인셋 여백. (마지막 알림이
-        // 홈 인디케이터와 겹치지 않도록)
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.s5,
-          AppSpacing.s3,
-          AppSpacing.s5,
-          AppSpacing.s6 + MediaQuery.of(context).padding.bottom,
-        ),
+      // 페이지 여백·스크롤 정책은 공용 ScrollablePageBody 를 따른다.
+      builder: (context, visibleItems) => ScrollablePageBody(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppSpacing.s3,
+          spacing: AppSpacing.s4,
           children: [
             for (final notification in visibleItems)
               NotificationTile(
                 item: notification,
-                blockedUserIds: state.blockedUserIds,
+                blockedUserIds: blockedUserIds,
                 onTap: _onTap(context, notification),
               ),
           ],
@@ -86,8 +84,11 @@ class NotificationPage extends ConsumerWidget {
 
   /// 알림 탭 시 이동할 화면.
   ///
-  /// cycleId 가 있으면(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE) 해당 사이클 갤러리로,
-  /// 없고 groupId 만 있으면(MEMBER_JOIN) 해당 모임 화면으로 이동한다.
+  /// cycleId 가 있으면(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE·FRIEND_SHOT·COMMENT)
+  /// 해당 사이클 갤러리로, 없고 groupId 만 있으면(MEMBER_JOIN·STARTER_ASSIGNED)
+  /// 해당 모임 화면으로 이동한다.
+  /// (COMMENT 의 shotId 로 사진 뷰어까지 바로 여는 건 갤러리 라우트가 사이클
+  ///  단위라 지원하지 않는다 — 갤러리에서 사진을 골라 들어간다)
   VoidCallback? _onTap(BuildContext context, NotificationItem item) {
     final cycleId = item.payload.cycleId;
     if (cycleId != null) {
@@ -96,7 +97,14 @@ class NotificationPage extends ConsumerWidget {
 
     final groupId = item.payload.groupId;
     if (groupId != null) {
-      return () => context.push(RoutePath.group, extra: groupId);
+      // payload 의 모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다.
+      return () => context.push(
+        RoutePath.group,
+        extra: GroupPageArgs(
+          groupId: groupId,
+          groupName: item.payload.groupName,
+        ),
+      );
     }
 
     return null;

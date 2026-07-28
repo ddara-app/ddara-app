@@ -19,10 +19,10 @@ class Record extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(
-        top: AppSpacing.s3,
-        left: AppSpacing.s5,
-        right: AppSpacing.s5,
-        bottom: AppSpacing.s5,
+        top: AppSpacing.s6,
+        left: AppSpacing.s6,
+        right: AppSpacing.s6,
+        bottom: AppSpacing.s6,
       ),
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
@@ -33,7 +33,7 @@ class Record extends StatelessWidget {
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s3,
+        spacing: AppSpacing.s4,
         children: [
           Expanded(
             child: _StatItem(
@@ -65,7 +65,7 @@ class _StatItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: AppSpacing.s1,
+      spacing: AppSpacing.s2,
       children: [
         AppText.display(value),
         AppText.caption(label, color: AppColors.textTertiary),

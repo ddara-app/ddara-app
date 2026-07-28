@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -27,7 +28,8 @@ import 'core/notification/provider/fcm_token_sync.dart';
 import 'core/router/app_router.dart';
 import 'core/router/route_path.dart';
 import 'data/provider/repository_provider.dart';
-import 'feature/onboarding/provider/onboarding_provider.dart';
+import 'feature/group/detail/group_page.dart';
+import 'feature/onboarding/provider/notifier_provider.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -41,7 +43,7 @@ Future<void> main() async {
     await dotenv.load(fileName: '.env');
     KakaoSdk.init(nativeAppKey: dotenv.get("KAKAO_NATIVE_APP_KEY"));
     await MixpanelManager.init();
-    await _initCrashReporting();
+    await _initFirebase();
     _registerFcmBackgroundHandler();
     SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayStyle);
 
@@ -66,11 +68,11 @@ Future<void> main() async {
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
-/// Firebase 초기화 + Crashlytics 에러 보고 연결 + Performance 수집 설정.
+/// Firebase 초기화 + Crashlytics 에러 보고 연결 + Performance·Analytics 수집 설정.
 ///
 /// Doze 복귀 직후 Play Services 불안정 등으로 초기화가 멈추거나 실패해도 앱은
 /// 계속 실행한다. (Crashlytics 없이 동작 — 스플래시만 붙잡지 않는다)
-Future<void> _initCrashReporting() async {
+Future<void> _initFirebase() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -88,6 +90,13 @@ Future<void> _initCrashReporting() async {
     // 디버그 빌드의 성능 데이터가 콘솔 지표를 오염시키지 않도록
     // Performance 수집은 릴리스 빌드에서만 켠다.
     await FirebasePerformance.instance.setPerformanceCollectionEnabled(
+      kReleaseMode,
+    );
+
+    // 같은 이유로 Analytics 수집도 릴리스 빌드에서만 켠다.
+    // (개발 중 이벤트 확인은 DebugView 를 켜고 확인한다 —
+    //  docs/tech_stack.md 의 Firebase Analytics 항목 참고)
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
       kReleaseMode,
     );
   } catch (_) {
@@ -184,24 +193,37 @@ class _MyAppState extends ConsumerState<MyApp> {
     }
   }
 
-  /// 알림 탭 시 payload(data)의 type·id 로 해당 화면으로 이동한다.
+  /// 알림 탭 시 payload(data)의 id 로 해당 화면으로 이동한다.
   ///
-  /// - MEMBER_JOIN → 그룹 상세(groupId)
-  /// - NEW_CYCLE·CYCLE_COMPLETED·DEADLINE → 사이클 갤러리(cycleId)
+  /// - cycleId 가 있으면(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE·FRIEND_SHOT·COMMENT)
+  ///   사이클 갤러리로.
+  /// - 없고 groupId 만 있으면(MEMBER_JOIN·STARTER_ASSIGNED) 모임 상세로.
+  ///
+  /// 알림 목록의 탭 처리(notification_page)와 같은 규칙이라, 알림 종류가 늘어도
+  /// 두 진입점이 함께 대응한다. (FCM data 는 값이 모두 문자열이라 파싱해서 쓴다)
   void _handleNotificationTap(Map<String, dynamic> data) {
     final router = ref.read(routerProvider);
-    switch (data['type']) {
-      case 'MEMBER_JOIN':
-        final groupId = int.tryParse('${data['groupId']}');
-        if (groupId != null) router.push(RoutePath.group, extra: groupId);
-      case 'NEW_CYCLE':
-      case 'CYCLE_COMPLETED':
-      case 'DEADLINE':
-        final cycleId = int.tryParse('${data['cycleId']}');
-        if (cycleId != null) router.push(RoutePath.follower, extra: cycleId);
-      default:
-        debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
+
+    final cycleId = int.tryParse('${data['cycleId']}');
+    if (cycleId != null) {
+      router.push(RoutePath.follower, extra: cycleId);
+      return;
     }
+
+    final groupId = int.tryParse('${data['groupId']}');
+    if (groupId != null) {
+      // data 의 모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다.
+      router.push(
+        RoutePath.group,
+        extra: GroupPageArgs(
+          groupId: groupId,
+          groupName: data['groupName'] as String?,
+        ),
+      );
+      return;
+    }
+
+    debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
   }
 
   /// 콜드 스타트 시 스플래시를 네트워크에 묶지 않기 위해, 로컬 토큰으로 낙관적

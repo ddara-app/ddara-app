@@ -7,6 +7,9 @@ import 'package:flutter/widgets.dart';
 class NotificationEmpty extends StatelessWidget {
   const NotificationEmpty({super.key});
 
+  /// 빈 상태 일러스트 이미지 폭.
+  static const double _imageWidth = 160;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -19,10 +22,10 @@ class NotificationEmpty extends StatelessWidget {
           description: l10n.notificationEmptyDescription,
           centered: true,
         ),
-        const SizedBox(height: AppSpacing.s3),
+        const SizedBox(height: AppSpacing.s4),
         Image.asset(
           'assets/images/empty_notification.png',
-          width: 160,
+          width: _imageWidth,
           fit: BoxFit.contain,
         ),
       ],

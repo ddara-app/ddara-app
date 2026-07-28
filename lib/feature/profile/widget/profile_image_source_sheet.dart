@@ -1,6 +1,7 @@
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/widget/icon/gallery_icon.dart';
+import 'package:ddara/core/widget/bottom_sheet/sheet_scaffold.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -45,64 +46,31 @@ class ProfileImageSourceSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.s5,
-            AppSpacing.s3,
-            AppSpacing.s5,
-            AppSpacing.s5,
+    return SheetScaffold(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppText.headlineMedium(l10n.profileImageSourceTitle),
+          const SizedBox(height: AppSpacing.s4),
+          _SourceTile(
+            icon: AppIcons.cameraDefault,
+            label: l10n.profileImageSourceCamera,
+            onTap: () => Navigator.of(context).pop(ProfileImageSource.camera),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 드래그 핸들
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: AppSpacing.s4),
-                  decoration: const ShapeDecoration(
-                    color: AppColors.borderStrong,
-                    shape: StadiumBorder(),
-                  ),
-                ),
-              ),
-              AppText.headlineMedium(l10n.profileImageSourceTitle),
-              const SizedBox(height: AppSpacing.s3),
-              _SourceTile(
-                icon: CupertinoIcons.camera,
-                label: l10n.profileImageSourceCamera,
-                onTap: () =>
-                    Navigator.of(context).pop(ProfileImageSource.camera),
-              ),
-              _SourceTile(
-                leading: const GalleryIcon(
-                  size: 24,
-                  color: AppColors.textPrimary,
-                ),
-                label: l10n.profileImageSourceGallery,
-                onTap: () =>
-                    Navigator.of(context).pop(ProfileImageSource.gallery),
-              ),
-              // 등록된 이미지가 있을 때만 기본 이미지로 되돌리기를 제시한다.
-              if (showReset)
-                _SourceTile(
-                  icon: CupertinoIcons.person_crop_circle,
-                  label: l10n.profileImageSourceReset,
-                  onTap: () =>
-                      Navigator.of(context).pop(ProfileImageSource.reset),
-                ),
-            ],
+          _SourceTile(
+            icon: AppIcons.galleryDefault,
+            label: l10n.profileImageSourceGallery,
+            onTap: () => Navigator.of(context).pop(ProfileImageSource.gallery),
           ),
-        ),
+          // 등록된 이미지가 있을 때만 기본 이미지로 되돌리기를 제시한다.
+          if (showReset)
+            _SourceTile(
+              icon: AppIcons.personCropCircle,
+              label: l10n.profileImageSourceReset,
+              onTap: () => Navigator.of(context).pop(ProfileImageSource.reset),
+            ),
+        ],
       ),
     );
   }
@@ -111,30 +79,26 @@ class ProfileImageSourceSheet extends StatelessWidget {
 /// 시트 안의 소스 선택 행. 좌측 아이콘 + 라벨로 구성한다.
 class _SourceTile extends StatelessWidget {
   const _SourceTile({
-    this.icon,
-    this.leading,
+    required this.icon,
     required this.label,
     required this.onTap,
-  }) : assert(icon != null || leading != null, 'icon 또는 leading 중 하나는 필요');
+  });
 
-  /// 좌측 아이콘. [leading] 이 없을 때 [Icon] 으로 그린다.
-  final IconData? icon;
-
-  /// 좌측 아이콘을 직접 지정할 때. (예: SVG) 있으면 [icon] 대신 이걸 그린다.
-  final Widget? leading;
+  /// 좌측 아이콘.
+  final AppIconData icon;
   final String label;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
       minimumSize: Size.zero,
       onPressed: onTap,
       child: Row(
         children: [
-          leading ?? Icon(icon, size: 24, color: AppColors.textPrimary),
-          const SizedBox(width: AppSpacing.s3),
+          AppIcon(icon, size: 24, color: AppColors.textPrimary),
+          const SizedBox(width: AppSpacing.s4),
           AppText.body(label),
         ],
       ),

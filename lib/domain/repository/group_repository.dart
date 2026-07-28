@@ -25,6 +25,10 @@ abstract interface class GroupRepository {
 
   Future<void> exitGroup(int groupId);
 
+  /// 다음 스타터 공개를 확인했다고 서버에 표시한다. (이후 상세 조회의
+  /// nextStarter.seen 이 true 로 내려온다)
+  Future<void> markNextStarterSeen(int groupId);
+
   /// 모임 페이지 프리뷰용 지난 따라찍기. (경량)
   Future<HistoryCycles> getHistoryCycles(int groupId);
 

@@ -277,7 +277,7 @@ as List<BlockedUser>,
 /// @nodoc
 mixin _$BlockedUser {
 
- int get userId; String get name; DateTime get blockedAt;
+ int get userId; String get name; String get blockedNickname; DateTime get blockedAt;
 /// Create a copy of BlockedUser
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -288,16 +288,16 @@ $BlockedUserCopyWith<BlockedUser> get copyWith => _$BlockedUserCopyWithImpl<Bloc
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BlockedUser&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.blockedAt, blockedAt) || other.blockedAt == blockedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BlockedUser&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.blockedNickname, blockedNickname) || other.blockedNickname == blockedNickname)&&(identical(other.blockedAt, blockedAt) || other.blockedAt == blockedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,userId,name,blockedAt);
+int get hashCode => Object.hash(runtimeType,userId,name,blockedNickname,blockedAt);
 
 @override
 String toString() {
-  return 'BlockedUser(userId: $userId, name: $name, blockedAt: $blockedAt)';
+  return 'BlockedUser(userId: $userId, name: $name, blockedNickname: $blockedNickname, blockedAt: $blockedAt)';
 }
 
 
@@ -308,7 +308,7 @@ abstract mixin class $BlockedUserCopyWith<$Res>  {
   factory $BlockedUserCopyWith(BlockedUser value, $Res Function(BlockedUser) _then) = _$BlockedUserCopyWithImpl;
 @useResult
 $Res call({
- int userId, String name, DateTime blockedAt
+ int userId, String name, String blockedNickname, DateTime blockedAt
 });
 
 
@@ -325,10 +325,11 @@ class _$BlockedUserCopyWithImpl<$Res>
 
 /// Create a copy of BlockedUser
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? name = null,Object? blockedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? name = null,Object? blockedNickname = null,Object? blockedAt = null,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,blockedNickname: null == blockedNickname ? _self.blockedNickname : blockedNickname // ignore: cast_nullable_to_non_nullable
 as String,blockedAt: null == blockedAt ? _self.blockedAt : blockedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -415,10 +416,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String name,  DateTime blockedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String name,  String blockedNickname,  DateTime blockedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BlockedUser() when $default != null:
-return $default(_that.userId,_that.name,_that.blockedAt);case _:
+return $default(_that.userId,_that.name,_that.blockedNickname,_that.blockedAt);case _:
   return orElse();
 
 }
@@ -436,10 +437,10 @@ return $default(_that.userId,_that.name,_that.blockedAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String name,  DateTime blockedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String name,  String blockedNickname,  DateTime blockedAt)  $default,) {final _that = this;
 switch (_that) {
 case _BlockedUser():
-return $default(_that.userId,_that.name,_that.blockedAt);case _:
+return $default(_that.userId,_that.name,_that.blockedNickname,_that.blockedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -456,10 +457,10 @@ return $default(_that.userId,_that.name,_that.blockedAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String name,  DateTime blockedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String name,  String blockedNickname,  DateTime blockedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _BlockedUser() when $default != null:
-return $default(_that.userId,_that.name,_that.blockedAt);case _:
+return $default(_that.userId,_that.name,_that.blockedNickname,_that.blockedAt);case _:
   return null;
 
 }
@@ -471,11 +472,12 @@ return $default(_that.userId,_that.name,_that.blockedAt);case _:
 
 
 class _BlockedUser implements BlockedUser {
-  const _BlockedUser({required this.userId, required this.name, required this.blockedAt});
+  const _BlockedUser({required this.userId, required this.name, required this.blockedNickname, required this.blockedAt});
   
 
 @override final  int userId;
 @override final  String name;
+@override final  String blockedNickname;
 @override final  DateTime blockedAt;
 
 /// Create a copy of BlockedUser
@@ -488,16 +490,16 @@ _$BlockedUserCopyWith<_BlockedUser> get copyWith => __$BlockedUserCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BlockedUser&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.blockedAt, blockedAt) || other.blockedAt == blockedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BlockedUser&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.blockedNickname, blockedNickname) || other.blockedNickname == blockedNickname)&&(identical(other.blockedAt, blockedAt) || other.blockedAt == blockedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,userId,name,blockedAt);
+int get hashCode => Object.hash(runtimeType,userId,name,blockedNickname,blockedAt);
 
 @override
 String toString() {
-  return 'BlockedUser(userId: $userId, name: $name, blockedAt: $blockedAt)';
+  return 'BlockedUser(userId: $userId, name: $name, blockedNickname: $blockedNickname, blockedAt: $blockedAt)';
 }
 
 
@@ -508,7 +510,7 @@ abstract mixin class _$BlockedUserCopyWith<$Res> implements $BlockedUserCopyWith
   factory _$BlockedUserCopyWith(_BlockedUser value, $Res Function(_BlockedUser) _then) = __$BlockedUserCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, String name, DateTime blockedAt
+ int userId, String name, String blockedNickname, DateTime blockedAt
 });
 
 
@@ -525,10 +527,11 @@ class __$BlockedUserCopyWithImpl<$Res>
 
 /// Create a copy of BlockedUser
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? name = null,Object? blockedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? name = null,Object? blockedNickname = null,Object? blockedAt = null,}) {
   return _then(_BlockedUser(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,blockedNickname: null == blockedNickname ? _self.blockedNickname : blockedNickname // ignore: cast_nullable_to_non_nullable
 as String,blockedAt: null == blockedAt ? _self.blockedAt : blockedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));

@@ -2,6 +2,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../../core/design_system/component/divider/app_divider.dart';
+import '../../../core/design_system/component/icon/app_icon.dart';
 import '../../../core/design_system/component/surface/app_surface.dart';
 import '../../../core/design_system/component/text/app_text.dart';
 
@@ -41,7 +42,7 @@ class ProfileSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText.label(label),
-        const SizedBox(height: AppSpacing.s3),
+        const SizedBox(height: AppSpacing.s4),
         AppSurface(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -101,7 +102,7 @@ class ProfileRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final row = Padding(
-      padding: const EdgeInsets.all(AppSpacing.s4),
+      padding: const EdgeInsets.all(AppSpacing.s5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -133,8 +134,8 @@ class ProfileChevron extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(
-      CupertinoIcons.chevron_forward,
+    return const AppIcon(
+      AppIcons.chevronForward,
       size: 20,
       color: AppColors.textSecondary,
     );

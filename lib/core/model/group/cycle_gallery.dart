@@ -1,3 +1,4 @@
+import 'package:ddara/core/model/group/cycle_shot_status.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'cycle_gallery.freezed.dart';
@@ -28,6 +29,8 @@ abstract class CycleGalleryCycle with _$CycleGalleryCycle {
     required String? starterImageUrl,
     // 스타터 사진이 신고 접수로 검토 중인지 여부.
     required bool starterImageUnderReview,
+    // 스타터 사진에 읽지 않은 댓글이 있는지 여부. (댓글 버튼 강조 표시에 사용)
+    required bool hasUnreadComments,
     required String status,
     required DateTime deadlineAt,
   }) = _CycleGalleryCycle;
@@ -43,12 +46,13 @@ abstract class CycleGalleryMember with _$CycleGalleryMember {
     // 프로필 이미지 URL. 없으면 null.
     required String? profileImageUrl,
     required bool isStarter,
-    // 사진 카드 상태.
-    // (open: 공개 / empty: 미업로드 / locked: 잠금 / reported: 신고 검토 중)
-    required String status,
+    // 사진 카드 상태. (서버 문자열을 enum 으로 변환해 담는다)
+    required CycleShotStatus status,
     // 멤버가 따라찍은 사진 URL. 없으면 null.
     required String? imageUrl,
     // 업로드 시각. 미업로드면 null.
     required DateTime? uploadedAt,
+    // 이 멤버의 사진에 읽지 않은 댓글이 있는지 여부. (댓글 버튼 강조 표시에 사용)
+    required bool hasUnreadComments,
   }) = _CycleGalleryMember;
 }

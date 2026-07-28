@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/firebase_analytics_manager.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -9,6 +10,7 @@ import '../../data/provider/repository_provider.dart';
 import '../../feature/group_create/group_create_page.dart';
 import '../../feature/group/follower/follower_camera_page.dart';
 import '../../feature/group/gallery/cycle_photo_gallery.dart';
+import '../../feature/group/random_starter/random_starter_page.dart';
 import '../../feature/group/starter/starter_page.dart';
 import '../../feature/group/detail/group_page.dart';
 import '../../feature/group/history/history_list_page.dart';
@@ -18,14 +20,14 @@ import '../../feature/group_join/landing/invite_landing_page.dart';
 import '../../feature/home/home_page.dart';
 import '../../feature/notification/notification_page.dart';
 import '../../feature/onboarding/onboarding_page.dart';
-import '../../feature/onboarding/provider/onboarding_provider.dart';
+import '../../feature/onboarding/provider/notifier_provider.dart';
 import '../../feature/permission/permission_page.dart';
 import '../../feature/profile/account/account_manage_page.dart';
 import '../../feature/profile/blocked/blocked_users_page.dart';
 import '../../feature/profile/profile_page.dart';
-import '../../feature/profile/policy/policy_viewer_page.dart';
+import '../widget/policy/policy_viewer_page.dart';
 import '../../feature/profile/policy/terms_policy_page.dart';
-import '../../feature/profile/settings/notification_settings.dart';
+import '../../feature/profile/settings/notification_settings_page.dart';
 import '../../feature/permission/required_permission_page.dart';
 import '../../feature/sign/login/login_page.dart';
 import '../../feature/sign/signup/sign_up_page.dart';
@@ -122,6 +124,9 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: refresh,
+    // 화면 전환을 Firebase Analytics 의 screen_view 로 자동 기록한다.
+    // (라우트 이름이 없는 화면은 경로가 그대로 화면 이름이 된다)
+    observers: [FirebaseAnalyticsManager.observer],
     redirect: (context, state) async {
       // 라우터를 재생성하지 않으므로 매 평가 시 최신 인증 상태를 읽는다.
       final isLoggedIn = ref.read(authStateProvider).valueOrNull ?? false;
@@ -169,9 +174,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: RoutePath.requiredPermission,
         builder: (_, _) => const RequiredPermissionPage(),
       ),
+      // 모임 상세. 호출부가 모임 이름을 알면 [GroupPageArgs] 로 함께 넘겨
+      // 조회 전에도 AppBar 제목이 비지 않게 한다. (id 만 아는 진입도 허용)
       GoRoute(
         path: RoutePath.group,
-        builder: (_, state) => GroupPage(groupId: state.extra! as int),
+        builder: (_, state) {
+          final extra = state.extra;
+          final args = extra is GroupPageArgs
+              ? extra
+              : GroupPageArgs(groupId: extra! as int);
+
+          return GroupPage(
+            groupId: args.groupId,
+            groupName: args.groupName,
+            hasCurrentCycle: args.hasCurrentCycle,
+            thumbnailUrl: args.thumbnailUrl,
+          );
+        },
       ),
       GoRoute(path: RoutePath.profile, builder: (_, _) => const ProfilePage()),
       GoRoute(
@@ -184,7 +203,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RoutePath.notificationSettings,
-        builder: (_, _) => const NotificationSettings(),
+        builder: (_, _) => const NotificationSettingsPage(),
       ),
       GoRoute(
         path: RoutePath.termsPolicy,
@@ -269,6 +288,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePath.starter,
         builder: (_, state) => StarterPage(groupId: state.extra! as int),
+      ),
+      // 스타터 랜덤 지정 공개 모션. CTA 는 공개된 스타터(GroupMember)를
+      // 결과로 pop 하므로, 이후 진행은 push 한 호출부가 결정한다.
+      //
+      // 모임 진입 직후 자동으로 열리는 화면이라, 슬라이드로 밀고 들어오면
+      // 사용자가 누르지 않은 이동처럼 느껴진다. 페이드로 부드럽게 전환한다.
+      GoRoute(
+        path: RoutePath.randomStarter,
+        pageBuilder: (_, state) => CustomTransitionPage(
+          key: state.pageKey,
+          transitionDuration: const Duration(milliseconds: 400),
+          transitionsBuilder: (_, animation, _, child) => FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            child: child,
+          ),
+          child: RandomStarterPage(args: state.extra! as RandomStarterArgs),
+        ),
       ),
       GoRoute(
         path: RoutePath.followerCamera,

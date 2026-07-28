@@ -54,10 +54,10 @@ class Toast extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // 좌우 s4(16). 상하는 토큰에 없는 14 라 그대로 둔다.
+      // 좌우 s5(16) · 상하 s4(12).
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s4,
-        vertical: AppSpacing.s3,
+        horizontal: AppSpacing.s5,
+        vertical: AppSpacing.s4,
       ),
       decoration: ShapeDecoration(
         color: AppColors.bgSurfaceAlt,
@@ -67,7 +67,7 @@ class Toast extends StatelessWidget {
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s3,
+        spacing: AppSpacing.s4,
         children: [
           _ToastBadge(type: type),
           // 고정 폭 대신 남는 공간을 채우고 길면 줄바꿈한다.
@@ -168,10 +168,10 @@ class _ToastOverlayState extends State<_ToastOverlay>
           alignment: Alignment.bottomCenter,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.s4,
+              AppSpacing.s5,
               0,
-              AppSpacing.s4,
-              AppSpacing.s6,
+              AppSpacing.s5,
+              AppSpacing.s7,
             ),
             // 토스트는 안내용이라 뒤 UI 의 터치를 막지 않는다.
             child: IgnorePointer(

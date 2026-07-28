@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// 원형 프로필 아바타.
 ///
@@ -57,10 +57,6 @@ class _DefaultIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      'assets/images/ic_person_circle_fill.svg',
-      width: size,
-      height: size,
-    );
+    return AppIcon(AppIcons.personCircleFill, size: size);
   }
 }

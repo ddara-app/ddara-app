@@ -1,59 +1,48 @@
-import 'package:ddara/core/model/notification/notification_category.dart';
+import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NotificationNotifier extends AutoDisposeNotifier<NotificationState> {
+class NotificationNotifier extends AutoDisposeNotifier<NotificationState>
+    with AutoDisposeGuard<NotificationState> {
   @override
   NotificationState build() {
-    // 진입 시 전체(all) 알림을 조회한다. (build 는 동기라 fire-and-forget)
-    _load(NotificationCategory.all);
-    return const NotificationState(isLoading: true);
+    // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
+    // (조회 중 뒤로가기로 페이지를 pop 하면 폐기된 뒤 응답이 도착해 StateError)
+    watchDispose();
+    // 진입 시 전체 알림을 조회한다. (build 는 동기라 fire-and-forget)
+    _load();
+
+    return const NotificationLoading();
   }
 
-  /// 현재 필터로 알림 목록을 다시 조회한다. (당겨서 새로고침)
-  Future<void> refresh() => _load(state.category);
-
-  /// 필터 카테고리를 바꾸고 목록을 다시 조회한다. (같은 카테고리면 무시)
-  Future<void> changeCategory(NotificationCategory category) {
-    if (state.category == category) return Future.value();
-    state = state.copyWith(
-      category: category,
-      isLoading: true,
-      errorMessage: '',
-    );
-    return _load(category);
+  /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
+  void _update(NotificationState Function(NotificationState state) updater) {
+    if (isDisposed) return;
+    state = updater(state);
   }
 
-  Future<void> _load(NotificationCategory category) async {
+  Future<void> _load() async {
     final getNotifications = ref.read(getNotificationsUseCaseProvider);
 
     try {
-      final result = await getNotifications(category: category);
-      final blockedUserIds = await _loadBlockedUserIds();
-      state = state.copyWith(
-        isLoading: false,
-        items: result.items,
-        category: category,
-        blockedUserIds: blockedUserIds,
-        errorMessage: '',
+      final result = await getNotifications();
+      final blockedUserIds = await ref.read(getBlockedUserIdsUseCaseProvider)();
+      _update(
+        (_) => NotificationLoaded(
+          items: result.items,
+          blockedUserIds: blockedUserIds,
+        ),
       );
-    } catch (_) {
-      // NetworkException 및 기타 예기치 못한 오류.
-      state = state.copyWith(isLoading: false, errorMessage: '알림을 불러오지 못했어요.');
-    }
-  }
-
-  /// 내가 차단한 사용자 userId 집합을 조회한다.
-  ///
-  /// 차단 목록 조회가 실패해도 화면(알림)을 막지 않도록, 실패 시 빈 집합으로
-  /// 대체한다. (썸네일 가림이 한 번 빠질 뿐 치명적이지 않다)
-  Future<Set<int>> _loadBlockedUserIds() async {
-    try {
-      final blockedUsers = await ref.read(getBlockedUsersUseCaseProvider)();
-      return blockedUsers.users.map((user) => user.userId).toSet();
-    } catch (_) {
-      return const {};
+    } catch (e) {
+      // NetworkException 및 기타 예기치 못한 오류. (매퍼 버그 등 프로그래밍
+      // 오류도 화면을 막지 않도록 여기서 잡되, 단서가 사라지지 않게 로깅한다)
+      debugPrint('[Notification] 알림 조회 실패: $e');
+      // 이미 목록을 보고 있으면 유지하고, 아직 로드 전이면 에러 화면으로 전환한다.
+      _update(
+        (s) => s is NotificationLoaded ? s : const NotificationLoadError(),
+      );
     }
   }
 }

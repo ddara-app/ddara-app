@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 mixin _$GroupDetail {
 
  int get groupId; String get name; String get inviteCode; List<GroupMember> get members;// 진행 중인 사이클이 없으면 null.
- GroupCycle? get currentCycle; DateTime get createdAt;
+ GroupCycle? get currentCycle;// 다음 사이클의 스타터. 아직 지정되지 않았으면 null.
+ GroupNextStarter? get nextStarter; DateTime get createdAt;
 /// Create a copy of GroupDetail
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +27,16 @@ $GroupDetailCopyWith<GroupDetail> get copyWith => _$GroupDetailCopyWithImpl<Grou
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupDetail&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.inviteCode, inviteCode) || other.inviteCode == inviteCode)&&const DeepCollectionEquality().equals(other.members, members)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupDetail&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.inviteCode, inviteCode) || other.inviteCode == inviteCode)&&const DeepCollectionEquality().equals(other.members, members)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle)&&(identical(other.nextStarter, nextStarter) || other.nextStarter == nextStarter)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,groupId,name,inviteCode,const DeepCollectionEquality().hash(members),currentCycle,createdAt);
+int get hashCode => Object.hash(runtimeType,groupId,name,inviteCode,const DeepCollectionEquality().hash(members),currentCycle,nextStarter,createdAt);
 
 @override
 String toString() {
-  return 'GroupDetail(groupId: $groupId, name: $name, inviteCode: $inviteCode, members: $members, currentCycle: $currentCycle, createdAt: $createdAt)';
+  return 'GroupDetail(groupId: $groupId, name: $name, inviteCode: $inviteCode, members: $members, currentCycle: $currentCycle, nextStarter: $nextStarter, createdAt: $createdAt)';
 }
 
 
@@ -46,11 +47,11 @@ abstract mixin class $GroupDetailCopyWith<$Res>  {
   factory $GroupDetailCopyWith(GroupDetail value, $Res Function(GroupDetail) _then) = _$GroupDetailCopyWithImpl;
 @useResult
 $Res call({
- int groupId, String name, String inviteCode, List<GroupMember> members, GroupCycle? currentCycle, DateTime createdAt
+ int groupId, String name, String inviteCode, List<GroupMember> members, GroupCycle? currentCycle, GroupNextStarter? nextStarter, DateTime createdAt
 });
 
 
-$GroupCycleCopyWith<$Res>? get currentCycle;
+$GroupCycleCopyWith<$Res>? get currentCycle;$GroupNextStarterCopyWith<$Res>? get nextStarter;
 
 }
 /// @nodoc
@@ -63,14 +64,15 @@ class _$GroupDetailCopyWithImpl<$Res>
 
 /// Create a copy of GroupDetail
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? groupId = null,Object? name = null,Object? inviteCode = null,Object? members = null,Object? currentCycle = freezed,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? groupId = null,Object? name = null,Object? inviteCode = null,Object? members = null,Object? currentCycle = freezed,Object? nextStarter = freezed,Object? createdAt = null,}) {
   return _then(_self.copyWith(
 groupId: null == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,inviteCode: null == inviteCode ? _self.inviteCode : inviteCode // ignore: cast_nullable_to_non_nullable
 as String,members: null == members ? _self.members : members // ignore: cast_nullable_to_non_nullable
 as List<GroupMember>,currentCycle: freezed == currentCycle ? _self.currentCycle : currentCycle // ignore: cast_nullable_to_non_nullable
-as GroupCycle?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as GroupCycle?,nextStarter: freezed == nextStarter ? _self.nextStarter : nextStarter // ignore: cast_nullable_to_non_nullable
+as GroupNextStarter?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }
@@ -85,6 +87,18 @@ $GroupCycleCopyWith<$Res>? get currentCycle {
 
   return $GroupCycleCopyWith<$Res>(_self.currentCycle!, (value) {
     return _then(_self.copyWith(currentCycle: value));
+  });
+}/// Create a copy of GroupDetail
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GroupNextStarterCopyWith<$Res>? get nextStarter {
+    if (_self.nextStarter == null) {
+    return null;
+  }
+
+  return $GroupNextStarterCopyWith<$Res>(_self.nextStarter!, (value) {
+    return _then(_self.copyWith(nextStarter: value));
   });
 }
 }
@@ -168,10 +182,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int groupId,  String name,  String inviteCode,  List<GroupMember> members,  GroupCycle? currentCycle,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int groupId,  String name,  String inviteCode,  List<GroupMember> members,  GroupCycle? currentCycle,  GroupNextStarter? nextStarter,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GroupDetail() when $default != null:
-return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.currentCycle,_that.createdAt);case _:
+return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.currentCycle,_that.nextStarter,_that.createdAt);case _:
   return orElse();
 
 }
@@ -189,10 +203,10 @@ return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.cu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int groupId,  String name,  String inviteCode,  List<GroupMember> members,  GroupCycle? currentCycle,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int groupId,  String name,  String inviteCode,  List<GroupMember> members,  GroupCycle? currentCycle,  GroupNextStarter? nextStarter,  DateTime createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _GroupDetail():
-return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.currentCycle,_that.createdAt);case _:
+return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.currentCycle,_that.nextStarter,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +223,10 @@ return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.cu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int groupId,  String name,  String inviteCode,  List<GroupMember> members,  GroupCycle? currentCycle,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int groupId,  String name,  String inviteCode,  List<GroupMember> members,  GroupCycle? currentCycle,  GroupNextStarter? nextStarter,  DateTime createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _GroupDetail() when $default != null:
-return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.currentCycle,_that.createdAt);case _:
+return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.currentCycle,_that.nextStarter,_that.createdAt);case _:
   return null;
 
 }
@@ -224,7 +238,7 @@ return $default(_that.groupId,_that.name,_that.inviteCode,_that.members,_that.cu
 
 
 class _GroupDetail implements GroupDetail {
-  const _GroupDetail({required this.groupId, required this.name, required this.inviteCode, required final  List<GroupMember> members, required this.currentCycle, required this.createdAt}): _members = members;
+  const _GroupDetail({required this.groupId, required this.name, required this.inviteCode, required final  List<GroupMember> members, required this.currentCycle, required this.nextStarter, required this.createdAt}): _members = members;
   
 
 @override final  int groupId;
@@ -239,6 +253,8 @@ class _GroupDetail implements GroupDetail {
 
 // 진행 중인 사이클이 없으면 null.
 @override final  GroupCycle? currentCycle;
+// 다음 사이클의 스타터. 아직 지정되지 않았으면 null.
+@override final  GroupNextStarter? nextStarter;
 @override final  DateTime createdAt;
 
 /// Create a copy of GroupDetail
@@ -251,16 +267,16 @@ _$GroupDetailCopyWith<_GroupDetail> get copyWith => __$GroupDetailCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupDetail&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.inviteCode, inviteCode) || other.inviteCode == inviteCode)&&const DeepCollectionEquality().equals(other._members, _members)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupDetail&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.name, name) || other.name == name)&&(identical(other.inviteCode, inviteCode) || other.inviteCode == inviteCode)&&const DeepCollectionEquality().equals(other._members, _members)&&(identical(other.currentCycle, currentCycle) || other.currentCycle == currentCycle)&&(identical(other.nextStarter, nextStarter) || other.nextStarter == nextStarter)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,groupId,name,inviteCode,const DeepCollectionEquality().hash(_members),currentCycle,createdAt);
+int get hashCode => Object.hash(runtimeType,groupId,name,inviteCode,const DeepCollectionEquality().hash(_members),currentCycle,nextStarter,createdAt);
 
 @override
 String toString() {
-  return 'GroupDetail(groupId: $groupId, name: $name, inviteCode: $inviteCode, members: $members, currentCycle: $currentCycle, createdAt: $createdAt)';
+  return 'GroupDetail(groupId: $groupId, name: $name, inviteCode: $inviteCode, members: $members, currentCycle: $currentCycle, nextStarter: $nextStarter, createdAt: $createdAt)';
 }
 
 
@@ -271,11 +287,11 @@ abstract mixin class _$GroupDetailCopyWith<$Res> implements $GroupDetailCopyWith
   factory _$GroupDetailCopyWith(_GroupDetail value, $Res Function(_GroupDetail) _then) = __$GroupDetailCopyWithImpl;
 @override @useResult
 $Res call({
- int groupId, String name, String inviteCode, List<GroupMember> members, GroupCycle? currentCycle, DateTime createdAt
+ int groupId, String name, String inviteCode, List<GroupMember> members, GroupCycle? currentCycle, GroupNextStarter? nextStarter, DateTime createdAt
 });
 
 
-@override $GroupCycleCopyWith<$Res>? get currentCycle;
+@override $GroupCycleCopyWith<$Res>? get currentCycle;@override $GroupNextStarterCopyWith<$Res>? get nextStarter;
 
 }
 /// @nodoc
@@ -288,14 +304,15 @@ class __$GroupDetailCopyWithImpl<$Res>
 
 /// Create a copy of GroupDetail
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? groupId = null,Object? name = null,Object? inviteCode = null,Object? members = null,Object? currentCycle = freezed,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? groupId = null,Object? name = null,Object? inviteCode = null,Object? members = null,Object? currentCycle = freezed,Object? nextStarter = freezed,Object? createdAt = null,}) {
   return _then(_GroupDetail(
 groupId: null == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,inviteCode: null == inviteCode ? _self.inviteCode : inviteCode // ignore: cast_nullable_to_non_nullable
 as String,members: null == members ? _self._members : members // ignore: cast_nullable_to_non_nullable
 as List<GroupMember>,currentCycle: freezed == currentCycle ? _self.currentCycle : currentCycle // ignore: cast_nullable_to_non_nullable
-as GroupCycle?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as GroupCycle?,nextStarter: freezed == nextStarter ? _self.nextStarter : nextStarter // ignore: cast_nullable_to_non_nullable
+as GroupNextStarter?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }
@@ -312,7 +329,284 @@ $GroupCycleCopyWith<$Res>? get currentCycle {
   return $GroupCycleCopyWith<$Res>(_self.currentCycle!, (value) {
     return _then(_self.copyWith(currentCycle: value));
   });
+}/// Create a copy of GroupDetail
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GroupNextStarterCopyWith<$Res>? get nextStarter {
+    if (_self.nextStarter == null) {
+    return null;
+  }
+
+  return $GroupNextStarterCopyWith<$Res>(_self.nextStarter!, (value) {
+    return _then(_self.copyWith(nextStarter: value));
+  });
 }
+}
+
+/// @nodoc
+mixin _$GroupNextStarter {
+
+ int get userId; String get nickname;// 랜덤 스타터 공개를 이미 봤는지 여부. (진입 시 재노출 여부 판단에 사용)
+ bool get seen;
+/// Create a copy of GroupNextStarter
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupNextStarterCopyWith<GroupNextStarter> get copyWith => _$GroupNextStarterCopyWithImpl<GroupNextStarter>(this as GroupNextStarter, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupNextStarter&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.seen, seen) || other.seen == seen));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,userId,nickname,seen);
+
+@override
+String toString() {
+  return 'GroupNextStarter(userId: $userId, nickname: $nickname, seen: $seen)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GroupNextStarterCopyWith<$Res>  {
+  factory $GroupNextStarterCopyWith(GroupNextStarter value, $Res Function(GroupNextStarter) _then) = _$GroupNextStarterCopyWithImpl;
+@useResult
+$Res call({
+ int userId, String nickname, bool seen
+});
+
+
+
+
+}
+/// @nodoc
+class _$GroupNextStarterCopyWithImpl<$Res>
+    implements $GroupNextStarterCopyWith<$Res> {
+  _$GroupNextStarterCopyWithImpl(this._self, this._then);
+
+  final GroupNextStarter _self;
+  final $Res Function(GroupNextStarter) _then;
+
+/// Create a copy of GroupNextStarter
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? nickname = null,Object? seen = null,}) {
+  return _then(_self.copyWith(
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
+as String,seen: null == seen ? _self.seen : seen // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupNextStarter].
+extension GroupNextStarterPatterns on GroupNextStarter {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupNextStarter value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupNextStarter() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupNextStarter value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupNextStarter():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupNextStarter value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupNextStarter() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  String nickname,  bool seen)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupNextStarter() when $default != null:
+return $default(_that.userId,_that.nickname,_that.seen);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  String nickname,  bool seen)  $default,) {final _that = this;
+switch (_that) {
+case _GroupNextStarter():
+return $default(_that.userId,_that.nickname,_that.seen);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  String nickname,  bool seen)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupNextStarter() when $default != null:
+return $default(_that.userId,_that.nickname,_that.seen);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _GroupNextStarter implements GroupNextStarter {
+  const _GroupNextStarter({required this.userId, required this.nickname, this.seen = false});
+  
+
+@override final  int userId;
+@override final  String nickname;
+// 랜덤 스타터 공개를 이미 봤는지 여부. (진입 시 재노출 여부 판단에 사용)
+@override@JsonKey() final  bool seen;
+
+/// Create a copy of GroupNextStarter
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupNextStarterCopyWith<_GroupNextStarter> get copyWith => __$GroupNextStarterCopyWithImpl<_GroupNextStarter>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupNextStarter&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.seen, seen) || other.seen == seen));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,userId,nickname,seen);
+
+@override
+String toString() {
+  return 'GroupNextStarter(userId: $userId, nickname: $nickname, seen: $seen)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GroupNextStarterCopyWith<$Res> implements $GroupNextStarterCopyWith<$Res> {
+  factory _$GroupNextStarterCopyWith(_GroupNextStarter value, $Res Function(_GroupNextStarter) _then) = __$GroupNextStarterCopyWithImpl;
+@override @useResult
+$Res call({
+ int userId, String nickname, bool seen
+});
+
+
+
+
+}
+/// @nodoc
+class __$GroupNextStarterCopyWithImpl<$Res>
+    implements _$GroupNextStarterCopyWith<$Res> {
+  __$GroupNextStarterCopyWithImpl(this._self, this._then);
+
+  final _GroupNextStarter _self;
+  final $Res Function(_GroupNextStarter) _then;
+
+/// Create a copy of GroupNextStarter
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? nickname = null,Object? seen = null,}) {
+  return _then(_GroupNextStarter(
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int,nickname: null == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
+as String,seen: null == seen ? _self.seen : seen // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
 }
 
 /// @nodoc

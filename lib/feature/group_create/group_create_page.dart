@@ -1,10 +1,12 @@
-import 'package:ddara/core/analytics/mixpanel_manager.dart';
+import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/exception/group_create_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/group_create/provider/notifier_provider.dart';
 import 'package:ddara/feature/group_create/widget/set_group_name.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
@@ -28,7 +30,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
   @override
   void initState() {
     super.initState();
-    MixpanelManager.instance.track('group_create_page_viewed');
+    AppAnalytics.track('group_create_page_viewed');
   }
 
   /// 뒤로가기: 닉네임 스텝이면 이름 스텝으로, 첫 스텝이면 화면을 닫는다.
@@ -50,30 +52,40 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
 
     // 스텝별 다음 진행 가능 조건.
     final canSubmit = switch (_step) {
-      0 =>
-        state.groupName.trim().isNotEmpty &&
-            state.groupName.length <= 20 &&
-            state.description.length <= 100,
+      0 => state.isNameStepValid,
       _ => state.nickname.isNotEmpty && nicknameError == null,
     };
 
     ref.listen(createGroupNotifierProvider, (prev, next) {
       if (prev?.createGroupId == -1 && next.createGroupId > -1) {
-        MixpanelManager.instance.track(
+        AppAnalytics.track(
           'group_create_succeeded',
           properties: {'group_id': next.createGroupId},
         );
         // 홈 목록을 무효화해, 상세에서 뒤로 돌아왔을 때 새 모임이 반영되게 한다.
         // (HomePage 는 스택에 남아 있어 재조회가 자동으로 일어나지 않는다)
         ref.invalidate(homeNotifierProvider);
-        context.pushReplacement(RoutePath.group, extra: next.createGroupId);
+        // 방금 입력한 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
+        context.pushReplacement(
+          RoutePath.group,
+          extra: GroupPageArgs(
+            groupId: next.createGroupId,
+            groupName: next.groupName,
+            // 방금 만든 모임이라 진행 중 따라찍기가 있을 수 없다.
+            hasCurrentCycle: false,
+          ),
+        );
         return;
       }
 
-      final errorMessage = next.errorMessage;
+      final errorCode = next.errorCode;
 
-      if (errorMessage.isNotEmpty) {
-        Toast.showToast(context, errorMessage, type: ToastType.error);
+      if (errorCode != null) {
+        Toast.showToast(
+          context,
+          errorCode.message(l10n),
+          type: ToastType.error,
+        );
       }
     });
 
@@ -89,10 +101,10 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(
-              left: AppSpacing.s4,
-              right: AppSpacing.s4,
-              top: AppSpacing.s2,
-              bottom: AppSpacing.s6,
+              left: AppSpacing.s5,
+              right: AppSpacing.s5,
+              top: AppSpacing.s3,
+              bottom: AppSpacing.s7,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

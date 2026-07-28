@@ -33,7 +33,7 @@ class TitleDescription extends StatelessWidget {
       crossAxisAlignment: centered
           ? CrossAxisAlignment.center
           : CrossAxisAlignment.start,
-      spacing: AppSpacing.s1,
+      spacing: AppSpacing.s2,
       children: [
         AppText.headlineLarge(title, textAlign: textAlign),
         AppText.body(description, textAlign: textAlign),

@@ -118,6 +118,12 @@ abstract class AppLocalizations {
   /// **'취소'**
   String get commonCancel;
 
+  /// No description provided for @commonRetry.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get commonRetry;
+
   /// 온보딩 1페이지 제목
   ///
   /// In ko, this message translates to:
@@ -196,6 +202,24 @@ abstract class AppLocalizations {
   /// **'이용약관과 개인정보 처리방침 확인'**
   String get loginViewPolicies;
 
+  /// 로그인 실패 토스트 - 인증 실패
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 인증에 실패했어요. 다시 시도해 주세요.'**
+  String get loginErrorUnauthorized;
+
+  /// 로그인 실패 토스트 - 네트워크 오류
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결을 확인해 주세요.'**
+  String get loginErrorNetwork;
+
+  /// 로그인 실패 토스트 - 알 수 없는 오류
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인에 실패했어요. 잠시 후 다시 시도해 주세요.'**
+  String get loginErrorUnknown;
+
   /// 약관 동의 화면 제목
   ///
   /// In ko, this message translates to:
@@ -256,6 +280,30 @@ abstract class AppLocalizations {
   /// **'청소년 보호정책'**
   String get policyYouthTitle;
 
+  /// 회원가입 실패 토스트 - 잘못된 입력값
+  ///
+  /// In ko, this message translates to:
+  /// **'입력값을 확인해 주세요.'**
+  String get signUpErrorInvalidInput;
+
+  /// 회원가입 실패 토스트 - 소셜 토큰 만료·무효
+  ///
+  /// In ko, this message translates to:
+  /// **'소셜 토큰이 만료되었거나 유효하지 않습니다.'**
+  String get signUpErrorInvalidToken;
+
+  /// 회원가입 실패 토스트 - 미지원 소셜 provider
+  ///
+  /// In ko, this message translates to:
+  /// **'지원하지 않는 로그인 방식입니다.'**
+  String get signUpErrorUnsupportedProvider;
+
+  /// 회원가입 실패 토스트 - 알 수 없는 오류
+  ///
+  /// In ko, this message translates to:
+  /// **'회원가입에 실패했어요. 잠시 후 다시 시도해 주세요.'**
+  String get signUpErrorUnknown;
+
   /// No description provided for @permissionPageTitle.
   ///
   /// In ko, this message translates to:
@@ -265,7 +313,7 @@ abstract class AppLocalizations {
   /// No description provided for @permissionHeaderTitle.
   ///
   /// In ko, this message translates to:
-  /// **'ddara 권한 안내'**
+  /// **'이런 권한이 필요해요'**
   String get permissionHeaderTitle;
 
   /// No description provided for @permissionHeaderDescription.
@@ -337,7 +385,7 @@ abstract class AppLocalizations {
   /// No description provided for @requiredPermissionDescription.
   ///
   /// In ko, this message translates to:
-  /// **'필수 권한을 거부하면 ddara를\n정상적으로 이용할 수 없어요.\n권한이 필요할 때 허용해 주세요.'**
+  /// **'카메라 권한이 있어야 따라찍기를 할 수 있어요'**
   String get requiredPermissionDescription;
 
   /// No description provided for @permissionDialogTitle.
@@ -369,6 +417,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'최근 업데이트'**
   String get homeTabRecentUpdates;
+
+  /// 홈 모임 목록 조회 실패 본문
+  ///
+  /// In ko, this message translates to:
+  /// **'목록을 불러오지 못했어요.'**
+  String get homeLoadFailed;
+
+  /// 최근 업데이트 피드 조회 실패 (본문·새로고침 실패 토스트 공용)
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 업데이트를 불러오지 못했어요.'**
+  String get feedLoadFailed;
 
   /// No description provided for @emptyGroupTitle.
   ///
@@ -466,10 +526,10 @@ abstract class AppLocalizations {
   /// **'{minutes}분 남음'**
   String meetingRemainingMinutes(int minutes);
 
-  /// 마감 시각이 지난 사이클
+  /// 마감 시각이 지난 사이클. 모임 카드 우상단 라벨
   ///
   /// In ko, this message translates to:
-  /// **'마감'**
+  /// **'진행 종료'**
   String get meetingClosed;
 
   /// No description provided for @groupCreateTitle.
@@ -525,6 +585,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'100자 이하로 입력해주세요'**
   String get groupCreateIntroLengthError;
+
+  /// No description provided for @groupCreateErrorInvalidName.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 이름을 확인해주세요.'**
+  String get groupCreateErrorInvalidName;
+
+  /// No description provided for @groupCreateErrorUnauthorized.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인이 만료되었어요. 다시 로그인해 주세요.'**
+  String get groupCreateErrorUnauthorized;
+
+  /// No description provided for @groupCreateErrorLimitExceeded.
+  ///
+  /// In ko, this message translates to:
+  /// **'만들 수 있는 모임 개수(최대 20개)를 초과했어요.'**
+  String get groupCreateErrorLimitExceeded;
+
+  /// No description provided for @groupCreateErrorUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결이 불안정해요.'**
+  String get groupCreateErrorUnknown;
+
+  /// No description provided for @groupJoinErrorInvalidInput.
+  ///
+  /// In ko, this message translates to:
+  /// **'입력값이 올바르지 않아요.'**
+  String get groupJoinErrorInvalidInput;
+
+  /// No description provided for @groupJoinErrorInvalidCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'유효하지 않은 초대 코드예요.'**
+  String get groupJoinErrorInvalidCode;
+
+  /// No description provided for @groupJoinErrorGroupNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'존재하지 않는 초대 코드예요.'**
+  String get groupJoinErrorGroupNotFound;
+
+  /// No description provided for @groupJoinErrorAlreadyJoined.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 참여 중인 모임이에요.'**
+  String get groupJoinErrorAlreadyJoined;
+
+  /// No description provided for @groupJoinErrorGroupFull.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 꽉 찬 모임이에요. 만든 친구에게 물어봐 주세요.'**
+  String get groupJoinErrorGroupFull;
+
+  /// No description provided for @groupJoinErrorLimitExceeded.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여할 수 있는 모임 개수를 초과했어요.'**
+  String get groupJoinErrorLimitExceeded;
+
+  /// No description provided for @groupJoinErrorDuplicateNickname.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 누가 쓰고 있어요. 다른 이름은 어때요?'**
+  String get groupJoinErrorDuplicateNickname;
+
+  /// No description provided for @groupJoinErrorUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결이 불안정해요.'**
+  String get groupJoinErrorUnknown;
 
   /// No description provided for @groupJoinTitle.
   ///
@@ -651,12 +783,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'수정'**
   String get editNicknameSubmit;
-
-  /// No description provided for @groupDetailLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'모임 정보를 불러오지 못했어요.'**
-  String get groupDetailLoadError;
 
   /// No description provided for @groupDetailEmptyTitle.
   ///
@@ -1078,6 +1204,24 @@ abstract class AppLocalizations {
   /// **'20자 이내로 입력해 주세요'**
   String get starterConceptLengthError;
 
+  /// 슬롯머신 결과로 공개된 스타터 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 스타터는 {name}님이에요!'**
+  String randomStarterResultTitle(String name);
+
+  /// 스타터 공개 결과 아래 보조 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'첫 판을 시작해 친구들에게 보내보세요'**
+  String get randomStarterResultSubtitle;
+
+  /// 스타터가 멤버 목록에 없는 등 인자가 유효하지 않을 때 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터 정보를 불러오지 못했어요'**
+  String get randomStarterLoadFailed;
+
   /// No description provided for @followerCameraTitle.
   ///
   /// In ko, this message translates to:
@@ -1198,6 +1342,240 @@ abstract class AppLocalizations {
   /// **'실패'**
   String get commentSendFailed;
 
+  /// No description provided for @commentErrorPhotoDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 삭제된 사진이에요.'**
+  String get commentErrorPhotoDeleted;
+
+  /// No description provided for @commentErrorNotGroupMember.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 모임의 멤버가 아니에요.'**
+  String get commentErrorNotGroupMember;
+
+  /// No description provided for @commentErrorLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 불러오지 못했어요.'**
+  String get commentErrorLoadFailed;
+
+  /// No description provided for @commentErrorInvalidInput.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글 내용을 확인해 주세요.'**
+  String get commentErrorInvalidInput;
+
+  /// No description provided for @commentErrorPhotoLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 인증샷을 올려야 댓글을 달 수 있어요.'**
+  String get commentErrorPhotoLocked;
+
+  /// No description provided for @commentErrorPhotoUnderReview.
+  ///
+  /// In ko, this message translates to:
+  /// **'검토 중인 사진에는 댓글을 달 수 없어요.'**
+  String get commentErrorPhotoUnderReview;
+
+  /// No description provided for @commentErrorSubmitFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 등록하지 못했어요.'**
+  String get commentErrorSubmitFailed;
+
+  /// No description provided for @commentErrorDeleteForbidden.
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 작성한 댓글만 삭제할 수 있어요.'**
+  String get commentErrorDeleteForbidden;
+
+  /// No description provided for @commentErrorAlreadyDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 삭제된 댓글이에요.'**
+  String get commentErrorAlreadyDeleted;
+
+  /// No description provided for @commentErrorDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 삭제하지 못했어요.'**
+  String get commentErrorDeleteFailed;
+
+  /// No description provided for @commentErrorEditForbidden.
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 작성한 댓글만 수정할 수 있어요.'**
+  String get commentErrorEditForbidden;
+
+  /// No description provided for @commentErrorEditFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글을 수정하지 못했어요.'**
+  String get commentErrorEditFailed;
+
+  /// No description provided for @commentErrorInvalidReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 내용이 올바르지 않아요.'**
+  String get commentErrorInvalidReport;
+
+  /// No description provided for @commentErrorReportFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하지 못했어요.'**
+  String get commentErrorReportFailed;
+
+  /// No description provided for @groupErrorNotGroupMember.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 모임의 멤버가 아니에요.'**
+  String get groupErrorNotGroupMember;
+
+  /// No description provided for @groupErrorGroupNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'존재하지 않는 모임이에요.'**
+  String get groupErrorGroupNotFound;
+
+  /// No description provided for @groupErrorCycleNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'존재하지 않는 회차예요.'**
+  String get groupErrorCycleNotFound;
+
+  /// No description provided for @groupErrorUnauthorized.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인이 필요해요.'**
+  String get groupErrorUnauthorized;
+
+  /// No description provided for @groupErrorNetwork.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결이 불안정해요.'**
+  String get groupErrorNetwork;
+
+  /// No description provided for @groupErrorGroupLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 정보를 불러오지 못했어요.'**
+  String get groupErrorGroupLoadFailed;
+
+  /// No description provided for @groupErrorGalleryLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 불러오지 못했어요.'**
+  String get groupErrorGalleryLoadFailed;
+
+  /// No description provided for @groupErrorHistoryLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 따라찍기를 불러오지 못했어요.'**
+  String get groupErrorHistoryLoadFailed;
+
+  /// No description provided for @groupErrorExitFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임에서 나가지 못했어요.'**
+  String get groupErrorExitFailed;
+
+  /// No description provided for @groupErrorReportInvalidInput.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고 내용이 올바르지 않아요.'**
+  String get groupErrorReportInvalidInput;
+
+  /// No description provided for @groupErrorReportShotNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 삭제된 사진이에요.'**
+  String get groupErrorReportShotNotFound;
+
+  /// No description provided for @groupErrorReportUserNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임에 없는 사용자예요.'**
+  String get groupErrorReportUserNotFound;
+
+  /// No description provided for @groupErrorReportFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하지 못했어요.'**
+  String get groupErrorReportFailed;
+
+  /// No description provided for @groupErrorBlockSelf.
+  ///
+  /// In ko, this message translates to:
+  /// **'자기 자신은 차단할 수 없어요.'**
+  String get groupErrorBlockSelf;
+
+  /// No description provided for @groupErrorBlockTargetNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'존재하지 않는 사용자예요.'**
+  String get groupErrorBlockTargetNotFound;
+
+  /// No description provided for @groupErrorBlockFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단하지 못했어요.'**
+  String get groupErrorBlockFailed;
+
+  /// No description provided for @groupErrorNicknameInvalid.
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임은 2~10자로 입력해주세요.'**
+  String get groupErrorNicknameInvalid;
+
+  /// No description provided for @groupErrorNicknameDuplicate.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 누가 쓰고 있어요. 다른 이름은 어때요?'**
+  String get groupErrorNicknameDuplicate;
+
+  /// No description provided for @groupErrorNicknameChangeFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임을 변경하지 못했어요.'**
+  String get groupErrorNicknameChangeFailed;
+
+  /// No description provided for @groupErrorStarterInvalidInput.
+  ///
+  /// In ko, this message translates to:
+  /// **'컨셉 또는 이미지가 올바르지 않아요.'**
+  String get groupErrorStarterInvalidInput;
+
+  /// No description provided for @groupErrorImageUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 업로드에 실패했어요.'**
+  String get groupErrorImageUploadFailed;
+
+  /// No description provided for @groupErrorNotEnoughMembers.
+  ///
+  /// In ko, this message translates to:
+  /// **'활동 멤버가 3명 이상이어야 시작할 수 있어요.'**
+  String get groupErrorNotEnoughMembers;
+
+  /// No description provided for @groupErrorCycleAlreadyInProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 진행 중인 회차가 있어요.'**
+  String get groupErrorCycleAlreadyInProgress;
+
+  /// No description provided for @groupErrorStarterUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기를 시작하지 못했어요.'**
+  String get groupErrorStarterUploadFailed;
+
+  /// No description provided for @groupErrorFollowerUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 올리지 못했어요.'**
+  String get groupErrorFollowerUploadFailed;
+
   /// 전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 제목
   ///
   /// In ko, this message translates to:
@@ -1306,31 +1684,13 @@ abstract class AppLocalizations {
   /// **'알림을 받으면 여기에 표시돼요'**
   String get notificationEmptyDescription;
 
-  /// No description provided for @notificationLabelMemberJoin.
+  /// 알림 목록 조회 실패 본문
   ///
   /// In ko, this message translates to:
-  /// **'모임 합류'**
-  String get notificationLabelMemberJoin;
+  /// **'알림을 불러오지 못했어요.'**
+  String get notificationLoadFailed;
 
-  /// No description provided for @notificationLabelNewCycle.
-  ///
-  /// In ko, this message translates to:
-  /// **'따라찍기 시작'**
-  String get notificationLabelNewCycle;
-
-  /// No description provided for @notificationLabelCycleCompleted.
-  ///
-  /// In ko, this message translates to:
-  /// **'따라찍기 종료'**
-  String get notificationLabelCycleCompleted;
-
-  /// No description provided for @notificationLabelDeadline.
-  ///
-  /// In ko, this message translates to:
-  /// **'마감 임박'**
-  String get notificationLabelDeadline;
-
-  /// No description provided for @notificationLabelDefault.
+  /// 알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다.
   ///
   /// In ko, this message translates to:
   /// **'알림'**
@@ -1345,8 +1705,14 @@ abstract class AppLocalizations {
   /// No description provided for @notificationMessageNewCycle.
   ///
   /// In ko, this message translates to:
-  /// **'‘{groupName}’ 모임에서 새로운 따라찍기가 시작됐어요'**
-  String notificationMessageNewCycle(String groupName);
+  /// **'‘{groupName}’에서 {actor}님이 새 따라찍기를 올렸어요'**
+  String notificationMessageNewCycle(String groupName, String actor);
+
+  /// NEW_CYCLE payload 에 스타터 닉네임이 없을 때의 대체 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 새 따라찍기가 시작됐어요'**
+  String notificationMessageNewCycleNoActor(String groupName);
 
   /// No description provided for @notificationMessageCycleCompleted.
   ///
@@ -1368,6 +1734,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'‘{groupName}’ 모임의 따라찍기 마감이 다가와요. 아직 안찍었죠?'**
   String notificationMessageDeadline(String groupName);
+
+  /// No description provided for @notificationMessageStarterAssigned.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 랜덤 스타터를 확인해보세요'**
+  String notificationMessageStarterAssigned(String groupName);
+
+  /// No description provided for @notificationMessageFriendShot.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요'**
+  String notificationMessageFriendShot(String actor, String groupName);
+
+  /// No description provided for @notificationMessageComment.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요'**
+  String notificationMessageComment(String actor, String groupName);
 
   /// No description provided for @notificationMessageDefault.
   ///
@@ -1438,26 +1822,50 @@ abstract class AppLocalizations {
   /// No description provided for @notificationFollowShot.
   ///
   /// In ko, this message translates to:
-  /// **'따라찍기 차례'**
+  /// **'따라찍기 알림'**
   String get notificationFollowShot;
 
   /// No description provided for @notificationFollowShotCaption.
   ///
   /// In ko, this message translates to:
-  /// **'새 따라찍기가 열리거나 내 차례일 때'**
+  /// **'새 따라찍기가 열리거나 마감될 때'**
   String get notificationFollowShotCaption;
 
-  /// No description provided for @notificationDeadlineVote.
+  /// No description provided for @notificationFriendShot.
   ///
   /// In ko, this message translates to:
-  /// **'마감·투표 알림'**
-  String get notificationDeadlineVote;
+  /// **'다른 친구의 따라찍기 알림'**
+  String get notificationFriendShot;
 
-  /// No description provided for @notificationDeadlineVoteCaption.
+  /// No description provided for @notificationFriendShotCaption.
   ///
   /// In ko, this message translates to:
-  /// **'따라찍기 마감 · 베스트 투표'**
-  String get notificationDeadlineVoteCaption;
+  /// **'같은 모임의 친구가 따라찍기를 올렸을 때'**
+  String get notificationFriendShotCaption;
+
+  /// No description provided for @notificationStarterAssigned.
+  ///
+  /// In ko, this message translates to:
+  /// **'랜덤 스타터 알림'**
+  String get notificationStarterAssigned;
+
+  /// No description provided for @notificationStarterAssignedCaption.
+  ///
+  /// In ko, this message translates to:
+  /// **'랜덤 스타터 지정됐을 때'**
+  String get notificationStarterAssignedCaption;
+
+  /// No description provided for @notificationComment.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글 알림'**
+  String get notificationComment;
+
+  /// No description provided for @notificationCommentCaption.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 사진에 댓글이 달릴 때'**
+  String get notificationCommentCaption;
 
   /// No description provided for @notificationSectionEtc.
   ///
@@ -1555,6 +1963,18 @@ abstract class AppLocalizations {
   /// **'계정 관리'**
   String get profileAccountManage;
 
+  /// No description provided for @profileErrorUserNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용자를 찾을 수 없어요.'**
+  String get profileErrorUserNotFound;
+
+  /// No description provided for @profileLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 정보를 불러오지 못했어요.'**
+  String get profileLoadFailed;
+
   /// No description provided for @profileSectionManage.
   ///
   /// In ko, this message translates to:
@@ -1579,11 +1999,47 @@ abstract class AppLocalizations {
   /// **'차단한 유저가 없어요'**
   String get blockedUsersEmpty;
 
+  /// No description provided for @blockedUsersLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단 목록을 불러오지 못했어요.'**
+  String get blockedUsersLoadFailed;
+
+  /// 차단 목록 항목의 모임 닉네임 · 차단 날짜 요약 (날짜 뒤 '차단' 표기)
+  ///
+  /// In ko, this message translates to:
+  /// **'{nickname} · {date} 차단'**
+  String blockedUsersNicknameDate(String nickname, String date);
+
+  /// No description provided for @blockedUsersNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 멤버의 사진은 내 화면에서만 보이지 않습니다.\n상대방에게는 차단 사실이 알려지지 않아요.'**
+  String get blockedUsersNotice;
+
   /// No description provided for @blockedUsersUnblock.
   ///
   /// In ko, this message translates to:
   /// **'차단 해제'**
   String get blockedUsersUnblock;
+
+  /// No description provided for @blockedUsersUnblockConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}님의 차단을 해제할까요?'**
+  String blockedUsersUnblockConfirmTitle(String name);
+
+  /// No description provided for @blockedUsersUnblockConfirmBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 멤버의 사진이 다시 보이게 됩니다.'**
+  String get blockedUsersUnblockConfirmBody;
+
+  /// No description provided for @blockedUsersUnblockConfirmAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제하기'**
+  String get blockedUsersUnblockConfirmAction;
 
   /// No description provided for @blockedUsersUnblockedToast.
   ///
@@ -1620,6 +2076,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'차단한 멤버의 따라찍기'**
   String get blockedCycleTopic;
+
+  /// 사진 갤러리에서 본인 카드에 닉네임 대신 표시하는 라벨.
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get galleryMyCardLabel;
 
   /// No description provided for @profileLinkedAccount.
   ///
@@ -1686,6 +2148,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'메일 앱을 열 수 없어요. ({email})'**
   String profileContactMailFailed(String email);
+
+  /// No description provided for @profileImageCropTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 편집'**
+  String get profileImageCropTitle;
 
   /// No description provided for @profileImageSourceTitle.
   ///

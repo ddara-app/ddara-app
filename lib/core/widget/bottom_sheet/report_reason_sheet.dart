@@ -3,12 +3,9 @@ import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/checkbox/app_checkbox.dart';
-import 'package:ddara/core/widget/bottom_sheet/draggable_sheet.dart';
+import 'package:ddara/core/widget/bottom_sheet/sheet_scaffold.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
-
-/// 드래그 핸들 크기.
-const Size _handleSize = Size(40, 4);
 
 /// 시트가 반환하는 신고 내용.
 /// (선택한 사유 + 상세 입력 — 상세는 '기타' 사유일 때만 채워진다)
@@ -96,104 +93,70 @@ class _ReportReasonSheetState<T extends Object>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    // 아래로 드래그해도 닫히도록 감싼다. (취소와 동일하게 null 반환)
-    return DraggableSheet(
-      child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.bgSurface,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppRadius.lg),
-          ),
-        ),
-        padding: EdgeInsets.only(
-          top: AppSpacing.s3,
-          // 키보드가 올라오면 그만큼 콘텐츠를 위로 밀어 올린다.
-          bottom: AppSpacing.s5 + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: _handleSize.width,
-                  height: _handleSize.height,
-                  decoration: ShapeDecoration(
-                    color: AppColors.textTertiary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        _handleSize.height / 2,
-                      ),
-                    ),
-                  ),
+    return SheetScaffold(
+      // 좌우 여백은 행마다 다르게 두므로 본문 안에서 각자 잡는다.
+      contentPadding: EdgeInsets.only(
+        // 키보드가 올라오면 그만큼 콘텐츠를 위로 밀어 올린다.
+        bottom: AppSpacing.s6 + MediaQuery.of(context).viewInsets.bottom,
+      ),
+      // 키보드가 올라오는 등 세로 공간이 부족하면 본문만 스크롤된다.
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 제목 + 안내.
+            Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpacing.s6,
+                left: AppSpacing.s5,
+                right: AppSpacing.s5,
+                bottom: AppSpacing.s4,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText.headlineLarge(l10n.reportSheetTitle),
+                  AppText.body(l10n.reportSheetSubtitle),
+                ],
+              ),
+            ),
+            // 신고 사유 선택 목록. (단일 선택)
+            for (final reason in widget.reasons)
+              _ReasonRow(
+                label: widget.labelOf(reason),
+                selected: _reason == reason,
+                onSelect: () => setState(() => _reason = reason),
+              ),
+            // 상세 내용 입력. ('기타' 사유를 선택했을 때만 노출)
+            if (_reason == widget.etcReason)
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: AppSpacing.s5,
+                  right: AppSpacing.s5,
+                  bottom: AppSpacing.s6,
+                ),
+                child: AppTextField(
+                  controller: _detailController,
+                  placeholder: l10n.reportDetailPlaceholder,
+                  // 입력에 따라 신고 버튼 활성 상태를 갱신한다.
+                  onChanged: (_) => setState(() {}),
                 ),
               ),
-              // 키보드가 올라오는 등 세로 공간이 부족하면 본문만 스크롤된다.
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // 제목 + 안내.
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: AppSpacing.s5,
-                          left: AppSpacing.s4,
-                          right: AppSpacing.s4,
-                          bottom: AppSpacing.s3,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AppText.headlineLarge(l10n.reportSheetTitle),
-                            AppText.body(l10n.reportSheetSubtitle),
-                          ],
-                        ),
-                      ),
-                      // 신고 사유 선택 목록. (단일 선택)
-                      for (final reason in widget.reasons)
-                        _ReasonRow(
-                          label: widget.labelOf(reason),
-                          selected: _reason == reason,
-                          onSelect: () => setState(() => _reason = reason),
-                        ),
-                      // 상세 내용 입력. ('기타' 사유를 선택했을 때만 노출)
-                      if (_reason == widget.etcReason)
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: AppSpacing.s4,
-                            right: AppSpacing.s4,
-                            bottom: AppSpacing.s5,
-                          ),
-                          child: AppTextField(
-                            controller: _detailController,
-                            placeholder: l10n.reportDetailPlaceholder,
-                            // 입력에 따라 신고 버튼 활성 상태를 갱신한다.
-                            onChanged: (_) => setState(() {}),
-                          ),
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: AppSpacing.s2,
-                          left: AppSpacing.s4,
-                          right: AppSpacing.s4,
-                        ),
-                        // 사유 미선택('기타'는 상세 미입력 포함) 시 비활성화한다.
-                        child: AppButton(
-                          label: l10n.report,
-                          onPressed: _canSubmit ? _submit : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpacing.s3,
+                left: AppSpacing.s5,
+                right: AppSpacing.s5,
               ),
-            ],
-          ),
+              // 사유 미선택('기타'는 상세 미입력 포함) 시 비활성화한다.
+              child: AppButton(
+                label: l10n.report,
+                onPressed: _canSubmit ? _submit : null,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -220,9 +183,9 @@ class _ReasonRow extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onSelect,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s4),
+        padding: const EdgeInsets.all(AppSpacing.s5),
         child: Row(
-          spacing: AppSpacing.s3,
+          spacing: AppSpacing.s4,
           children: [
             AppCheckbox(value: selected, onChanged: (_) => onSelect()),
             AppText.label(label, color: AppColors.textPrimary),

@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/feature/profile/widget/profile_image_source_sheet.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -38,7 +39,7 @@ class ProfileHeader extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: AppSpacing.s2,
+        spacing: AppSpacing.s3,
         children: [
           // 아바타 밖으로 삐져나오는 편집 버튼의 테두리가 잘리지 않도록 clip 을 해제한다.
           Stack(
@@ -79,6 +80,12 @@ class _EditImageButton extends StatelessWidget {
 
   final VoidCallback? onTap;
 
+  /// 아이콘 둘레 여백. (버튼 지름 = 아이콘 18 + 패딩 3×2)
+  static const double _iconPadding = 3;
+
+  /// 배경(아바타)과 배지를 분리하는 외곽 테두리 두께.
+  static const double _outlineWidth = 4;
+
   @override
   Widget build(BuildContext context) {
     // AppButton 과 동일하게 CupertinoButton 을 써서 탭 피드백(눌림 페이드)을 맞춘다.
@@ -87,21 +94,20 @@ class _EditImageButton extends StatelessWidget {
       minimumSize: Size.zero,
       onPressed: onTap,
       child: Container(
-        padding: const EdgeInsets.all(3),
-        decoration: ShapeDecoration(
+        padding: const EdgeInsets.all(_iconPadding),
+        decoration: const ShapeDecoration(
           color: AppColors.accentDefault,
-          shape: RoundedRectangleBorder(
+          shape: CircleBorder(
             // 외곽 테두리를 박스 바깥쪽에 그려 배경과 배지를 분리한다.
-            side: const BorderSide(
-              width: 4,
+            side: BorderSide(
+              width: _outlineWidth,
               strokeAlign: BorderSide.strokeAlignOutside,
               color: AppColors.bgBase,
             ),
-            borderRadius: BorderRadius.circular(749.25),
           ),
         ),
-        child: const Icon(
-          CupertinoIcons.add,
+        child: const AppIcon(
+          AppIcons.add,
           size: 18,
           color: AppColors.textOnAccent,
         ),

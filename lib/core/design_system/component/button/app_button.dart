@@ -25,12 +25,14 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.color,
     this.foregroundColor,
-  }) : variant = AppButtonVariant.primary;
+  }) : variant = AppButtonVariant.primary,
+       backgroundColor = null;
 
   const AppButton.outline({
     super.key,
     required this.label,
     required this.onPressed,
+    this.backgroundColor,
   }) : variant = AppButtonVariant.outline,
        color = null,
        foregroundColor = null;
@@ -44,6 +46,18 @@ class AppButton extends StatelessWidget {
 
   /// primary 변형의 글자색 override. null 이면 기본값(textOnAccent).
   final Color? foregroundColor;
+
+  /// outline 변형의 배경색. null 이면 투명.
+  ///
+  /// 백드롭 위에 띄우는 경우처럼 뒤 콘텐츠가 비치면 안 될 때
+  /// 앱 배경색([AppColors.bgBase])을 지정한다.
+  final Color? backgroundColor;
+
+  /// 두 변형 공통 상하 여백. (primary 는 CupertinoButton 기본값과 같다)
+  static const double _verticalPadding = 16;
+
+  /// outline 테두리 두께.
+  static const double _borderWidth = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -67,20 +81,22 @@ class AppButton extends StatelessWidget {
             ),
           ),
         ),
-        AppButtonVariant.outline => CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: onPressed,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(
-                color: isEnabled
-                    ? AppColors.accentDefault
-                    : AppColors.textDisabled,
-              ),
+        // 테두리는 DecoratedBox 로 그린다. Container(alignment) 를 쓰면
+        // 느슨한 제약에서 최대 크기까지 늘어나 primary 와 높이가 달라진다.
+        AppButtonVariant.outline => DecoratedBox(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(
+              width: _borderWidth,
+              color: isEnabled
+                  ? AppColors.accentDefault
+                  : AppColors.textDisabled,
             ),
+          ),
+          child: CupertinoButton(
+            padding: const EdgeInsets.symmetric(vertical: _verticalPadding),
+            onPressed: onPressed,
             child: Text(
               label,
               style: AppTypography.title.copyWith(

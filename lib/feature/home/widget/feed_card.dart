@@ -1,10 +1,10 @@
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/feed/feed.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// 최근 업데이트 카드. (모임 카드와 같은 껍데기에 회차 주제·업로더 닉네임을 얹는다)
 ///
@@ -115,12 +115,12 @@ class _CommentPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // 좌측은 아바타가 원형이라 여백을 적게(s1), 우측은 글자라 s2 로 맞춘다.
+      // 좌측은 아바타가 원형이라 여백을 적게(s2), 우측은 글자라 s3 으로 맞춘다.
       padding: const EdgeInsets.only(
-        left: AppSpacing.s1,
-        right: AppSpacing.s2,
-        top: AppSpacing.s1,
-        bottom: AppSpacing.s1,
+        left: AppSpacing.s2,
+        right: AppSpacing.s3,
+        top: AppSpacing.s2,
+        bottom: AppSpacing.s2,
       ),
       decoration: ShapeDecoration(
         color: AppColors.overlayScrim,
@@ -162,17 +162,13 @@ class _CommentButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        // 아이콘 16 + 패딩 s2(8)×2 = 지름 32 원.
-        padding: const EdgeInsets.all(AppSpacing.s2),
+        // 아이콘 16 + 패딩 s3(8)×2 = 지름 32 원.
+        padding: const EdgeInsets.all(AppSpacing.s3),
         decoration: const BoxDecoration(
           color: AppColors.overlayScrim,
           shape: BoxShape.circle,
         ),
-        child: SvgPicture.asset(
-          'assets/images/ic_comment.svg',
-          width: 16,
-          height: 16,
-        ),
+        child: const AppIcon(AppIcons.comment, size: 16),
       ),
     );
   }

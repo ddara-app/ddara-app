@@ -50,7 +50,7 @@ class HistoryMonthSection extends StatelessWidget {
         // 아이템 간 간격은 s6. (제목과 목록 사이는 s4 유지)
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: AppSpacing.s6,
+          spacing: AppSpacing.s7,
           children: [
             for (final cycle in cycles)
               HistoryListItem(

@@ -29,13 +29,16 @@ class HistoryPhotos extends StatelessWidget {
   final ValueChanged<int> onCycleTap;
 
   /// 카드 한 장의 실제 너비.
-  static const double _cardWidth = 180;
+  static const double cardWidth = 180;
+
+  /// 카드 한 장의 높이. (사진 프레임 비율 [AppRatio.photo] 로 계산)
+  static const double cardHeight = cardWidth / AppRatio.photo;
 
   /// 각 카드가 가로로 차지하는 너비. (작을수록 더 많이 겹침)
   static const double _visibleWidth = 200;
 
   /// 마지막 카드가 자기 영역 밖으로 삐져나오는 폭. (오른쪽 여백으로 보정)
-  static const double _overhang = _cardWidth - _visibleWidth;
+  static const double _overhang = cardWidth - _visibleWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +48,10 @@ class HistoryPhotos extends StatelessWidget {
       physics: const ClampingScrollPhysics(),
       // 회전/겹침으로 삐져나온 모서리가 잘리지 않도록 여백. (오른쪽은 overhang 만큼 더)
       padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s6,
         AppSpacing.s5,
-        AppSpacing.s4,
-        AppSpacing.s5 + _overhang,
-        AppSpacing.s4,
+        AppSpacing.s6 + _overhang,
+        AppSpacing.s5,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -56,7 +59,7 @@ class HistoryPhotos extends StatelessWidget {
         children: [
           for (var i = 0; i < cycles.length; i++)
             _OverlapCard(
-              cardWidth: _cardWidth,
+              cardWidth: cardWidth,
               visibleWidth: _visibleWidth,
               // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (호출부 콜백)
               onTap: () => onCycleTap(cycles[i].cycleId),
@@ -166,8 +169,8 @@ class _PhotoCard extends StatelessWidget {
     return Transform.rotate(
       angle: angle,
       child: Container(
-        width: 180,
-        height: 225,
+        width: HistoryPhotos.cardWidth,
+        height: HistoryPhotos.cardHeight,
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: AppColors.bgSurface,
@@ -176,7 +179,7 @@ class _PhotoCard extends StatelessWidget {
           ),
           shadows: const [
             BoxShadow(
-              color: Color(0x19000000),
+              color: AppColors.shadowSoft,
               blurRadius: 2,
               offset: Offset(-2, 2),
             ),
@@ -188,7 +191,7 @@ class _PhotoCard extends StatelessWidget {
             _thumbnail(context),
             // 우측 상단: 참여 인원
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.s3),
+              padding: const EdgeInsets.all(AppSpacing.s4),
               child: Align(
                 alignment: Alignment.topRight,
                 child: AppText.caption(
@@ -201,7 +204,7 @@ class _PhotoCard extends StatelessWidget {
             ),
             // 좌측 하단: 제목 + 날짜
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.s3),
+              padding: const EdgeInsets.all(AppSpacing.s4),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,

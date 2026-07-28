@@ -1,3 +1,4 @@
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
@@ -24,7 +25,7 @@ class CommentEditingBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.s3),
+      padding: const EdgeInsets.only(bottom: AppSpacing.s4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -40,15 +41,15 @@ class CommentEditingBanner extends StatelessWidget {
               GestureDetector(
                 onTap: onCancel,
                 behavior: HitTestBehavior.opaque,
-                child: const Icon(
-                  CupertinoIcons.xmark,
+                child: const AppIcon(
+                  AppIcons.close,
                   size: 20,
                   color: AppColors.textSecondary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.s2),
+          const SizedBox(height: AppSpacing.s3),
           // 수정 대상 댓글 아이템. (목록과 동일한 형태, 내용은 최대 2줄)
           CommentContent(comment: comment, contentMaxLines: 2),
         ],

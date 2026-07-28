@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
@@ -146,7 +147,7 @@ class _CommentItemState extends State<CommentItem> {
           link: _link,
           targetAnchor: Alignment.centerLeft,
           followerAnchor: Alignment.centerRight,
-          offset: const Offset(-AppSpacing.s2, 0),
+          offset: const Offset(-AppSpacing.s3, 0),
           child: _menu(dialogContext),
         ),
       ],
@@ -213,8 +214,8 @@ class _CommentItemState extends State<CommentItem> {
   }) {
     return CupertinoButton(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s4,
-        vertical: AppSpacing.s3,
+        horizontal: AppSpacing.s5,
+        vertical: AppSpacing.s4,
       ),
       minimumSize: Size.zero,
       onPressed: onPressed,
@@ -228,7 +229,7 @@ class _CommentItemState extends State<CommentItem> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
       child: CommentContent(comment: widget.comment, trailing: _trailing()),
     );
   }
@@ -242,7 +243,7 @@ class _CommentItemState extends State<CommentItem> {
     final l10n = AppLocalizations.of(context);
     // 더보기 버튼은 내부 여백 12 를 갖지만 텍스트에는 없어, 같은 자리에 놓이도록
     // 우측 여백을 직접 준다. ('전송중'·'재전송' 은 서로 교체되므로 함께 맞춘다)
-    const textPadding = EdgeInsets.only(right: AppSpacing.s4);
+    const textPadding = EdgeInsets.only(right: AppSpacing.s5);
     switch (comment.sendStatus) {
       case CommentSendStatus.sending:
         return Padding(
@@ -268,7 +269,7 @@ class _CommentItemState extends State<CommentItem> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s1),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
                 child: AppText.caption('·', color: AppColors.textDisabled),
               ),
               GestureDetector(
@@ -289,8 +290,8 @@ class _CommentItemState extends State<CommentItem> {
           child: AppBarIconButton(
             size: 20,
             onPressed: _open,
-            child: const Icon(
-              CupertinoIcons.ellipsis_vertical,
+            child: const AppIcon(
+              AppIcons.moreVertical,
               size: 20,
               color: AppColors.textPrimary,
             ),
