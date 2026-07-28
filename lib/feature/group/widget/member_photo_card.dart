@@ -177,7 +177,7 @@ class MemberPhotoCard extends StatelessWidget {
                     decoration: ShapeDecoration(
                       color: AppColors.overlayScrim,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
                     ),
                     child: AppText.caption(name, color: AppColors.textPrimary),

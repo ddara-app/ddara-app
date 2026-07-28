@@ -4,6 +4,7 @@ import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
 import 'package:ddara/core/widget/camera/header/camera_header.dart';
+import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -43,14 +44,16 @@ class FollowerPhotoCheck extends StatelessWidget {
           child: CameraHeader(onOpacityChanged: (_) {}),
         ),
         // 프리뷰 영역 → 촬영 이미지.
-        Expanded(
-          child: SizedBox.expand(
-            child: Image(
-              image: FileImage(File(imagePath)),
-              fit: BoxFit.cover,
-            ),
+        // 카메라와 같은 사진 프레임(3:4)·같은 자리에 두어, 촬영 직전에 보던
+        // 화면과 크기·구도가 그대로 이어지게 한다. (모드 토글은 자리만 유지)
+        Flexible(
+          child: AspectRatio(
+            aspectRatio: AppRatio.photo,
+            child: Image(image: FileImage(File(imagePath)), fit: BoxFit.cover),
           ),
         ),
+        const SizedBox(height: AppSpacing.s5),
+        CameraModeToggle(mode: GuideViewMode.cornerMini, onChanged: (_) {}),
         // 하단: 카메라 컨트롤 영역을 유지한 채 다시찍기/올리기 버튼을 올린다.
         Stack(
           children: [
@@ -59,14 +62,12 @@ class FollowerPhotoCheck extends StatelessWidget {
               maintainSize: true,
               maintainAnimation: true,
               maintainState: true,
-              child: CameraBottom(onViewModeChanged: (_) {}),
+              child: const CameraBottom(),
             ),
             // 촬영 화면의 컨트롤 영역 한가운데에 버튼을 놓는다.
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
                 child: Center(
                   child: Row(
                     spacing: AppSpacing.s4,

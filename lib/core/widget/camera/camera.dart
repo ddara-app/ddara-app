@@ -5,6 +5,7 @@ import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
 import 'package:ddara/core/widget/camera/header/camera_header.dart';
+import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
 import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
 import 'package:ddara/core/permission/permission_service.dart';
@@ -22,6 +23,7 @@ class Camera extends ConsumerStatefulWidget {
     super.key,
     this.showOpacity = false,
     this.showViewMode = false,
+    this.initialViewMode = GuideViewMode.cornerMini,
     this.guideImage,
     this.onOpacityChanged,
     this.onViewModeChanged,
@@ -34,6 +36,9 @@ class Camera extends ConsumerStatefulWidget {
 
   /// 모드 토글('코너 미니뷰'/'고스트 확대') 영역 표시 여부.
   final bool showViewMode;
+
+  /// 화면을 열었을 때 선택돼 있을 프리뷰 보조 모드.
+  final GuideViewMode initialViewMode;
 
   /// 따라찍기 가이드(친구가 미리 찍은) 사진. null 이면 미니뷰를 표시하지 않는다.
   final ImageProvider? guideImage;
@@ -64,7 +69,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
   List<CameraDescription> _cameras = const [];
   int _cameraIndex = 0;
-  GuideViewMode _guideMode = GuideViewMode.cornerMini;
+  late GuideViewMode _guideMode = widget.initialViewMode;
 
   // 투명도 탭 기본 선택('40')과 맞춘다.
   double _guideOpacity = 0.4;
@@ -200,9 +205,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
         _cameras[_cameraIndex].lensDirection == CameraLensDirection.back
         ? CameraLensDirection.front
         : CameraLensDirection.back;
-    final next = _cameras.indexWhere(
-      (c) => c.lensDirection == targetDirection,
-    );
+    final next = _cameras.indexWhere((c) => c.lensDirection == targetDirection);
     // 반대편 카메라가 없는 기기(전면 없음 등)면 전환하지 않는다.
     if (next < 0 || next == _cameraIndex) return;
 
@@ -241,8 +244,18 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   }
 
   void _onViewModeChanged(GuideViewMode mode) {
+    if (_guideMode == mode) return;
     setState(() => _guideMode = mode);
     widget.onViewModeChanged?.call(mode);
+  }
+
+  /// 프리뷰 가로 스와이프로 모드를 전환한다. 방향·감도는 토글 Row 와 같은
+  /// 규칙([guideModeForSwipe])을 쓴다. (모드가 없는 화면에서는 무시)
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    if (!widget.showViewMode) return;
+
+    final next = guideModeForSwipe(details.primaryVelocity ?? 0);
+    if (next != null) _onViewModeChanged(next);
   }
 
   void _onOpacityChanged(String label) {
@@ -319,71 +332,82 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
               widget.showOpacity && _guideMode != GuideViewMode.cornerMini,
           onOpacityChanged: _onOpacityChanged,
         ),
-        Expanded(
-          // 프리뷰 영역 어디서든 핀치로 줌인/아웃. (버튼 탭은 제스처 아레나에서
-          // 탭이 우선되어 그대로 동작한다)
-          child: GestureDetector(
-            onScaleStart: _onScaleStart,
-            onScaleUpdate: _onScaleUpdate,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Preview(
-                    controller: _controller,
-                    initFuture: _initFuture,
-                  ),
-                ),
-                if (widget.showViewMode && widget.guideImage != null)
-                  switch (_guideMode) {
-                    // 코너 미니뷰: 좌상단에 작게.
-                    GuideViewMode.cornerMini => Positioned(
-                      left: AppSpacing.s4,
-                      top: AppSpacing.s4,
-                      child: CornerMiniView(image: widget.guideImage!),
+        // 헤더 아래로 프리뷰 · 모드 토글 · 촬영 버튼을 차례로 붙이고,
+        // 남는 세로 공간은 맨 아래에 둔다. 프리뷰는 촬영 결과와 같은 사진
+        // 프레임(3:4)으로 잘라, 보이는 그대로 저장되게 맞춘다.
+        // (세로 공간이 모자란 기기에서는 폭을 줄여 프레임을 유지한다)
+        Flexible(
+          child: AspectRatio(
+            aspectRatio: AppRatio.photo,
+            // 프리뷰 영역 어디서든 핀치로 줌인/아웃, 가로 스와이프로 모드
+            // 전환. (버튼 탭은 제스처 아레나에서 탭이 우선되어 그대로 동작한다)
+            child: GestureDetector(
+              onScaleStart: _onScaleStart,
+              onScaleUpdate: _onScaleUpdate,
+              onHorizontalDragEnd: _onHorizontalDragEnd,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Preview(
+                      controller: _controller,
+                      initFuture: _initFuture,
                     ),
-                    // 고스트 확대: 가운데 90% 창으로 프리뷰 크기 그대로 보여준다.
-                    // (창 밖 가장자리는 잘림 — 창·이미지 배치는 GhostGuideView 가 처리)
-                    GuideViewMode.ghostZoom => Positioned.fill(
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.s4),
-                        child: GhostGuideView(
-                          image: widget.guideImage!,
-                          opacity: _guideOpacity,
-                          // 원본 전체가 아니라 모임 상세 헤더에서 보이던 프레임만
-                          // 가이드로 쓴다. (사진 프레임 비율 공용)
-                          frameAspectRatio: AppRatio.photo,
+                  ),
+                  if (widget.showViewMode && widget.guideImage != null)
+                    switch (_guideMode) {
+                      // 코너 미니뷰: 좌상단에 작게.
+                      GuideViewMode.cornerMini => Positioned(
+                        left: AppSpacing.s4,
+                        top: AppSpacing.s4,
+                        child: CornerMiniView(image: widget.guideImage!),
+                      ),
+                      // 고스트 확대: 가운데 90% 창으로 프리뷰 크기 그대로 보여준다.
+                      // (창 밖 가장자리는 잘림 — 창·이미지 배치는 GhostGuideView 가 처리)
+                      GuideViewMode.ghostZoom => Positioned.fill(
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppSpacing.s4),
+                          child: GhostGuideView(
+                            image: widget.guideImage!,
+                            opacity: _guideOpacity,
+                            // 원본 전체가 아니라 모임 상세 헤더에서 보이던 프레임만
+                            // 가이드로 쓴다. (사진 프레임 비율 공용)
+                            frameAspectRatio: AppRatio.photo,
+                          ),
                         ),
                       ),
+                    },
+                  // 프리뷰 우측 하단: 플래시 · 카메라 전환 (배경 없이 흰색 아이콘).
+                  Positioned(
+                    right: AppSpacing.s5,
+                    bottom: AppSpacing.s5,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: AppSpacing.s3,
+                      children: [
+                        _PreviewControlButton(
+                          icon: _flashOn ? AppIcons.flashOn : AppIcons.flashOff,
+                          onPressed: _toggleFlash,
+                        ),
+                        _PreviewControlButton(
+                          icon: AppIcons.reverse,
+                          onPressed: _switchCamera,
+                        ),
+                      ],
                     ),
-                  },
-                // 프리뷰 우측 하단: 플래시 · 카메라 전환 (배경 없이 흰색 아이콘).
-                Positioned(
-                  right: AppSpacing.s5,
-                  bottom: AppSpacing.s5,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: AppSpacing.s3,
-                    children: [
-                      _PreviewControlButton(
-                        icon: _flashOn ? AppIcons.flashOn : AppIcons.flashOff,
-                        onPressed: _toggleFlash,
-                      ),
-                      _PreviewControlButton(
-                        icon: AppIcons.reverse,
-                        onPressed: _switchCamera,
-                      ),
-                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-        CameraBottom(
-          showViewMode: widget.showViewMode,
-          onViewModeChanged: _onViewModeChanged,
-          onCapture: _capture,
+        // 프리뷰 바로 아래에 붙는 모드 토글.
+        const SizedBox(height: AppSpacing.s5),
+        CameraModeToggle(
+          visible: widget.showViewMode,
+          mode: _guideMode,
+          onChanged: _onViewModeChanged,
         ),
+        CameraBottom(onCapture: _capture),
       ],
     );
   }
