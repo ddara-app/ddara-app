@@ -43,11 +43,16 @@ class FollowerPhotoCheck extends StatelessWidget {
           child: CameraHeader(onOpacityChanged: (_) {}),
         ),
         // 프리뷰 영역 → 촬영 이미지.
+        // 카메라 프리뷰와 같은 사진 프레임(3:4)으로 잘라, 촬영 직전에 보던
+        // 화면과 크기·구도가 그대로 이어지게 한다.
         Expanded(
-          child: SizedBox.expand(
-            child: Image(
-              image: FileImage(File(imagePath)),
-              fit: BoxFit.cover,
+          child: Center(
+            child: AspectRatio(
+              aspectRatio: AppRatio.photo,
+              child: Image(
+                image: FileImage(File(imagePath)),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
