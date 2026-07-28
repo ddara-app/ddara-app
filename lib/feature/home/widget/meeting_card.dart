@@ -43,6 +43,8 @@ class MeetingCard extends StatelessWidget {
           : closed
           ? l10n.meetingClosed
           : _remainingLabel(l10n, cycle!.deadlineAt),
+      // 끝난 회차는 글자도 한 단계 낮춰(secondary) 진행 중과 대비시킨다.
+      topLabelColor: closed ? AppColors.textSecondary : AppColors.textPrimary,
       // 라벨 옆 점으로 진행/종료를 색으로도 구분한다.
       topIndicatorColor: !hasStatus
           ? null

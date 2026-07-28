@@ -35,7 +35,7 @@ class ProgressiveBlurImage extends StatelessWidget {
   /// 블러 세기 단계 수. 클수록 전환이 매끄럽지만 [builder] 렌더링이 늘어난다.
   final int steps;
 
-  @override
+  @override슽
   Widget build(BuildContext context) {
     final bandWidth = (1 - sharpUntil) / steps;
     return Stack(

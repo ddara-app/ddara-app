@@ -200,12 +200,8 @@ class _StartedHeaderState extends State<StartedHeader> {
                 child: _blurredBackground(),
               ),
             ),
-            // 하단 진행 정보의 가독성을 위한 스크림.
-            const BottomScrim(
-              heightFactor: 0.45,
-              color: AppColors.bgBase,
-              maxAlpha: 0.5,
-            ),
+            // 하단 진행 정보의 가독성을 위한 스크림. (모임 카드와 공유)
+            const BottomScrim.photo(),
             // 콘텐츠: 하단 진행 정보. (진행 상태 표시는 진행 정보 안으로 옮겼다)
             // 접힌 상태의 바 하단 패딩(s6)과 같은 값으로 맞춘다.
             Padding(
@@ -380,7 +376,7 @@ class _StartedHeaderState extends State<StartedHeader> {
     );
   }
 
-  /// 하단 스크림 구간(heightFactor 0.45)에 맞춰 아래로 갈수록 흐려지는 배경.
+  /// 하단 스크림 구간([photoFadeStart])에 맞춰 아래로 갈수록 흐려지는 배경.
   ///
   /// 헤더는 화면 폭 전체를 차지하는 큰 영역인데다 스크롤되는 본문 안에 있어,
   /// 매 프레임 다층 블러를 계산하는 라이브 방식으로는 프레임이 드랍된다.
@@ -392,7 +388,7 @@ class _StartedHeaderState extends State<StartedHeader> {
     if (_obscured || url.isEmpty) return _backgroundImage();
     return BakedProgressiveBlurImage(
       imageUrl: url,
-      sharpUntil: 0.55,
+      sharpUntil: photoFadeStart,
       builder: (_) => _backgroundImage(),
     );
   }
@@ -436,20 +432,21 @@ class _StartedHeaderState extends State<StartedHeader> {
   }
 
   /// 헤더 상단 상태 문구.
-  /// 마감(done)된 회차는 '마감'만, 진행 중이면 '진행 중 · N 남음'을 보여준다.
+  /// 마감(done)됐거나 마감 시각이 지났으면 '진행 종료'만, 진행 중이면
+  /// '진행 중 · 마감 N 전'을 보여준다.
   String _statusText() {
     final l10n = AppLocalizations.of(context);
-    if (widget.info.isDone) {
+    final remaining = widget.info.deadlineAt.difference(DateTime.now());
+    if (widget.info.isDone || remaining.isNegative) {
       return l10n.meetingClosed; // '진행 종료'
     }
-    return l10n.startedHeaderRemaining(_remainingText(widget.info.deadlineAt));
+    return l10n.startedHeaderRemaining(_remainingText(remaining));
   }
 
-  /// 마감(deadline)까지 남은 시간 표시 문자열. ('14시간' / '30분' / '진행 종료')
-  String _remainingText(DateTime deadline) {
+  /// 마감까지 남은 시간 표시 문자열. ('14시간' / '30분')
+  /// (마감 전임은 호출부가 이미 판별해 넘긴다)
+  String _remainingText(Duration remaining) {
     final l10n = AppLocalizations.of(context);
-    final remaining = deadline.difference(DateTime.now());
-    if (remaining.isNegative) return l10n.meetingClosed;
     if (remaining.inHours >= 1) return l10n.remainingHours(remaining.inHours);
     return l10n.remainingMinutes(remaining.inMinutes);
   }
