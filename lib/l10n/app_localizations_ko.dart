@@ -243,6 +243,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get meetingClosed => '진행 종료';
 
   @override
+  String get meetingNotStarted => '스타터';
+
+  @override
   String get groupCreateTitle => '모임 이름을 정해주세요';
 
   @override

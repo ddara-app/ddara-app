@@ -204,6 +204,10 @@
   "@meetingClosed": {
     "description": "마감 시각이 지난 사이클. 모임 카드 우상단 라벨"
   },
+  "meetingNotStarted": "스타터",
+  "@meetingNotStarted": {
+    "description": "내가 다음 스타터로 지정된 모임. 모임 카드 우상단 라벨"
+  },
 
   "groupCreateTitle": "모임 이름을 정해주세요",
   "groupCreateSubtitle": "내가 먼저 찍으면, 친구들이 따라 찍어요",

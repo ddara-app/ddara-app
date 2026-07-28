@@ -532,6 +532,12 @@ abstract class AppLocalizations {
   /// **'진행 종료'**
   String get meetingClosed;
 
+  /// 내가 다음 스타터로 지정된 모임. 모임 카드 우상단 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터'**
+  String get meetingNotStarted;
+
   /// No description provided for @groupCreateTitle.
   ///
   /// In ko, this message translates to:
