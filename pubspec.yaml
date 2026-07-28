@@ -173,9 +173,12 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/ddara.png"
+  image_path: "assets/icon/ddara-normal.png"
   # iOS 아이콘은 투명(alpha) 채널을 허용하지 않으므로 제거한다.
+  # 로고 원본이 둥근 사각형이라, 투명한 모서리 바깥을 흰색(기본값) 대신
+  # 로고 배경과 같은 색으로 채워야 iOS 마스킹 후 흰 조각이 남지 않는다.
   remove_alpha_ios: true
+  background_color_ios: "#16171b"
   min_sdk_android: 21
 
 # 네이티브(시스템) 스플래시 설정 — Android 전용.
