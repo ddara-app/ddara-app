@@ -73,7 +73,9 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
     // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.
     ref.invalidate(group_detail.groupPageNotifierProvider(widget.groupId));
     // 게시 후에는 스타터로 돌아가지 않도록 화면을 교체한다.
-    context.pushReplacement(RoutePath.follower, extra: cycleId);
+    context.pushReplacement(
+      RoutePath.cycleGallery(groupId: widget.groupId, cycleId: cycleId),
+    );
   }
 
   @override

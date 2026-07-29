@@ -13,18 +13,22 @@ abstract class NotificationPayload with _$NotificationPayload {
     required String? actorNickname,
     // NEW_CYCLE 등 사이클 관련 알림에만 존재.
     required int? cycleId,
-    // 댓글이 달린 사진 id. COMMENT 외에는 null.
+    // 대상 사진 id. FRIEND_SHOT·COMMENT 외에는 null.
     required int? shotId,
     // 사이클 마감 시각. DEADLINE 알림에서 남은 시간 계산에 사용. 없으면 null.
     required DateTime? deadlineAt,
     // 서버가 계산한 마감까지 남은 단계(60·30·5·1). DEADLINE 알림에만 존재.
     required int? remainingMinutes,
-    // 알림 썸네일 이미지 URL. 스타터 원본 가이드샷이 있는 알림
-    // (NEW_CYCLE·CYCLE_COMPLETED)에만 값이 오고, 나머지는 null → 기본 썸네일.
+    // 알림 썸네일 이미지 URL. 사진이 딸린 알림(NEW_CYCLE·CYCLE_COMPLETED 의
+    // 스타터 가이드샷, FRIEND_SHOT·COMMENT 의 인증샷)에만 값이 오고,
+    // 나머지는 null → 기본 썸네일.
     required String? imageUrl,
-    // 썸네일(스타터 샷)이 신고 접수로 검토 중인지 여부.
-    // (NEW_CYCLE·CYCLE_COMPLETED 에만 존재)
+    // 썸네일이 신고 접수로 검토 중인지 여부.
+    // (NEW_CYCLE·CYCLE_COMPLETED·FRIEND_SHOT·COMMENT 에만 존재)
     required bool imageUnderReview,
+    // 썸네일이 잠긴 사진인지 여부. 잠겨도 imageUrl 은 그대로 오므로,
+    // 사진을 지우는 대신 블러로 가린다. (FRIEND_SHOT·COMMENT 에만 존재)
+    required bool locked,
     // 썸네일을 올린 스타터의 userId. NEW_CYCLE·CYCLE_COMPLETED 외에는 null.
     required int? starterUserId,
   }) = _NotificationPayload;

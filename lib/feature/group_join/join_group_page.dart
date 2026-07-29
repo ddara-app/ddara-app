@@ -116,11 +116,8 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
         ref.invalidate(homeNotifierProvider);
         // 초대 확인 스텝에서 받은 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
         context.pushReplacement(
-          RoutePath.group,
-          extra: GroupPageArgs(
-            groupId: next.joinedGroupId,
-            groupName: group?.name,
-          ),
+          RoutePath.group(next.joinedGroupId),
+          extra: GroupPageArgs(groupName: group?.name),
         );
         return;
       }

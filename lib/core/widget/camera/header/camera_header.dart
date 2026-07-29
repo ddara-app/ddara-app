@@ -3,19 +3,48 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
+/// 원본사진 투명도 옵션. (왼→오 배치 순서, 값은 퍼센트)
+const cameraOpacityLabels = ['0', '20', '40'];
+
+/// 처음 선택돼 있는 투명도 옵션. (가장 진한 값)
+const cameraDefaultOpacityLabel = '40';
+
+/// 투명도 변경으로 인정하는 최소 가로 스와이프 속도. (px/s)
+const double _swipeVelocityThreshold = 200;
+
+/// 가로 스와이프 속도로 [current] 다음에 선택할 투명도 라벨을 고른다.
+/// 살짝 흔들린 정도이거나 더 갈 옵션이 없으면 null.
+///
+/// 탭 배치와 방향을 맞춘다 — 왼쪽으로 밀면 오른쪽 옵션(더 진하게),
+/// 오른쪽으로 밀면 왼쪽 옵션(더 옅게)이 선택된다.
+String? opacityLabelForSwipe(String current, double velocity) {
+  if (velocity.abs() < _swipeVelocityThreshold) return null;
+
+  final index = cameraOpacityLabels.indexOf(current);
+  if (index < 0) return null;
+
+  final next = index + (velocity < 0 ? 1 : -1);
+  if (next < 0 || next >= cameraOpacityLabels.length) return null;
+  return cameraOpacityLabels[next];
+}
+
 /// 카메라 상단 영역. '원본사진 투명도' 라벨 + 선택 탭을 둔다. (고스트 확대 모드에서만 노출)
 ///
-/// 선택 상태(어떤 탭이 켜졌는지)는 내부에서 관리하고,
-/// 그에 따른 투명도 적용은 외부 콜백으로 위임한다.
+/// 선택 상태는 갖지 않고 [opacityLabel] 을 그대로 그린다. 프리뷰 스와이프로도
+/// 투명도가 바뀌므로 상태를 화면(부모)이 들고 있어야 두 조작이 어긋나지 않는다.
 class CameraHeader extends StatelessWidget {
   const CameraHeader({
     super.key,
     this.showOpacity = false,
+    this.opacityLabel = cameraDefaultOpacityLabel,
     required this.onOpacityChanged,
   });
 
   /// '원본사진 투명도' 영역(라벨 + 탭) 표시 여부.
   final bool showOpacity;
+
+  /// 현재 선택된 투명도 라벨. ([cameraOpacityLabels] 중 하나)
+  final String opacityLabel;
 
   /// 투명도 탭이 바뀌었을 때. 선택된 라벨('0'/'20'/'40')을 전달한다.
   final ValueChanged<String> onOpacityChanged;
@@ -42,7 +71,10 @@ class CameraHeader extends StatelessWidget {
               spacing: AppSpacing.s4,
               children: [
                 AppText.label(AppLocalizations.of(context).cameraOpacityLabel),
-                _OpacityTabs(onChanged: onOpacityChanged),
+                _OpacityTabs(
+                  selectedLabel: opacityLabel,
+                  onChanged: onOpacityChanged,
+                ),
               ],
             ),
           ),
@@ -52,29 +84,30 @@ class CameraHeader extends StatelessWidget {
   }
 }
 
-/// 원본사진 투명도 선택 탭. 선택값은 내부 상태로 두고, 변경 시 [onChanged] 로 알린다.
+/// 원본사진 투명도 선택 탭. 선택값은 부모가 들고 있고, 변경 시 [onChanged] 로 알린다.
 /// 선택 표시(하얀 원)는 선택된 옵션 위로 슬라이딩 이동한다.
-class _OpacityTabs extends StatefulWidget {
-  const _OpacityTabs({required this.onChanged});
+class _OpacityTabs extends StatelessWidget {
+  const _OpacityTabs({required this.selectedLabel, required this.onChanged});
+
+  /// 현재 선택된 라벨.
+  final String selectedLabel;
 
   final ValueChanged<String> onChanged;
 
-  @override
-  State<_OpacityTabs> createState() => _OpacityTabsState();
-}
-
-class _OpacityTabsState extends State<_OpacityTabs> {
-  static const _labels = ['0', '20', '40'];
+  static const _labels = cameraOpacityLabels;
   static const _itemSize = 24.0;
   static const _spacing = AppSpacing.s3;
   static const _duration = Duration(milliseconds: 200);
 
-  int _selectedIndex = _labels.length - 1;
+  /// 목록에 없는 값이 들어오면 기본 선택(마지막)으로 둔다.
+  int get _selectedIndex {
+    final index = _labels.indexOf(selectedLabel);
+    return index < 0 ? _labels.length - 1 : index;
+  }
 
   void _select(int index) {
     if (_selectedIndex == index) return;
-    setState(() => _selectedIndex = index);
-    widget.onChanged(_labels[index]);
+    onChanged(_labels[index]);
   }
 
   /// 옵션이 동일 크기·균등 간격이라 alignment.x 를 -1 ~ 1 로 두면
@@ -88,6 +121,7 @@ class _OpacityTabsState extends State<_OpacityTabs> {
   @override
   Widget build(BuildContext context) {
     final width = _labels.length * _itemSize + (_labels.length - 1) * _spacing;
+    final selectedIndex = _selectedIndex;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.s2),
@@ -126,7 +160,7 @@ class _OpacityTabsState extends State<_OpacityTabs> {
                 for (var i = 0; i < _labels.length; i++)
                   _OpacityOption(
                     label: _labels[i],
-                    selected: _selectedIndex == i,
+                    selected: selectedIndex == i,
                     size: _itemSize,
                     duration: _duration,
                     onPressed: () => _select(i),

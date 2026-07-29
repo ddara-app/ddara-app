@@ -1,6 +1,14 @@
 import 'package:flutter/widgets.dart';
 
+import '../../design_system/foundation/app_color_primitives.dart';
 import '../../design_system/theme/app_colors.dart';
+
+/// 사진 하단이 흐려지기 시작하는 지점. (위에서부터의 비율)
+///
+/// 점진 블러가 풀리기 시작하는 지점([BakedProgressiveBlurImage.sharpUntil])과
+/// 스크림이 덮기 시작하는 지점을 같은 값으로 묶어, 사진 위 하단 처리를 쓰는
+/// 화면(모임 카드·스타터 헤더)이 하나의 기준을 공유한다.
+const double photoFadeStart = 0.6;
 
 /// 카드·이미지 하단을 어둡게 덮는 그라데이션 스크림.
 ///
@@ -21,6 +29,15 @@ class BottomScrim extends StatelessWidget {
     this.color = AppColors.bgBase,
     this.maxAlpha = 1.0,
   });
+
+  /// 사진 위에 까는 표준 스크림. (모임 카드·스타터 헤더 공유)
+  ///
+  /// 점진 블러와 같은 지점([photoFadeStart])에서 시작하고, 끝을 검정 50% 로
+  /// 두어 최하단에도 사진이 비친다.
+  const BottomScrim.photo({super.key})
+    : heightFactor = 1 - photoFadeStart,
+      color = AppColorPrimitives.pureBlack,
+      maxAlpha = 0.5;
 
   /// 스크림이 덮는 높이 비율. (부모 높이의 0~1)
   final double heightFactor;

@@ -67,9 +67,8 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
         ref.invalidate(homeNotifierProvider);
         // 방금 입력한 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
         context.pushReplacement(
-          RoutePath.group,
+          RoutePath.group(next.createGroupId),
           extra: GroupPageArgs(
-            groupId: next.createGroupId,
             groupName: next.groupName,
             // 방금 만든 모임이라 진행 중 따라찍기가 있을 수 없다.
             hasCurrentCycle: false,

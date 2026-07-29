@@ -231,16 +231,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String meetingRemainingHours(int hours) {
-    return '$hours시간 남음';
+    return '마감 $hours시간 전';
   }
 
   @override
   String meetingRemainingMinutes(int minutes) {
-    return '$minutes분 남음';
+    return '마감 $minutes분 전';
   }
 
   @override
   String get meetingClosed => '진행 종료';
+
+  @override
+  String get meetingNotStarted => '스타터';
 
   @override
   String get groupCreateTitle => '모임 이름을 정해주세요';
@@ -408,6 +411,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupMembersAdd => '추가하기';
 
   @override
+  String get groupMembersStarterBadge => '스타터';
+
+  @override
   String get memberReportUser => '유저 신고';
 
   @override
@@ -537,7 +543,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String startedHeaderRemaining(String time) {
-    return '진행 중 · $time 남음';
+    return '진행 중 · 마감 $time 전';
   }
 
   @override
@@ -1175,4 +1181,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get policyLoadFailed => '문서를 불러오지 못했어요.';
+
+  @override
+  String get splashTagline => '우리끼리 따라찍기';
 }

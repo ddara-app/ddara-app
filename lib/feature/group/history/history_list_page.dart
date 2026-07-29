@@ -189,6 +189,7 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
     return [
       for (final section in sections)
         HistoryMonthSection(
+          groupId: widget.groupId,
           year: section.year,
           month: section.month,
           cycles: section.cycles,

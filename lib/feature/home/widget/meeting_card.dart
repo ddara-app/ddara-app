@@ -32,19 +32,29 @@ class MeetingCard extends StatelessWidget {
     final closed = finished || expired;
     // 진행 중도 종료도 아니면(따라찍기 이력 없음) 라벨을 두지 않는다.
     final hasStatus = cycle != null || finished;
+    // 내가 다음 스타터로 지정된 모임. 회차 상태보다 '내 차례'를 먼저 알린다.
+    final starterPending = group.showStarterBorder;
 
     return PhotoCardShell(
       imageUrl: group.thumbnailUrl,
       title: group.name,
       subtitle: _memberSummary(l10n, group),
-      // 상단: 진행 중이면 남은 시간, 끝났으면 '진행 종료'.
-      topLabel: !hasStatus
+      // 상단: 내 차례면 '시작 전', 진행 중이면 남은 시간, 끝났으면 '진행 종료'.
+      topLabel: starterPending
+          ? l10n.meetingNotStarted
+          : !hasStatus
           ? null
           : closed
           ? l10n.meetingClosed
           : _remainingLabel(l10n, cycle!.deadlineAt),
-      // 라벨 옆 점으로 진행/종료를 색으로도 구분한다.
-      topIndicatorColor: !hasStatus
+      // 끝난 회차는 글자도 한 단계 낮춰(secondary) 진행 중과 대비시킨다.
+      topLabelColor: closed && !starterPending
+          ? AppColors.textSecondary
+          : AppColors.textPrimary,
+      // 라벨 옆 점으로 시작 전/진행/종료를 색으로도 구분한다.
+      topIndicatorColor: starterPending
+          ? AppColors.statusWarning
+          : !hasStatus
           ? null
           : closed
           ? AppColors.statusClosed

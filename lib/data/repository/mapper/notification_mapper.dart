@@ -27,8 +27,9 @@ extension NotificationItemMapper on NotificationItemResponse {
         deadlineAt: payload.deadlineAt,
         remainingMinutes: payload.remainingMinutes,
         imageUrl: payload.imageUrl,
-        // 검토 여부가 없는 알림 종류는 false 로 취급한다.
+        // 검토·잠금 여부가 없는 알림 종류는 false 로 취급한다.
         imageUnderReview: payload.imageUnderReview ?? false,
+        locked: payload.locked ?? false,
         starterUserId: payload.starterUserId,
       ),
       readAt: readAt,

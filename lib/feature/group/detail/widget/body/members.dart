@@ -15,6 +15,7 @@ typedef MemberDisplay = ({
   String? imageUrl,
   bool isBlocked,
   bool isMe,
+  bool isStarter,
 });
 
 /// 모임 멤버 목록. (원형 프로필 + 이름, 끝에 멤버 추가 버튼)
@@ -72,6 +73,15 @@ class _MemberAvatar extends StatelessWidget {
     required this.onBlock,
   });
 
+  /// 스타터가 아닌 프로필의 테두리 두께.
+  static const double _ringWidth = 1;
+
+  /// 스타터 프로필 바깥 테두리(강조색) 두께.
+  static const double _starterOuterRingWidth = 2;
+
+  /// 바깥 테두리 안쪽에 덧대는 배경색 테두리 두께.
+  static const double _starterInnerRingWidth = 2;
+
   final MemberDisplay member;
 
   /// 컨텍스트 메뉴에서 '유저 신고'를 선택했을 때.
@@ -94,9 +104,63 @@ class _MemberAvatar extends StatelessWidget {
     final avatar = CircleAvatarLabel(
       label: label,
       labelDecoration: labelDecoration,
-      child: ProfileAvatar(
-        size: CircleAvatarLabel.circleSize,
-        imageUrl: imageUrl,
+      child: Stack(
+        children: [
+          ProfileAvatar(
+            size: CircleAvatarLabel.circleSize,
+            imageUrl: imageUrl,
+          ),
+          // 스타터는 프로필 원형 테두리에 색을 입혀 표시한다.
+          // (이미지 위에 겹쳐 그려 아바타 지름은 그대로 유지한다)
+          if (member.isStarter)
+            Positioned.fill(
+              child: Semantics(
+                label: l10n.groupMembersStarterBadge,
+                child: const DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.fromBorderSide(
+                      BorderSide(
+                        width: _starterOuterRingWidth,
+                        color: AppColors.statusSuccess,
+                      ),
+                    ),
+                  ),
+                  // 초록 테두리 바로 안쪽에 배경색 테두리를 한 겹 더 둬,
+                  // 프로필 사진과 강조색 사이에 여백처럼 보이는 띠를 만든다.
+                  child: Padding(
+                    padding: EdgeInsets.all(_starterOuterRingWidth),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.fromBorderSide(
+                          BorderSide(
+                            width: _starterInnerRingWidth,
+                            color: AppColors.bgBase,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          else
+            // 그 외 프로필은 원 가장자리를 배경과 구분해 주는 테두리만 둔다.
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.fromBorderSide(
+                    BorderSide(
+                      width: _ringWidth,
+                      color: AppColors.borderDefault,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
 

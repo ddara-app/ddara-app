@@ -60,6 +60,7 @@ _NotificationPayloadResponse _$NotificationPayloadResponseFromJson(
   remainingMinutes: (json['remainingMinutes'] as num?)?.toInt(),
   imageUrl: json['imageUrl'] as String?,
   imageUnderReview: json['imageUnderReview'] as bool?,
+  locked: json['locked'] as bool?,
   starterUserId: (json['starterUserId'] as num?)?.toInt(),
 );
 
@@ -75,5 +76,6 @@ Map<String, dynamic> _$NotificationPayloadResponseToJson(
   'remainingMinutes': instance.remainingMinutes,
   'imageUrl': instance.imageUrl,
   'imageUnderReview': instance.imageUnderReview,
+  'locked': instance.locked,
   'starterUserId': instance.starterUserId,
 };

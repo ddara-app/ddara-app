@@ -517,13 +517,13 @@ abstract class AppLocalizations {
   /// 마감까지 1시간 이상 남았을 때 (시간 단위)
   ///
   /// In ko, this message translates to:
-  /// **'{hours}시간 남음'**
+  /// **'마감 {hours}시간 전'**
   String meetingRemainingHours(int hours);
 
   /// 마감까지 1시간 미만 남았을 때 (분 단위)
   ///
   /// In ko, this message translates to:
-  /// **'{minutes}분 남음'**
+  /// **'마감 {minutes}분 전'**
   String meetingRemainingMinutes(int minutes);
 
   /// 마감 시각이 지난 사이클. 모임 카드 우상단 라벨
@@ -531,6 +531,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'진행 종료'**
   String get meetingClosed;
+
+  /// 내가 다음 스타터로 지정된 모임. 모임 카드 우상단 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터'**
+  String get meetingNotStarted;
 
   /// No description provided for @groupCreateTitle.
   ///
@@ -844,6 +850,12 @@ abstract class AppLocalizations {
   /// **'추가하기'**
   String get groupMembersAdd;
 
+  /// 친구들 목록에서 스타터 프로필에 붙는 표시. (테두리 강조의 접근성 라벨)
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터'**
+  String get groupMembersStarterBadge;
+
   /// No description provided for @memberReportUser.
   ///
   /// In ko, this message translates to:
@@ -1075,7 +1087,7 @@ abstract class AppLocalizations {
   /// 진행 중인 따라찍기의 남은 시간 안내
   ///
   /// In ko, this message translates to:
-  /// **'진행 중 · {time} 남음'**
+  /// **'진행 중 · 마감 {time} 전'**
   String startedHeaderRemaining(String time);
 
   /// 현재 따라찍기 회차
@@ -2238,6 +2250,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'문서를 불러오지 못했어요.'**
   String get policyLoadFailed;
+
+  /// 스플래시 로고 아래 브랜드 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'우리끼리 따라찍기'**
+  String get splashTagline;
 }
 
 class _AppLocalizationsDelegate

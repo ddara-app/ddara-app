@@ -3,7 +3,7 @@ import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/feed/feed.dart';
-import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/router/gallery_navigation.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
@@ -16,7 +16,6 @@ import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/feed_card.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
-import 'package:ddara/feature/home/widget/home_tab_header.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:ddara/feature/profile/provider/notifier_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -101,18 +100,20 @@ class RecentUpdatesView extends ConsumerWidget {
 
     return CardGridView(
       items: items,
-      dashboard: HomeDashboard.updateCount(
-        count: state.feed.updateCount,
-        pageIndex: 1,
-        pageCount: homeTabCount,
-      ),
+      dashboard: HomeDashboard.updateCount(count: state.feed.updateCount),
       cardBuilder: (context, item) => FeedCard(
         item: item,
         // 차단한 멤버의 댓글은 미리보기에서 뺀다.
         blockedUserIds: blockedUserIds,
         onCommentTap: () => _openPhotoViewer(context, ref, item),
         // 카드를 누르면 그 사진이 속한 회차의 갤러리로 들어간다.
-        onTap: () => context.push(RoutePath.follower, extra: item.cycleId),
+        // (뒤로 나오면 홈이 아니라 사진이 속한 모임으로 이어진다)
+        onTap: () => goCycleGallery(
+          GoRouter.of(context),
+          groupId: item.groupId,
+          cycleId: item.cycleId,
+          groupName: item.groupName,
+        ),
       ),
       onRefresh: onRefresh,
     );

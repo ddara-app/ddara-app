@@ -1,156 +1,96 @@
 import 'dart:async';
 
-import 'package:app_links/app_links.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/analytics/mixpanel_manager.dart';
+import 'core/bootstrap/app_bootstrap.dart';
 import 'core/invite/deep_link_service.dart';
 import 'l10n/app_localizations.dart';
 import 'core/router/pending_invite.dart';
 import 'core/design_system/theme/app_theme.dart';
-import 'core/local/fresh_install_guard.dart';
 import 'core/local/provider/local_provider.dart';
 import 'core/network/dio_provider.dart';
 import 'core/notification/notification_service.dart';
 import 'core/notification/provider/fcm_token_sync.dart';
 import 'core/router/app_router.dart';
+import 'core/router/gallery_navigation.dart';
 import 'core/router/route_path.dart';
 import 'data/provider/repository_provider.dart';
-import 'feature/group/detail/group_page.dart';
 import 'feature/onboarding/provider/notifier_provider.dart';
-import 'firebase_options.dart';
+import 'feature/splash/splash_page.dart';
 
-Future<void> main() async {
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  // 초기화가 끝날 때까지 네이티브 스플래시를 화면에 유지한다.
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  // 스플래시부터 상태바 색이 맞도록 초기화보다 먼저 적용한다.
+  SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayStyle);
 
-  late final ProviderContainer container;
-  try {
-    await dotenv.load(fileName: '.env');
-    KakaoSdk.init(nativeAppKey: dotenv.get("KAKAO_NATIVE_APP_KEY"));
-    await MixpanelManager.init();
-    await _initFirebase();
-    _registerFcmBackgroundHandler();
-    SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayStyle);
+  runApp(const DdaraApp());
+}
 
-    container = await _createContainer();
+/// 앱의 루트 위젯.
+///
+/// 초기화(SDK·인증 상태·콜드 스타트 딥링크)를 마칠 때까지 [SplashPage] 를 띄우고,
+/// 끝나면 라우터를 갖춘 [MyApp] 으로 교체한다. 네이티브 스플래시는 같은 색의
+/// 단색 화면이라, 첫 프레임이 스플래시 화면으로 바뀌어도 배경이 이어져 보인다.
+class DdaraApp extends StatefulWidget {
+  const DdaraApp({super.key});
 
-    // 재설치 후 첫 실행이면 iOS Keychain 에 잔존한 이전 설치의 토큰을 정리한다.
-    // 인증 상태(_confirmAuthState)가 잔존 토큰을 읽어 로그인 상태로 오인하기
-    // 전에 반드시 먼저 수행해야 한다.
-    await clearSecureStorageOnFreshInstall(
-      prefs: container.read(sharedPreferencesProvider),
-      storage: container.read(secureStorageProvider),
-    );
+  @override
+  State<DdaraApp> createState() => _DdaraAppState();
+}
 
-    await _confirmAuthState(container);
-    await _captureColdStartInvite(container);
-  } finally {
-    // 초기화 중 어느 단계가 예외를 던지거나 지연돼도 네이티브 스플래시가 화면에
-    // 갇히지 않도록 제거를 보장한다. (콜드 스타트 시 Firebase·딥링크 지연/실패 대비)
-    FlutterNativeSplash.remove();
+class _DdaraAppState extends State<DdaraApp> {
+  /// 스플래시를 최소한 이만큼은 보여준다.
+  ///
+  /// 초기화가 빨리 끝나는 기기에서 로고가 몇 프레임만 스치고 지나가면 깜빡임처럼
+  /// 보이므로, 초기화와 이 대기를 나란히 돌려 둘 다 끝난 뒤 화면을 넘긴다.
+  /// (SplashPage 의 등장 애니메이션이 끝난 뒤에도 화면이 잠시 남을 만큼 잡는다)
+  static const _minimumDuration = Duration(milliseconds: 1500);
+
+  ProviderContainer? _container;
+
+  @override
+  void initState() {
+    super.initState();
+    // 스플래시가 먼저 그려지도록 초기화는 기다리지 않고 백그라운드로 돌린다.
+    unawaited(_bootstrap());
   }
 
-  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
-}
+  Future<void> _bootstrap() async {
+    final (container, _) = await (
+      bootstrapApp(),
+      Future<void>.delayed(_minimumDuration),
+    ).wait;
 
-/// Firebase 초기화 + Crashlytics 에러 보고 연결 + Performance·Analytics 수집 설정.
-///
-/// Doze 복귀 직후 Play Services 불안정 등으로 초기화가 멈추거나 실패해도 앱은
-/// 계속 실행한다. (Crashlytics 없이 동작 — 스플래시만 붙잡지 않는다)
-Future<void> _initFirebase() async {
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    ).timeout(const Duration(seconds: 10));
-
-    // Flutter 프레임워크에서 발생한 에러를 Crashlytics 로 보고
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-    // 프레임워크가 잡지 못한 비동기/플랫폼 에러를 Crashlytics 로 보고
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
-
-    // 디버그 빌드의 성능 데이터가 콘솔 지표를 오염시키지 않도록
-    // Performance 수집은 릴리스 빌드에서만 켠다.
-    await FirebasePerformance.instance.setPerformanceCollectionEnabled(
-      kReleaseMode,
-    );
-
-    // 같은 이유로 Analytics 수집도 릴리스 빌드에서만 켠다.
-    // (개발 중 이벤트 확인은 DebugView 를 켜고 확인한다 —
-    //  docs/tech_stack.md 의 Firebase Analytics 항목 참고)
-    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
-      kReleaseMode,
-    );
-  } catch (_) {
-    // Firebase 초기화 실패·지연은 무시하고 진행한다.
-  }
-}
-
-/// FCM 백그라운드/종료 상태 메시지 핸들러를 등록한다.
-///
-/// Firebase 초기화 이후 runApp 전에 1회 호출한다. Firebase 미초기화 등으로
-/// 실패해도 앱 실행은 계속한다. (알림 없이 동작)
-void _registerFcmBackgroundHandler() {
-  try {
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  } catch (_) {
-    // 등록 실패는 무시하고 진행한다.
-  }
-}
-
-/// 라우터가 초기 분기에 사용할 ProviderContainer 를 만든다.
-///
-/// 온보딩 플래그 등을 동기적으로 읽을 수 있도록 SharedPreferences 를 미리 로드해
-/// override 로 주입한다.
-Future<ProviderContainer> _createContainer() async {
-  final prefs = await SharedPreferences.getInstance();
-  return ProviderContainer(
-    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-  );
-}
-
-/// 라우터가 초기 위치를 잡을 수 있도록 인증 상태(로그인 여부)를 미리 확정한다.
-Future<void> _confirmAuthState(ProviderContainer container) async {
-  try {
-    await container.read(authStateProvider.future);
-  } catch (_) {
-    // 인증 확인 실패 시 비로그인으로 처리
-  }
-}
-
-/// 콜드 스타트 초대 딥링크를 라우터 생성 전에 읽어 보관한다.
-///
-/// (라우터가 이 코드를 보고 초기 위치를 landing 으로 잡아, 홈이 먼저 그려졌다
-///  landing 으로 튕기는 깜빡임을 없앤다)
-Future<void> _captureColdStartInvite(ProviderContainer container) async {
-  try {
-    final initialUri = await AppLinks().getInitialLink().timeout(
-      const Duration(seconds: 3),
-    );
-    final code = DeepLinkService.parseInviteCode(initialUri);
-    if (code != null) {
-      container.read(pendingInviteCodeProvider.notifier).state = code;
+    // 초기화 도중 루트가 사라졌다면(핫 리스타트 등) 컨테이너를 정리하고 끝낸다.
+    if (!mounted) {
+      container.dispose();
+      return;
     }
-  } catch (_) {
-    // 초기 링크 조회 실패·지연은 무시한다. (스트림으로도 들어올 수 있음)
+
+    setState(() => _container = container);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final container = _container;
+
+    if (container == null) {
+      return CupertinoApp(
+        title: 'ddara',
+        theme: AppTheme.dark,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const SplashPage(),
+      );
+    }
+
+    return UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(),
+    );
   }
 }
 
@@ -203,27 +143,29 @@ class _MyAppState extends ConsumerState<MyApp> {
   /// 두 진입점이 함께 대응한다. (FCM data 는 값이 모두 문자열이라 파싱해서 쓴다)
   void _handleNotificationTap(Map<String, dynamic> data) {
     final router = ref.read(routerProvider);
+    final groupName = data['groupName'] as String?;
 
-    final cycleId = int.tryParse('${data['cycleId']}');
-    if (cycleId != null) {
-      router.push(RoutePath.follower, extra: cycleId);
+    // 모임을 모르면 어느 화면으로도 갈 수 없다. (알림 종류를 불문하고 함께 온다)
+    final groupId = int.tryParse('${data['groupId']}');
+    if (groupId == null) {
+      debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
       return;
     }
 
-    final groupId = int.tryParse('${data['groupId']}');
-    if (groupId != null) {
-      // data 의 모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다.
-      router.push(
-        RoutePath.group,
-        extra: GroupPageArgs(
-          groupId: groupId,
-          groupName: data['groupName'] as String?,
-        ),
+    // 이동은 모두 홈 기준으로 스택을 다시 세운다 — 갤러리에서 뒤로 나오면
+    // 그 모임으로, 모임에서 한 번 더 나오면 홈이다.
+    final cycleId = int.tryParse('${data['cycleId']}');
+    if (cycleId != null) {
+      goCycleGallery(
+        router,
+        groupId: groupId,
+        cycleId: cycleId,
+        groupName: groupName,
       );
       return;
     }
 
-    debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
+    goGroup(router, groupId: groupId, groupName: groupName);
   }
 
   /// 콜드 스타트 시 스플래시를 네트워크에 묶지 않기 위해, 로컬 토큰으로 낙관적
@@ -293,7 +235,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     final router = ref.watch(routerProvider);
 
     return CupertinoApp.router(
-      title: 'Ddara',
+      title: 'ddara',
       theme: AppTheme.dark,
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

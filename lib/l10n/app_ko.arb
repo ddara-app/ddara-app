@@ -186,14 +186,14 @@
       "others": { "type": "int" }
     }
   },
-  "meetingRemainingHours": "{hours}시간 남음",
+  "meetingRemainingHours": "마감 {hours}시간 전",
   "@meetingRemainingHours": {
     "description": "마감까지 1시간 이상 남았을 때 (시간 단위)",
     "placeholders": {
       "hours": { "type": "int" }
     }
   },
-  "meetingRemainingMinutes": "{minutes}분 남음",
+  "meetingRemainingMinutes": "마감 {minutes}분 전",
   "@meetingRemainingMinutes": {
     "description": "마감까지 1시간 미만 남았을 때 (분 단위)",
     "placeholders": {
@@ -203,6 +203,10 @@
   "meetingClosed": "진행 종료",
   "@meetingClosed": {
     "description": "마감 시각이 지난 사이클. 모임 카드 우상단 라벨"
+  },
+  "meetingNotStarted": "스타터",
+  "@meetingNotStarted": {
+    "description": "내가 다음 스타터로 지정된 모임. 모임 카드 우상단 라벨"
   },
 
   "groupCreateTitle": "모임 이름을 정해주세요",
@@ -286,6 +290,10 @@
   "groupExitConfirmAction": "나가기",
   "groupMembersTitle": "친구들",
   "groupMembersAdd": "추가하기",
+  "groupMembersStarterBadge": "스타터",
+  "@groupMembersStarterBadge": {
+    "description": "친구들 목록에서 스타터 프로필에 붙는 표시. (테두리 강조의 접근성 라벨)"
+  },
   "memberReportUser": "유저 신고",
   "report": "신고하기",
   "reportSheetTitle": "신고 사유를 선택해 주세요",
@@ -368,7 +376,7 @@
       "day": { "type": "int" }
     }
   },
-  "startedHeaderRemaining": "진행 중 · {time} 남음",
+  "startedHeaderRemaining": "진행 중 · 마감 {time} 전",
   "@startedHeaderRemaining": {
     "description": "진행 중인 따라찍기의 남은 시간 안내",
     "placeholders": {
@@ -817,5 +825,10 @@
   "policyPrivacy": "개인정보 처리방침",
   "policyCommunityGuideline": "운영정책(커뮤니티 가이드)",
   "policyYouthProtection": "청소년 보호정책",
-  "policyLoadFailed": "문서를 불러오지 못했어요."
+  "policyLoadFailed": "문서를 불러오지 못했어요.",
+
+  "splashTagline": "우리끼리 따라찍기",
+  "@splashTagline": {
+    "description": "스플래시 로고 아래 브랜드 문구"
+  }
 }

@@ -164,7 +164,44 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const OnboardingPage(),
       ),
       GoRoute(path: RoutePath.login, builder: (_, _) => const LoginPage()),
-      GoRoute(path: RoutePath.home, builder: (_, _) => const HomePage()),
+      // 홈 > 모임 상세 > 회차 갤러리를 중첩으로 둔다.
+      //
+      // 딥링크(알림·푸시)로 갤러리에 바로 들어갈 때 go 한 번이면 중간 스택이
+      // 함께 구성되므로, 모임 화면이 스쳐 보이지 않으면서도 뒤로가기는
+      // 갤러리 → 모임 → 홈 순서로 이어진다.
+      GoRoute(
+        path: RoutePath.home,
+        builder: (_, _) => const HomePage(),
+        routes: [
+          // 모임 상세. 모임 id 는 경로에서 읽고, 조회 전 화면을 채울 힌트
+          // (이름·썸네일 등)만 [GroupPageArgs] 로 함께 받는다.
+          GoRoute(
+            path: 'group/:groupId',
+            builder: (_, state) {
+              final groupId = int.parse(state.pathParameters['groupId']!);
+              // 갤러리까지 한 번에 이동하는 경우 extra 는 두 라우트가 공유한다.
+              // (갤러리는 경로 값만 쓰므로 힌트가 아니면 무시한다)
+              final extra = state.extra;
+              final args = extra is GroupPageArgs ? extra : null;
+
+              return GroupPage(
+                groupId: groupId,
+                groupName: args?.groupName,
+                hasCurrentCycle: args?.hasCurrentCycle,
+                thumbnailUrl: args?.thumbnailUrl,
+              );
+            },
+            routes: [
+              GoRoute(
+                path: 'cycle/:cycleId',
+                builder: (_, state) => CyclePhotoGallery(
+                  cycleId: int.parse(state.pathParameters['cycleId']!),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       GoRoute(path: RoutePath.signup, builder: (_, _) => const SignUpPage()),
       GoRoute(
         path: RoutePath.permission,
@@ -173,24 +210,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePath.requiredPermission,
         builder: (_, _) => const RequiredPermissionPage(),
-      ),
-      // 모임 상세. 호출부가 모임 이름을 알면 [GroupPageArgs] 로 함께 넘겨
-      // 조회 전에도 AppBar 제목이 비지 않게 한다. (id 만 아는 진입도 허용)
-      GoRoute(
-        path: RoutePath.group,
-        builder: (_, state) {
-          final extra = state.extra;
-          final args = extra is GroupPageArgs
-              ? extra
-              : GroupPageArgs(groupId: extra! as int);
-
-          return GroupPage(
-            groupId: args.groupId,
-            groupName: args.groupName,
-            hasCurrentCycle: args.hasCurrentCycle,
-            thumbnailUrl: args.thumbnailUrl,
-          );
-        },
       ),
       GoRoute(path: RoutePath.profile, builder: (_, _) => const ProfilePage()),
       GoRoute(
@@ -273,12 +292,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               inviteCode: args?.inviteCode ?? '',
             ),
           );
-        },
-      ),
-      GoRoute(
-        path: RoutePath.follower,
-        builder: (_, state) {
-          return CyclePhotoGallery(cycleId: state.extra! as int);
         },
       ),
       GoRoute(
