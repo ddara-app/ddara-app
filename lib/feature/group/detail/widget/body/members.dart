@@ -73,6 +73,9 @@ class _MemberAvatar extends StatelessWidget {
     required this.onBlock,
   });
 
+  /// 스타터가 아닌 프로필의 테두리 두께.
+  static const double _ringWidth = 1;
+
   /// 스타터 프로필 바깥 테두리(강조색) 두께.
   static const double _starterOuterRingWidth = 2;
 
@@ -137,6 +140,21 @@ class _MemberAvatar extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          else
+            // 그 외 프로필은 원 가장자리를 배경과 구분해 주는 테두리만 둔다.
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.fromBorderSide(
+                    BorderSide(
+                      width: _ringWidth,
+                      color: AppColors.borderDefault,
                     ),
                   ),
                 ),
