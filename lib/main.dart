@@ -79,7 +79,7 @@ class _DdaraAppState extends State<DdaraApp> {
 
     if (container == null) {
       return CupertinoApp(
-        title: 'Ddara',
+        title: 'ddara',
         theme: AppTheme.dark,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -233,7 +233,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     final router = ref.watch(routerProvider);
 
     return CupertinoApp.router(
-      title: 'Ddara',
+      title: 'ddara',
       theme: AppTheme.dark,
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

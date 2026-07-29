@@ -1,6 +1,6 @@
 # ddara
 
-SWYP-5기 3팀 - Ddara
+SWYP-5기 3팀 - ddara
 
 ## Getting Started
 
