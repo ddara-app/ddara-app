@@ -12,16 +12,15 @@ const double _swipeVelocityThreshold = 200;
 ///
 /// 토글 버튼 배치와 방향을 맞춘다 — 왼쪽으로 밀면 오른쪽 항목(고스트 확대),
 /// 오른쪽으로 밀면 왼쪽 항목(코너 미니뷰)이 선택된다.
-/// 프리뷰와 토글 Row 가 같은 규칙을 쓰도록 여기서 한 번만 정한다.
-GuideViewMode? guideModeForSwipe(double velocity) {
+GuideViewMode? _guideModeForSwipe(double velocity) {
   if (velocity.abs() < _swipeVelocityThreshold) return null;
   return velocity < 0 ? GuideViewMode.ghostZoom : GuideViewMode.cornerMini;
 }
 
 /// 프리뷰 바로 아래에 붙는 모드 토글. ('코너 미니뷰' / '고스트 확대')
 ///
-/// 선택 상태는 갖지 않고 [mode] 를 그대로 그린다. 프리뷰 스와이프로도 모드가
-/// 바뀌므로 상태를 화면(부모)이 들고 있어야 두 조작이 어긋나지 않는다.
+/// 선택 상태는 갖지 않고 [mode] 를 그대로 그린다. 모드에 따라 헤더의 투명도
+/// 영역도 함께 바뀌므로 상태를 화면(부모)이 들고 있어야 한다.
 /// [visible] 이 false 여도 높이는 유지해, 모드 전환으로 프리뷰가 줄었다
 /// 늘었다 하지 않게 한다.
 class CameraModeToggle extends StatelessWidget {
@@ -48,9 +47,9 @@ class CameraModeToggle extends StatelessWidget {
     onChanged(next);
   }
 
-  /// 토글 위에서의 가로 스와이프. (프리뷰 스와이프와 같은 방향 규칙)
+  /// 토글 위에서의 가로 스와이프.
   void _onHorizontalDragEnd(DragEndDetails details) {
-    final next = guideModeForSwipe(details.primaryVelocity ?? 0);
+    final next = _guideModeForSwipe(details.primaryVelocity ?? 0);
     if (next != null) _select(next);
   }
 

@@ -71,8 +71,10 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   int _cameraIndex = 0;
   late GuideViewMode _guideMode = widget.initialViewMode;
 
-  // 투명도 탭 기본 선택('40')과 맞춘다.
-  double _guideOpacity = 0.4;
+  // 현재 선택된 투명도 라벨. (탭 · 프리뷰 스와이프가 함께 쓰는 상태)
+  String _opacityLabel = cameraDefaultOpacityLabel;
+
+  double get _guideOpacity => (int.tryParse(_opacityLabel) ?? 0) / 100;
 
   // 핀치 줌 상태. min/max 는 카메라를 열 때 조회한다. (미지원 시 1.0 → 줌 없음)
   double _minZoom = 1.0;
@@ -249,18 +251,22 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
     widget.onViewModeChanged?.call(mode);
   }
 
-  /// 프리뷰 가로 스와이프로 모드를 전환한다. 방향·감도는 토글 Row 와 같은
-  /// 규칙([guideModeForSwipe])을 쓴다. (모드가 없는 화면에서는 무시)
+  /// 프리뷰 가로 스와이프로 원본사진 투명도를 바꾼다. 방향·감도는 투명도 탭과
+  /// 같은 규칙([opacityLabelForSwipe])을 쓴다.
+  /// (투명도를 조절할 수 없는 상태 — 고스트 확대 모드가 아닐 때는 무시)
   void _onHorizontalDragEnd(DragEndDetails details) {
-    if (!widget.showViewMode) return;
+    if (!widget.showOpacity || _guideMode != GuideViewMode.ghostZoom) return;
 
-    final next = guideModeForSwipe(details.primaryVelocity ?? 0);
-    if (next != null) _onViewModeChanged(next);
+    final next = opacityLabelForSwipe(
+      _opacityLabel,
+      details.primaryVelocity ?? 0,
+    );
+    if (next != null) _onOpacityChanged(next);
   }
 
   void _onOpacityChanged(String label) {
-    final percent = int.tryParse(label) ?? 0;
-    setState(() => _guideOpacity = percent / 100);
+    if (_opacityLabel == label) return;
+    setState(() => _opacityLabel = label);
     widget.onOpacityChanged?.call(label);
   }
 
@@ -330,6 +336,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
           // 코너 미니뷰 모드에서는 투명도 조절이 의미 없어 숨긴다.
           showOpacity:
               widget.showOpacity && _guideMode != GuideViewMode.cornerMini,
+          opacityLabel: _opacityLabel,
           onOpacityChanged: _onOpacityChanged,
         ),
         // 헤더 아래로 프리뷰 · 모드 토글 · 촬영 버튼을 차례로 붙이고,
@@ -339,8 +346,8 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
         Flexible(
           child: AspectRatio(
             aspectRatio: AppRatio.photo,
-            // 프리뷰 영역 어디서든 핀치로 줌인/아웃, 가로 스와이프로 모드
-            // 전환. (버튼 탭은 제스처 아레나에서 탭이 우선되어 그대로 동작한다)
+            // 프리뷰 영역 어디서든 핀치로 줌인/아웃, 가로 스와이프로 원본사진
+            // 투명도 조절. (버튼 탭은 제스처 아레나에서 탭이 우선되어 그대로 동작한다)
             child: GestureDetector(
               onScaleStart: _onScaleStart,
               onScaleUpdate: _onScaleUpdate,
