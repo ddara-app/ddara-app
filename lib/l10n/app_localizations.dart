@@ -2244,6 +2244,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'문서를 불러오지 못했어요.'**
   String get policyLoadFailed;
+
+  /// 스플래시 로고 아래 브랜드 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'우리끼리 따라찍기'**
+  String get splashTagline;
 }
 
 class _AppLocalizationsDelegate

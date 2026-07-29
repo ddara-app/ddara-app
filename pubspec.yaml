@@ -53,8 +53,6 @@ dependencies:
 
   dio: ^5.9.0
 
-  flutter_native_splash: ^2.4.0
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -94,6 +92,8 @@ dev_dependencies:
   build_runner: ^2.4.0
   json_serializable: ^6.9.0
   flutter_launcher_icons: ^0.14.1
+  # 네이티브 스플래시 리소스 생성 전용. (런타임 API 는 쓰지 않는다)
+  flutter_native_splash: ^2.4.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -181,20 +181,18 @@ flutter_launcher_icons:
   background_color_ios: "#16171b"
   min_sdk_android: 21
 
-# 네이티브(시스템) 스플래시 설정 — Android 전용.
+# 네이티브(시스템) 스플래시 설정 — Android · iOS 공용.
 # 변경 후 `dart run flutter_native_splash:create` 로 네이티브 리소스를 재생성한다.
 # 배경색은 디자인 시스템 bg.base (AppColors.bgBase = #16171b) 와 동일하게 맞춘다.
 #
-# iOS 는 로고 규격(어댑티브 여백 없음)이 달라 이미지를 공유할 수 없다.
-# flutter_native_splash 는 플랫폼별 이미지를 한 설정에 담을 수 없으므로
-# iOS 설정은 flutter_native_splash_ios.yaml 로 분리했다.
+# 로고·문구는 네이티브가 아니라 Flutter 의 SplashPage 가 그린다. 네이티브
+# 스플래시는 같은 색의 단색 화면만 띄워, 첫 프레임에서 SplashPage 로 넘어갈 때
+# 배경이 이어져 보이게 한다. (그래서 이미지를 지정하지 않는다)
 flutter_native_splash:
   color: "#16171b"
-  # Android OS 스플래시 아이콘. (어댑티브 아이콘 규격 — 안전영역 여백 포함)
-  image: assets/images/android_ddara.png
-  ios: false
 
-  # Android 12+ 는 별도 스플래시 API 를 사용하므로 색·이미지를 따로 지정한다.
+  # Android 12+ 는 별도 스플래시 API 를 사용한다. 아이콘을 비워 두면 OS 가
+  # 런처 아이콘을 대신 띄우므로, 투명 이미지를 지정해 단색만 남긴다.
   android_12:
     color: "#16171b"
-    image: assets/images/android_ddara.png
+    image: assets/images/splash_transparent.png

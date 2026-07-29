@@ -1178,4 +1178,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get policyLoadFailed => '문서를 불러오지 못했어요.';
+
+  @override
+  String get splashTagline => '우리끼리 따라찍기';
 }
