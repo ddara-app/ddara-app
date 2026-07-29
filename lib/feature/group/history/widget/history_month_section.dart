@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 class HistoryMonthSection extends StatelessWidget {
   const HistoryMonthSection({
     super.key,
+    required this.groupId,
     required this.year,
     required this.month,
     required this.cycles,
@@ -16,6 +17,9 @@ class HistoryMonthSection extends StatelessWidget {
     this.showTitle = true,
     this.showYear = true,
   });
+
+  /// 이 목록이 속한 모임. (아이템 탭 → 갤러리 경로를 만드는 데 쓴다)
+  final int groupId;
 
   /// 섹션의 년·월.
   final int year;
@@ -54,6 +58,7 @@ class HistoryMonthSection extends StatelessWidget {
           children: [
             for (final cycle in cycles)
               HistoryListItem(
+                groupId: groupId,
                 cycle: cycle,
                 // 차단한 스타터의 썸네일은 차단 자리표시로 가린다.
                 thumbnailBlocked: blockedUserIds.contains(cycle.starterUserId),

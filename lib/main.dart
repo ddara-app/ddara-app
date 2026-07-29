@@ -14,9 +14,9 @@ import 'core/network/dio_provider.dart';
 import 'core/notification/notification_service.dart';
 import 'core/notification/provider/fcm_token_sync.dart';
 import 'core/router/app_router.dart';
+import 'core/router/gallery_navigation.dart';
 import 'core/router/route_path.dart';
 import 'data/provider/repository_provider.dart';
-import 'feature/group/detail/group_page.dart';
 import 'feature/onboarding/provider/notifier_provider.dart';
 import 'feature/splash/splash_page.dart';
 
@@ -143,27 +143,29 @@ class _MyAppState extends ConsumerState<MyApp> {
   /// 두 진입점이 함께 대응한다. (FCM data 는 값이 모두 문자열이라 파싱해서 쓴다)
   void _handleNotificationTap(Map<String, dynamic> data) {
     final router = ref.read(routerProvider);
+    final groupName = data['groupName'] as String?;
 
-    final cycleId = int.tryParse('${data['cycleId']}');
-    if (cycleId != null) {
-      router.push(RoutePath.follower, extra: cycleId);
+    // 모임을 모르면 어느 화면으로도 갈 수 없다. (알림 종류를 불문하고 함께 온다)
+    final groupId = int.tryParse('${data['groupId']}');
+    if (groupId == null) {
+      debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
       return;
     }
 
-    final groupId = int.tryParse('${data['groupId']}');
-    if (groupId != null) {
-      // data 의 모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다.
-      router.push(
-        RoutePath.group,
-        extra: GroupPageArgs(
-          groupId: groupId,
-          groupName: data['groupName'] as String?,
-        ),
+    // 이동은 모두 홈 기준으로 스택을 다시 세운다 — 갤러리에서 뒤로 나오면
+    // 그 모임으로, 모임에서 한 번 더 나오면 홈이다.
+    final cycleId = int.tryParse('${data['cycleId']}');
+    if (cycleId != null) {
+      goCycleGallery(
+        router,
+        groupId: groupId,
+        cycleId: cycleId,
+        groupName: groupName,
       );
       return;
     }
 
-    debugPrint('[FCM] 알림 탭 - 라우팅 대상 없음: ${data['type']}');
+    goGroup(router, groupId: groupId, groupName: groupName);
   }
 
   /// 콜드 스타트 시 스플래시를 네트워크에 묶지 않기 위해, 로컬 토큰으로 낙관적

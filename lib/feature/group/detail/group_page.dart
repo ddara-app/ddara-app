@@ -30,18 +30,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// [GroupPage] 라우트 인자.
+/// [GroupPage] 진입 시 함께 넘기는 표시 힌트.
 ///
-/// 이름을 모르는 진입(딥링크 등)도 있으므로 [groupName] 은 선택이다.
+/// 모임 id 는 경로([RoutePath.group])에 있으므로 여기엔 담지 않는다. 상세 조회가
+/// 끝나기 전 화면을 미리 채우는 용도라 모든 값이 선택이며, 모르는 진입(딥링크
+/// 등)은 인자 없이 이동해도 된다.
 class GroupPageArgs {
   const GroupPageArgs({
-    required this.groupId,
     this.groupName,
     this.hasCurrentCycle,
     this.thumbnailUrl,
   });
-
-  final int groupId;
 
   /// 상세 조회 전 AppBar 에 미리 띄울 모임 이름. 모르면 null.
   final String? groupName;
@@ -181,6 +180,10 @@ class GroupPage extends ConsumerWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
+      // 이 화면 위에 이미 다른 화면이 올라와 있으면(딥링크로 갤러리에 바로
+      // 들어와 이 화면이 스택 아래에 깔린 경우 등) 자동으로 열리는 화면을
+      // 띄우지 않는다. 사용자가 보고 있는 화면을 덮어 버리기 때문이다.
+      if (ModalRoute.of(context)?.isCurrent == false) return;
 
       // 슬롯머신(랜덤 스타터 공개)으로 이동한다. (상세를 재조회하지 않고 push
       //  한다 — 재조회하면 nextStarter 가 남아 다시 이동하는 루프가 된다)
@@ -265,12 +268,23 @@ class GroupPage extends ConsumerWidget {
   Future<void> _pushThenRefresh(
     BuildContext context,
     WidgetRef ref,
-    String path,
-    Object extra,
-  ) async {
+    String path, {
+    Object? extra,
+  }) async {
     await context.push(path, extra: extra);
     ref.invalidate(groupPageNotifierProvider(groupId));
   }
+
+  /// 이 모임의 [cycleId] 회차 갤러리로 이동한다. (복귀 시 상세 갱신)
+  Future<void> _pushGallery(
+    BuildContext context,
+    WidgetRef ref,
+    int cycleId,
+  ) => _pushThenRefresh(
+    context,
+    ref,
+    RoutePath.cycleGallery(groupId: groupId, cycleId: cycleId),
+  );
 
   /// 우측 메뉴 버튼을 눌렀을 때 뜨는 모임 메뉴(액션 시트).
   void _showMenu(BuildContext context, WidgetRef ref) {
@@ -487,19 +501,23 @@ class GroupPage extends ConsumerWidget {
             starterBlocked: state.blockedUserIds.contains(
               groupDetail.currentCycle?.starterUserId,
             ),
-            navigateToStart: () =>
-                _pushThenRefresh(context, ref, RoutePath.starter, groupId),
+            navigateToStart: () => _pushThenRefresh(
+              context,
+              ref,
+              RoutePath.starter,
+              extra: groupId,
+            ),
             // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
             onTakePhoto: () {
               final cycleId = groupDetail.currentCycle?.cycleId;
               if (cycleId == null) return;
-              _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
+              _pushGallery(context, ref, cycleId);
             },
             // 스타터 사진 탭 → 히스토리 카드와 동일하게 사진 갤러리로 이동.
             onStarterImageTap: () {
               final cycleId = groupDetail.currentCycle?.cycleId;
               if (cycleId == null) return;
-              _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
+              _pushGallery(context, ref, cycleId);
             },
           ),
         ),
@@ -550,7 +568,7 @@ class GroupPage extends ConsumerWidget {
                     context,
                     ref,
                     RoutePath.historyList,
-                    groupId,
+                    extra: groupId,
                   );
                 },
               ),
@@ -573,7 +591,7 @@ class GroupPage extends ConsumerWidget {
                       'group_history_cycle_clicked',
                       properties: {'group_id': groupId, 'cycle_id': cycleId},
                     );
-                    _pushThenRefresh(context, ref, RoutePath.follower, cycleId);
+                    _pushGallery(context, ref, cycleId);
                   },
                 ),
         ),

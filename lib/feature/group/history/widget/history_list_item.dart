@@ -32,9 +32,13 @@ const double _thumbnailSize = 100;
 class HistoryListItem extends StatelessWidget {
   const HistoryListItem({
     super.key,
+    required this.groupId,
     required this.cycle,
     this.thumbnailBlocked = false,
   });
+
+  /// 이 사이클이 속한 모임. (갤러리 경로를 만드는 데 쓴다)
+  final int groupId;
 
   /// 표시할 지난 사이클.
   final HistoryListCycle cycle;
@@ -50,7 +54,9 @@ class HistoryListItem extends StatelessWidget {
       color: AppColors.bgTransparent,
       pressedColor: AppColors.bgSurface,
       // 탭 → 해당 사이클의 사진 갤러리로 이동.
-      onTap: () => context.push(RoutePath.follower, extra: cycle.cycleId),
+      onTap: () => context.push(
+        RoutePath.cycleGallery(groupId: groupId, cycleId: cycle.cycleId),
+      ),
       // 세로 제약이 무한대인 스크롤 안이라, stretch 전에 높이를 확정해야 한다.
       // (안 그러면 자식이 무한 높이를 받아 레이아웃이 깨진다)
       child: IntrinsicHeight(

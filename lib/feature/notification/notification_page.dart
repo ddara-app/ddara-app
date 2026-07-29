@@ -2,10 +2,9 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/notification/notification_item.dart';
-import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/router/gallery_navigation.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
-import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/notification/provider/notifier_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:ddara/feature/notification/widget/notification_empty.dart';
@@ -90,23 +89,28 @@ class NotificationPage extends ConsumerWidget {
   /// (COMMENT 의 shotId 로 사진 뷰어까지 바로 여는 건 갤러리 라우트가 사이클
   ///  단위라 지원하지 않는다 — 갤러리에서 사진을 골라 들어간다)
   VoidCallback? _onTap(BuildContext context, NotificationItem item) {
-    final cycleId = item.payload.cycleId;
-    if (cycleId != null) {
-      return () => context.push(RoutePath.follower, extra: cycleId);
-    }
+    final payload = item.payload;
+    // 모임을 모르면 어느 화면으로도 갈 수 없다. (알림 종류를 불문하고 함께 온다)
+    final groupId = payload.groupId;
+    if (groupId == null) return null;
 
-    final groupId = item.payload.groupId;
-    if (groupId != null) {
-      // payload 의 모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다.
-      return () => context.push(
-        RoutePath.group,
-        extra: GroupPageArgs(
-          groupId: groupId,
-          groupName: item.payload.groupName,
-        ),
+    // 이동은 모두 홈 기준으로 스택을 다시 세운다 — 갤러리에서 뒤로 나오면
+    // 알림 목록이 아니라 그 모임으로, 모임에서 한 번 더 나오면 홈이다.
+    // (모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다)
+    final cycleId = payload.cycleId;
+    if (cycleId != null) {
+      return () => goCycleGallery(
+        GoRouter.of(context),
+        groupId: groupId,
+        cycleId: cycleId,
+        groupName: payload.groupName,
       );
     }
 
-    return null;
+    return () => goGroup(
+      GoRouter.of(context),
+      groupId: groupId,
+      groupName: payload.groupName,
+    );
   }
 }
