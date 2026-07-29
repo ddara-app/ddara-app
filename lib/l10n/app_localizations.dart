@@ -850,6 +850,12 @@ abstract class AppLocalizations {
   /// **'추가하기'**
   String get groupMembersAdd;
 
+  /// 친구들 목록에서 스타터 프로필에 붙는 표시. (테두리 강조의 접근성 라벨)
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터'**
+  String get groupMembersStarterBadge;
+
   /// No description provided for @memberReportUser.
   ///
   /// In ko, this message translates to:

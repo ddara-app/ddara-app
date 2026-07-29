@@ -89,6 +89,26 @@ class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int>
     state = current.copyWith(clearActionError: true);
   }
 
+  /// 랜덤 스타터 공개를 본 것으로 현재 상세에 표시한다.
+  ///
+  /// 서버 표시는 공개 화면이 직접 남기므로 여기서는 재조회 없이 로컬 상태만
+  /// 갱신한다 — 재조회하면 아직 표시가 반영되지 않은 응답으로 공개 화면이
+  /// 다시 열릴 수 있다. 공개를 본 뒤 돌아오면 친구들 목록의 스타터 배지가
+  /// 바로 보이게 하는 것이 목적이다.
+  void markNextStarterSeen() {
+    final current = state;
+    if (current is! GroupPageLoaded) return;
+
+    final nextStarter = current.groupDetail.nextStarter;
+    if (nextStarter == null || nextStarter.seen) return;
+
+    state = current.copyWith(
+      groupDetail: current.groupDetail.copyWith(
+        nextStarter: nextStarter.copyWith(seen: true),
+      ),
+    );
+  }
+
   /// 로딩을 세우는 액션(나가기·차단·닉네임 변경)의 진입 가드.
   /// 본문이 없거나 이미 처리 중이면 false 를 돌려 중복 실행을 막는다.
   bool _startAction() {

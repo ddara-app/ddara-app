@@ -411,6 +411,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupMembersAdd => '추가하기';
 
   @override
+  String get groupMembersStarterBadge => '스타터';
+
+  @override
   String get memberReportUser => '유저 신고';
 
   @override

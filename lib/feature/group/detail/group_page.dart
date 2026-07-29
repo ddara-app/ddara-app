@@ -186,14 +186,22 @@ class GroupPage extends ConsumerWidget {
       //  한다 — 재조회하면 nextStarter 가 남아 다시 이동하는 루프가 된다)
       final nextStarter = detail.nextStarter;
       if (revealStarter && nextStarter != null) {
-        context.push(
-          RoutePath.randomStarter,
-          extra: RandomStarterArgs(
-            groupId: groupId,
-            starterUserId: nextStarter.userId,
-            members: detail.members,
-          ),
-        );
+        context
+            .push(
+              RoutePath.randomStarter,
+              extra: RandomStarterArgs(
+                groupId: groupId,
+                starterUserId: nextStarter.userId,
+                members: detail.members,
+              ),
+            )
+            // 공개를 보고 돌아오면 친구들 목록의 스타터 배지가 바로 뜨도록
+            // 확인 표시만 로컬 상태에 남긴다. (재조회는 하지 않는다)
+            .then(
+              (_) => ref
+                  .read(groupPageNotifierProvider(groupId).notifier)
+                  .markNextStarterSeen(),
+            );
         return;
       }
 
@@ -458,6 +466,7 @@ class GroupPage extends ConsumerWidget {
     final myUserId = ref.watch(
       currentProfileProvider.select((profile) => profile.valueOrNull?.id),
     );
+    final starterUserId = _starterUserId(groupDetail);
     return Column(
       // 상단부터 쌓되 가로는 중앙 정렬.
       mainAxisAlignment: MainAxisAlignment.start,
@@ -507,6 +516,10 @@ class GroupPage extends ConsumerWidget {
                     isBlocked: state.blockedUserIds.contains(member.userId),
                     // 본인 프로필에는 롱프레스 메뉴를 띄우지 않는다.
                     isMe: member.userId == myUserId,
+                    // 스타터는 프로필에 배지를 달아 목록에서도 알아볼 수 있게 한다.
+                    isStarter:
+                        starterUserId != null &&
+                        member.userId == starterUserId,
                   ),
                 )
                 .toList(),
@@ -566,6 +579,20 @@ class GroupPage extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// 친구들 목록에서 스타터 배지를 달 멤버의 userId. 대상이 없으면 null.
+  ///
+  /// 따라찍기가 시작됐으면 그 사이클의 스타터를, 아직이면 다음 사이클의
+  /// 스타터를 가리킨다. 다음 스타터는 랜덤 공개(룰렛)를 본 뒤에만 표시해,
+  /// 아직 공개를 보지 못한 멤버에게 결과가 미리 새지 않게 한다.
+  int? _starterUserId(GroupDetail detail) {
+    final cycle = detail.currentCycle;
+    if (cycle != null) return cycle.starterUserId;
+
+    final nextStarter = detail.nextStarter;
+    if (nextStarter == null || !nextStarter.seen) return null;
+    return nextStarter.userId;
   }
 
   /// 유저 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
