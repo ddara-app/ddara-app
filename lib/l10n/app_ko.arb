@@ -825,5 +825,10 @@
   "policyPrivacy": "개인정보 처리방침",
   "policyCommunityGuideline": "운영정책(커뮤니티 가이드)",
   "policyYouthProtection": "청소년 보호정책",
-  "policyLoadFailed": "문서를 불러오지 못했어요."
+  "policyLoadFailed": "문서를 불러오지 못했어요.",
+
+  "splashTagline": "우리끼리 따라찍기",
+  "@splashTagline": {
+    "description": "스플래시 로고 아래 브랜드 문구"
+  }
 }
