@@ -95,6 +95,10 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   // 핀치 시작 시점의 줌 배율. (제스처 도중 기준값)
   double _baseZoom = 1.0;
 
+  // 이번 제스처에서 동시에 닿았던 최대 손가락 수. 끝난 뒤 핀치(줌)였는지
+  // 한 손가락 스와이프(투명도)였는지 가르는 데 쓴다.
+  int _maxPointers = 0;
+
   @override
   void initState() {
     super.initState();
@@ -251,10 +255,17 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   /// 핀치 시작: 현재 줌 배율을 기준값으로 잡는다.
   void _onScaleStart(ScaleStartDetails details) {
     _baseZoom = _currentZoom;
+    _maxPointers = details.pointerCount;
   }
 
   /// 핀치 진행: 배율(scale)을 기준값에 곱해 줌 범위 안으로 적용한다.
   Future<void> _onScaleUpdate(ScaleUpdateDetails details) async {
+    // 손가락이 하나 늦게 내려오는 경우가 흔해, 제스처 내내 최대값을 기억한다.
+    // (끝난 뒤 줌이었는지 스와이프였는지 가르는 기준)
+    if (details.pointerCount > _maxPointers) {
+      _maxPointers = details.pointerCount;
+    }
+
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
     // 두 손가락 핀치가 아니면(단일 터치 이동 등) 무시한다.
@@ -285,15 +296,20 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
     setState(() => _miniViewHidden = hidden);
   }
 
-  /// 프리뷰 가로 스와이프로 원본사진 투명도를 바꾼다. 방향·감도는 투명도 탭과
-  /// 같은 규칙([opacityLabelForSwipe])을 쓴다.
+  /// 제스처 종료: 한 손가락 가로 스와이프였다면 원본사진 투명도를 바꾼다.
+  /// 방향·감도는 투명도 탭과 같은 규칙([opacityLabelForSwipe])을 쓴다.
+  ///
+  /// 가로 드래그를 별도 인식기로 두면 핀치와 같은 아레나에서 경쟁해, 두 번째
+  /// 손가락이 닿기 전에 드래그가 이겨 버리면 줌이 통째로 먹히지 않는다.
+  /// 그래서 인식기를 scale 하나로 합치고, 핀치였는지는 [_maxPointers] 로 가른다.
   /// (투명도를 조절할 수 없는 상태 — 고스트 확대 모드가 아닐 때는 무시)
-  void _onHorizontalDragEnd(DragEndDetails details) {
+  void _onScaleEnd(ScaleEndDetails details) {
+    if (_maxPointers > 1) return;
     if (!widget.showOpacity || _guideMode != GuideViewMode.ghostZoom) return;
 
     final next = opacityLabelForSwipe(
       _opacityLabel,
-      details.primaryVelocity ?? 0,
+      details.velocity.pixelsPerSecond.dx,
     );
     if (next != null) _onOpacityChanged(next);
   }
@@ -436,7 +452,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
             child: GestureDetector(
               onScaleStart: _onScaleStart,
               onScaleUpdate: _onScaleUpdate,
-              onHorizontalDragEnd: _onHorizontalDragEnd,
+              onScaleEnd: _onScaleEnd,
               child: Stack(
                 children: [
                   Positioned.fill(
