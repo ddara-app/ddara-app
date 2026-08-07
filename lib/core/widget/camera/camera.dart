@@ -1,13 +1,16 @@
 import 'package:camera/camera.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
+import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
 import 'package:ddara/core/widget/camera/header/camera_header.dart';
 import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
 import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
+import 'package:ddara/core/widget/camera/util/image_mirror.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
@@ -66,6 +69,10 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
   /// 카메라 권한이 거부된 상태. true 면 안내 화면을 보여준다.
   bool _permissionDenied = false;
+
+  /// 촬영 후처리(전면 반전 등)가 진행 중인 상태.
+  /// 짧지만 즉시 끝나지는 않아, 그동안 촬영 버튼을 막고 로딩을 덮는다.
+  bool _processing = false;
 
   List<CameraDescription> _cameras = const [];
   int _cameraIndex = 0;
@@ -165,12 +172,16 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
   /// 현재 프리뷰를 촬영해 앱 임시 디렉토리에 저장하고, 그 경로를 전달한다.
   /// (OS 갤러리에는 저장하지 않는다.)
+  ///
+  /// 전면 카메라는 프리뷰가 거울상으로 보이므로, 저장본도 같은 좌우로 뒤집어
+  /// 방금 본 화면과 확인 화면·업로드본이 어긋나지 않게 한다.
   Future<void> _capture() async {
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
     // 이미 촬영 중이면 중복 호출을 막는다.
     if (controller.value.isTakingPicture) return;
 
+    setState(() => _processing = true);
     try {
       final file = await controller.takePicture();
       // 촬영 후 화면이 넘어가도 토치가 켜진 채 남지 않도록 끈다.
@@ -179,10 +190,19 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
         await controller.setFlashMode(FlashMode.off);
         if (mounted) setState(() => _flashOn = false);
       }
+
+      final isFront =
+          controller.description.lensDirection == CameraLensDirection.front;
+      final path = isFront ? await mirrorImageFile(file.path) : file.path;
+
       if (!mounted) return;
-      widget.onCapture?.call(file.path);
+      widget.onCapture?.call(path);
     } catch (_) {
       // 촬영 실패는 무시한다. (필요 시 사용자 안내 추가)
+    } finally {
+      // 촬영이 성공하면 보통 화면이 넘어가지만, 같은 화면에 머무는 호출부도
+      // 있으므로(가이드 재촬영 등) 처리 상태는 항상 되돌린다.
+      if (mounted) setState(() => _processing = false);
     }
   }
 
@@ -330,6 +350,14 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
       );
     }
 
+    // 촬영 후처리 동안 화면 전체를 덮어 입력을 막는다. (전면 반전 등)
+    return Stack(
+      children: [_cameraBody(), if (_processing) const AppLoadingOverlay()],
+    );
+  }
+
+  /// 헤더 · 프리뷰 · 모드 토글 · 촬영 버튼으로 이어지는 본문.
+  Widget _cameraBody() {
     return Column(
       children: [
         CameraHeader(
@@ -414,7 +442,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
           mode: _guideMode,
           onChanged: _onViewModeChanged,
         ),
-        CameraBottom(onCapture: _capture),
+        CameraBottom(onCapture: tapGuard(_processing, _capture)),
       ],
     );
   }
