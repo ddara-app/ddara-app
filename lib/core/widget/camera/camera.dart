@@ -8,6 +8,7 @@ import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
 import 'package:ddara/core/widget/camera/header/camera_header.dart';
 import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
+import 'package:ddara/core/widget/camera/preview/corner_mini_handle.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
 import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
 import 'package:ddara/core/widget/camera/util/image_mirror.dart';
@@ -77,6 +78,9 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   List<CameraDescription> _cameras = const [];
   int _cameraIndex = 0;
   late GuideViewMode _guideMode = widget.initialViewMode;
+
+  /// 코너 미니뷰를 왼쪽으로 밀어 치워 둔 상태. 손잡이만 남는다.
+  bool _miniViewHidden = false;
 
   // 현재 선택된 투명도 라벨. (탭 · 프리뷰 스와이프가 함께 쓰는 상태)
   String _opacityLabel = cameraDefaultOpacityLabel;
@@ -267,8 +271,18 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
   void _onViewModeChanged(GuideViewMode mode) {
     if (_guideMode == mode) return;
-    setState(() => _guideMode = mode);
+    setState(() {
+      _guideMode = mode;
+      // 코너 미니뷰를 다시 고른 것은 가이드를 보겠다는 뜻이므로, 숨겨 뒀더라도
+      // 꺼내 둔다. (토글로 골랐는데 손잡이만 남아 있으면 고장처럼 보인다)
+      _miniViewHidden = false;
+    });
     widget.onViewModeChanged?.call(mode);
+  }
+
+  void _setMiniViewHidden(bool hidden) {
+    if (_miniViewHidden == hidden) return;
+    setState(() => _miniViewHidden = hidden);
   }
 
   /// 프리뷰 가로 스와이프로 원본사진 투명도를 바꾼다. 방향·감도는 투명도 탭과
@@ -356,6 +370,49 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
     );
   }
 
+  /// 코너 미니뷰 자리. 숨긴 상태면 손잡이만, 아니면 가이드 미니뷰를 그린다.
+  ///
+  /// 둘은 크기도 여백도 달라 자리를 [Align] 으로 잡고, 교체는 왼쪽으로
+  /// 미끄러지는 전환으로 이어 붙인다. (미는 방향과 화면이 어긋나지 않게)
+  Widget _cornerMini() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      // 기본 layoutBuilder 는 가운데 정렬이라, 크기가 다른 둘이 교체될 때
+      // 자리가 흔들린다. 좌상단에 고정한다.
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        alignment: Alignment.topLeft,
+        children: [...previousChildren, ?currentChild],
+      ),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(-0.25, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      ),
+      child: _miniViewHidden
+          // 손잡이는 화면 왼쪽 끝에 붙고, 위로만 프리뷰에서 띄운다.
+          ? Padding(
+              key: const ValueKey('corner-mini-handle'),
+              padding: const EdgeInsets.only(top: AppSpacing.s5),
+              child: CornerMiniHandle(onShow: () => _setMiniViewHidden(false)),
+            )
+          : Padding(
+              key: const ValueKey('corner-mini-view'),
+              padding: const EdgeInsets.all(AppSpacing.s4),
+              child: CornerMiniView(
+                image: widget.guideImage!,
+                onHide: () => _setMiniViewHidden(true),
+              ),
+            ),
+    );
+  }
+
   /// 헤더 · 프리뷰 · 모드 토글 · 촬영 버튼으로 이어지는 본문.
   Widget _cameraBody() {
     return Column(
@@ -390,11 +447,13 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                   ),
                   if (widget.showViewMode && widget.guideImage != null)
                     switch (_guideMode) {
-                      // 코너 미니뷰: 좌상단에 작게.
-                      GuideViewMode.cornerMini => Positioned(
-                        left: AppSpacing.s4,
-                        top: AppSpacing.s4,
-                        child: CornerMiniView(image: widget.guideImage!),
+                      // 코너 미니뷰: 좌상단에 작게. 왼쪽으로 밀어 치우면
+                      // 같은 자리에 다시 꺼낼 손잡이만 남는다.
+                      GuideViewMode.cornerMini => Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: _cornerMini(),
+                        ),
                       ),
                       // 고스트 확대: 가운데 90% 창으로 프리뷰 크기 그대로 보여준다.
                       // (창 밖 가장자리는 잘림 — 창·이미지 배치는 GhostGuideView 가 처리)
