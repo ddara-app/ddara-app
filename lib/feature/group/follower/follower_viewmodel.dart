@@ -7,7 +7,7 @@ import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/follower/util/follower_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FollowerNotifier extends AutoDisposeNotifier<FollowerState>
+class FollowerViewModel extends AutoDisposeNotifier<FollowerState>
     with AutoDisposeGuard<FollowerState> {
   @override
   FollowerState build() {

@@ -10,14 +10,14 @@ import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/home/provider/notifier_provider.dart';
+import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/home/util/feed_state.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/feed_card.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
-import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,11 +36,11 @@ class RecentUpdatesView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(feedNotifierProvider);
+    final state = ref.watch(feedViewModelProvider);
 
     // 댓글 등 액션 실패를 토스트로 안내한다.
     // (초기 조회 실패는 FeedLoadError 본문이 표시하므로 여기선 제외된다)
-    ref.listen(feedNotifierProvider, (prev, next) {
+    ref.listen(feedViewModelProvider, (prev, next) {
       final actionError = next is FeedLoaded ? next.actionError : null;
       if (actionError != null) {
         Toast.showToast(
@@ -48,13 +48,13 @@ class RecentUpdatesView extends ConsumerWidget {
           _actionErrorMessage(AppLocalizations.of(context), actionError),
           type: ToastType.error,
         );
-        ref.read(feedNotifierProvider.notifier).clearActionError();
+        ref.read(feedViewModelProvider.notifier).clearActionError();
       }
     });
 
     // 당겨서 새로고침 → 피드 재조회.
     Future<void> onRefresh() => refreshWithMinDuration(
-      () => ref.read(feedNotifierProvider.notifier).refresh(),
+      () => ref.read(feedViewModelProvider.notifier).refresh(),
     );
 
     return switch (state) {
@@ -133,13 +133,13 @@ class RecentUpdatesView extends ConsumerWidget {
     final profile = ref.read(currentProfileProvider).valueOrNull;
     final handlers = CommentSheetHandlers(
       context: context,
-      notifier: ref.read(feedNotifierProvider.notifier),
+      viewModel: ref.read(feedViewModelProvider.notifier),
       shotId: item.shotId,
       myUserId: () => profile?.id,
       // 뷰어가 열린 동안 차단이 늘 수 있어(댓글 작성자 차단), 위젯에
       // 캡처된 집합 대신 조회 시점의 최신 차단 목록을 읽는다.
       blockedUserIds: () {
-        final homeState = ref.read(homeNotifierProvider);
+        final homeState = ref.read(homeViewModelProvider);
         return homeState is HomeLoaded
             ? homeState.blockedUserIds
             : blockedUserIds;
@@ -196,7 +196,7 @@ class RecentUpdatesView extends ConsumerWidget {
     if (!confirmed || !context.mounted) return false;
 
     final success = await ref
-        .read(homeNotifierProvider.notifier)
+        .read(homeViewModelProvider.notifier)
         .blockUser(userId, groupId: groupId);
     if (!context.mounted) return success;
 

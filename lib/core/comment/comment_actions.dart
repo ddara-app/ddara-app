@@ -8,16 +8,16 @@ import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 사진 댓글 CRUD 공통 동작. (홈 피드 · 사이클 갤러리 notifier 가 공유)
+/// 사진 댓글 CRUD 공통 동작. (홈 피드 · 사이클 갤러리 ViewModel 이 공유)
 ///
 /// UseCase 호출과 예외 → 실패 종류([CommentActionError]) 매핑을 한곳에
-/// 모은다. 상태 모양이 서로 다른 notifier 들이 함께 쓰도록, 실패 반영은
+/// 모은다. 상태 모양이 서로 다른 ViewModel 들이 함께 쓰도록, 실패 반영은
 /// [onCommentError] 훅으로, 변경 성공 후처리(피드 재조회 등)는
 /// [afterCommentMutation] 훅으로 위임한다. 사용자 문구는 화면에서 l10n 으로
 /// 매핑한다. (CommentActionErrorMessage.message)
 mixin CommentActions<S> {
-  /// UseCase 조회용 ref. (autoDispose Notifier 가 이미 제공하므로 별도 구현이
-  /// 필요 없다 — Notifier 의 ref 와 시그니처를 맞추기 위해 상태 타입 [S] 를 받는다)
+  /// UseCase 조회용 ref. (autoDispose ViewModel 이 이미 제공하므로 별도 구현이
+  /// 필요 없다 — ViewModel 의 ref 와 시그니처를 맞추기 위해 상태 타입 [S] 를 받는다)
   ///
   /// riverpod 2.x 의 Notifier.ref 가 이 타입이라 그대로 따른다.
   /// (riverpod 3 승급 시 `Ref` 로 교체)

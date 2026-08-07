@@ -7,12 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'util/join_group_state.dart';
 
-class JoinGroupNotifier extends AutoDisposeNotifier<JoinGroupState>
+class JoinGroupViewModel extends AutoDisposeNotifier<JoinGroupState>
     with AutoDisposeGuard<JoinGroupState> {
   @override
   JoinGroupState build() {
     // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
-    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    // (응답 전에 화면을 떠나면 dispose 된 ViewModel 대입으로 StateError)
     watchDispose();
 
     return const JoinGroupState();

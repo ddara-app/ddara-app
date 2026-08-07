@@ -6,7 +6,7 @@ import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/profile/blocked/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/blocked/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/profile/blocked/util/blocked_users_state.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,7 +26,7 @@ class BlockedUsersPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(blockedUsersNotifierProvider);
+    final state = ref.watch(blockedUsersViewModelProvider);
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -91,7 +91,7 @@ class BlockedUsersPage extends ConsumerWidget {
   }
 
   /// 확인 다이얼로그를 띄우고, 확인 시에만 차단을 해제한 뒤 결과를 토스트로
-  /// 안내한다. (성공 시 목록은 notifier 가 재조회)
+  /// 안내한다. (성공 시 목록은 ViewModel 이 재조회)
   Future<void> _unblock(
     BuildContext context,
     WidgetRef ref,
@@ -107,7 +107,7 @@ class BlockedUsersPage extends ConsumerWidget {
     if (!ok || !context.mounted) return;
 
     final success = await ref
-        .read(blockedUsersNotifierProvider.notifier)
+        .read(blockedUsersViewModelProvider.notifier)
         .unblock(user.userId);
     if (!context.mounted) return;
 

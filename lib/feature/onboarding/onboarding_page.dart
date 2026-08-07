@@ -5,7 +5,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/design_system/component/indicator/page_indicator.dart';
 import 'package:ddara/l10n/app_localizations.dart';
-import 'package:ddara/feature/onboarding/provider/notifier_provider.dart';
+import 'package:ddara/feature/onboarding/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/onboarding/widget/onboarding_step_content.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

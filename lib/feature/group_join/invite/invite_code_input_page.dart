@@ -8,7 +8,7 @@ import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/title_description.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group_join/join_group_page.dart';
-import 'package:ddara/feature/group_join/provider/notifier_provider.dart';
+import 'package:ddara/feature/group_join/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,7 +49,7 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
     if (widget.inviteCode.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref
-            .read(inviteCodeInputNotifierProvider.notifier)
+            .read(inviteCodeInputViewModelProvider.notifier)
             .inviteCodeOnChanged(widget.inviteCode);
       });
     }
@@ -63,8 +63,8 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = ref.read(inviteCodeInputNotifierProvider.notifier);
-    final state = ref.watch(inviteCodeInputNotifierProvider);
+    final viewModel = ref.read(inviteCodeInputViewModelProvider.notifier);
+    final state = ref.watch(inviteCodeInputViewModelProvider);
     final l10n = AppLocalizations.of(context);
 
     // 아래 에러 코드는 입력 필드 아래 인라인 에러로 표시한다.
@@ -74,7 +74,7 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
         ? errorCode.message(l10n)
         : null;
 
-    ref.listen(inviteCodeInputNotifierProvider, (prev, next) {
+    ref.listen(inviteCodeInputViewModelProvider, (prev, next) {
       // 모든 검증 통과 시 참여 확인 화면으로 inviteGroup 을 담아 이동.
       final inviteGroup = next.inviteGroup;
       if (prev?.inviteGroup == null && inviteGroup != null) {
@@ -124,7 +124,7 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
                 controller: _codeController,
                 highlightWhenFilled: true,
                 errorText: codeErrorText,
-                onChanged: notifier.inviteCodeOnChanged,
+                onChanged: viewModel.inviteCodeOnChanged,
               ),
               const Spacer(),
               AppButton(
@@ -132,7 +132,7 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
                 // 코드가 비어 있으면(빈 조회 방지) 또는 조회 중이면 탭을 막는다.
                 onPressed: tapGuard(
                   state.isLoading || state.inviteCode.trim().isEmpty,
-                  () => notifier.fetchInviteGroup(),
+                  () => viewModel.fetchInviteGroup(),
                 ),
               ),
             ],

@@ -2,7 +2,7 @@ import 'package:ddara/l10n/app_localizations.dart';
 
 /// 모임 생성(`POST /api/groups`) 실패 종류.
 ///
-/// notifier 는 종류만 상태에 담고, 사용자 노출 문구는 화면에서
+/// ViewModel 은 종류만 상태에 담고, 사용자 노출 문구는 화면에서
 /// [GroupCreateErrorMessage.message] 로 l10n 매핑한다.
 enum GroupCreateError {
   /// 400 — 모임 이름 누락 또는 길이 초과.

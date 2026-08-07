@@ -1,4 +1,4 @@
-import 'package:ddara/feature/group/starter/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/starter/provider/viewmodel_provider.dart';
 import 'package:ddara/core/widget/camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,9 +12,9 @@ class StarterCamera extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(starterNotifierProvider.notifier);
+    final viewModel = ref.read(starterViewModelProvider.notifier);
 
     // 촬영 버튼을 누르면 사진 확인 단계로 전환한다.
-    return Camera(onCapture: notifier.capture);
+    return Camera(onCapture: viewModel.capture);
   }
 }

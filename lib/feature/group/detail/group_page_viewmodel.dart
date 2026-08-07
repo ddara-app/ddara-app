@@ -11,7 +11,7 @@ import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GroupPageNotifier extends AutoDisposeFamilyNotifier<GroupPageState, int>
+class GroupPageViewModel extends AutoDisposeFamilyNotifier<GroupPageState, int>
     with AutoDisposeGuard<GroupPageState> {
   /// 가장 마지막에 시작한 조회의 번호. 응답이 도착했을 때 이 값과 다르면
   /// 그 사이 새 조회가 시작된 것이므로 결과를 버린다.

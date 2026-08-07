@@ -14,7 +14,7 @@ import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/bottom_sheet/invite_share_sheet.dart';
 import 'package:ddara/core/widget/bottom_sheet/report_sheets.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/detail/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/detail/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';
 import 'package:ddara/feature/group/detail/widget/body/history_photos.dart';
 import 'package:ddara/feature/group/detail/widget/body/members.dart';
@@ -23,8 +23,8 @@ import 'package:ddara/feature/group/detail/widget/group_page_skeleton.dart';
 import 'package:ddara/feature/group/detail/widget/group_section.dart';
 import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
 import 'package:ddara/feature/group/random_starter/random_starter_page.dart';
-import 'package:ddara/feature/home/provider/notifier_provider.dart';
-import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
+import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,10 +91,10 @@ class GroupPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // groupId 를 그대로 provider 에 넘기면 notifier.build(int groupId) 가 받아 로드한다.
-    final state = ref.watch(groupPageNotifierProvider(groupId));
+    // groupId 를 그대로 provider 에 넘기면 ViewModel.build(int groupId) 가 받아 로드한다.
+    final state = ref.watch(groupPageViewModelProvider(groupId));
 
-    ref.listen(groupPageNotifierProvider(groupId), (prev, next) {
+    ref.listen(groupPageViewModelProvider(groupId), (prev, next) {
       if (next is! GroupPageLoaded) return;
 
       // 액션 실패는 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
@@ -108,7 +108,7 @@ class GroupPage extends ConsumerWidget {
         );
         // 토스트로 소비했으니 비워, 이후 상태 변경 때 같은 에러가 재노출되지 않게 한다.
         ref
-            .read(groupPageNotifierProvider(groupId).notifier)
+            .read(groupPageViewModelProvider(groupId).notifier)
             .clearActionError();
       }
 
@@ -133,7 +133,7 @@ class GroupPage extends ConsumerWidget {
         if (didPop) {
           // 이 화면에서 생긴 변경(스타터 시작 사진 등)이 복귀한 홈 카드에
           // 반영되도록 재조회시킨다.
-          ref.invalidate(homeNotifierProvider);
+          ref.invalidate(homeViewModelProvider);
           return;
         }
         // 딥링크 진입 등으로 스택이 없으면(canPop=false) 시스템 뒤로가기
@@ -202,7 +202,7 @@ class GroupPage extends ConsumerWidget {
             // 확인 표시만 로컬 상태에 남긴다. (재조회는 하지 않는다)
             .then(
               (_) => ref
-                  .read(groupPageNotifierProvider(groupId).notifier)
+                  .read(groupPageViewModelProvider(groupId).notifier)
                   .markNextStarterSeen(),
             );
         return;
@@ -259,7 +259,7 @@ class GroupPage extends ConsumerWidget {
   /// 홈으로 돌아간다. 나가기 직전 홈 목록을 무효화해, 복귀 시 최신 상태로
   /// 재조회되도록 한다. (스타터 시작 사진 등 이 화면에서 생긴 변경을 홈 카드에 반영)
   void _goHome(BuildContext context, WidgetRef ref) {
-    ref.invalidate(homeNotifierProvider);
+    ref.invalidate(homeViewModelProvider);
     context.go(RoutePath.home);
   }
 
@@ -272,7 +272,7 @@ class GroupPage extends ConsumerWidget {
     Object? extra,
   }) async {
     await context.push(path, extra: extra);
-    ref.invalidate(groupPageNotifierProvider(groupId));
+    ref.invalidate(groupPageViewModelProvider(groupId));
   }
 
   /// 이 모임의 [cycleId] 회차 갤러리로 이동한다. (복귀 시 상세 갱신)
@@ -329,13 +329,13 @@ class GroupPage extends ConsumerWidget {
 
   /// 모임 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공 시 완료 토스트를 띄운다. (신고해도 모임은 그대로 노출 — 관리자 검토
-  /// 후 처리, 실패 시 notifier 가 error → 토스트로 처리)
+  /// 후 처리, 실패 시 ViewModel 이 error → 토스트로 처리)
   Future<void> _reportGroup(BuildContext context, WidgetRef ref) async {
     final result = await GroupReportSheet.show(context);
     if (result == null || !context.mounted) return;
 
     final success = await ref
-        .read(groupPageNotifierProvider(groupId).notifier)
+        .read(groupPageViewModelProvider(groupId).notifier)
         .reportGroup(
           reason: result.reason,
           reasonText: result.detail.isEmpty ? null : result.detail,
@@ -346,10 +346,10 @@ class GroupPage extends ConsumerWidget {
   }
 
   /// 닉네임 수정 바텀시트를 띄우고, 입력을 받으면 변경을 요청한다.
-  /// (실패 시 notifier 가 error → 토스트로 처리, 성공 시 상세 재조회로 반영)
+  /// (실패 시 ViewModel 이 error → 토스트로 처리, 성공 시 상세 재조회로 반영)
   Future<void> _editNickname(BuildContext context, WidgetRef ref) async {
     // 메뉴는 상세가 뜬 뒤에만 열리므로 여기선 항상 Loaded 다.
-    final state = ref.read(groupPageNotifierProvider(groupId));
+    final state = ref.read(groupPageViewModelProvider(groupId));
     if (state is! GroupPageLoaded) return;
     final detail = state.groupDetail;
 
@@ -362,7 +362,7 @@ class GroupPage extends ConsumerWidget {
     if (nickName == null || !context.mounted) return;
 
     final success = await ref
-        .read(groupPageNotifierProvider(groupId).notifier)
+        .read(groupPageViewModelProvider(groupId).notifier)
         .changeNickName(nickName);
     if (success) {
       AppAnalytics.track(
@@ -374,7 +374,7 @@ class GroupPage extends ConsumerWidget {
 
   /// 모임 나가기를 실행한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
   /// 성공하면 홈의 목록을 새로 조회(invalidate)해 나간 모임이 사라지도록 반영한
-  /// 뒤 홈으로 이동한다. (실패 시 notifier 가 에러 토스트 처리)
+  /// 뒤 홈으로 이동한다. (실패 시 ViewModel 이 에러 토스트 처리)
   Future<void> _exitGroup(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
     final confirmed = await AppDialog.show(
@@ -387,7 +387,7 @@ class GroupPage extends ConsumerWidget {
     if (!confirmed || !context.mounted) return;
 
     final success = await ref
-        .read(groupPageNotifierProvider(groupId).notifier)
+        .read(groupPageViewModelProvider(groupId).notifier)
         .exitGroup();
     if (!success || !context.mounted) return;
 
@@ -395,14 +395,14 @@ class GroupPage extends ConsumerWidget {
       'group_exit_succeeded',
       properties: {'group_id': groupId},
     );
-    ref.invalidate(homeNotifierProvider);
+    ref.invalidate(homeViewModelProvider);
     context.go(RoutePath.home);
   }
 
   Widget _body(BuildContext context, WidgetRef ref, GroupPageState state) {
     // 최상단에서 아래로 당기면 상세·히스토리를 다시 조회한다.
     Future<void> onRefresh() => refreshWithMinDuration(
-      () => ref.read(groupPageNotifierProvider(groupId).notifier).refresh(),
+      () => ref.read(groupPageViewModelProvider(groupId).notifier).refresh(),
     );
 
     // 당겨서 새로고침에 필요한 상단 overscroll(바운스)을 허용하고, 콘텐츠가
@@ -615,7 +615,7 @@ class GroupPage extends ConsumerWidget {
 
   /// 유저 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공하면 완료 토스트를 띄운다.
-  /// (실패 시 notifier 가 error → 토스트로 처리)
+  /// (실패 시 ViewModel 이 error → 토스트로 처리)
   Future<void> _reportMember(
     BuildContext context,
     WidgetRef ref,
@@ -625,7 +625,7 @@ class GroupPage extends ConsumerWidget {
     if (result == null || !context.mounted) return;
 
     final success = await ref
-        .read(groupPageNotifierProvider(groupId).notifier)
+        .read(groupPageViewModelProvider(groupId).notifier)
         .reportMember(
           userId: member.userId,
           reason: result.reason,
@@ -638,7 +638,7 @@ class GroupPage extends ConsumerWidget {
 
   /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
   /// 성공하면 차단이 반영된 상세를 다시 조회하고 완료 토스트를 띄운다.
-  /// (실패 시 notifier 가 error → 토스트로 처리)
+  /// (실패 시 ViewModel 이 error → 토스트로 처리)
   Future<void> _blockMember(
     BuildContext context,
     WidgetRef ref,
@@ -656,7 +656,7 @@ class GroupPage extends ConsumerWidget {
     if (!confirmed || !context.mounted) return;
 
     final success = await ref
-        .read(groupPageNotifierProvider(groupId).notifier)
+        .read(groupPageViewModelProvider(groupId).notifier)
         .blockMember(member.userId);
     if (!success || !context.mounted) return;
 

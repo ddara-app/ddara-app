@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 온보딩 노출 여부 상태. 읽기(초기값)와 쓰기(complete)를 한곳에 모아,
 /// 완료 시 저장소와 캐시가 함께 갱신되므로 수동 invalidate 가 필요 없다.
-class OnboardingSeenNotifier extends Notifier<bool> {
+class OnboardingSeenViewModel extends Notifier<bool> {
   @override
   bool build() {
     return ref

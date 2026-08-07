@@ -4,7 +4,7 @@ import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeNotifier extends AutoDisposeNotifier<HomeState>
+class HomeViewModel extends AutoDisposeNotifier<HomeState>
     with AutoDisposeGuard<HomeState> {
   @override
   HomeState build() {

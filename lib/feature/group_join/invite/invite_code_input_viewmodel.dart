@@ -7,12 +7,12 @@ import 'package:ddara/core/exception/group_join_error_code.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 
-class InviteCodeInputNotifier extends AutoDisposeNotifier<InviteCodeInputState>
+class InviteCodeInputViewModel extends AutoDisposeNotifier<InviteCodeInputState>
     with AutoDisposeGuard<InviteCodeInputState> {
   @override
   InviteCodeInputState build() {
     // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
-    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    // (응답 전에 화면을 떠나면 dispose 된 ViewModel 대입으로 StateError)
     watchDispose();
 
     return InviteCodeInputState();
@@ -37,7 +37,7 @@ class InviteCodeInputNotifier extends AutoDisposeNotifier<InviteCodeInputState>
   }
 
   /// 초대 코드로 모임 정보를 조회한다. (실제 참여는 다음 화면의
-  /// JoinGroupNotifier.joinGroup 이 담당 — 이 메서드는 코드 유효성 확인·조회다)
+  /// JoinGroupViewModel.joinGroup 이 담당 — 이 메서드는 코드 유효성 확인·조회다)
   Future<void> fetchInviteGroup() async {
     if (state.isLoading) return;
 

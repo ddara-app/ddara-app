@@ -11,10 +11,10 @@ import 'package:ddara/core/model/report/report_reason.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
-import 'package:ddara/feature/home/provider/notifier_provider.dart';
+import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CyclePhotoGalleryNotifier
+class CyclePhotoGalleryViewModel
     extends AutoDisposeFamilyNotifier<CyclePhotoGalleryState, int>
     with
         CommentActions<CyclePhotoGalleryState>,
@@ -36,7 +36,7 @@ class CyclePhotoGalleryNotifier
 
     try {
       // 갤러리와 내 프로필, 차단 목록을 함께(병렬) 조회한다.
-      // (group_page_notifier 와 같은 방식 — records 의 `.wait` 는 실패를
+      // (group_page_viewmodel 과 같은 방식 — records 의 `.wait` 는 실패를
       //  ParallelWaitError 로 감싸 아래 개별 예외 분기를 탈 수 없다)
       final results = await Future.wait([
         getCycleGalleryUseCase(cycleId),
@@ -148,7 +148,7 @@ class CyclePhotoGalleryNotifier
       await _loadGallery(arg);
       // 홈(그룹 썸네일·피드 필터)에도 차단이 반영되도록 재조회시킨다.
       // (홈이 스택에 남아 있으면 즉시, 없으면 다음 진입 때 반영)
-      ref.invalidate(homeNotifierProvider);
+      ref.invalidate(homeViewModelProvider);
       return true;
     } on InvalidBlockInputException {
       return _fail(GroupActionError.blockSelf);

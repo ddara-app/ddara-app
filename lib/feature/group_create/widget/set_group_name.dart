@@ -1,7 +1,7 @@
 import 'package:ddara/core/design_system/component/text_field/app_text_field.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/title_description.dart';
-import 'package:ddara/feature/group_create/provider/notifier_provider.dart';
+import 'package:ddara/feature/group_create/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,13 +30,13 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = ref.read(createGroupNotifierProvider.notifier);
+    final viewModel = ref.read(createGroupViewModelProvider.notifier);
     final l10n = AppLocalizations.of(context);
 
     // 길이 초과 여부만 구독해, 입력마다 위젯 전체를 setState 로 다시 그리지 않는다.
-    // (검증 진실 원천은 notifier state — 컨트롤러 리스너 불필요)
+    // (검증 진실 원천은 ViewModel state — 컨트롤러 리스너 불필요)
     final (nameOverLength, introOverLength) = ref.watch(
-      createGroupNotifierProvider.select(
+      createGroupViewModelProvider.select(
         (s) => (s.isNameOverLength, s.isIntroOverLength),
       ),
     );
@@ -65,7 +65,7 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
           controller: _nameController,
           highlightWhenFilled: true,
           errorText: nameError,
-          onChanged: notifier.groupNameOnChanged,
+          onChanged: viewModel.groupNameOnChanged,
         ),
         const SizedBox(height: AppSpacing.s7),
         AppTextField(
@@ -74,7 +74,7 @@ class _SetGroupNameState extends ConsumerState<SetGroupName> {
           controller: _introController,
           highlightWhenFilled: true,
           errorText: introError,
-          onChanged: notifier.descriptionOnChanged,
+          onChanged: viewModel.descriptionOnChanged,
         ),
       ],
     );

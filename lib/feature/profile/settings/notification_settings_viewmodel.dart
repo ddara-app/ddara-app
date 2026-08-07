@@ -7,13 +7,13 @@ import 'package:ddara/feature/profile/settings/util/notification_settings_state.
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NotificationSettingsNotifier
+class NotificationSettingsViewModel
     extends AutoDisposeNotifier<NotificationSettingsState>
     with AutoDisposeGuard<NotificationSettingsState> {
   @override
   NotificationSettingsState build() {
     // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
-    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    // (응답 전에 화면을 떠나면 dispose 된 ViewModel 대입으로 StateError)
     watchDispose();
     // 진입 시 서버 설정과 권한을 자동 조회. (build 는 동기라 fire-and-forget)
     _load();

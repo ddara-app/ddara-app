@@ -5,7 +5,7 @@ import 'package:ddara/core/design_system/component/loading/app_loading_overlay.d
 import 'package:ddara/core/design_system/foundation/app_spacing.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/sign/signup/provider/notifier_provider.dart';
+import 'package:ddara/feature/sign/signup/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/sign/signup/terms_page.dart';
 import 'package:ddara/feature/sign/signup/util/sign_up_page_state.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -50,10 +50,10 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     final social = GoRouterState.of(context).extra as SocialLoginType;
-    final state = ref.watch(signNotifierProvider(social));
-    final notifier = ref.read(signNotifierProvider(social).notifier);
+    final state = ref.watch(signViewModelProvider(social));
+    final viewModel = ref.read(signViewModelProvider(social).notifier);
 
-    ref.listen(signNotifierProvider(social), (prev, next) {
+    ref.listen(signViewModelProvider(social), (prev, next) {
       // 제출 상태가 바뀐 경우만 처리. (termsAgreed 변경 같은 입력값 갱신으로
       // 같은 submit 이 재통지될 때 성공 라우팅·토스트가 중복되는 것을 막는다)
       if (prev?.submit == next.submit) return;
@@ -96,8 +96,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
               ),
               child: TermsPage(
                 initialAgreed: state.termsAgreed,
-                onNextButtonClicked: notifier.signUp,
-                onAgreementChanged: notifier.termsAgreedChanged,
+                onNextButtonClicked: viewModel.signUp,
+                onAgreementChanged: viewModel.termsAgreedChanged,
               ),
             ),
 

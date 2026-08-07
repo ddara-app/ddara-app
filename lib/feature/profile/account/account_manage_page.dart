@@ -6,7 +6,7 @@ import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
 import 'package:ddara/feature/profile/widget/profile_section.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -25,10 +25,10 @@ class AccountManagePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(profileNotifierProvider);
+    final state = ref.watch(profileViewModelProvider);
 
     // 로그아웃 결과에 따라 분기: 성공 시 로그인 화면으로 이동, 실패 시 안내.
-    ref.listen(profileNotifierProvider.select((s) => s.logoutStatus), (
+    ref.listen(profileViewModelProvider.select((s) => s.logoutStatus), (
       _,
       status,
     ) {
@@ -42,7 +42,7 @@ class AccountManagePage extends ConsumerWidget {
     });
 
     // 회원 탈퇴 결과에 따라 분기: 성공 시 로그인 화면으로 이동, 실패 시 안내.
-    ref.listen(profileNotifierProvider.select((s) => s.withdrawStatus), (
+    ref.listen(profileViewModelProvider.select((s) => s.withdrawStatus), (
       _,
       status,
     ) {
@@ -132,7 +132,7 @@ class AccountManagePage extends ConsumerWidget {
       title: l10n.profileLogoutConfirmTitle,
       confirmLabel: l10n.profileLogout,
     );
-    if (ok) await ref.read(profileNotifierProvider.notifier).logout();
+    if (ok) await ref.read(profileViewModelProvider.notifier).logout();
   }
 
   /// 회원 탈퇴 확인 다이얼로그를 띄우고, 확인 시에만 탈퇴를 진행한다.
@@ -145,6 +145,6 @@ class AccountManagePage extends ConsumerWidget {
       confirmColor: AppColors.statusDanger,
       confirmLabelColor: AppColors.textPrimary,
     );
-    if (ok) await ref.read(profileNotifierProvider.notifier).withdraw();
+    if (ok) await ref.read(profileViewModelProvider.notifier).withdraw();
   }
 }

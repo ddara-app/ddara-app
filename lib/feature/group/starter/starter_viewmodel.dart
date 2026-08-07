@@ -7,7 +7,7 @@ import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/starter/util/starter_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StarterNotifier extends AutoDisposeNotifier<StarterState>
+class StarterViewModel extends AutoDisposeNotifier<StarterState>
     with AutoDisposeGuard<StarterState> {
   @override
   StarterState build() {

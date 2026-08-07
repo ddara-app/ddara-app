@@ -5,7 +5,7 @@ import 'package:ddara/core/model/notification/notification_item.dart';
 import 'package:ddara/core/router/gallery_navigation.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
-import 'package:ddara/feature/notification/provider/notifier_provider.dart';
+import 'package:ddara/feature/notification/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:ddara/feature/notification/widget/notification_empty.dart';
 import 'package:ddara/feature/notification/widget/notification_tile.dart';
@@ -25,7 +25,7 @@ class NotificationPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(notificationNotifierProvider);
+    final state = ref.watch(notificationViewModelProvider);
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(

@@ -30,7 +30,7 @@ class DeleteAccountUseCase {
   /// 사용자가 재인증을 취소하면 아무 변경 없이 false 를 반환한다. (탈퇴 중단)
   ///
   /// 서버 탈퇴가 실패하면 예외가 전파되며, 이 경우 로컬 정보는 정리되지 않는다.
-  /// (예외 처리는 호출부(Notifier)에서 담당한다)
+  /// (예외 처리는 호출부(ViewModel)에서 담당한다)
   Future<bool> call() async {
     final social = await _authRepository.getSocialLoginType();
 

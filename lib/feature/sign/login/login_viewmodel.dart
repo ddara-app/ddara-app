@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/exception/login_exception.dart';
 import '../../../domain/provider/use_case_provider.dart';
 
-class LoginNotifier extends AutoDisposeNotifier<LoginState> {
+class LoginViewModel extends AutoDisposeNotifier<LoginState> {
   @override
   LoginState build() {
     return const LoginIdle();

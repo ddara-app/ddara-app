@@ -5,7 +5,7 @@ import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/history/util/history_list_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HistoryListNotifier
+class HistoryListViewModel
     extends AutoDisposeFamilyNotifier<HistoryListState, int>
     with AutoDisposeGuard<HistoryListState> {
   /// 가장 마지막에 시작한 조회의 번호. 응답이 도착했을 때 이 값과 다르면

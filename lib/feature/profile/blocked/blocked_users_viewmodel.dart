@@ -1,16 +1,16 @@
 import 'package:ddara/core/model/block/blocked_users.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
-import 'package:ddara/feature/home/provider/notifier_provider.dart';
+import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/profile/blocked/util/blocked_users_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState>
+class BlockedUsersViewModel extends AutoDisposeNotifier<BlockedUsersState>
     with AutoDisposeGuard<BlockedUsersState> {
   @override
   BlockedUsersState build() {
     // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
-    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    // (응답 전에 화면을 떠나면 dispose 된 ViewModel 대입으로 StateError)
     watchDispose();
     // 진입 시 차단 목록을 조회한다. (build 는 동기라 fire-and-forget)
     _load();
@@ -62,7 +62,7 @@ class BlockedUsersNotifier extends AutoDisposeNotifier<BlockedUsersState>
       });
       // 해제한 유저의 사진·썸네일이 다시 보이도록 홈도 재조회시킨다.
       // (홈이 스택에 남아 있으면 즉시, 없으면 다음 진입 때 반영)
-      ref.invalidate(homeNotifierProvider);
+      ref.invalidate(homeViewModelProvider);
       return true;
     } catch (_) {
       // NetworkException 및 기타 예기치 못한 오류.

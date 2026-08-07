@@ -9,9 +9,9 @@ import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/group_join/widget/join_confirm.dart';
-import 'package:ddara/feature/group_join/provider/notifier_provider.dart';
+import 'package:ddara/feature/group_join/provider/viewmodel_provider.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
-import 'package:ddara/feature/home/provider/notifier_provider.dart';
+import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -88,8 +88,8 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
   @override
   Widget build(BuildContext context) {
     final group = widget.group;
-    final state = ref.watch(joinGroupNotifierProvider);
-    final notifier = ref.read(joinGroupNotifierProvider.notifier);
+    final state = ref.watch(joinGroupViewModelProvider);
+    final viewModel = ref.read(joinGroupViewModelProvider.notifier);
     final l10n = AppLocalizations.of(context);
 
     // 닉네임 필드 에러: 클라이언트 검증 우선, 없으면 서버의 닉네임 중복 에러.
@@ -105,7 +105,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
       _ => state.nickname.isNotEmpty && nicknameError == null,
     };
 
-    ref.listen(joinGroupNotifierProvider, (prev, next) {
+    ref.listen(joinGroupViewModelProvider, (prev, next) {
       // 참여 성공 시 모임 화면으로 이동. (홈 목록을 무효화해 새 모임이 반영되게 한다)
       // 모임 화면의 뒤로가기(AppBar·OS)는 GroupPage 가 항상 홈으로 처리한다.
       if (prev?.joinedGroupId == -1 && next.joinedGroupId > -1) {
@@ -113,7 +113,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
           'group_join_succeeded',
           properties: {'group_id': next.joinedGroupId},
         );
-        ref.invalidate(homeNotifierProvider);
+        ref.invalidate(homeViewModelProvider);
         // 초대 확인 스텝에서 받은 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
         context.pushReplacement(
           RoutePath.group(next.joinedGroupId),
@@ -166,7 +166,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
                       JoinConfirm(group: group),
                       SetNickname(
                         groupName: group?.name ?? '',
-                        onChanged: notifier.nicknameOnChanged,
+                        onChanged: viewModel.nicknameOnChanged,
                         errorText: nicknameError,
                       ),
                     ],
@@ -183,7 +183,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
                             if (_step == 0) {
                               setState(() => _step = 1);
                             } else {
-                              notifier.joinGroup(widget.inviteCode);
+                              viewModel.joinGroup(widget.inviteCode);
                             }
                           }
                         : null,

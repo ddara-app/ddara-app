@@ -6,12 +6,12 @@ import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group_create/util/create_group_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CreateGroupNotifier extends AutoDisposeNotifier<CreateGroupState>
+class CreateGroupViewModel extends AutoDisposeNotifier<CreateGroupState>
     with AutoDisposeGuard<CreateGroupState> {
   @override
   CreateGroupState build() {
     // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
-    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    // (응답 전에 화면을 떠나면 dispose 된 ViewModel 대입으로 StateError)
     watchDispose();
 
     return CreateGroupState();

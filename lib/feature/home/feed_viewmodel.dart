@@ -6,7 +6,7 @@ import 'package:ddara/feature/home/util/feed_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FeedNotifier extends AutoDisposeNotifier<FeedState>
+class FeedViewModel extends AutoDisposeNotifier<FeedState>
     with CommentActions<FeedState>, AutoDisposeGuard<FeedState> {
   @override
   FeedState build() {

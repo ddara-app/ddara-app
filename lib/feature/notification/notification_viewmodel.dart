@@ -4,7 +4,7 @@ import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NotificationNotifier extends AutoDisposeNotifier<NotificationState>
+class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
     with AutoDisposeGuard<NotificationState> {
   @override
   NotificationState build() {

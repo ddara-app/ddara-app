@@ -3,18 +3,18 @@ import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/router/app_router.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
-import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-class ProfileNotifier extends AutoDisposeNotifier<ProfileState>
+class ProfileViewModel extends AutoDisposeNotifier<ProfileState>
     with AutoDisposeGuard<ProfileState> {
   @override
   ProfileState build() {
     // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
-    // (응답 전에 화면을 떠나면 dispose 된 Notifier 대입으로 StateError)
+    // (응답 전에 화면을 떠나면 dispose 된 ViewModel 대입으로 StateError)
     watchDispose();
     // 진입 시 프로필 정보를 자동 조회. (build 는 동기라 fire-and-forget)
     _load();

@@ -26,7 +26,7 @@ final class SignUpError extends SignUpSubmitState {
 }
 
 /// 가입 화면 상태. 사용자 입력(termsAgreed)과 제출 진행 상태(submit)를
-/// 분리해 담는다. social 은 family 파라미터라 notifier 의 `arg` 로 접근한다.
+/// 분리해 담는다. social 은 family 파라미터라 ViewModel 의 `arg` 로 접근한다.
 class SignUpPageState {
   final bool termsAgreed;
   final SignUpSubmitState submit;
