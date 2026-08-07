@@ -1,13 +1,17 @@
 import 'package:camera/camera.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
+import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/camera/bottom/camera_bottom.dart';
 import 'package:ddara/core/widget/camera/header/camera_header.dart';
 import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
+import 'package:ddara/core/widget/camera/preview/corner_mini_handle.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
 import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
+import 'package:ddara/core/widget/camera/util/image_mirror.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
@@ -67,9 +71,16 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   /// 카메라 권한이 거부된 상태. true 면 안내 화면을 보여준다.
   bool _permissionDenied = false;
 
+  /// 촬영 후처리(전면 반전 등)가 진행 중인 상태.
+  /// 짧지만 즉시 끝나지는 않아, 그동안 촬영 버튼을 막고 로딩을 덮는다.
+  bool _processing = false;
+
   List<CameraDescription> _cameras = const [];
   int _cameraIndex = 0;
   late GuideViewMode _guideMode = widget.initialViewMode;
+
+  /// 코너 미니뷰를 왼쪽으로 밀어 치워 둔 상태. 손잡이만 남는다.
+  bool _miniViewHidden = false;
 
   // 현재 선택된 투명도 라벨. (탭 · 프리뷰 스와이프가 함께 쓰는 상태)
   String _opacityLabel = cameraDefaultOpacityLabel;
@@ -83,6 +94,10 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
   // 핀치 시작 시점의 줌 배율. (제스처 도중 기준값)
   double _baseZoom = 1.0;
+
+  // 이번 제스처에서 동시에 닿았던 최대 손가락 수. 끝난 뒤 핀치(줌)였는지
+  // 한 손가락 스와이프(투명도)였는지 가르는 데 쓴다.
+  int _maxPointers = 0;
 
   @override
   void initState() {
@@ -165,12 +180,16 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
   /// 현재 프리뷰를 촬영해 앱 임시 디렉토리에 저장하고, 그 경로를 전달한다.
   /// (OS 갤러리에는 저장하지 않는다.)
+  ///
+  /// 전면 카메라는 프리뷰가 거울상으로 보이므로, 저장본도 같은 좌우로 뒤집어
+  /// 방금 본 화면과 확인 화면·업로드본이 어긋나지 않게 한다.
   Future<void> _capture() async {
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
     // 이미 촬영 중이면 중복 호출을 막는다.
     if (controller.value.isTakingPicture) return;
 
+    setState(() => _processing = true);
     try {
       final file = await controller.takePicture();
       // 촬영 후 화면이 넘어가도 토치가 켜진 채 남지 않도록 끈다.
@@ -179,10 +198,19 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
         await controller.setFlashMode(FlashMode.off);
         if (mounted) setState(() => _flashOn = false);
       }
+
+      final isFront =
+          controller.description.lensDirection == CameraLensDirection.front;
+      final path = isFront ? await mirrorImageFile(file.path) : file.path;
+
       if (!mounted) return;
-      widget.onCapture?.call(file.path);
+      widget.onCapture?.call(path);
     } catch (_) {
       // 촬영 실패는 무시한다. (필요 시 사용자 안내 추가)
+    } finally {
+      // 촬영이 성공하면 보통 화면이 넘어가지만, 같은 화면에 머무는 호출부도
+      // 있으므로(가이드 재촬영 등) 처리 상태는 항상 되돌린다.
+      if (mounted) setState(() => _processing = false);
     }
   }
 
@@ -227,10 +255,17 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
   /// 핀치 시작: 현재 줌 배율을 기준값으로 잡는다.
   void _onScaleStart(ScaleStartDetails details) {
     _baseZoom = _currentZoom;
+    _maxPointers = details.pointerCount;
   }
 
   /// 핀치 진행: 배율(scale)을 기준값에 곱해 줌 범위 안으로 적용한다.
   Future<void> _onScaleUpdate(ScaleUpdateDetails details) async {
+    // 손가락이 하나 늦게 내려오는 경우가 흔해, 제스처 내내 최대값을 기억한다.
+    // (끝난 뒤 줌이었는지 스와이프였는지 가르는 기준)
+    if (details.pointerCount > _maxPointers) {
+      _maxPointers = details.pointerCount;
+    }
+
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
     // 두 손가락 핀치가 아니면(단일 터치 이동 등) 무시한다.
@@ -247,19 +282,34 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
 
   void _onViewModeChanged(GuideViewMode mode) {
     if (_guideMode == mode) return;
-    setState(() => _guideMode = mode);
+    setState(() {
+      _guideMode = mode;
+      // 코너 미니뷰를 다시 고른 것은 가이드를 보겠다는 뜻이므로, 숨겨 뒀더라도
+      // 꺼내 둔다. (토글로 골랐는데 손잡이만 남아 있으면 고장처럼 보인다)
+      _miniViewHidden = false;
+    });
     widget.onViewModeChanged?.call(mode);
   }
 
-  /// 프리뷰 가로 스와이프로 원본사진 투명도를 바꾼다. 방향·감도는 투명도 탭과
-  /// 같은 규칙([opacityLabelForSwipe])을 쓴다.
+  void _setMiniViewHidden(bool hidden) {
+    if (_miniViewHidden == hidden) return;
+    setState(() => _miniViewHidden = hidden);
+  }
+
+  /// 제스처 종료: 한 손가락 가로 스와이프였다면 원본사진 투명도를 바꾼다.
+  /// 방향·감도는 투명도 탭과 같은 규칙([opacityLabelForSwipe])을 쓴다.
+  ///
+  /// 가로 드래그를 별도 인식기로 두면 핀치와 같은 아레나에서 경쟁해, 두 번째
+  /// 손가락이 닿기 전에 드래그가 이겨 버리면 줌이 통째로 먹히지 않는다.
+  /// 그래서 인식기를 scale 하나로 합치고, 핀치였는지는 [_maxPointers] 로 가른다.
   /// (투명도를 조절할 수 없는 상태 — 고스트 확대 모드가 아닐 때는 무시)
-  void _onHorizontalDragEnd(DragEndDetails details) {
+  void _onScaleEnd(ScaleEndDetails details) {
+    if (_maxPointers > 1) return;
     if (!widget.showOpacity || _guideMode != GuideViewMode.ghostZoom) return;
 
     final next = opacityLabelForSwipe(
       _opacityLabel,
-      details.primaryVelocity ?? 0,
+      details.velocity.pixelsPerSecond.dx,
     );
     if (next != null) _onOpacityChanged(next);
   }
@@ -330,6 +380,57 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
       );
     }
 
+    // 촬영 후처리 동안 화면 전체를 덮어 입력을 막는다. (전면 반전 등)
+    return Stack(
+      children: [_cameraBody(), if (_processing) const AppLoadingOverlay()],
+    );
+  }
+
+  /// 코너 미니뷰 자리. 숨긴 상태면 손잡이만, 아니면 가이드 미니뷰를 그린다.
+  ///
+  /// 둘은 크기도 여백도 달라 자리를 [Align] 으로 잡고, 교체는 왼쪽으로
+  /// 미끄러지는 전환으로 이어 붙인다. (미는 방향과 화면이 어긋나지 않게)
+  Widget _cornerMini() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      // 기본 layoutBuilder 는 가운데 정렬이라, 크기가 다른 둘이 교체될 때
+      // 자리가 흔들린다. 좌상단에 고정한다.
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        alignment: Alignment.topLeft,
+        children: [...previousChildren, ?currentChild],
+      ),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(-0.25, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      ),
+      child: _miniViewHidden
+          // 손잡이는 화면 왼쪽 끝에 붙고, 위로만 프리뷰에서 띄운다.
+          ? Padding(
+              key: const ValueKey('corner-mini-handle'),
+              padding: const EdgeInsets.only(top: AppSpacing.s5),
+              child: CornerMiniHandle(onShow: () => _setMiniViewHidden(false)),
+            )
+          : Padding(
+              key: const ValueKey('corner-mini-view'),
+              padding: const EdgeInsets.all(AppSpacing.s4),
+              child: CornerMiniView(
+                image: widget.guideImage!,
+                onHide: () => _setMiniViewHidden(true),
+              ),
+            ),
+    );
+  }
+
+  /// 헤더 · 프리뷰 · 모드 토글 · 촬영 버튼으로 이어지는 본문.
+  Widget _cameraBody() {
     return Column(
       children: [
         CameraHeader(
@@ -351,7 +452,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
             child: GestureDetector(
               onScaleStart: _onScaleStart,
               onScaleUpdate: _onScaleUpdate,
-              onHorizontalDragEnd: _onHorizontalDragEnd,
+              onScaleEnd: _onScaleEnd,
               child: Stack(
                 children: [
                   Positioned.fill(
@@ -362,11 +463,13 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
                   ),
                   if (widget.showViewMode && widget.guideImage != null)
                     switch (_guideMode) {
-                      // 코너 미니뷰: 좌상단에 작게.
-                      GuideViewMode.cornerMini => Positioned(
-                        left: AppSpacing.s4,
-                        top: AppSpacing.s4,
-                        child: CornerMiniView(image: widget.guideImage!),
+                      // 코너 미니뷰: 좌상단에 작게. 왼쪽으로 밀어 치우면
+                      // 같은 자리에 다시 꺼낼 손잡이만 남는다.
+                      GuideViewMode.cornerMini => Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: _cornerMini(),
+                        ),
                       ),
                       // 고스트 확대: 가운데 90% 창으로 프리뷰 크기 그대로 보여준다.
                       // (창 밖 가장자리는 잘림 — 창·이미지 배치는 GhostGuideView 가 처리)
@@ -414,7 +517,7 @@ class _CameraState extends ConsumerState<Camera> with WidgetsBindingObserver {
           mode: _guideMode,
           onChanged: _onViewModeChanged,
         ),
-        CameraBottom(onCapture: _capture),
+        CameraBottom(onCapture: tapGuard(_processing, _capture)),
       ],
     );
   }

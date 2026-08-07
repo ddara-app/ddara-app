@@ -7,10 +7,10 @@ import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/group_page.dart';
-import 'package:ddara/feature/group_create/provider/notifier_provider.dart';
+import 'package:ddara/feature/group_create/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group_create/widget/set_group_name.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
-import 'package:ddara/feature/home/provider/notifier_provider.dart';
+import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,9 +44,9 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(createGroupNotifierProvider);
+    final state = ref.watch(createGroupViewModelProvider);
     final l10n = AppLocalizations.of(context);
-    final notifier = ref.read(createGroupNotifierProvider.notifier);
+    final viewModel = ref.read(createGroupViewModelProvider.notifier);
 
     final nicknameError = validateNickname(l10n, state.nickname);
 
@@ -56,7 +56,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
       _ => state.nickname.isNotEmpty && nicknameError == null,
     };
 
-    ref.listen(createGroupNotifierProvider, (prev, next) {
+    ref.listen(createGroupViewModelProvider, (prev, next) {
       if (prev?.createGroupId == -1 && next.createGroupId > -1) {
         AppAnalytics.track(
           'group_create_succeeded',
@@ -64,7 +64,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
         );
         // 홈 목록을 무효화해, 상세에서 뒤로 돌아왔을 때 새 모임이 반영되게 한다.
         // (HomePage 는 스택에 남아 있어 재조회가 자동으로 일어나지 않는다)
-        ref.invalidate(homeNotifierProvider);
+        ref.invalidate(homeViewModelProvider);
         // 방금 입력한 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
         context.pushReplacement(
           RoutePath.group(next.createGroupId),
@@ -116,7 +116,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                     const SetGroupName(),
                     SetNickname(
                       groupName: state.groupName,
-                      onChanged: notifier.nicknameOnChanged,
+                      onChanged: viewModel.nicknameOnChanged,
                       errorText: nicknameError,
                     ),
                   ],
@@ -133,7 +133,7 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                             if (_step == 0) {
                               setState(() => _step = 1);
                             } else {
-                              notifier.createGroup();
+                              viewModel.createGroup();
                             }
                           }
                         : null,

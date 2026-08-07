@@ -14,7 +14,7 @@ import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/core/widget/image/photo_viewer.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/gallery/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group/gallery/util/cycle_photo_gallery_state.dart';
 import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/feature/group/widget/member_photo_card.dart';
@@ -51,11 +51,11 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(cyclePhotoGalleryNotifierProvider(cycleId));
+    final state = ref.watch(cyclePhotoGalleryViewModelProvider(cycleId));
 
     // 신고 등 액션 실패를 토스트로 안내한다.
     // (초기 조회 실패는 본문에 표시되므로 갤러리가 로드된 뒤의 에러만 다룬다)
-    ref.listen(cyclePhotoGalleryNotifierProvider(cycleId), (prev, next) {
+    ref.listen(cyclePhotoGalleryViewModelProvider(cycleId), (prev, next) {
       if (next is! CyclePhotoGalleryLoaded) return;
 
       final error = next.actionError;
@@ -66,7 +66,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
           type: ToastType.error,
         );
         ref
-            .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+            .read(cyclePhotoGalleryViewModelProvider(cycleId).notifier)
             .clearActionError();
       }
       // 댓글 액션 실패는 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
@@ -78,7 +78,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
           type: ToastType.error,
         );
         ref
-            .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+            .read(cyclePhotoGalleryViewModelProvider(cycleId).notifier)
             .clearCommentError();
       }
     });
@@ -407,7 +407,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   }) {
     // 전송 중 댓글을 서버 응답 전에 보여주기 위한 내 작성자 정보.
     // (뷰어는 갤러리가 떠 있어야만 열리므로 여기선 항상 Loaded 다)
-    final state = ref.read(cyclePhotoGalleryNotifierProvider(cycleId));
+    final state = ref.read(cyclePhotoGalleryViewModelProvider(cycleId));
     final me = state is CyclePhotoGalleryLoaded
         ? state.gallery.members
               .where((member) => member.userId == state.myUserId)
@@ -437,7 +437,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         final comments = await handlers.onLoadComments();
         if (comments != null) {
           ref
-              .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+              .read(cyclePhotoGalleryViewModelProvider(cycleId).notifier)
               .markCommentsRead(shotId);
         }
         return comments;
@@ -451,7 +451,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   }
 
   /// [shotId] 사진용 댓글 시트 배선. (조회·등록·삭제·수정·신고는 공용 배선,
-  /// 차단 유저 필터는 notifier 가 자체 처리하므로 blockedUserIds 는 기본값)
+  /// 차단 유저 필터는 ViewModel 이 자체 처리하므로 blockedUserIds 는 기본값)
   CommentSheetHandlers _commentHandlers(
     BuildContext context,
     WidgetRef ref,
@@ -459,10 +459,10 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   ) {
     return CommentSheetHandlers(
       context: context,
-      notifier: ref.read(cyclePhotoGalleryNotifierProvider(cycleId).notifier),
+      viewModel: ref.read(cyclePhotoGalleryViewModelProvider(cycleId).notifier),
       shotId: shotId,
       myUserId: () {
-        final state = ref.read(cyclePhotoGalleryNotifierProvider(cycleId));
+        final state = ref.read(cyclePhotoGalleryViewModelProvider(cycleId));
         return state is CyclePhotoGalleryLoaded ? state.myUserId : null;
       },
       onBlockComment: (comment) => _blockCommentAuthor(context, ref, comment),
@@ -472,7 +472,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
   /// [userId] 유저(멤버·스타터·댓글 작성자 공용)를 차단한다. 먼저 확인
   /// 다이얼로그를 띄우고, 확인 시에만 진행한다. 성공하면 차단이 반영된
   /// (사진 가림) 갤러리를 다시 조회하고 완료 토스트를 띄운 뒤 true 를
-  /// 반환한다. (실패 시 notifier 가 error → 토스트로 처리)
+  /// 반환한다. (실패 시 ViewModel 이 error → 토스트로 처리)
   Future<bool> _blockUser(
     BuildContext context,
     WidgetRef ref, {
@@ -491,7 +491,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     if (!confirmed || !context.mounted) return false;
 
     final success = await ref
-        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .read(cyclePhotoGalleryViewModelProvider(cycleId).notifier)
         .blockMember(userId);
     if (!success || !context.mounted) return false;
 
@@ -513,7 +513,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
 
   /// 사진 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공 시 검토 상태가 반영된 갤러리를 다시 조회하고 완료 토스트를 띄운다.
-  /// (실패 시 notifier 가 error → 토스트로 처리)
+  /// (실패 시 ViewModel 이 error → 토스트로 처리)
   Future<void> _reportPhoto(
     BuildContext context,
     WidgetRef ref,
@@ -523,7 +523,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     if (result == null || !context.mounted) return;
 
     final success = await ref
-        .read(cyclePhotoGalleryNotifierProvider(cycleId).notifier)
+        .read(cyclePhotoGalleryViewModelProvider(cycleId).notifier)
         .reportShot(
           shotId: shotId,
           reason: result.reason,

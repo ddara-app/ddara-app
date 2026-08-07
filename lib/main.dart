@@ -17,7 +17,7 @@ import 'core/router/app_router.dart';
 import 'core/router/gallery_navigation.dart';
 import 'core/router/route_path.dart';
 import 'data/provider/repository_provider.dart';
-import 'feature/onboarding/provider/notifier_provider.dart';
+import 'feature/onboarding/provider/viewmodel_provider.dart';
 import 'feature/splash/splash_page.dart';
 
 void main() {

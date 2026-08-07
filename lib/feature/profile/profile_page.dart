@@ -12,7 +12,7 @@ import 'package:ddara/core/widget/dialog/permission_dialog.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
-import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/profile/util/profile_state.dart';
 import 'package:ddara/feature/profile/widget/profile_header.dart';
 import 'package:ddara/feature/profile/widget/profile_image_source_sheet.dart';
@@ -56,7 +56,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           AppTextButton(
             label: l10n.commonRetry,
             // provider 를 무효화하면 build 가 다시 돌며 _load 를 재시도한다.
-            onPressed: () => ref.invalidate(profileNotifierProvider),
+            onPressed: () => ref.invalidate(profileViewModelProvider),
           ),
         ],
       ),
@@ -66,7 +66,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(profileNotifierProvider);
+    final state = ref.watch(profileViewModelProvider);
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -233,7 +233,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   /// 준비된 이미지 파일을 서버에 업로드(멀티파트)하고 프로필 이미지를 갱신한다.
   ///
-  /// 성공 시 안내 토스트, 실패 시 원인별 토스트를 띄운다. (상태 갱신은 notifier)
+  /// 성공 시 안내 토스트, 실패 시 원인별 토스트를 띄운다. (상태 갱신은 ViewModel)
   Future<void> _uploadProfileImage(
     BuildContext context,
     String imagePath,
@@ -241,7 +241,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final l10n = AppLocalizations.of(context);
     try {
       await ref
-          .read(profileNotifierProvider.notifier)
+          .read(profileViewModelProvider.notifier)
           .updateProfileImage(imagePath);
       if (!context.mounted) return;
       Toast.showToast(context, l10n.profileImageUpdated);
@@ -265,11 +265,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   /// 프로필 이미지를 기본 이미지로 되돌린다.
   ///
-  /// 성공 시 안내 토스트, 실패 시 실패 토스트를 띄운다. (상태 갱신은 notifier)
+  /// 성공 시 안내 토스트, 실패 시 실패 토스트를 띄운다. (상태 갱신은 ViewModel)
   Future<void> _resetProfileImage(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     try {
-      await ref.read(profileNotifierProvider.notifier).resetProfileImage();
+      await ref.read(profileViewModelProvider.notifier).resetProfileImage();
       if (!context.mounted) return;
       Toast.showToast(context, l10n.profileImageReset);
     } catch (_) {

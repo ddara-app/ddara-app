@@ -5,7 +5,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
-import 'package:ddara/feature/profile/provider/notifier_provider.dart';
+import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,15 +40,15 @@ class _NotificationSettingsPageState
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // OS 설정에서 권한을 변경하고 앱으로 복귀하면 토글을 최신 상태로 맞춘다.
     if (state == AppLifecycleState.resumed) {
-      ref.read(notificationSettingsNotifierProvider.notifier).syncPermission();
+      ref.read(notificationSettingsViewModelProvider.notifier).syncPermission();
     }
   }
 
-  /// '알림 허용' 토글 변경. 권한 요청까지 Notifier 가 담당하고,
+  /// '알림 허용' 토글 변경. 권한 요청까지 ViewModel 이 담당하고,
   /// 영구 거부인 경우에만 설정 이동 안내를 띄운다.
   Future<void> _onAllowChanged(bool value) async {
     final result = await ref
-        .read(notificationSettingsNotifierProvider.notifier)
+        .read(notificationSettingsViewModelProvider.notifier)
         .changeAllow(value);
     if (!mounted) return;
 
@@ -87,8 +87,8 @@ class _NotificationSettingsPageState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(notificationSettingsNotifierProvider);
-    final notifier = ref.read(notificationSettingsNotifierProvider.notifier);
+    final state = ref.watch(notificationSettingsViewModelProvider);
+    final viewModel = ref.read(notificationSettingsViewModelProvider.notifier);
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -121,25 +121,25 @@ class _NotificationSettingsPageState
                       label: l10n.notificationFollowShot,
                       caption: l10n.notificationFollowShotCaption,
                       value: state.followShot,
-                      onChanged: notifier.changeFollowShot,
+                      onChanged: viewModel.changeFollowShot,
                     ),
                     _ToggleRow(
                       label: l10n.notificationFriendShot,
                       caption: l10n.notificationFriendShotCaption,
                       value: state.friendShot,
-                      onChanged: notifier.changeFriendShot,
+                      onChanged: viewModel.changeFriendShot,
                     ),
                     _ToggleRow(
                       label: l10n.notificationStarterAssigned,
                       caption: l10n.notificationStarterAssignedCaption,
                       value: state.starterAssigned,
-                      onChanged: notifier.changeStarterAssigned,
+                      onChanged: viewModel.changeStarterAssigned,
                     ),
                     _ToggleRow(
                       label: l10n.notificationComment,
                       caption: l10n.notificationCommentCaption,
                       value: state.comment,
-                      onChanged: notifier.changeComment,
+                      onChanged: viewModel.changeComment,
                     ),
                   ],
                 ),
@@ -150,7 +150,7 @@ class _NotificationSettingsPageState
                       label: l10n.notificationMemberJoin,
                       caption: l10n.notificationMemberJoinCaption,
                       value: state.memberJoin,
-                      onChanged: notifier.changeMemberJoin,
+                      onChanged: viewModel.changeMemberJoin,
                     ),
                   ],
                 ),

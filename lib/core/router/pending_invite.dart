@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../feature/group/detail/provider/notifier_provider.dart';
-import '../../feature/group/gallery/provider/notifier_provider.dart';
-import '../../feature/home/provider/notifier_provider.dart';
-import '../../feature/profile/provider/notifier_provider.dart';
+import '../../feature/group/detail/provider/viewmodel_provider.dart';
+import '../../feature/group/gallery/provider/viewmodel_provider.dart';
+import '../../feature/home/provider/viewmodel_provider.dart';
+import '../../feature/profile/provider/viewmodel_provider.dart';
 import '../permission/provider/permission_provider.dart';
 import 'app_router.dart';
 import 'route_path.dart';
@@ -73,15 +73,15 @@ Future<void> routeAfterAuth(WidgetRef ref, GoRouter router) async {
 /// family provider 는 base 를 invalidate 하면 모든 인스턴스가 초기화된다.
 void _resetSessionCaches(WidgetRef ref) {
   // 홈 그룹 목록.
-  ref.invalidate(homeNotifierProvider);
+  ref.invalidate(homeViewModelProvider);
   // 홈 AppBar 아바타 등이 공유하는 프로필.
   ref.invalidate(currentProfileProvider);
   // 프로필 화면(이름·프로필 사진·가입일·연동 계정).
-  ref.invalidate(profileNotifierProvider);
+  ref.invalidate(profileViewModelProvider);
   // 알림 설정.
-  ref.invalidate(notificationSettingsNotifierProvider);
+  ref.invalidate(notificationSettingsViewModelProvider);
   // 모임 상세(그룹별).
-  ref.invalidate(groupPageNotifierProvider);
+  ref.invalidate(groupPageViewModelProvider);
   // 사이클 사진 갤러리(사이클별).
-  ref.invalidate(cyclePhotoGalleryNotifierProvider);
+  ref.invalidate(cyclePhotoGalleryViewModelProvider);
 }

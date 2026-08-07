@@ -2,7 +2,7 @@ import 'package:ddara/l10n/app_localizations.dart';
 
 /// 댓글 액션 실패 종류. (CommentActions mixin 이 발행)
 ///
-/// notifier 는 종류만 상태에 담고, 사용자 노출 문구는 화면에서
+/// ViewModel 은 종류만 상태에 담고, 사용자 노출 문구는 화면에서
 /// [CommentActionErrorMessage.message] 로 l10n 매핑한다.
 enum CommentActionError {
   /// 대상 사진이 이미 삭제됨.

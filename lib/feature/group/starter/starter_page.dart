@@ -1,6 +1,6 @@
 import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
-import 'package:ddara/feature/group/starter/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/starter/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group/starter/widget/starter_camera.dart';
 import 'package:ddara/feature/group/starter/widget/starter_info.dart';
 import 'package:ddara/feature/group/starter/util/starter_state.dart';
@@ -33,8 +33,8 @@ class _StarterPageState extends ConsumerState<StarterPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final step = ref.watch(starterNotifierProvider.select((s) => s.step));
-    final notifier = ref.read(starterNotifierProvider.notifier);
+    final step = ref.watch(starterViewModelProvider.select((s) => s.step));
+    final viewModel = ref.read(starterViewModelProvider.notifier);
 
     final body = switch (step) {
       StarterStep.camera => const StarterCamera(),
@@ -50,7 +50,7 @@ class _StarterPageState extends ConsumerState<StarterPage> {
           if (step == StarterStep.camera) {
             context.pop();
           } else {
-            notifier.goToCamera();
+            viewModel.goToCamera();
           }
         },
       ),

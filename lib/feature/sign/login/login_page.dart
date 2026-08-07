@@ -10,7 +10,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/model/auth/social_login_type.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/sign/login/provider/notifier_provider.dart';
+import 'package:ddara/feature/sign/login/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/sign/login/util/login_state.dart';
 import 'package:ddara/feature/sign/login/widget/social_login_button.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -46,7 +46,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       'login_attempted',
       properties: {'provider': type.name},
     );
-    ref.read(loginNotifierProvider.notifier).socialLogin(type);
+    ref.read(loginViewModelProvider.notifier).socialLogin(type);
   }
 
   @override
@@ -55,10 +55,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     // 로딩 여부만 구독해 그 외 상태 변화(성공·실패 등)로 인한 rebuild 를 막는다.
     // (성공·실패 처리는 아래 ref.listen 이 담당)
     final isLoading = ref.watch(
-      loginNotifierProvider.select((s) => s is LoginLoading),
+      loginViewModelProvider.select((s) => s is LoginLoading),
     );
 
-    ref.listen(loginNotifierProvider, (previous, next) {
+    ref.listen(loginViewModelProvider, (previous, next) {
       switch (next) {
         case LoginSuccess(:final social):
           AppAnalytics.track(

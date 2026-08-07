@@ -7,7 +7,7 @@ import 'package:ddara/core/model/group/history_list.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/history/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/history/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group/history/util/history_list_state.dart';
 import 'package:ddara/feature/group/history/widget/history_month_section.dart';
 import 'package:ddara/feature/group/history/widget/record_section.dart';
@@ -48,18 +48,18 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(historyListNotifierProvider(widget.groupId));
+    final state = ref.watch(historyListViewModelProvider(widget.groupId));
 
     // 필터 재조회 실패를 토스트로 안내한다. (보던 목록은 그대로 둔다)
     // 초기 조회 실패는 본문에 표시되므로 목록이 뜬 뒤의 에러만 다룬다.
-    ref.listen(historyListNotifierProvider(widget.groupId), (prev, next) {
+    ref.listen(historyListViewModelProvider(widget.groupId), (prev, next) {
       if (next is! HistoryListLoaded) return;
 
       final error = next.actionError;
       if (error == null) return;
       Toast.showToast(context, error.message(l10n), type: ToastType.error);
       ref
-          .read(historyListNotifierProvider(widget.groupId).notifier)
+          .read(historyListViewModelProvider(widget.groupId).notifier)
           .clearActionError();
     });
 
@@ -225,7 +225,7 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       _pickerVisible = false;
     });
     ref
-        .read(historyListNotifierProvider(widget.groupId).notifier)
+        .read(historyListViewModelProvider(widget.groupId).notifier)
         .applyFilter();
   }
 
@@ -237,7 +237,7 @@ class _HistoryListPageState extends ConsumerState<HistoryListPage> {
       _pickerVisible = false;
     });
     ref
-        .read(historyListNotifierProvider(widget.groupId).notifier)
+        .read(historyListViewModelProvider(widget.groupId).notifier)
         .applyFilter(year: _selectedYear, month: _selectedMonth);
   }
 }

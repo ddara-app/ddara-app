@@ -264,7 +264,7 @@ void _handleInvite(Uri uri) {
 - (선택) `https://ddara.app/invite?code=` 랜딩 페이지: 앱 설치 여부 판단 → 스토어/앱 분기.
 
 > 현재 코드 미구현 상태(`GroupCreatePage`의 onPressed가 `// TODO`)이므로,
-> API 스펙이 나오면 notifier(`GroupCreateNotifier`: 로딩/성공/에러)를 도입해
+> API 스펙이 나오면 ViewModel(`CreateGroupViewModel`: 로딩/성공/에러)를 도입해
 > 생성 → 시트 오픈을 연결한다.
 
 ---
@@ -328,7 +328,7 @@ xcrun simctl openurl booted "https://ddara.app/invite?code=A82TSJXk2"
   설치 버전 소스로 시그니처 검증 완료 (3-1 코드 그대로 사용 가능)
 - [x] 2. iOS 공유 스킴 `kakaolink` — 이미 등록됨(추가 작업 불필요)
 - [ ] 3. BottomSheet UI (카카오톡 공유 / 초대코드 / 더보기)
-- [ ] 4. 모임 생성 API + notifier → 생성 성공 시 `inviteCode` 확보 *(백엔드 스펙 대기 — 임시 더미 코드로 선행 가능)*
+- [ ] 4. 모임 생성 API + ViewModel → 생성 성공 시 `inviteCode` 확보 *(백엔드 스펙 대기 — 임시 더미 코드로 선행 가능)*
 - [x] 5. **(A) 카카오 실행 파라미터 방식**으로 공유 구현 (FeedTemplate, 가장 빠름)
   → `lib/core/share/kakao_share_service.dart` (`KakaoShareService.shareInvite`),
     `invite_share_sheet.dart` `_onKakaoShare`에 연결 (설치 분기 + 웹 폴백 + 실패 안내)

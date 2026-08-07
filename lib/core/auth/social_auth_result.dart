@@ -1,7 +1,7 @@
 /// 소셜 로그인 시도의 공통 결과. (google · kakao · apple 서비스가 함께 사용)
 ///
 /// 세 서비스의 호출 방식을 `Future<SocialAuthResult>` 하나로 통일해,
-/// notifier 가 성공/취소/실패를 단일 switch 로 처리할 수 있게 한다.
+/// ViewModel 이 성공/취소/실패를 단일 switch 로 처리할 수 있게 한다.
 sealed class SocialAuthResult {
   const SocialAuthResult();
 }

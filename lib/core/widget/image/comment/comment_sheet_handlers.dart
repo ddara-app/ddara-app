@@ -20,7 +20,7 @@ Set<int> _noBlockedUserIds() => const {};
 /// ```dart
 /// final handlers = CommentSheetHandlers(
 ///   context: context,
-///   notifier: notifier, // CommentActions mixin 을 가진 notifier
+///   viewModel: viewModel, // CommentActions mixin 을 가진 ViewModel
 ///   shotId: item.shotId,
 ///   myUserId: () => profile?.id,
 ///   onBlockComment: (comment) => _blockCommentAuthor(...),
@@ -30,7 +30,7 @@ Set<int> _noBlockedUserIds() => const {};
 class CommentSheetHandlers {
   CommentSheetHandlers({
     required this.context,
-    required this.notifier,
+    required this.viewModel,
     required this.shotId,
     required this.myUserId,
     this.blockedUserIds = _noBlockedUserIds,
@@ -40,8 +40,8 @@ class CommentSheetHandlers {
   /// 뷰어를 연 화면의 context. (l10n·토스트·mounted 확인에 사용)
   final BuildContext context;
 
-  /// 댓글 CRUD 를 제공하는 notifier. (CommentActions mixin)
-  final CommentActions<dynamic> notifier;
+  /// 댓글 CRUD 를 제공하는 ViewModel. (CommentActions mixin)
+  final CommentActions<dynamic> viewModel;
 
   /// 댓글 대상 사진 id.
   final int shotId;
@@ -50,16 +50,16 @@ class CommentSheetHandlers {
   final int? Function() myUserId;
 
   /// 조회 시점의 최신 차단 목록. (뷰어가 열린 동안 차단이 늘 수 있어 함수로
-  /// 받는다. 필터를 notifier 가 자체 처리하는 화면은 기본값(빈 집합)을 쓴다)
+  /// 받는다. 필터를 ViewModel 이 자체 처리하는 화면은 기본값(빈 집합)을 쓴다)
   final Set<int> Function() blockedUserIds;
 
-  /// 댓글 작성자 차단. 화면마다 차단 대상 notifier·후처리가 달라 주입받는다.
+  /// 댓글 작성자 차단. 화면마다 차단 대상 ViewModel·후처리가 달라 주입받는다.
   final Future<bool> Function(PhotoComment comment) onBlockComment;
 
   /// 댓글 목록을 조회해 화면 표시용으로 변환한다. 실패하면 null.
-  /// (실패 안내는 notifier 가 실패 종류 → 화면 토스트로 처리)
+  /// (실패 안내는 ViewModel 이 실패 종류 → 화면 토스트로 처리)
   Future<List<PhotoComment>?> onLoadComments() async {
-    final comments = await notifier.loadComments(
+    final comments = await viewModel.loadComments(
       shotId: shotId,
       blockedUserIds: blockedUserIds(),
     );
@@ -75,7 +75,7 @@ class CommentSheetHandlers {
   /// [content] 댓글을 등록하고, 성공 시 화면에 추가할 [PhotoComment] 를
   /// (작성자·시각 포함), 실패 시 null 을 반환한다.
   Future<PhotoComment?> onSubmitComment(String content) async {
-    final created = await notifier.submitComment(
+    final created = await viewModel.submitComment(
       shotId: shotId,
       content: content,
     );
@@ -88,7 +88,7 @@ class CommentSheetHandlers {
   Future<bool> onDeleteComment(PhotoComment comment) async {
     final id = comment.commentId;
     if (id == null) return false;
-    return notifier.deleteComment(commentId: id);
+    return viewModel.deleteComment(commentId: id);
   }
 
   /// [comment] 를 [newContent] 로 수정하고, 성공 시 갱신된 [PhotoComment] 를
@@ -100,7 +100,7 @@ class CommentSheetHandlers {
     final id = comment.commentId;
     if (id == null) return null;
 
-    final content = await notifier.editComment(
+    final content = await viewModel.editComment(
       commentId: id,
       content: newContent,
     );
@@ -112,7 +112,7 @@ class CommentSheetHandlers {
 
   /// 댓글 신고 사유 시트를 띄우고, 확정하면 즉시 true 를 반환해 시트가
   /// 댓글을 바로 지우게 한다. (낙관적 — 접수는 백그라운드로 진행)
-  /// 접수 성공 시 완료 토스트를, 실패 시 notifier 가 실패 종류 → 토스트로
+  /// 접수 성공 시 완료 토스트를, 실패 시 ViewModel 이 실패 종류 → 토스트로
   /// 안내한다. (실패하면 서버에 신고가 남지 않았으므로 다음 목록 조회 때
   /// 댓글이 되살아난다)
   Future<bool> onReportComment(PhotoComment comment) async {
@@ -124,7 +124,7 @@ class CommentSheetHandlers {
 
     // 접수 결과를 기다리지 않는다. (확정 즉시 댓글을 지우는 낙관적 처리)
     unawaited(
-      notifier
+      viewModel
           .reportComment(
             commentId: commentId,
             reason: result.reason,

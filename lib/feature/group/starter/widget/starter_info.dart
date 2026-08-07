@@ -10,9 +10,9 @@ import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
+import 'package:ddara/feature/group/detail/provider/viewmodel_provider.dart'
     as group_detail;
-import 'package:ddara/feature/group/starter/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/starter/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group/widget/take_photo_button.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,7 +38,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
     super.initState();
     // 단계가 바뀌었다 돌아와도 입력값이 유지되도록 state 에서 복원한다.
     _conceptController = TextEditingController(
-      text: ref.read(starterNotifierProvider).concept,
+      text: ref.read(starterViewModelProvider).concept,
     );
   }
 
@@ -49,7 +49,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
   }
 
   /// 게시 확인을 받고 촬영본을 올린다. 성공하면 방금 만들어진 사이클로 이동한다.
-  /// (실패 시 notifier 가 error 를 채우고 화면이 토스트로 안내한다)
+  /// (실패 시 ViewModel 이 error 를 채우고 화면이 토스트로 안내한다)
   Future<void> _upload() async {
     final l10n = AppLocalizations.of(context);
     // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
@@ -61,7 +61,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
     if (!confirmed || !mounted) return;
 
     final cycleId = await ref
-        .read(starterNotifierProvider.notifier)
+        .read(starterViewModelProvider.notifier)
         .upload(widget.groupId);
     if (cycleId == null || !mounted) return;
 
@@ -71,7 +71,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
     );
     // 새 사이클이 생겼으므로 스택 아래 모임 상세를 무효화해, 갤러리에서
     // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.
-    ref.invalidate(group_detail.groupPageNotifierProvider(widget.groupId));
+    ref.invalidate(group_detail.groupPageViewModelProvider(widget.groupId));
     // 게시 후에는 스타터로 돌아가지 않도록 화면을 교체한다.
     context.pushReplacement(
       RoutePath.cycleGallery(groupId: widget.groupId, cycleId: cycleId),
@@ -81,27 +81,29 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final notifier = ref.read(starterNotifierProvider.notifier);
+    final viewModel = ref.read(starterViewModelProvider.notifier);
 
     // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
-    ref.listen(starterNotifierProvider, (prev, next) {
+    ref.listen(starterViewModelProvider, (prev, next) {
       final error = next.error;
       if (error != null) {
         Toast.showToast(context, error.message(l10n), type: ToastType.error);
-        notifier.clearError();
+        viewModel.clearError();
       }
     });
 
     final photoPath = ref.watch(
-      starterNotifierProvider.select((s) => s.photoPath),
+      starterViewModelProvider.select((s) => s.photoPath),
     );
     final hasPhoto = photoPath != null;
 
     final isLoading = ref.watch(
-      starterNotifierProvider.select((s) => s.isLoading),
+      starterViewModelProvider.select((s) => s.isLoading),
     );
 
-    final concept = ref.watch(starterNotifierProvider.select((s) => s.concept));
+    final concept = ref.watch(
+      starterViewModelProvider.select((s) => s.concept),
+    );
     // 컨셉 설명은 20자 이내. 초과하면 에러 문구를 보여준다.
     final conceptError = concept.length > 20
         ? l10n.starterConceptLengthError
@@ -150,7 +152,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
                               children: [
                                 TakePhotoButton(
                                   size: TakePhotoButtonSize.large,
-                                  onPressed: notifier.goToCamera,
+                                  onPressed: viewModel.goToCamera,
                                 ),
                               ],
                             ),
@@ -162,7 +164,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
                     controller: _conceptController,
                     highlightWhenFilled: true,
                     errorText: conceptError,
-                    onChanged: notifier.conceptChanged,
+                    onChanged: viewModel.conceptChanged,
                   ),
                   const Spacer(),
                   Row(
@@ -171,7 +173,7 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
                       Expanded(
                         child: AppButton.outline(
                           label: l10n.photoRetake,
-                          onPressed: notifier.goToCamera,
+                          onPressed: viewModel.goToCamera,
                         ),
                       ),
                       Expanded(

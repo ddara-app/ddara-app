@@ -4,12 +4,12 @@ import 'package:ddara/core/design_system/component/loading/app_loading_overlay.d
 import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/detail/provider/notifier_provider.dart'
+import 'package:ddara/feature/group/detail/provider/viewmodel_provider.dart'
     as group_detail;
 import 'package:ddara/feature/group/follower/widget/follower_camera.dart';
 import 'package:ddara/feature/group/follower/widget/follower_photo_check.dart';
-import 'package:ddara/feature/group/follower/provider/notifier_provider.dart';
-import 'package:ddara/feature/group/gallery/provider/notifier_provider.dart';
+import 'package:ddara/feature/group/follower/provider/viewmodel_provider.dart';
+import 'package:ddara/feature/group/gallery/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,7 +48,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
 
   /// 게시 확인을 받고 촬영본을 올린다. 성공하면 스택 아래 갤러리를 새로고침한
   /// 뒤 이 화면을 닫아 그 갤러리로 돌아간다.
-  /// (실패 시 notifier 가 error 를 채우고 화면이 토스트로 안내한다)
+  /// (실패 시 ViewModel 이 error 를 채우고 화면이 토스트로 안내한다)
   Future<void> _upload(String path) async {
     final l10n = AppLocalizations.of(context);
     // 게시는 되돌릴 수 없으므로 확인을 한 번 받는다.
@@ -60,7 +60,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
     if (!confirmed || !mounted) return;
 
     final cycleId = await ref
-        .read(followerNotifierProvider.notifier)
+        .read(followerViewModelProvider.notifier)
         .upload(widget.cycleId, path);
     if (cycleId == null || !mounted) return;
 
@@ -70,10 +70,10 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
     );
     // 스택 아래의 갤러리를 새로고침한 뒤 촬영 화면을 닫아 그 갤러리로 돌아간다.
     // (pushReplacement 로 갤러리를 새로 쌓으면 중복·미갱신 문제가 생긴다)
-    ref.invalidate(cyclePhotoGalleryNotifierProvider(cycleId));
+    ref.invalidate(cyclePhotoGalleryViewModelProvider(cycleId));
     // 스택 아래에 모임 상세가 있으면 새 사진(참여 현황)이 반영되도록 함께
     // 무효화한다. (groupId 를 모르는 화면이라 family 전체를 무효화)
-    ref.invalidate(group_detail.groupPageNotifierProvider);
+    ref.invalidate(group_detail.groupPageViewModelProvider);
     context.pop();
   }
 
@@ -81,17 +81,17 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
   Widget build(BuildContext context) {
     final capturedPath = _capturedPath;
     final l10n = AppLocalizations.of(context);
-    final notifier = ref.read(followerNotifierProvider.notifier);
+    final viewModel = ref.read(followerViewModelProvider.notifier);
     final isLoading = ref.watch(
-      followerNotifierProvider.select((s) => s.isLoading),
+      followerViewModelProvider.select((s) => s.isLoading),
     );
 
     // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
-    ref.listen(followerNotifierProvider, (prev, next) {
+    ref.listen(followerViewModelProvider, (prev, next) {
       final error = next.error;
       if (error != null) {
         Toast.showToast(context, error.message(l10n), type: ToastType.error);
-        notifier.clearError();
+        viewModel.clearError();
       }
     });
 

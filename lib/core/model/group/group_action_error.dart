@@ -2,7 +2,7 @@ import 'package:ddara/l10n/app_localizations.dart';
 
 /// 모임 관련 화면(상세·갤러리·히스토리·스타터·따라찍기)의 액션 실패 종류.
 ///
-/// notifier 는 종류만 상태에 담고, 사용자 노출 문구는 화면에서
+/// ViewModel 은 종류만 상태에 담고, 사용자 노출 문구는 화면에서
 /// [GroupActionErrorMessage.message] 로 l10n 매핑한다. 같은 예외가 화면마다
 /// 다른 문구로 갈라지지 않도록 매핑을 한곳에 모은다.
 /// (댓글 쪽 `CommentActionError` 와 같은 구조)
