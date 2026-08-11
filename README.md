@@ -128,7 +128,8 @@ lib/
 
 ## 5. 주요 기능
 ### 1. 자동 로그인
-<img width="60%" alt="Image" src="https://github.com/user-attachments/assets/acb260b7-4f74-4c20-bffe-6f50992de55e" />
+- [로그인 및 회원가입](https://github.com/ddara-app/ddara-app/wiki/%EB%A1%9C%EA%B7%B8%EC%9D%B8_%EB%B0%8F_%ED%9A%8C%EC%9B%90%EA%B0%80%EC%9E%85)
+- [Interceptor와 자동 로그인](https://github.com/ddara-app/ddara-app/wiki/Interceptor%EC%99%80_%EC%9E%90%EB%8F%99_%EB%A1%9C%EA%B7%B8%EC%9D%B8)
 
 ### 2. 촬영 후 저장
 <img width="60%" alt="Image" src="https://github.com/user-attachments/assets/43c67d6f-790e-4cb0-840c-1e0810947f3f" />
