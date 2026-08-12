@@ -64,12 +64,12 @@ void main() {
       expect(location, '${RoutePath.inviteLanding}?code=ABC123');
     });
 
-    test('loginRoute 를 재정의하면 미로그인 분기에 반영된다', () {
+    test('loginPath 를 재정의하면 미로그인 분기에 반영된다', () {
       final location = resolveInitialLocation(
         hasSeenOnboarding: true,
         isLoggedIn: false,
         pendingInvite: null,
-        loginRoute: '/custom-login',
+        loginPath: '/custom-login',
       );
 
       expect(location, '/custom-login');

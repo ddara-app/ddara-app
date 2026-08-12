@@ -7,30 +7,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/provider/repository_provider.dart';
-import '../../feature/group_create/group_create_page.dart';
-import '../../feature/group/follower/follower_camera_page.dart';
-import '../../feature/group/gallery/cycle_photo_gallery.dart';
-import '../../feature/group/random_starter/random_starter_page.dart';
-import '../../feature/group/starter/starter_page.dart';
-import '../../feature/group/detail/group_page.dart';
-import '../../feature/group/history/history_list_page.dart';
-import '../../feature/group_join/join_group_page.dart';
-import '../../feature/group_join/invite/invite_code_input_page.dart';
-import '../../feature/group_join/landing/invite_landing_page.dart';
-import '../../feature/home/home_page.dart';
-import '../../feature/notification/notification_page.dart';
-import '../../feature/onboarding/onboarding_page.dart';
+import '../../feature/group_create/route/group_create_route.dart';
+import '../../feature/group/follower/route/follower_camera_route.dart';
+import '../../feature/group/history/route/history_list_route.dart';
+import '../../feature/group/random_starter/route/random_starter_route.dart';
+import '../../feature/group/starter/route/starter_route.dart';
+import '../../feature/group_join/invite/route/invite_code_input_route.dart';
+import '../../feature/group_join/landing/route/invite_landing_route.dart';
+import '../../feature/group_join/route/join_group_route.dart';
+import '../../feature/home/route/home_route.dart';
+import '../../feature/notification/route/notification_route.dart';
 import '../../feature/onboarding/provider/viewmodel_provider.dart';
-import '../../feature/permission/permission_page.dart';
-import '../../feature/profile/account/account_manage_page.dart';
-import '../../feature/profile/blocked/blocked_users_page.dart';
-import '../../feature/profile/profile_page.dart';
-import '../widget/policy/policy_viewer_page.dart';
-import '../../feature/profile/policy/terms_policy_page.dart';
-import '../../feature/profile/settings/notification_settings_page.dart';
-import '../../feature/permission/required_permission_page.dart';
-import '../../feature/sign/login/login_page.dart';
-import '../../feature/sign/signup/sign_up_page.dart';
+import '../../feature/onboarding/route/onboarding_route.dart';
+import '../../feature/permission/route/permission_route.dart';
+import '../../feature/permission/route/required_permission_route.dart';
+import '../../feature/profile/account/route/account_manage_route.dart';
+import '../../feature/profile/blocked/route/blocked_users_route.dart';
+import '../../feature/profile/policy/route/policy_viewer_route.dart';
+import '../../feature/profile/policy/route/terms_policy_route.dart';
+import '../../feature/profile/route/profile_route.dart';
+import '../../feature/profile/settings/route/notification_settings_route.dart';
+import '../../feature/sign/login/route/login_route.dart';
+import '../../feature/sign/signup/route/signup_route.dart';
 
 final initialRouteProvider = Provider<String>((ref) => RoutePath.login);
 
@@ -78,10 +76,10 @@ String resolveInitialLocation({
   required bool hasSeenOnboarding,
   required bool isLoggedIn,
   required String? pendingInvite,
-  String loginRoute = RoutePath.login,
+  String loginPath = RoutePath.login,
 }) {
   if (!hasSeenOnboarding) return RoutePath.onboarding;
-  if (!isLoggedIn) return loginRoute;
+  if (!isLoggedIn) return loginPath;
 
   final hasPendingInvite = pendingInvite != null && pendingInvite.isNotEmpty;
   return hasPendingInvite
@@ -96,7 +94,7 @@ class _AuthRefreshNotifier extends ChangeNotifier {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final loginRoute = ref.read(initialRouteProvider);
+  final loginPath = ref.read(initialRouteProvider);
 
   // 인증 상태가 바뀌면(로그아웃 등) 라우터를 재생성하지 않고 redirect 만 다시
   // 평가하도록 알린다. (이전엔 ref.watch 로 라우터 자체를 재생성해 스택이 초기화됐다)
@@ -118,7 +116,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     hasSeenOnboarding: hasSeenOnboarding,
     isLoggedIn: isLoggedIn,
     pendingInvite: pendingInvite,
-    loginRoute: loginRoute,
+    loginPath: loginPath,
   );
 
   return GoRouter(
@@ -159,176 +157,27 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: RoutePath.onboarding,
-        builder: (_, _) => const OnboardingPage(),
-      ),
-      GoRoute(path: RoutePath.login, builder: (_, _) => const LoginPage()),
-      // 홈 > 모임 상세 > 회차 갤러리를 중첩으로 둔다.
-      //
-      // 딥링크(알림·푸시)로 갤러리에 바로 들어갈 때 go 한 번이면 중간 스택이
-      // 함께 구성되므로, 모임 화면이 스쳐 보이지 않으면서도 뒤로가기는
-      // 갤러리 → 모임 → 홈 순서로 이어진다.
-      GoRoute(
-        path: RoutePath.home,
-        builder: (_, _) => const HomePage(),
-        routes: [
-          // 모임 상세. 모임 id 는 경로에서 읽고, 조회 전 화면을 채울 힌트
-          // (이름·썸네일 등)만 [GroupPageArgs] 로 함께 받는다.
-          GoRoute(
-            path: 'group/:groupId',
-            builder: (_, state) {
-              final groupId = int.parse(state.pathParameters['groupId']!);
-              // 갤러리까지 한 번에 이동하는 경우 extra 는 두 라우트가 공유한다.
-              // (갤러리는 경로 값만 쓰므로 힌트가 아니면 무시한다)
-              final extra = state.extra;
-              final args = extra is GroupPageArgs ? extra : null;
-
-              return GroupPage(
-                groupId: groupId,
-                groupName: args?.groupName,
-                hasCurrentCycle: args?.hasCurrentCycle,
-                thumbnailUrl: args?.thumbnailUrl,
-              );
-            },
-            routes: [
-              GoRoute(
-                path: 'cycle/:cycleId',
-                builder: (_, state) => CyclePhotoGallery(
-                  cycleId: int.parse(state.pathParameters['cycleId']!),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      GoRoute(path: RoutePath.signup, builder: (_, _) => const SignUpPage()),
-      GoRoute(
-        path: RoutePath.permission,
-        builder: (_, _) => const PermissionPage(),
-      ),
-      GoRoute(
-        path: RoutePath.requiredPermission,
-        builder: (_, _) => const RequiredPermissionPage(),
-      ),
-      GoRoute(path: RoutePath.profile, builder: (_, _) => const ProfilePage()),
-      GoRoute(
-        path: RoutePath.accountManage,
-        builder: (_, _) => const AccountManagePage(),
-      ),
-      GoRoute(
-        path: RoutePath.blockedUsers,
-        builder: (_, _) => const BlockedUsersPage(),
-      ),
-      GoRoute(
-        path: RoutePath.notificationSettings,
-        builder: (_, _) => const NotificationSettingsPage(),
-      ),
-      GoRoute(
-        path: RoutePath.termsPolicy,
-        builder: (_, _) => const TermsPolicyPage(),
-      ),
-      GoRoute(
-        path: RoutePath.policyViewer,
-        builder: (_, state) =>
-            PolicyViewerPage(args: state.extra! as PolicyViewerArgs),
-      ),
-      GoRoute(
-        path: RoutePath.notification,
-        builder: (_, _) => const NotificationPage(),
-      ),
-      GoRoute(
-        path: RoutePath.groupCreate,
-        builder: (_, _) => const GroupCreatePage(),
-      ),
-      GoRoute(
-        path: RoutePath.inviteCodeInput,
-        // 딥링크로 전달된 초대코드를 쿼리 파라미터에서 읽는다.
-        // 코드가 없으면 빈 문자열로 두어 페이지가 안내를 처리한다.
-        builder: (_, state) => InviteCodeInputPage(
-          inviteCode: state.uri.queryParameters['code'] ?? '',
-        ),
-      ),
-      // 초대 링크 진입 → Lottie 재생 + 코드 조회 후 참여 확인으로 전환.
-      // 진입도 슬라이드 대신 페이드로 부드럽게 들어온다.
-      GoRoute(
-        path: RoutePath.inviteLanding,
-        pageBuilder: (_, state) => CustomTransitionPage(
-          key: state.pageKey,
-          transitionDuration: const Duration(milliseconds: 400),
-          transitionsBuilder: (_, animation, _, child) => FadeTransition(
-            opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-            child: child,
-          ),
-          child: InviteLandingPage(
-            inviteCode: state.uri.queryParameters['code'] ?? '',
-          ),
-        ),
-      ),
-      GoRoute(
-        path: RoutePath.joinGroup,
-        // 랜딩 애니메이션이 끝난 뒤라 슬라이드 대신 페이드로 자연스럽게 전환한다.
-        pageBuilder: (_, state) {
-          final args = state.extra as JoinGroupArgs?;
-          return CustomTransitionPage(
-            key: state.pageKey,
-            transitionDuration: const Duration(milliseconds: 400),
-            transitionsBuilder: (_, animation, _, child) {
-              // 페이드 + 살짝 확대(0.96→1)로 콘텐츠가 떠오르듯 자연스럽게 전환.
-              final curved = CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              );
-              return FadeTransition(
-                opacity: curved,
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.96, end: 1).animate(curved),
-                  child: child,
-                ),
-              );
-            },
-            child: JoinGroupPage(
-              group: args?.group,
-              inviteCode: args?.inviteCode ?? '',
-            ),
-          );
-        },
-      ),
-      GoRoute(
-        path: RoutePath.historyList,
-        builder: (_, state) => HistoryListPage(groupId: state.extra! as int),
-      ),
-      GoRoute(
-        path: RoutePath.starter,
-        builder: (_, state) => StarterPage(groupId: state.extra! as int),
-      ),
-      // 스타터 랜덤 지정 공개 모션. CTA 는 공개된 스타터(GroupMember)를
-      // 결과로 pop 하므로, 이후 진행은 push 한 호출부가 결정한다.
-      //
-      // 모임 진입 직후 자동으로 열리는 화면이라, 슬라이드로 밀고 들어오면
-      // 사용자가 누르지 않은 이동처럼 느껴진다. 페이드로 부드럽게 전환한다.
-      GoRoute(
-        path: RoutePath.randomStarter,
-        pageBuilder: (_, state) => CustomTransitionPage(
-          key: state.pageKey,
-          transitionDuration: const Duration(milliseconds: 400),
-          transitionsBuilder: (_, animation, _, child) => FadeTransition(
-            opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-            child: child,
-          ),
-          child: RandomStarterPage(args: state.extra! as RandomStarterArgs),
-        ),
-      ),
-      GoRoute(
-        path: RoutePath.followerCamera,
-        builder: (_, state) {
-          final args = state.extra as ({int cycleId, String guideImageUrl});
-          return FollowerCameraPage(
-            cycleId: args.cycleId,
-            guideImageUrl: args.guideImageUrl,
-          );
-        },
-      ),
+      onboardingRoute,
+      loginRoute,
+      homeRoute,
+      signupRoute,
+      permissionRoute,
+      requiredPermissionRoute,
+      profileRoute,
+      accountManageRoute,
+      blockedUsersRoute,
+      notificationSettingsRoute,
+      termsPolicyRoute,
+      policyViewerRoute,
+      notificationRoute,
+      groupCreateRoute,
+      inviteCodeInputRoute,
+      inviteLandingRoute,
+      joinGroupRoute,
+      historyListRoute,
+      starterRoute,
+      randomStarterRoute,
+      followerCameraRoute,
     ],
   );
 });
