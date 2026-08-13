@@ -8,6 +8,7 @@ import 'package:ddara/core/model/group/cycle_gallery.dart';
 import 'package:ddara/core/model/group/cycle_shot_status.dart';
 import 'package:ddara/core/model/group/group_action_error.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/image_saver.dart';
 import 'package:ddara/core/widget/bottom_sheet/report_sheets.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/image/comment/comment_sheet_handlers.dart';
@@ -209,8 +210,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             starterBlocked: starterBlocked,
             // 모임 페이지와 동일하게 참여 인원(n/총원)을 표시한다.
             memberCount: gallery.members.length,
-            // 스타터 사진 롱프레스 → 신고·차단 메뉴. (본인이 스타터면 띄우지
-            // 않는다)
+            // 스타터 사진 롱프레스 → 신고·차단 메뉴. (본인이 스타터면 두 콜백이
+            // 없어 저장 항목만 뜬다)
             onReport: iAmStarter
                 ? null
                 : () => _reportPhoto(context, ref, cycle.starterShotId),
@@ -358,8 +359,9 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       isLocked: locked,
     );
 
-    // 타인의 보이는 사진만 신고·차단할 수 있다. (본인·잠김·차단 제외)
-    if (isMe || !canView || shotId == null) return card;
+    // 선명하게 보이는 사진이면 본인 것이라도 저장할 수 있다. (잠김·차단 제외)
+    // imageUrl 은 canView 면 항상 있지만, 저장에 넘기려면 명시적으로 좁힌다.
+    if (!canView || imageUrl == null) return card;
 
     return AnchoredContextMenu(
       // 카드가 커서 위쪽에 붙이면 손가락과 멀어진다 — 누른 지점에 띄운다.
@@ -368,25 +370,38 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
       // (오버레이에는 그리드 제약이 없어 원본 카드 폭을 그대로 준다)
       overlayBuilder: (_, targetSize) => SizedBox(
         width: targetSize.width,
-        child: MemberPhotoCard(name: member.nickname, image: image),
+        // 이름 표기는 원본 카드와 같아야 한다. (본인 카드는 '나')
+        child: MemberPhotoCard(
+          name: isMe ? l10n.galleryMyCardLabel : member.nickname,
+          image: image,
+        ),
       ),
-      // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
+      // 멤버 아바타 메뉴와 같은 순서. (저장하기 → 차단하기 → 신고하기)
+      // 경고색은 되돌릴 수 없는 신고에만 쓴다. (차단은 해제할 수 있다)
+      // 본인 사진은 차단·신고 대상이 아니므로 저장 항목만 남는다.
       actions: [
         (
-          label: l10n.memberBlock,
-          color: AppColors.statusDanger,
-          onSelect: () => _blockUser(
-            context,
-            ref,
-            userId: member.userId,
-            nickname: member.nickname,
+          label: l10n.photoSave,
+          color: null,
+          onSelect: () => _savePhoto(context, imageUrl),
+        ),
+        if (!isMe && shotId != null) ...[
+          (
+            label: l10n.memberBlock,
+            color: null,
+            onSelect: () => _blockUser(
+              context,
+              ref,
+              userId: member.userId,
+              nickname: member.nickname,
+            ),
           ),
-        ),
-        (
-          label: l10n.report,
-          color: AppColors.statusDanger,
-          onSelect: () => _reportPhoto(context, ref, shotId),
-        ),
+          (
+            label: l10n.report,
+            color: AppColors.statusDanger,
+            onSelect: () => _reportPhoto(context, ref, shotId),
+          ),
+        ],
       ],
       child: card,
     );
@@ -534,6 +549,20 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     if (!success || !context.mounted) return;
 
     Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
+  }
+
+  /// 사진을 기기 갤러리에 저장하고 결과를 토스트로 알린다.
+  /// (권한 거부·저장 실패 모두 [SaveImageResult] 로 와서 문구만 갈린다)
+  Future<void> _savePhoto(BuildContext context, String imageUrl) async {
+    final l10n = AppLocalizations.of(context);
+    final result = await ImageSaver.saveNetworkImage(imageUrl);
+    if (!context.mounted) return;
+
+    Toast.showToast(
+      context,
+      result.message(l10n),
+      type: result.isFailure ? ToastType.error : ToastType.info,
+    );
   }
 }
 

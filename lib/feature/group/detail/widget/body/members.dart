@@ -171,12 +171,9 @@ class _MemberAvatar extends StatelessWidget {
     return AnchoredContextMenu(
       placement: ContextMenuPlacement.aboveDiagonal,
       // 멤버 아바타 메뉴 순서. (차단하기 → 신고하기)
+      // 경고색은 되돌릴 수 없는 신고에만 쓴다. (차단은 해제할 수 있다)
       actions: [
-        (
-          label: l10n.memberBlock,
-          color: AppColors.statusDanger,
-          onSelect: onBlock,
-        ),
+        (label: l10n.memberBlock, color: null, onSelect: onBlock),
         (
           label: l10n.memberReportUser,
           color: AppColors.statusDanger,

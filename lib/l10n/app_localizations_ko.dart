@@ -420,6 +420,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get report => '신고하기';
 
   @override
+  String get photoSave => '저장하기';
+
+  @override
+  String get photoSaveSuccess => '사진을 저장했어요';
+
+  @override
+  String get photoSaveFailed => '사진을 저장하지 못했어요';
+
+  @override
+  String get photoSavePermissionDenied => '사진 접근 권한이 필요해요';
+
+  @override
   String get reportSheetTitle => '신고 사유를 선택해 주세요';
 
   @override

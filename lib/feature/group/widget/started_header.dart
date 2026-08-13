@@ -8,6 +8,8 @@ import 'package:ddara/core/widget/blocked_photo_placeholder.dart';
 import 'package:ddara/core/widget/effect/bottom_scrim.dart';
 import 'package:ddara/core/widget/effect/baked_progressive_blur_image.dart';
 import 'package:ddara/core/widget/image/empty_thumbnail.dart';
+import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/core/util/image_saver.dart';
 import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -116,13 +118,12 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 사진을 자리표시로 가려야 하는 상태인지. (차단 또는 검토 중)
   bool get _obscured => widget.starterBlocked || _underReview;
 
-  /// 컨텍스트 메뉴(신고·차단)를 띄울 수 있는지.
-  /// (콜백 하나라도 有 + 이미지 有 + 가림 상태 아님 — 검토 중·차단된 사진은
-  /// 메뉴를 띄우지 않는다)
-  bool get _canOpenMenu =>
-      (widget.onReport != null || widget.onBlock != null) &&
-      !_obscured &&
-      _imageUrl.isNotEmpty;
+  /// 컨텍스트 메뉴를 띄울 수 있는지.
+  /// (이미지 有 + 가림 상태 아님 — 검토 중·차단된 사진은 메뉴를 띄우지 않는다)
+  ///
+  /// 저장하기는 본인 사진에도 쓸 수 있어 콜백 없이 항상 들어간다. 신고·차단은
+  /// 각 콜백이 있을 때만 붙으므로, 본인이 스타터면 저장 항목만 남는다.
+  bool get _canOpenMenu => !_obscured && _imageUrl.isNotEmpty;
 
   /// 우상단 댓글 버튼을 그리는 상태인지.
   /// (가려진 사진은 크게 보기가 막히므로 버튼도 숨긴다)
@@ -131,6 +132,20 @@ class _StartedHeaderState extends State<StartedHeader> {
   bool get _showCommentButton => widget.onComment != null && !_obscured;
 
   void _toggle() => setState(() => _expanded = !_expanded);
+
+  /// 대표 이미지를 기기 갤러리에 저장하고 결과를 토스트로 알린다.
+  /// (권한 거부·저장 실패 모두 [SaveImageResult] 로 와서 문구만 갈린다)
+  Future<void> _savePhoto() async {
+    final l10n = AppLocalizations.of(context);
+    final result = await ImageSaver.saveNetworkImage(_imageUrl);
+    if (!mounted) return;
+
+    Toast.showToast(
+      context,
+      result.message(l10n),
+      type: result.isFailure ? ToastType.error : ToastType.info,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,12 +168,14 @@ class _StartedHeaderState extends State<StartedHeader> {
     // (화면 상단이라 위쪽 공간이 없지만, atPointer 는 아래로 펼쳐 가리지 않는다)
     return AnchoredContextMenu(
       placement: ContextMenuPlacement.atPointer,
-      // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
+      // 멤버 아바타 메뉴와 같은 순서. (저장하기 → 차단하기 → 신고하기)
+      // 경고색은 되돌릴 수 없는 신고에만 쓴다. (차단은 해제할 수 있다)
       actions: [
+        (label: l10n.photoSave, color: null, onSelect: _savePhoto),
         if (widget.onBlock != null)
           (
             label: l10n.memberBlock,
-            color: AppColors.statusDanger,
+            color: null,
             onSelect: widget.onBlock!,
           ),
         if (widget.onReport != null)

@@ -296,6 +296,13 @@
   },
   "memberReportUser": "유저 신고",
   "report": "신고하기",
+  "photoSave": "저장하기",
+  "@photoSave": {
+    "description": "사진 롱프레스 컨텍스트 메뉴의 저장 항목."
+  },
+  "photoSaveSuccess": "사진을 저장했어요",
+  "photoSaveFailed": "사진을 저장하지 못했어요",
+  "photoSavePermissionDenied": "사진 접근 권한이 필요해요",
   "reportSheetTitle": "신고 사유를 선택해 주세요",
   "reportSheetSubtitle": "신고 내용은 24시간 안에 확인해요",
   "reportDetailPlaceholder": "입력해 주세요",

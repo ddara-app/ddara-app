@@ -868,6 +868,30 @@ abstract class AppLocalizations {
   /// **'신고하기'**
   String get report;
 
+  /// 사진 롱프레스 컨텍스트 메뉴의 저장 항목.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하기'**
+  String get photoSave;
+
+  /// No description provided for @photoSaveSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 저장했어요'**
+  String get photoSaveSuccess;
+
+  /// No description provided for @photoSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 저장하지 못했어요'**
+  String get photoSaveFailed;
+
+  /// No description provided for @photoSavePermissionDenied.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 접근 권한이 필요해요'**
+  String get photoSavePermissionDenied;
+
   /// No description provided for @reportSheetTitle.
   ///
   /// In ko, this message translates to:
