@@ -149,9 +149,10 @@ class _StartedHeaderState extends State<StartedHeader> {
     // 접은 상태에서는 대표 이미지가 배경으로만 남으므로 메뉴를 띄우지 않는다.
     if (!_expanded || !_canOpenMenu) return content;
 
-    // 헤더가 화면 상단에 붙어 있어 위쪽 공간이 없다 — 메뉴를 이미지 안쪽에 띄운다.
+    // 헤더가 커서 모서리에 붙이면 손가락과 멀어진다 — 누른 지점에 띄운다.
+    // (화면 상단이라 위쪽 공간이 없지만, atPointer 는 아래로 펼쳐 가리지 않는다)
     return AnchoredContextMenu(
-      placement: ContextMenuPlacement.insideTopLeft,
+      placement: ContextMenuPlacement.atPointer,
       // 멤버 아바타 메뉴와 같은 순서. (차단하기 → 신고하기)
       actions: [
         if (widget.onBlock != null)

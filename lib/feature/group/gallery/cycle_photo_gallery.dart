@@ -362,6 +362,8 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     if (isMe || !canView || shotId == null) return card;
 
     return AnchoredContextMenu(
+      // 카드가 커서 위쪽에 붙이면 손가락과 멀어진다 — 누른 지점에 띄운다.
+      placement: ContextMenuPlacement.atPointer,
       // 사본은 Hero 태그 충돌을 피해 태그·콜백 없이 만든다.
       // (오버레이에는 그리드 제약이 없어 원본 카드 폭을 그대로 준다)
       overlayBuilder: (_, targetSize) => SizedBox(

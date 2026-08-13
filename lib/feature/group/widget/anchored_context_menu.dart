@@ -15,8 +15,9 @@ enum ContextMenuPlacement {
   /// 대상의 대각선 위. 대상을 가리지 않는다. (아바타처럼 작은 대상)
   aboveDiagonal,
 
-  /// 대상 안쪽 좌상단. (화면 상단에 붙어 위쪽 공간이 없는 큰 헤더)
-  insideTopLeft,
+  /// 길게 누른 지점. 손가락이 닿은 곳에서 메뉴가 펼쳐진다. (갤러리 사진 등
+  /// 대상이 커서 어느 모서리에 붙이든 손가락과 멀어지는 경우)
+  atPointer,
 }
 
 /// 길게 눌러 대상에 붙은 컨텍스트 메뉴를 띄우는 래퍼.
@@ -25,7 +26,8 @@ enum ContextMenuPlacement {
 /// 유지한다. 바깥을 탭하거나 뒤로가기(Android)하면 닫힌다.
 ///
 /// [above]·[aboveDiagonal] 은 대상이 화면 오른쪽에 있으면 좌우를 뒤집어
-/// 메뉴가 화면 밖으로 잘리지 않게 한다.
+/// 메뉴가 화면 밖으로 잘리지 않게 한다. [atPointer] 는 같은 판단을 누른 지점
+/// 기준으로 하며, 상하 방향도 함께 뒤집는다.
 class AnchoredContextMenu extends StatefulWidget {
   const AnchoredContextMenu({
     super.key,
@@ -67,7 +69,13 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
   /// 메뉴를 대상 오른쪽 끝에 맞춰 열지 여부. (메뉴를 열 때 결정)
   bool _alignRight = false;
 
-  void _open() {
+  /// 메뉴를 기준점 위쪽으로 펼칠지 여부. ([ContextMenuPlacement.atPointer] 전용)
+  bool _alignBottom = false;
+
+  /// 길게 누른 지점. (대상 좌상단 기준 로컬 좌표 — [ContextMenuPlacement.atPointer] 전용)
+  Offset _pointer = Offset.zero;
+
+  void _open(LongPressStartDetails details) {
     if (_menuRoute != null) return;
 
     final box = context.findRenderObject() as RenderBox?;
@@ -75,8 +83,19 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
       // 사본이 원본과 정확히 겹치도록 현재 크기를 기억해 둔다.
       _targetSize = box.size;
       // 열기 직전 위치로 펼침 방향을 정한다. (스크롤로 위치가 바뀌므로 매번 계산)
-      final center = box.localToGlobal(Offset.zero).dx + box.size.width / 2;
-      _alignRight = center > MediaQuery.sizeOf(context).width / 2;
+      final screen = MediaQuery.sizeOf(context);
+      final origin = box.localToGlobal(Offset.zero);
+
+      if (widget.placement == ContextMenuPlacement.atPointer) {
+        // 기준점이 손가락이므로 그 지점이 화면 어느 사분면인지로 방향을 정한다.
+        _pointer = details.localPosition;
+        final global = origin + _pointer;
+        _alignRight = global.dx > screen.width / 2;
+        _alignBottom = global.dy > screen.height / 2;
+      } else {
+        final center = origin.dx + box.size.width / 2;
+        _alignRight = center > screen.width / 2;
+      }
     }
 
     // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
@@ -126,11 +145,20 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
             AppSpacing.s2,
           ),
         );
-      case ContextMenuPlacement.insideTopLeft:
+      case ContextMenuPlacement.atPointer:
+        // 대상 좌상단에서 누른 지점만큼 떨어진 곳이 메뉴의 기준점이다.
+        // 메뉴는 화면 안쪽(반대편)으로 펼쳐지도록 모서리를 골라 붙인다.
+        // (-1 = 위·왼쪽, 1 = 아래·오른쪽)
         return (
           target: Alignment.topLeft,
-          follower: Alignment.topLeft,
-          offset: const Offset(AppSpacing.s4, AppSpacing.s4),
+          follower: Alignment(_alignRight ? 1 : -1, _alignBottom ? 1 : -1),
+          // 손가락에 메뉴가 가리지 않도록 펼치는 방향으로 조금 띄운다.
+          offset:
+              _pointer +
+              Offset(
+                _alignRight ? -AppSpacing.s2 : AppSpacing.s2,
+                _alignBottom ? -AppSpacing.s2 : AppSpacing.s2,
+              ),
         );
     }
   }
@@ -212,7 +240,8 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: _link,
-      child: GestureDetector(onLongPress: _open, child: widget.child),
+      // 누른 지점을 알아야 하므로 onLongPress 대신 Start 콜백을 쓴다.
+      child: GestureDetector(onLongPressStart: _open, child: widget.child),
     );
   }
 }
