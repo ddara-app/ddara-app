@@ -1153,7 +1153,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteMemberShortageDescription.
   ///
   /// In ko, this message translates to:
-  /// **'3명부터 시작 가능해요'**
+  /// **'2명부터 시작 가능해요'**
   String get inviteMemberShortageDescription;
 
   /// No description provided for @inviteShareKakao.
@@ -1567,7 +1567,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupErrorNotEnoughMembers.
   ///
   /// In ko, this message translates to:
-  /// **'활동 멤버가 3명 이상이어야 시작할 수 있어요.'**
+  /// **'활동 멤버가 2명 이상이어야 시작할 수 있어요.'**
   String get groupErrorNotEnoughMembers;
 
   /// No description provided for @groupErrorCycleAlreadyInProgress.

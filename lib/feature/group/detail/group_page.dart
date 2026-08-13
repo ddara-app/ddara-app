@@ -84,10 +84,10 @@ class GroupPage extends ConsumerWidget {
   static const _shareImageUrl = 'https://placehold.co/800x400.png';
 
   /// 초대 시트를 자동으로 띄우는 인원 기준. (이 수 미만이면 띄운다)
-  static const _inviteThreshold = 3;
+  static const _inviteThreshold = 2;
 
   /// 따라찍기를 시작할 수 있는 최소 인원. (이 수 미만이면 시작 버튼 비활성화)
-  static const _minMembersToStart = 3;
+  static const _minMembersToStart = 2;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
