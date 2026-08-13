@@ -98,7 +98,7 @@ class CycleRepositoryImpl implements CycleRepository {
           throw GroupNotFoundException();
 
         case StarterUploadErrorCode.notEnoughMembers:
-          // 409 — 활동 멤버 3명 미만이라 시작 불가
+          // 409 — 활동 멤버 2명 미만이라 시작 불가
           throw NotEnoughMembersException();
 
         case StarterUploadErrorCode.cycleAlreadyInProgress:

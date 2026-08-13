@@ -589,7 +589,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get inviteMemberShortageTitle => '아직 멤버가 부족해요';
 
   @override
-  String get inviteMemberShortageDescription => '3명부터 시작 가능해요';
+  String get inviteMemberShortageDescription => '2명부터 시작 가능해요';
 
   @override
   String get inviteShareKakao => '카카오톡';
@@ -798,7 +798,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupErrorImageUploadFailed => '이미지 업로드에 실패했어요.';
 
   @override
-  String get groupErrorNotEnoughMembers => '활동 멤버가 3명 이상이어야 시작할 수 있어요.';
+  String get groupErrorNotEnoughMembers => '활동 멤버가 2명 이상이어야 시작할 수 있어요.';
 
   @override
   String get groupErrorCycleAlreadyInProgress => '이미 진행 중인 회차가 있어요.';

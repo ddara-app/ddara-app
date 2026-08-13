@@ -436,7 +436,7 @@
 
   "inviteShareTitle": "함께할 친구를 초대해요",
   "inviteMemberShortageTitle": "아직 멤버가 부족해요",
-  "inviteMemberShortageDescription": "3명부터 시작 가능해요",
+  "inviteMemberShortageDescription": "2명부터 시작 가능해요",
   "inviteShareKakao": "카카오톡",
   "inviteShareCopyCode": "초대코드",
   "inviteShareMore": "더보기",
@@ -576,7 +576,7 @@
   "groupErrorNicknameChangeFailed": "닉네임을 변경하지 못했어요.",
   "groupErrorStarterInvalidInput": "컨셉 또는 이미지가 올바르지 않아요.",
   "groupErrorImageUploadFailed": "이미지 업로드에 실패했어요.",
-  "groupErrorNotEnoughMembers": "활동 멤버가 3명 이상이어야 시작할 수 있어요.",
+  "groupErrorNotEnoughMembers": "활동 멤버가 2명 이상이어야 시작할 수 있어요.",
   "groupErrorCycleAlreadyInProgress": "이미 진행 중인 회차가 있어요.",
   "groupErrorStarterUploadFailed": "따라찍기를 시작하지 못했어요.",
   "groupErrorFollowerUploadFailed": "사진을 올리지 못했어요.",

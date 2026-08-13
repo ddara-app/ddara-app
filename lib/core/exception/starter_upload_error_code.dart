@@ -4,7 +4,7 @@ enum StarterUploadErrorCode {
   unauthorized('UNAUTHORIZED', '로그인이 필요합니다.'),
   notGroupMember('NOT_GROUP_MEMBER', '모임 멤버가 아닙니다.'),
   groupNotFound('GROUP_NOT_FOUND', '존재하지 않는 모임입니다.'),
-  notEnoughMembers('NOT_ENOUGH_MEMBERS', '활동 멤버가 3명 이상이어야 시작할 수 있어요.'),
+  notEnoughMembers('NOT_ENOUGH_MEMBERS', '활동 멤버가 2명 이상이어야 시작할 수 있어요.'),
   cycleAlreadyInProgress('CYCLE_ALREADY_IN_PROGRESS', '이미 진행 중인 회차가 있어요.'),
 
   /// 네트워크 오류 등 매칭되는 서버 코드가 없을 때의 기본값.
