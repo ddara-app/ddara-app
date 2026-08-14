@@ -7,6 +7,9 @@ import 'package:flutter/cupertino.dart';
 /// [color] 가 null 이면 본문 기본색으로 그린다.
 typedef MenuAction = ({String label, Color? color, VoidCallback onSelect});
 
+/// 메뉴 너비. 항목 수·라벨 길이와 무관하게 항상 같은 폭으로 연다.
+const double _menuWidth = 120;
+
 /// 메뉴가 대상 기준 어디에 붙는지.
 enum ContextMenuPlacement {
   /// 대상 바로 위. 좌우 가장자리를 맞춘다. (사진 카드 등)
@@ -195,6 +198,7 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
 
   Widget _menu(BuildContext dialogContext) {
     return Container(
+      width: _menuWidth,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
@@ -208,30 +212,28 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
           ),
         ],
       ),
-      // 항목들의 폭을 가장 긴 라벨에 맞춰 통일한다.
-      child: IntrinsicWidth(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < widget.actions.length; i++) ...[
-              if (i > 0) Container(height: 1, color: AppColors.borderDefault),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s5,
-                  vertical: AppSpacing.s4,
-                ),
-                minimumSize: Size.zero,
-                onPressed: () =>
-                    _select(dialogContext, widget.actions[i].onSelect),
-                child: AppText.body(
-                  widget.actions[i].label,
-                  color: widget.actions[i].color,
-                ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < widget.actions.length; i++) ...[
+            if (i > 0) Container(height: 1, color: AppColors.borderDefault),
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s5,
+                vertical: AppSpacing.s4,
               ),
-            ],
+              minimumSize: Size.zero,
+              alignment: Alignment.centerLeft,
+              onPressed: () =>
+                  _select(dialogContext, widget.actions[i].onSelect),
+              child: AppText.body(
+                widget.actions[i].label,
+                color: widget.actions[i].color,
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
