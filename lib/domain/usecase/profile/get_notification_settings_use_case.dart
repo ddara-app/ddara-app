@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/profile/notification_settings.dart';
+import 'package:ddara/domain/model/profile/notification_settings.dart';
 import 'package:ddara/domain/repository/profile_repository.dart';
 
 class GetNotificationSettingsUseCase {

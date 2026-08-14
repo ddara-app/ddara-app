@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/comment/comment.dart';
+import 'package:ddara/domain/model/comment/comment.dart';
 import 'package:ddara/core/util/time_ago.dart';
 import 'package:ddara/core/widget/image/comment/photo_comment.dart';
 import 'package:ddara/l10n/app_localizations.dart';

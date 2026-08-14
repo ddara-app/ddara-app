@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/profile/profile.dart';
+import 'package:ddara/domain/model/profile/profile.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

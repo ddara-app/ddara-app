@@ -3,7 +3,7 @@ import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/random_starter/util/starter_reel.dart';
 import 'package:ddara/feature/group/random_starter/widget/starter_confetti.dart';

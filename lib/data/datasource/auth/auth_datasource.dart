@@ -1,5 +1,5 @@
 import 'package:ddara/core/local/storage_key.dart';
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 import 'package:ddara/core/network/dto/auth/logout_response.dart';
 import 'package:ddara/core/network/dto/auth/refresh_access_token_response.dart';
 import 'package:ddara/core/network/dto/auth/sign_up_request.dart';

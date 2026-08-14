@@ -1,5 +1,5 @@
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_list.dart';
+import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/home/widget/fab_speed_dial.dart';
 import 'package:ddara/feature/home/widget/group_list_view.dart';

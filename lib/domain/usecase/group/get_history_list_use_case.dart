@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/history_list.dart';
+import 'package:ddara/domain/model/group/history_list.dart';
 import 'package:ddara/domain/repository/group_repository.dart';
 
 /// 더보기 화면용 지난 따라찍기 조회. (통계 + 참가자 목록 포함)

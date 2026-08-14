@@ -3,7 +3,7 @@ import 'package:ddara/core/exception/comment_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
-import 'package:ddara/core/model/comment/comment.dart';
+import 'package:ddara/domain/model/comment/comment.dart';
 import 'package:ddara/data/datasource/comment/comment_datasource.dart';
 import 'package:ddara/domain/repository/comment_repository.dart';
 import 'package:dio/dio.dart';

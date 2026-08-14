@@ -1,7 +1,7 @@
 import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
-import 'package:ddara/core/model/group/group_action_error.dart';
+import 'package:ddara/domain/model/group/group_action_error.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/provider/viewmodel_provider.dart'

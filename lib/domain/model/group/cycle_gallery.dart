@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/cycle_shot_status.dart';
+import 'package:ddara/domain/model/group/cycle_shot_status.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'cycle_gallery.freezed.dart';

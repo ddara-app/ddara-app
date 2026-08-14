@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 
 sealed class LoginState {
   const LoginState();

@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/comment/comment.dart';
+import 'package:ddara/domain/model/comment/comment.dart';
 import 'package:ddara/core/network/dto/comment/comment_response.dart';
 
 extension CommentMapper on CommentResponse {

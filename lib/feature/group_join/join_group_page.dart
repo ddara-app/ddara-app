@@ -3,7 +3,7 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/exception/group_join_error_code.dart';
-import 'package:ddara/core/model/group/invite_group.dart';
+import 'package:ddara/domain/model/group/invite_group.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';

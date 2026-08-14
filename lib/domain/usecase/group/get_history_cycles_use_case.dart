@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/domain/model/group/history_cycles.dart';
 import 'package:ddara/domain/repository/group_repository.dart';
 
 class GetHistoryCyclesUseCase {

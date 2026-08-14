@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
 import 'package:flutter/animation.dart';
 
 /// 스타터 슬롯머신 릴 레이아웃 상수. (Figma Swyp-designers-v4 · 40003384:16447,

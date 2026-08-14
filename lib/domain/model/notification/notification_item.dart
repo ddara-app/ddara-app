@@ -1,5 +1,5 @@
-import 'package:ddara/core/model/notification/notification_payload.dart';
-import 'package:ddara/core/model/notification/notification_type.dart';
+import 'package:ddara/domain/model/notification/notification_payload.dart';
+import 'package:ddara/domain/model/notification/notification_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'notification_item.freezed.dart';

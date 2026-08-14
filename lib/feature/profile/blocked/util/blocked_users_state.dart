@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/block/blocked_users.dart';
+import 'package:ddara/domain/model/block/blocked_users.dart';
 
 class BlockedUsersState {
   /// 차단한 유저 목록. 조회 전(또는 실패)엔 null — 로딩이 끝났는데 null 이면

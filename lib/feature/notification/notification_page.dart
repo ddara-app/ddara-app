@@ -1,7 +1,7 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/notification/notification_item.dart';
+import 'package:ddara/domain/model/notification/notification_item.dart';
 import 'package:ddara/core/router/gallery_navigation.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';

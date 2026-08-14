@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/notification/notification_item.dart';
+import 'package:ddara/domain/model/notification/notification_item.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'notification_list.freezed.dart';

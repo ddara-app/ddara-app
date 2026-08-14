@@ -3,7 +3,7 @@ import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/foundation/app_spacing.dart';
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/sign/signup/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/sign/signup/terms_page.dart';

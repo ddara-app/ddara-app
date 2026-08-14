@@ -2,7 +2,7 @@ import 'package:ddara/core/auth/apple/apple_auth_service.dart';
 import 'package:ddara/core/auth/google/google_auth_service.dart';
 import 'package:ddara/core/auth/kakao/kakao_auth_service.dart';
 import 'package:ddara/core/exception/login_exception.dart';
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 import 'package:ddara/core/network/dto/auth/login_response.dart';
 import 'package:ddara/core/network/dto/auth/refresh_access_token_response.dart';
 import 'package:ddara/data/datasource/auth/auth_datasource.dart';

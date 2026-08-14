@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/block/blocked_users.dart';
+import 'package:ddara/domain/model/block/blocked_users.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/home/provider/viewmodel_provider.dart';

@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/block/blocked_users.dart';
+import 'package:ddara/domain/model/block/blocked_users.dart';
 import 'package:ddara/core/network/dto/block/block_list_response.dart';
 
 extension BlockListMapper on BlockListResponse {

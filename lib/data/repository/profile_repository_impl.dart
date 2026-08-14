@@ -1,8 +1,8 @@
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/exception/profile_error_code.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
-import 'package:ddara/core/model/profile/notification_settings.dart';
-import 'package:ddara/core/model/profile/profile.dart';
+import 'package:ddara/domain/model/profile/notification_settings.dart';
+import 'package:ddara/domain/model/profile/profile.dart';
 import 'package:ddara/core/network/dto/cycle/presign_response.dart';
 import 'package:ddara/data/datasource/profile/profile_datasource.dart';
 import 'package:ddara/data/datasource/upload/upload_datasource.dart';

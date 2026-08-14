@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/report/group_report_reason.dart';
+import 'package:ddara/domain/model/report/group_report_reason.dart';
 
 import '../../repository/report_repository.dart';
 

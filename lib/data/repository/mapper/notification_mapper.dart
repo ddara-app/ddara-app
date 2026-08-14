@@ -1,7 +1,7 @@
-import 'package:ddara/core/model/notification/notification_item.dart';
-import 'package:ddara/core/model/notification/notification_list.dart';
-import 'package:ddara/core/model/notification/notification_payload.dart';
-import 'package:ddara/core/model/notification/notification_type.dart';
+import 'package:ddara/domain/model/notification/notification_item.dart';
+import 'package:ddara/domain/model/notification/notification_list.dart';
+import 'package:ddara/domain/model/notification/notification_payload.dart';
+import 'package:ddara/domain/model/notification/notification_type.dart';
 import 'package:ddara/core/network/dto/notification/notification_list_response.dart';
 
 extension NotificationListMapper on NotificationListResponse {

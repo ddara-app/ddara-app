@@ -1,6 +1,6 @@
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_constraints.dart';
+import 'package:ddara/domain/model/group/group_constraints.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 

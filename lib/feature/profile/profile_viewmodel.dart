@@ -1,5 +1,5 @@
 import 'package:ddara/core/exception/profile_exception.dart';
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 import 'package:ddara/core/router/app_router.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';

@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/notification/notification_item.dart';
+import 'package:ddara/domain/model/notification/notification_item.dart';
 
 /// 알림 목록 화면 상태. 로딩·실패·완료가 상호배타인 sealed 설계라
 /// "로딩 중인데 에러", "목록 있는데 에러 화면" 같은 조합이 타입상 불가능하다.

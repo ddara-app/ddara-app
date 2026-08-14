@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/feed/feed.dart';
+import 'package:ddara/domain/model/feed/feed.dart';
 
 abstract interface class FeedRepository {
   /// 홈 최근 업데이트 피드를 조회한다.

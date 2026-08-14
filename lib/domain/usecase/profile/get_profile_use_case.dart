@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/profile/profile.dart';
+import 'package:ddara/domain/model/profile/profile.dart';
 import 'package:ddara/domain/repository/profile_repository.dart';
 
 class GetProfileUseCase {

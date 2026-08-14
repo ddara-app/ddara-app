@@ -1,5 +1,5 @@
-import 'package:ddara/core/model/group/group_action_error.dart';
-import 'package:ddara/core/model/group/history_list.dart';
+import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/domain/model/group/history_list.dart';
 
 /// 지난 따라찍기 목록 화면 상태. 로딩·초기 조회 실패·본문이 상호배타인 sealed 설계다.
 ///

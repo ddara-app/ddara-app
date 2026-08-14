@@ -1,7 +1,7 @@
 import 'package:ddara/core/exception/block_error_code.dart';
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
-import 'package:ddara/core/model/block/blocked_users.dart';
+import 'package:ddara/domain/model/block/blocked_users.dart';
 import 'package:ddara/data/datasource/block/block_datasource.dart';
 import 'package:ddara/domain/repository/block_repository.dart';
 import 'package:dio/dio.dart';

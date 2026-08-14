@@ -1,5 +1,5 @@
-import 'package:ddara/core/model/notification/notification_category.dart';
-import 'package:ddara/core/model/notification/notification_list.dart';
+import 'package:ddara/domain/model/notification/notification_category.dart';
+import 'package:ddara/domain/model/notification/notification_list.dart';
 import 'package:ddara/domain/repository/notification_repository.dart';
 
 class GetNotificationsUseCase {

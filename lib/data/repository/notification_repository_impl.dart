@@ -1,6 +1,6 @@
 import 'package:ddara/core/exception/login_exception.dart';
-import 'package:ddara/core/model/notification/notification_category.dart';
-import 'package:ddara/core/model/notification/notification_list.dart';
+import 'package:ddara/domain/model/notification/notification_category.dart';
+import 'package:ddara/domain/model/notification/notification_list.dart';
 import 'package:ddara/data/datasource/notification/notification_datasource.dart';
 import 'package:ddara/data/repository/mapper/notification_mapper.dart';
 import 'package:ddara/domain/repository/notification_repository.dart';

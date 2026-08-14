@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/feed/feed.dart';
+import 'package:ddara/domain/model/feed/feed.dart';
 import 'package:ddara/core/router/gallery_navigation.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';

@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/group_list.dart';
+import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/group/detail/group_page.dart';
 import 'package:ddara/feature/home/provider/viewmodel_provider.dart';

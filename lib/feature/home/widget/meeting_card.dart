@@ -1,5 +1,5 @@
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_list.dart';
+import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';

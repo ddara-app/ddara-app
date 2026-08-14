@@ -1,6 +1,5 @@
+import 'package:ddara/domain/model/cycle/starter_upload.dart';
 import 'package:ddara/domain/repository/cycle_repository.dart';
-
-import '../../../core/model/cycle/starter_upload.dart';
 
 class StarterUploadUseCase {
   StarterUploadUseCase(this._cycleRepository);

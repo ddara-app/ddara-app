@@ -1,5 +1,5 @@
-import 'package:ddara/core/model/auth/login.dart';
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/login.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 import 'package:ddara/domain/repository/auth_repository.dart';
 
 class LoginUseCase {

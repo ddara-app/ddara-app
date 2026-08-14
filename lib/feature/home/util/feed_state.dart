@@ -1,5 +1,5 @@
 import 'package:ddara/core/comment/comment_action_error.dart';
-import 'package:ddara/core/model/feed/feed.dart';
+import 'package:ddara/domain/model/feed/feed.dart';
 
 /// 최근 업데이트 피드 화면 상태. 로딩·실패·완료가 상호배타인 sealed 설계다.
 ///

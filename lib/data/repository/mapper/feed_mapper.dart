@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/feed/feed.dart';
+import 'package:ddara/domain/model/feed/feed.dart';
 import 'package:ddara/core/network/dto/feed/feed_response.dart';
 
 /// 서버가 내려주는 사진 종류 문자열 중 '회차를 연 사진'을 뜻하는 값.

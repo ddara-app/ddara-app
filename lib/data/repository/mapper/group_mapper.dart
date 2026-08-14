@@ -1,12 +1,13 @@
-import 'package:ddara/core/model/group/create_group.dart';
-import 'package:ddara/core/model/group/change_nickname.dart';
-import 'package:ddara/core/model/group/cycle_gallery.dart';
-import 'package:ddara/core/model/group/cycle_shot_status.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
-import 'package:ddara/core/model/group/history_cycles.dart';
-import 'package:ddara/core/model/group/history_list.dart';
-import 'package:ddara/core/model/group/invite_group.dart';
-import 'package:ddara/core/model/group/join_group.dart';
+import 'package:ddara/domain/model/group/create_group.dart';
+import 'package:ddara/domain/model/group/change_nickname.dart';
+import 'package:ddara/domain/model/group/cycle_gallery.dart';
+import 'package:ddara/domain/model/group/cycle_shot_status.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/group_list.dart';
+import 'package:ddara/domain/model/group/history_cycles.dart';
+import 'package:ddara/domain/model/group/history_list.dart';
+import 'package:ddara/domain/model/group/invite_group.dart';
+import 'package:ddara/domain/model/group/join_group.dart';
 import 'package:ddara/core/network/dto/group/create_group_response.dart';
 import 'package:ddara/core/network/dto/group/change_nickname_response.dart';
 import 'package:ddara/core/network/dto/group/cycle_gallery_response.dart';
@@ -15,8 +16,6 @@ import 'package:ddara/core/network/dto/group/group_list_response.dart';
 import 'package:ddara/core/network/dto/group/history_cycles_response.dart';
 import 'package:ddara/core/network/dto/group/invite_group_response.dart';
 import 'package:ddara/core/network/dto/group/join_group_response.dart';
-
-import '../../../core/model/group/group_list.dart';
 
 extension CreateGroupMapper on CreateGroupResponse {
   CreateGroup toDomain() {
