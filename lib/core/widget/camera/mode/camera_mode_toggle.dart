@@ -1,4 +1,5 @@
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -87,10 +88,16 @@ class CameraModeToggle extends StatelessWidget {
                   selected: cornerSelected,
                   onPressed: () => _select(GuideViewMode.cornerMini),
                 ),
-                _ModeButton(
-                  label: l10n.cameraModeGhostZoom,
-                  selected: !cornerSelected,
-                  onPressed: () => _select(GuideViewMode.ghostZoom),
+                // 가이드 투어는 이 버튼 하나만 하이라이트한다.
+                // (묶음이나 바깥 GestureDetector 를 감싸면 구멍이 안내하려는
+                //  기능보다 훨씬 넓게 뚫린다)
+                CameraTourTarget(
+                  id: CameraTourTargets.ghostZoomMode,
+                  child: _ModeButton(
+                    label: l10n.cameraModeGhostZoom,
+                    selected: !cornerSelected,
+                    onPressed: () => _select(GuideViewMode.ghostZoom),
+                  ),
                 ),
               ],
             ),

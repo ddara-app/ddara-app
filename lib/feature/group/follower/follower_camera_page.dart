@@ -1,6 +1,8 @@
 import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/domain/model/group/group_action_error.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
@@ -21,6 +23,7 @@ class FollowerCameraPage extends ConsumerStatefulWidget {
     super.key,
     required this.cycleId,
     required this.guideImageUrl,
+    this.forceTour = false,
   });
 
   /// 따라찍는 대상 사이클 id. (업로드 시 서버에 전달)
@@ -29,6 +32,10 @@ class FollowerCameraPage extends ConsumerStatefulWidget {
   /// 따라찍기 가이드(스타터가 미리 찍은) 사진 URL.
   final String guideImageUrl;
 
+  /// 이미 본 적이 있어도 가이드 투어를 처음부터 다시 띄운다.
+  /// (모임 메뉴의 투어 확인용 진입에서만 true)
+  final bool forceTour;
+
   @override
   ConsumerState<FollowerCameraPage> createState() => _FollowerCameraPageState();
 }
@@ -36,6 +43,10 @@ class FollowerCameraPage extends ConsumerStatefulWidget {
 class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
   /// 촬영된 사진 경로. null 이면 촬영 단계, 값이 있으면 사진 확인 단계.
   String? _capturedPath;
+
+  /// 가이드 투어 재실행 요청 횟수. 값이 바뀌면 [FollowerCamera] 가 투어를 연다.
+  /// (투어 상태는 카메라 위젯이 들고 있어 직접 열 수 없다)
+  int _tourRestartToken = 0;
 
   @override
   void initState() {
@@ -96,12 +107,37 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
     });
 
     return CupertinoPageScaffold(
-      navigationBar: AppBar(title: l10n.followerCameraTitle),
+      navigationBar: AppBar(
+        title: l10n.followerCameraTitle,
+        // 기본 동작(maybePop)은 가이드 투어의 PopScope 에 가로채여 투어만 닫힌다.
+        // 이 버튼은 "화면을 나가겠다"는 뜻이므로 투어와 무관하게 바로 닫는다.
+        // (시스템 뒤로가기는 그대로 투어를 먼저 닫는다)
+        onBack: () => context.pop(),
+        // 촬영 단계에서만 도움말을 둔다. 사진 확인 단계에는 안내할 것이 없다.
+        // (Semantics 로 버튼을 감싸면 AppBar 가 AppBarIconButton 을 알아보지
+        //  못해 우측 여백 보정이 빠진다 — 라벨은 아이콘 쪽에 붙인다)
+        trailing: capturedPath == null
+            ? AppBarIconButton(
+                onPressed: () => setState(() => _tourRestartToken++),
+                child: Semantics(
+                  button: true,
+                  label: l10n.cameraTourRestart,
+                  child: const AppIcon(
+                    AppIcons.help,
+                    size: 24,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              )
+            : null,
+      ),
       child: Stack(
         children: [
           capturedPath == null
               ? FollowerCamera(
                   guideImageUrl: widget.guideImageUrl,
+                  forceTour: widget.forceTour,
+                  tourRestartToken: _tourRestartToken,
                   // 촬영하면 사진 확인 단계로 전환한다.
                   onCapture: (path) => setState(() => _capturedPath = path),
                 )

@@ -350,6 +350,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
               extra: (
                 cycleId: cycle.cycleId,
                 guideImageUrl: cycle.starterImageUrl ?? '',
+                forceTour: false,
               ),
             )
           : null,

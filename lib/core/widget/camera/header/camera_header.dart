@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -71,9 +72,12 @@ class CameraHeader extends StatelessWidget {
               spacing: AppSpacing.s4,
               children: [
                 AppText.label(AppLocalizations.of(context).cameraOpacityLabel),
-                _OpacityTabs(
-                  selectedLabel: opacityLabel,
-                  onChanged: onOpacityChanged,
+                CameraTourTarget(
+                  id: CameraTourTargets.opacityTabs,
+                  child: _OpacityTabs(
+                    selectedLabel: opacityLabel,
+                    onChanged: onOpacityChanged,
+                  ),
                 ),
               ],
             ),

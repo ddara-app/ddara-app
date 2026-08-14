@@ -29,7 +29,10 @@ class GroupSection extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: spacing,
-      children: [Padding(padding: titlePadding, child: title), body],
+      children: [
+        Padding(padding: titlePadding, child: title),
+        body,
+      ],
     );
   }
 }

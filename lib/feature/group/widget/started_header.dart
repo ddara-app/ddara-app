@@ -173,11 +173,7 @@ class _StartedHeaderState extends State<StartedHeader> {
       actions: [
         (label: l10n.photoSave, color: null, onSelect: _savePhoto),
         if (widget.onBlock != null)
-          (
-            label: l10n.memberBlock,
-            color: null,
-            onSelect: widget.onBlock!,
-          ),
+          (label: l10n.memberBlock, color: null, onSelect: widget.onBlock!),
         if (widget.onReport != null)
           (
             label: l10n.report,

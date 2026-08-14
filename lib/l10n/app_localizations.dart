@@ -808,6 +808,12 @@ abstract class AppLocalizations {
   /// **'따라찍으러 가기'**
   String get groupHeaderTakePhoto;
 
+  /// 모임 메뉴의 개발 확인용 항목. 더미 가이드 사진으로 따라찍기 촬영 화면을 열어 가이드 투어를 처음부터 보여준다
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드 투어 테스트'**
+  String get groupMenuTourTest;
+
   /// No description provided for @groupMenuEditNickname.
   ///
   /// In ko, this message translates to:
@@ -1701,6 +1707,102 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'원본사진 투명도'**
   String get cameraOpacityLabel;
+
+  /// No description provided for @cameraTourNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get cameraTourNext;
+
+  /// 가이드 투어를 한 스텝 되돌리는 버튼. 첫 스텝에서는 표시하지 않는다
+  ///
+  /// In ko, this message translates to:
+  /// **'이전'**
+  String get cameraTourPrevious;
+
+  /// No description provided for @cameraTourDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작하기'**
+  String get cameraTourDone;
+
+  /// No description provided for @cameraTourSkip.
+  ///
+  /// In ko, this message translates to:
+  /// **'건너뛰기'**
+  String get cameraTourSkip;
+
+  /// 가이드 투어 진행 표시. 예: 2/5
+  ///
+  /// In ko, this message translates to:
+  /// **'{current}/{total}'**
+  String cameraTourProgress(int current, int total);
+
+  /// 프리뷰 좌상단의 작은 가이드 사진을 가리키는 첫 스텝 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기 가이드'**
+  String get cameraTourMiniGuideTitle;
+
+  /// No description provided for @cameraTourMiniGuideBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'친구가 올린 원본이에요\n이 구도를 따라찍어요'**
+  String get cameraTourMiniGuideBody;
+
+  /// No description provided for @cameraTourMiniGuideFoldTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'접어두기'**
+  String get cameraTourMiniGuideFoldTitle;
+
+  /// 미니뷰를 왼쪽으로 스와이프하면 손잡이만 남기고 접히는 동작
+  ///
+  /// In ko, this message translates to:
+  /// **'왼쪽으로 밀어 접어둘 수 있어요'**
+  String get cameraTourMiniGuideFoldBody;
+
+  /// 고스트 확대라는 기능이 있다는 것만 알리는 스텝 제목. 토글 라벨(cameraModeGhostZoom)과 반드시 같은 표기를 쓴다
+  ///
+  /// In ko, this message translates to:
+  /// **'고스트 확대'**
+  String get cameraTourModeToggleTitle;
+
+  /// 누르라고 재촉하지 않고 기능의 존재만 알린다. 실제로 누르면 고스트 확대 안내가 이어진다
+  ///
+  /// In ko, this message translates to:
+  /// **'고스트 확대로 바꾸면 원본이 카메라 위에 반투명하게 겹쳐요'**
+  String get cameraTourModeToggleBody;
+
+  /// No description provided for @cameraTourGhostGuideTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면에 겹쳐 보기'**
+  String get cameraTourGhostGuideTitle;
+
+  /// No description provided for @cameraTourGhostGuideBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드 사진이 화면 위에 겹쳐져요.\n실제 피사체와 맞춰보세요.'**
+  String get cameraTourGhostGuideBody;
+
+  /// 헤더의 투명도 탭(0/20/40)을 가리키는 스텝 제목. 화면 라벨(cameraOpacityLabel)과 반드시 같은 표기를 쓴다
+  ///
+  /// In ko, this message translates to:
+  /// **'원본사진 투명도'**
+  String get cameraTourOpacityTitle;
+
+  /// 투명도 값은 0·20·40 세 단계이며 기본값은 40. 프리뷰 가로 스와이프로도 조절된다
+  ///
+  /// In ko, this message translates to:
+  /// **'원본 사진의 투명도를 바꿀 수 있어요.\n화면을 좌우로 밀어도 바뀌어요.'**
+  String get cameraTourOpacityBody;
+
+  /// 프리뷰 우측 하단 물음표 버튼의 접근성 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드 다시 보기'**
+  String get cameraTourRestart;
 
   /// No description provided for @notificationTitle.
   ///

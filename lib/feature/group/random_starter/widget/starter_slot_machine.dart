@@ -82,10 +82,7 @@ class _SlotFade extends StatelessWidget {
             gradient: LinearGradient(
               begin: isTop ? Alignment.topCenter : Alignment.bottomCenter,
               end: isTop ? Alignment.bottomCenter : Alignment.topCenter,
-              colors: [
-                AppColors.bgBase,
-                AppColors.bgBase.withValues(alpha: 0),
-              ],
+              colors: [AppColors.bgBase, AppColors.bgBase.withValues(alpha: 0)],
             ),
           ),
         ),

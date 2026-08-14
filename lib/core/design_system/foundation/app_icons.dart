@@ -66,6 +66,9 @@ abstract final class AppIcons {
   static const flashOn = AppIconData.font(CupertinoIcons.bolt_fill);
   static const flashOff = AppIconData.font(CupertinoIcons.bolt_slash_fill);
 
+  /// 도움말. (촬영 화면의 가이드 투어 다시 보기)
+  static const help = AppIconData.font(CupertinoIcons.question_circle);
+
   /// 사진 없음 placeholder. (반투명 — 카드·빈 썸네일용)
   static const gallery = AppIconData.svg('ic_image');
 

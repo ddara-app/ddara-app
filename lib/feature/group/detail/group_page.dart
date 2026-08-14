@@ -276,15 +276,12 @@ class GroupPage extends ConsumerWidget {
   }
 
   /// 이 모임의 [cycleId] 회차 갤러리로 이동한다. (복귀 시 상세 갱신)
-  Future<void> _pushGallery(
-    BuildContext context,
-    WidgetRef ref,
-    int cycleId,
-  ) => _pushThenRefresh(
-    context,
-    ref,
-    RoutePath.cycleGallery(groupId: groupId, cycleId: cycleId),
-  );
+  Future<void> _pushGallery(BuildContext context, WidgetRef ref, int cycleId) =>
+      _pushThenRefresh(
+        context,
+        ref,
+        RoutePath.cycleGallery(groupId: groupId, cycleId: cycleId),
+      );
 
   /// 우측 메뉴 버튼을 눌렀을 때 뜨는 모임 메뉴(액션 시트).
   void _showMenu(BuildContext context, WidgetRef ref) {
@@ -293,6 +290,13 @@ class GroupPage extends ConsumerWidget {
       context: context,
       builder: (sheetContext) => CupertinoActionSheet(
         actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(sheetContext).pop();
+              _openTourTest(context);
+            },
+            child: AppText.title(l10n.groupMenuTourTest),
+          ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(sheetContext).pop();
@@ -326,6 +330,20 @@ class GroupPage extends ConsumerWidget {
       ),
     );
   }
+
+  /// 가이드 투어 확인용 진입. (개발 중 동작 확인 목적)
+  ///
+  /// 진행 중인 회차가 없어도 열 수 있도록 가이드 사진은 번들 더미를 쓰고,
+  /// 사이클 id 는 업로드하지 않을 전제로 0 을 넘긴다. 투어는 완료 플래그와
+  /// 무관하게 매번 처음부터 뜬다.
+  void _openTourTest(BuildContext context) => context.push(
+    RoutePath.followerCamera,
+    extra: (
+      cycleId: 0,
+      guideImageUrl: 'assets/images/photo_image.png',
+      forceTour: true,
+    ),
+  );
 
   /// 모임 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공 시 완료 토스트를 띄운다. (신고해도 모임은 그대로 노출 — 관리자 검토
@@ -536,8 +554,7 @@ class GroupPage extends ConsumerWidget {
                     isMe: member.userId == myUserId,
                     // 스타터는 프로필에 배지를 달아 목록에서도 알아볼 수 있게 한다.
                     isStarter:
-                        starterUserId != null &&
-                        member.userId == starterUserId,
+                        starterUserId != null && member.userId == starterUserId,
                   ),
                 )
                 .toList(),
