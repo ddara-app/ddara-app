@@ -8,7 +8,7 @@ import 'package:flutter/cupertino.dart';
 typedef MenuAction = ({String label, Color? color, VoidCallback onSelect});
 
 /// 메뉴 너비. 항목 수·라벨 길이와 무관하게 항상 같은 폭으로 연다.
-const double _menuWidth = 120;
+const double _menuWidth = 150;
 
 /// 메뉴가 대상 기준 어디에 붙는지.
 enum ContextMenuPlacement {
