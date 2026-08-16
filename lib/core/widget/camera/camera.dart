@@ -11,10 +11,8 @@ import 'package:ddara/core/widget/camera/preview/corner_mini_handle.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
 import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
 import 'package:ddara/core/widget/camera/session/camera_session_controller.dart';
-import 'package:ddara/core/widget/camera/tour/camera_tour_controller.dart';
-import 'package:ddara/core/widget/camera/tour/camera_tour_steps.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_host_mixin.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
-import 'package:ddara/core/widget/camera/tour/provider/camera_tour_provider.dart';
 import 'package:ddara/core/widget/camera/tour/widget/camera_tour_overlay.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
@@ -87,8 +85,7 @@ class Camera extends ConsumerStatefulWidget {
 }
 
 class _CameraState extends ConsumerState<Camera>
-    with WidgetsBindingObserver
-    implements CameraTourHost {
+    with WidgetsBindingObserver, CameraTourHostMixin {
   /// 기기 카메라 세션. 촬영 · 플래시 · 전환 · 줌은 전부 여기로 위임한다.
   late final CameraSessionController _session = CameraSessionController(
     permission: ref.read(permissionServiceProvider),
@@ -108,20 +105,10 @@ class _CameraState extends ConsumerState<Camera>
   // 한 손가락 스와이프(투명도)였는지 가르는 데 쓴다.
   int _maxPointers = 0;
 
-  /// 투어 오버레이가 깔리는 Stack. 타겟 좌표를 이 기준으로 환산한다.
-  final GlobalKey _tourOriginKey = GlobalKey();
-
-  late final CameraTourController _tour = CameraTourController(host: this);
-
-  /// 이 화면에서 진입 투어를 자동 시작한 적이 있는지.
-  /// (카메라 전환 등으로 재초기화될 때 다시 뜨지 않게 한다)
-  bool _tourAutoStarted = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tour.addListener(_onTourChanged);
     _session.addListener(_onSessionChanged);
     _session.initialize();
   }
@@ -132,28 +119,20 @@ class _CameraState extends ConsumerState<Camera>
     // 설정에서 권한을 켜고 돌아온 경우, 거부 상태였다면 다시 시도한다.
     _session.resume();
     // 복귀 후에는 레이아웃이 달라졌을 수 있어 하이라이트를 다시 잰다.
-    _tour.remeasure();
+    tour.remeasure();
   }
 
   @override
   void didUpdateWidget(Camera oldWidget) {
     super.didUpdateWidget(oldWidget);
     // 바깥에서 도움말을 눌러 투어를 다시 열도록 요청했다.
-    // 지금 보고 있는 모드의 안내를 연다.
-    if (widget.tourRestartToken != oldWidget.tourRestartToken) {
-      _startTour(CameraTourKind.of(_guideMode), force: true);
-    }
+    if (widget.tourRestartToken != oldWidget.tourRestartToken) restartTour();
   }
 
   @override
   void didChangeMetrics() {
     // 회전·리사이즈로 타겟이 움직이면 구멍도 따라가야 한다.
-    _tour.remeasure();
-  }
-
-  /// 투어 상태가 바뀌면 오버레이 표시와 촬영 차단 여부가 함께 달라진다.
-  void _onTourChanged() {
-    if (mounted) setState(() {});
+    tour.remeasure();
   }
 
   /// 카메라 세션(프리뷰 · 플래시 · 촬영 상태)이 바뀌면 화면을 다시 그린다.
@@ -161,28 +140,7 @@ class _CameraState extends ConsumerState<Camera>
     if (!mounted) return;
     setState(() {});
     // 프리뷰가 준비된 뒤라야 투어 타겟 좌표를 잴 수 있다.
-    if (_session.isReady) _startInitialTourIfNeeded();
-  }
-
-  /// 화면에 처음 들어왔을 때의 안내(코너 미니뷰)를 한 번 띄운다.
-  /// (프리뷰가 준비된 뒤 호출해야 타겟 좌표를 잴 수 있다)
-  void _startInitialTourIfNeeded() {
-    if (_tourAutoStarted) return;
-    _tourAutoStarted = true;
-    _startTour(CameraTourKind.corner, force: widget.forceTour);
-  }
-
-  /// [kind] 안내를 연다. 이미 본 적이 있으면 열지 않는다.
-  /// ([force] 는 도움말 버튼·테스트 진입처럼 다시 보겠다고 요청한 경우)
-  void _startTour(CameraTourKind kind, {bool force = false}) {
-    if (!widget.showTour || !mounted) return;
-    if (!force && ref.read(cameraTourSeenProvider(kind))) return;
-
-    _tour.start(
-      kind,
-      onFinished: () =>
-          ref.read(cameraTourSeenProvider(kind).notifier).complete(),
-    );
+    if (_session.isReady) startInitialTourIfNeeded();
   }
 
   /// 촬영을 요청하고, 저장된 파일 경로를 호출부에 전달한다.
@@ -228,66 +186,22 @@ class _CameraState extends ConsumerState<Camera>
       _miniViewHidden = false;
     });
     widget.onViewModeChanged?.call(mode);
-    _onGuideModeSettled(mode);
+    onGuideModeSettled(mode);
   }
 
-  /// 모드가 바뀐 뒤 투어를 정리한다.
-  ///
-  /// 모드마다 안내가 따로 있으므로, 사용자가 다른 모드로 옮겨 가면 지금 보던
-  /// 안내는 거기서 끝내고 그쪽 안내로 넘긴다. 같은 모드 안에서의 변화라면
-  /// 하이라이트 위치만 다시 잰다.
-  void _onGuideModeSettled(GuideViewMode mode) {
-    final kind = CameraTourKind.of(mode);
-    if (_tour.isActive && _tour.kind != kind) _tour.finish();
-
-    if (_tour.isActive) {
-      _tour.onHostChanged();
-    } else {
-      _startTour(kind);
-    }
-  }
-
-  void _setMiniViewHidden(bool hidden) {
+  @override
+  void setMiniViewHidden(bool hidden) {
     if (_miniViewHidden == hidden) return;
     setState(() => _miniViewHidden = hidden);
     // 미니뷰를 치우면 타겟이 사라지므로 구멍을 다시 잰다.
-    _tour.onHostChanged();
+    tour.onHostChanged();
   }
-
-  // ── CameraTourHost ────────────────────────────────────────────────
 
   @override
   GuideViewMode get guideMode => _guideMode;
 
   @override
   void setGuideMode(GuideViewMode mode) => _onViewModeChanged(mode);
-
-  @override
-  void revealMiniView() => _setMiniViewHidden(false);
-
-  @override
-  void foldMiniView() => _setMiniViewHidden(true);
-
-  @override
-  bool get animationsDisabled =>
-      mounted && MediaQuery.disableAnimationsOf(context);
-
-  @override
-  RenderObject? get tourOrigin =>
-      _tourOriginKey.currentContext?.findRenderObject();
-
-  /// 가이드 사진은 네트워크 이미지라 첫 표시에 지연이 있을 수 있다.
-  /// 디코딩이 끝날 때까지 기다리되, 실패·지연으로 투어가 멈추지는 않게 한다.
-  @override
-  Future<void> ensureGuideImageLoaded() async {
-    final image = widget.guideImage;
-    if (image == null || !mounted) return;
-    try {
-      await precacheImage(image, context).timeout(const Duration(seconds: 3));
-    } catch (_) {
-      // 로딩에 실패해도 투어는 계속 진행한다.
-    }
-  }
 
   /// 제스처 종료: 한 손가락 가로 스와이프였다면 원본사진 투명도를 바꾼다.
   /// 방향·감도는 투명도 탭과 같은 규칙([opacityLabelForSwipe])을 쓴다.
@@ -316,8 +230,6 @@ class _CameraState extends ConsumerState<Camera>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _tour.removeListener(_onTourChanged);
-    _tour.dispose();
     _session.removeListener(_onSessionChanged);
     _session.dispose();
     super.dispose();
@@ -361,12 +273,12 @@ class _CameraState extends ConsumerState<Camera>
 
     // 촬영 후처리 동안 화면 전체를 덮어 입력을 막는다. (전면 반전 등)
     return Stack(
-      key: _tourOriginKey,
+      key: tourOriginKey,
       children: [
         _cameraBody(),
         // 딤과 구멍 좌표가 본문과 같은 상자를 쓰도록 영역 전체를 채운다.
-        if (_tour.isActive)
-          Positioned.fill(child: CameraTourOverlay(controller: _tour)),
+        if (tour.isActive)
+          Positioned.fill(child: CameraTourOverlay(controller: tour)),
         if (_session.isCapturing) const AppLoadingOverlay(),
       ],
     );
@@ -405,7 +317,7 @@ class _CameraState extends ConsumerState<Camera>
               child: CameraTourTarget(
                 id: CameraTourTargets.miniGuideHandle,
                 child: CornerMiniHandle(
-                  onShow: () => _setMiniViewHidden(false),
+                  onShow: () => setMiniViewHidden(false),
                 ),
               ),
             )
@@ -416,7 +328,7 @@ class _CameraState extends ConsumerState<Camera>
                 id: CameraTourTargets.miniGuide,
                 child: CornerMiniView(
                   image: widget.guideImage!,
-                  onHide: () => _setMiniViewHidden(true),
+                  onHide: () => setMiniViewHidden(true),
                 ),
               ),
             ),
@@ -513,7 +425,7 @@ class _CameraState extends ConsumerState<Camera>
         // 투어 중에는 촬영 버튼이 딤에 덮이지만, 구멍이 뚫린 스텝을 대비해
         // 촬영 로직 자체도 막는다.
         CameraBottom(
-          onCapture: tapGuard(_session.isCapturing || _tour.isActive, _capture),
+          onCapture: tapGuard(_session.isCapturing || tour.isActive, _capture),
         ),
       ],
     );
