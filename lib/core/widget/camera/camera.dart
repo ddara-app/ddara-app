@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:camera/camera.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -13,13 +10,12 @@ import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_handle.dart';
 import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
 import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
+import 'package:ddara/core/widget/camera/session/camera_session_controller.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_controller.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_steps.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 import 'package:ddara/core/widget/camera/tour/provider/camera_tour_provider.dart';
 import 'package:ddara/core/widget/camera/tour/widget/camera_tour_overlay.dart';
-import 'package:ddara/core/widget/camera/util/image_mirror.dart';
-import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -93,19 +89,11 @@ class Camera extends ConsumerStatefulWidget {
 class _CameraState extends ConsumerState<Camera>
     with WidgetsBindingObserver
     implements CameraTourHost {
-  CameraController? _controller;
-  Future<void>? _initFuture;
-  bool _flashOn = false;
+  /// 기기 카메라 세션. 촬영 · 플래시 · 전환 · 줌은 전부 여기로 위임한다.
+  late final CameraSessionController _session = CameraSessionController(
+    permission: ref.read(permissionServiceProvider),
+  );
 
-  /// 카메라 권한이 거부된 상태. true 면 안내 화면을 보여준다.
-  bool _permissionDenied = false;
-
-  /// 촬영 후처리(전면 반전 등)가 진행 중인 상태.
-  /// 짧지만 즉시 끝나지는 않아, 그동안 촬영 버튼을 막고 로딩을 덮는다.
-  bool _processing = false;
-
-  List<CameraDescription> _cameras = const [];
-  int _cameraIndex = 0;
   late GuideViewMode _guideMode = widget.initialViewMode;
 
   /// 코너 미니뷰를 왼쪽으로 밀어 치워 둔 상태. 손잡이만 남는다.
@@ -115,14 +103,6 @@ class _CameraState extends ConsumerState<Camera>
   String _opacityLabel = cameraDefaultOpacityLabel;
 
   double get _guideOpacity => (int.tryParse(_opacityLabel) ?? 0) / 100;
-
-  // 핀치 줌 상태. min/max 는 카메라를 열 때 조회한다. (미지원 시 1.0 → 줌 없음)
-  double _minZoom = 1.0;
-  double _maxZoom = 1.0;
-  double _currentZoom = 1.0;
-
-  // 핀치 시작 시점의 줌 배율. (제스처 도중 기준값)
-  double _baseZoom = 1.0;
 
   // 이번 제스처에서 동시에 닿았던 최대 손가락 수. 끝난 뒤 핀치(줌)였는지
   // 한 손가락 스와이프(투명도)였는지 가르는 데 쓴다.
@@ -142,17 +122,17 @@ class _CameraState extends ConsumerState<Camera>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _tour.addListener(_onTourChanged);
-    _initFuture = _initCamera();
+    _session.addListener(_onSessionChanged);
+    _session.initialize();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
     // 설정에서 권한을 켜고 돌아온 경우, 거부 상태였다면 다시 시도한다.
-    if (state == AppLifecycleState.resumed && _permissionDenied) {
-      _initFuture = _initCamera();
-    }
+    _session.resume();
     // 복귀 후에는 레이아웃이 달라졌을 수 있어 하이라이트를 다시 잰다.
-    if (state == AppLifecycleState.resumed) _tour.remeasure();
+    _tour.remeasure();
   }
 
   @override
@@ -176,6 +156,14 @@ class _CameraState extends ConsumerState<Camera>
     if (mounted) setState(() {});
   }
 
+  /// 카메라 세션(프리뷰 · 플래시 · 촬영 상태)이 바뀌면 화면을 다시 그린다.
+  void _onSessionChanged() {
+    if (!mounted) return;
+    setState(() {});
+    // 프리뷰가 준비된 뒤라야 투어 타겟 좌표를 잴 수 있다.
+    if (_session.isReady) _startInitialTourIfNeeded();
+  }
+
   /// 화면에 처음 들어왔을 때의 안내(코너 미니뷰)를 한 번 띄운다.
   /// (프리뷰가 준비된 뒤 호출해야 타겟 좌표를 잴 수 있다)
   void _startInitialTourIfNeeded() {
@@ -197,152 +185,28 @@ class _CameraState extends ConsumerState<Camera>
     );
   }
 
-  Future<void> _initCamera() async {
-    final permission = ref.read(permissionServiceProvider);
-
-    // 권한을 확인하고, 없으면 이 시점에 '카메라' 권한만 요청한다.
-    // (미결정 상태면 OS 프롬프트가 뜨고, 이미 영구 거부면 프롬프트 없이 거부로
-    //  돌아와 아래 안내 화면으로 처리한다)
-    var granted = await permission.isCameraGranted();
-    if (!granted) {
-      final result = await permission.requestCamera();
-      granted = result == PermissionResult.granted;
-    }
-    if (!granted) {
-      if (mounted) setState(() => _permissionDenied = true);
-      return;
-    }
-    if (_permissionDenied && mounted) {
-      setState(() => _permissionDenied = false);
-    }
-
-    _cameras = await availableCameras();
-    if (_cameras.isEmpty) return;
-
-    // 후면 카메라를 우선 선택한다.
-    final backIndex = _cameras.indexWhere(
-      (c) => c.lensDirection == CameraLensDirection.back,
-    );
-    _cameraIndex = backIndex >= 0 ? backIndex : 0;
-    await _openCamera(_cameras[_cameraIndex]);
-  }
-
-  /// 주어진 카메라로 컨트롤러를 새로 만들어 초기화한다.
-  Future<void> _openCamera(CameraDescription description) async {
-    final controller = CameraController(
-      description,
-      ResolutionPreset.high,
-      enableAudio: false,
-    );
-    await controller.initialize();
-    if (!mounted) {
-      await controller.dispose();
-      return;
-    }
-
-    // 기본 플래시 모드가 auto 라서 어두운 환경에서 촬영 시 자동 발광한다.
-    // 토치는 사용자가 직접 토글하므로, 열 때 명시적으로 꺼 자동 발광을 막는다.
-    try {
-      await controller.setFlashMode(FlashMode.off);
-    } catch (_) {
-      // 일부 기기에서 미지원일 수 있으나, 무시해도 프리뷰에는 영향이 없다.
-    }
-
-    // 핀치 줌 범위 조회. (미지원/실패 시 1.0 고정 → 줌 동작 없음)
-    try {
-      _minZoom = await controller.getMinZoomLevel();
-      _maxZoom = await controller.getMaxZoomLevel();
-    } catch (_) {
-      _minZoom = 1.0;
-      _maxZoom = 1.0;
-    }
-    _currentZoom = _minZoom;
-
-    setState(() => _controller = controller);
-    _startInitialTourIfNeeded();
-  }
-
-  /// 현재 프리뷰를 촬영해 앱 임시 디렉토리에 저장하고, 그 경로를 전달한다.
-  /// (OS 갤러리에는 저장하지 않는다.)
-  ///
-  /// 전면 카메라는 프리뷰가 거울상으로 보이므로, 저장본도 같은 좌우로 뒤집어
-  /// 방금 본 화면과 확인 화면·업로드본이 어긋나지 않게 한다.
+  /// 촬영을 요청하고, 저장된 파일 경로를 호출부에 전달한다.
   Future<void> _capture() async {
-    final controller = _controller;
-    if (controller == null || !controller.value.isInitialized) return;
-    // 이미 촬영 중이면 중복 호출을 막는다.
-    if (controller.value.isTakingPicture) return;
-
-    setState(() => _processing = true);
-    try {
-      final file = await controller.takePicture();
-      // 촬영 후 화면이 넘어가도 토치가 켜진 채 남지 않도록 끈다.
-      // (뒤로가기는 dispose 에서 처리되지만, 촬영 후 전환은 dispose 가 호출되지 않는다.)
-      if (_flashOn) {
-        await controller.setFlashMode(FlashMode.off);
-        if (mounted) setState(() => _flashOn = false);
-      }
-
-      final isFront =
-          controller.description.lensDirection == CameraLensDirection.front;
-      final path = isFront ? await mirrorImageFile(file.path) : file.path;
-
-      if (!mounted) return;
-      widget.onCapture?.call(path);
-    } catch (_) {
-      // 촬영 실패는 무시한다. (필요 시 사용자 안내 추가)
-    } finally {
-      // 촬영이 성공하면 보통 화면이 넘어가지만, 같은 화면에 머무는 호출부도
-      // 있으므로(가이드 재촬영 등) 처리 상태는 항상 되돌린다.
-      if (mounted) setState(() => _processing = false);
-    }
+    final path = await _session.capture();
+    if (path == null || !mounted) return;
+    widget.onCapture?.call(path);
   }
 
   Future<void> _toggleFlash() async {
-    final controller = _controller;
-    if (controller == null || !controller.value.isInitialized) return;
-
-    final next = !_flashOn;
-    await controller.setFlashMode(next ? FlashMode.torch : FlashMode.off);
-    if (!mounted) return;
-    setState(() => _flashOn = next);
-    widget.onFlashPressed?.call(next);
-  }
-
-  /// 전/후면 카메라를 전환한다.
-  ///
-  /// 목록 순환이 아니라 렌즈 방향(전/후) 기준으로 반대편을 찾는다.
-  /// iPhone 은 후면 렌즈가 여러 개(광각·초광각·망원)라 순환 방식으로는
-  /// 후면 렌즈끼리만 바뀌고 전면이 바로 나오지 않는다.
-  Future<void> _switchCamera() async {
-    final targetDirection =
-        _cameras[_cameraIndex].lensDirection == CameraLensDirection.back
-        ? CameraLensDirection.front
-        : CameraLensDirection.back;
-    final next = _cameras.indexWhere((c) => c.lensDirection == targetDirection);
-    // 반대편 카메라가 없는 기기(전면 없음 등)면 전환하지 않는다.
-    if (next < 0 || next == _cameraIndex) return;
-
-    final previous = _controller;
-
-    // 전환 중에는 프리뷰를 로딩 상태로 두고, 플래시는 초기화한다.
-    setState(() {
-      _controller = null;
-      _flashOn = false;
-    });
-    await previous?.dispose();
-
-    _cameraIndex = next;
-    await _openCamera(_cameras[next]);
+    final wasOn = _session.flashOn;
+    final isOn = await _session.toggleFlash();
+    // 조작할 수 없는 상태였다면 값이 그대로 돌아오므로 알리지 않는다.
+    if (!mounted || isOn == wasOn) return;
+    widget.onFlashPressed?.call(isOn);
   }
 
   /// 핀치 시작: 현재 줌 배율을 기준값으로 잡는다.
   void _onScaleStart(ScaleStartDetails details) {
-    _baseZoom = _currentZoom;
+    _session.beginZoom();
     _maxPointers = details.pointerCount;
   }
 
-  /// 핀치 진행: 배율(scale)을 기준값에 곱해 줌 범위 안으로 적용한다.
+  /// 핀치 진행: 두 손가락일 때만 배율을 줌에 넘긴다.
   Future<void> _onScaleUpdate(ScaleUpdateDetails details) async {
     // 손가락이 하나 늦게 내려오는 경우가 흔해, 제스처 내내 최대값을 기억한다.
     // (끝난 뒤 줌이었는지 스와이프였는지 가르는 기준)
@@ -350,18 +214,9 @@ class _CameraState extends ConsumerState<Camera>
       _maxPointers = details.pointerCount;
     }
 
-    final controller = _controller;
-    if (controller == null || !controller.value.isInitialized) return;
     // 두 손가락 핀치가 아니면(단일 터치 이동 등) 무시한다.
     if (details.pointerCount < 2) return;
-
-    final zoom = (_baseZoom * details.scale)
-        .clamp(_minZoom, _maxZoom)
-        .toDouble();
-    if (zoom == _currentZoom) return;
-
-    _currentZoom = zoom;
-    await controller.setZoomLevel(zoom);
+    await _session.zoomBy(details.scale);
   }
 
   void _onViewModeChanged(GuideViewMode mode) {
@@ -463,31 +318,15 @@ class _CameraState extends ConsumerState<Camera>
     WidgetsBinding.instance.removeObserver(this);
     _tour.removeListener(_onTourChanged);
     _tour.dispose();
-    final controller = _controller;
-    _controller = null;
-    if (controller != null) {
-      // 화면을 떠날 때 켜져 있던 플래시(토치)를 끄고 컨트롤러를 해제한다.
-      _turnOffFlashAndDispose(controller);
-    }
+    _session.removeListener(_onSessionChanged);
+    _session.dispose();
     super.dispose();
-  }
-
-  Future<void> _turnOffFlashAndDispose(CameraController controller) async {
-    try {
-      if (_flashOn && controller.value.isInitialized) {
-        await controller.setFlashMode(FlashMode.off);
-      }
-    } catch (_) {
-      // 해제 직전이라 실패해도 dispose 로 정리되므로 무시한다.
-    } finally {
-      await controller.dispose();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     // 권한이 거부된 경우: 카메라 대신 안내 + 설정 이동 버튼을 보여준다.
-    if (_permissionDenied) {
+    if (_session.permissionDenied) {
       final l10n = AppLocalizations.of(context);
       return Padding(
         padding: const EdgeInsets.all(AppSpacing.s6),
@@ -528,7 +367,7 @@ class _CameraState extends ConsumerState<Camera>
         // 딤과 구멍 좌표가 본문과 같은 상자를 쓰도록 영역 전체를 채운다.
         if (_tour.isActive)
           Positioned.fill(child: CameraTourOverlay(controller: _tour)),
-        if (_processing) const AppLoadingOverlay(),
+        if (_session.isCapturing) const AppLoadingOverlay(),
       ],
     );
   }
@@ -611,10 +450,7 @@ class _CameraState extends ConsumerState<Camera>
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Preview(
-                      controller: _controller,
-                      initFuture: _initFuture,
-                    ),
+                    child: Preview(controller: _session.controller),
                   ),
                   if (widget.showViewMode && widget.guideImage != null)
                     switch (_guideMode) {
@@ -650,12 +486,14 @@ class _CameraState extends ConsumerState<Camera>
                       spacing: AppSpacing.s3,
                       children: [
                         _PreviewControlButton(
-                          icon: _flashOn ? AppIcons.flashOn : AppIcons.flashOff,
+                          icon: _session.flashOn
+                              ? AppIcons.flashOn
+                              : AppIcons.flashOff,
                           onPressed: _toggleFlash,
                         ),
                         _PreviewControlButton(
                           icon: AppIcons.reverse,
-                          onPressed: _switchCamera,
+                          onPressed: _session.switchCamera,
                         ),
                       ],
                     ),
@@ -675,7 +513,7 @@ class _CameraState extends ConsumerState<Camera>
         // 투어 중에는 촬영 버튼이 딤에 덮이지만, 구멍이 뚫린 스텝을 대비해
         // 촬영 로직 자체도 막는다.
         CameraBottom(
-          onCapture: tapGuard(_processing || _tour.isActive, _capture),
+          onCapture: tapGuard(_session.isCapturing || _tour.isActive, _capture),
         ),
       ],
     );
