@@ -1781,13 +1781,13 @@ abstract class AppLocalizations {
   ///
   /// In ko, this message translates to:
   /// **'‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요'**
-  String notificationMessageFriendShot(String actor, String groupName);
+  String notificationMessageFriendShot(String groupName, String actor);
 
   /// No description provided for @notificationMessageComment.
   ///
   /// In ko, this message translates to:
   /// **'‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요'**
-  String notificationMessageComment(String actor, String groupName);
+  String notificationMessageComment(String groupName, String actor);
 
   /// No description provided for @notificationMessageDefault.
   ///

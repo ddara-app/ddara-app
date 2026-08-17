@@ -920,12 +920,12 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String notificationMessageFriendShot(String actor, String groupName) {
+  String notificationMessageFriendShot(String groupName, String actor) {
     return '‘$groupName’에서 $actor님이 따라찍기를 올렸어요';
   }
 
   @override
-  String notificationMessageComment(String actor, String groupName) {
+  String notificationMessageComment(String groupName, String actor) {
     return '‘$groupName’에서 $actor님이 내 사진에 댓글을 남겼어요';
   }
 

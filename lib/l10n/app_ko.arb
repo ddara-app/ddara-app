@@ -693,15 +693,15 @@
   "notificationMessageFriendShot": "‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요",
   "@notificationMessageFriendShot": {
     "placeholders": {
-      "actor": { "type": "String" },
-      "groupName": { "type": "String" }
+      "groupName": { "type": "String" },
+      "actor": { "type": "String" }
     }
   },
   "notificationMessageComment": "‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요",
   "@notificationMessageComment": {
     "placeholders": {
-      "actor": { "type": "String" },
-      "groupName": { "type": "String" }
+      "groupName": { "type": "String" },
+      "actor": { "type": "String" }
     }
   },
   "notificationMessageDefault": "새로운 알림이 있어요",
