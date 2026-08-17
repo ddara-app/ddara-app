@@ -31,6 +31,10 @@ extension NotificationItemMapper on NotificationItemResponse {
         imageUnderReview: payload.imageUnderReview ?? false,
         locked: payload.locked ?? false,
         starterUserId: payload.starterUserId,
+        shotOwnerUserId: payload.shotOwnerUserId,
+        shotOwnerNickname: payload.shotOwnerNickname,
+        // 사진 주인 정보가 없는 알림 종류는 '내 사진' 으로 보지 않는다.
+        isMyShot: payload.isMyShot ?? false,
       ),
       readAt: readAt,
       createdAt: createdAt,

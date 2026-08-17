@@ -930,6 +930,20 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String notificationMessageCommentOnOthers(
+    String groupName,
+    String actor,
+    String owner,
+  ) {
+    return '‘$groupName’에서 $actor님이 $owner님의 사진에 댓글을 남겼어요';
+  }
+
+  @override
+  String notificationMessageCommentOnOwn(String groupName, String actor) {
+    return '‘$groupName’에서 $actor님이 본인 사진에 댓글을 남겼어요';
+  }
+
+  @override
   String get notificationMessageDefault => '새로운 알림이 있어요';
 
   @override

@@ -31,5 +31,11 @@ abstract class NotificationPayload with _$NotificationPayload {
     required bool locked,
     // 썸네일을 올린 스타터의 userId. NEW_CYCLE·CYCLE_COMPLETED 외에는 null.
     required int? starterUserId,
+    // 댓글이 달린 사진의 주인. COMMENT 외에는 null.
+    required int? shotOwnerUserId,
+    required String? shotOwnerNickname,
+    // 댓글이 달린 사진이 내 사진인지 여부. (COMMENT 에만 의미가 있다)
+    // 값이 오지 않는 알림 종류는 false 로 취급한다.
+    required bool isMyShot,
   }) = _NotificationPayload;
 }
