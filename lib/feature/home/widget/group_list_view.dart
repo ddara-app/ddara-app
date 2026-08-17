@@ -1,6 +1,6 @@
 import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/feature/group/detail/group_page.dart';
+import 'package:ddara/feature/group/detail/util/group_page_args.dart';
 import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';

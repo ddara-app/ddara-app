@@ -1,5 +1,5 @@
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/feature/group/detail/group_page.dart';
+import 'package:ddara/feature/group/detail/util/group_page_args.dart';
 import 'package:go_router/go_router.dart';
 
 /// 모임 밖에서(홈 최근 업데이트 · 알림 목록 · 푸시 알림) 회차 갤러리로 들어간다.
