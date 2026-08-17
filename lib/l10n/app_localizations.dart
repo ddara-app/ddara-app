@@ -1883,13 +1883,29 @@ abstract class AppLocalizations {
   ///
   /// In ko, this message translates to:
   /// **'‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요'**
-  String notificationMessageFriendShot(String actor, String groupName);
+  String notificationMessageFriendShot(String groupName, String actor);
 
-  /// No description provided for @notificationMessageComment.
+  /// COMMENT 알림 중 내 사진에 달린 경우. (payload.isMyShot = true)
   ///
   /// In ko, this message translates to:
   /// **'‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요'**
-  String notificationMessageComment(String actor, String groupName);
+  String notificationMessageComment(String groupName, String actor);
+
+  /// COMMENT 알림 중 남의 사진에 달린 경우. (payload.isMyShot = false)
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 {actor}님이 {owner}님의 사진에 댓글을 남겼어요'**
+  String notificationMessageCommentOnOthers(
+    String groupName,
+    String actor,
+    String owner,
+  );
+
+  /// COMMENT 알림 중 댓글 작성자가 자기 사진에 남긴 경우. (actorNickname = shotOwnerNickname)
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 {actor}님이 본인 사진에 댓글을 남겼어요'**
+  String notificationMessageCommentOnOwn(String groupName, String actor);
 
   /// No description provided for @notificationMessageDefault.
   ///

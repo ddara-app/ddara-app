@@ -62,6 +62,9 @@ _NotificationPayloadResponse _$NotificationPayloadResponseFromJson(
   imageUnderReview: json['imageUnderReview'] as bool?,
   locked: json['locked'] as bool?,
   starterUserId: (json['starterUserId'] as num?)?.toInt(),
+  shotOwnerUserId: (json['shotOwnerUserId'] as num?)?.toInt(),
+  shotOwnerNickname: json['shotOwnerNickname'] as String?,
+  isMyShot: json['isMyShot'] as bool?,
 );
 
 Map<String, dynamic> _$NotificationPayloadResponseToJson(
@@ -78,4 +81,7 @@ Map<String, dynamic> _$NotificationPayloadResponseToJson(
   'imageUnderReview': instance.imageUnderReview,
   'locked': instance.locked,
   'starterUserId': instance.starterUserId,
+  'shotOwnerUserId': instance.shotOwnerUserId,
+  'shotOwnerNickname': instance.shotOwnerNickname,
+  'isMyShot': instance.isMyShot,
 };

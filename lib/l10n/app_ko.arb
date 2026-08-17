@@ -745,15 +745,33 @@
   "notificationMessageFriendShot": "‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요",
   "@notificationMessageFriendShot": {
     "placeholders": {
-      "actor": { "type": "String" },
-      "groupName": { "type": "String" }
+      "groupName": { "type": "String" },
+      "actor": { "type": "String" }
     }
   },
   "notificationMessageComment": "‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요",
   "@notificationMessageComment": {
+    "description": "COMMENT 알림 중 내 사진에 달린 경우. (payload.isMyShot = true)",
     "placeholders": {
+      "groupName": { "type": "String" },
+      "actor": { "type": "String" }
+    }
+  },
+  "notificationMessageCommentOnOthers": "‘{groupName}’에서 {actor}님이 {owner}님의 사진에 댓글을 남겼어요",
+  "@notificationMessageCommentOnOthers": {
+    "description": "COMMENT 알림 중 남의 사진에 달린 경우. (payload.isMyShot = false)",
+    "placeholders": {
+      "groupName": { "type": "String" },
       "actor": { "type": "String" },
-      "groupName": { "type": "String" }
+      "owner": { "type": "String" }
+    }
+  },
+  "notificationMessageCommentOnOwn": "‘{groupName}’에서 {actor}님이 본인 사진에 댓글을 남겼어요",
+  "@notificationMessageCommentOnOwn": {
+    "description": "COMMENT 알림 중 댓글 작성자가 자기 사진에 남긴 경우. (actorNickname = shotOwnerNickname)",
+    "placeholders": {
+      "groupName": { "type": "String" },
+      "actor": { "type": "String" }
     }
   },
   "notificationMessageDefault": "새로운 알림이 있어요",
