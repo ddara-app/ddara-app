@@ -12,17 +12,27 @@ class FollowerState {
   /// 업로드 실패 종류. (문구는 화면이 l10n 으로 매핑)
   final GroupActionError? error;
 
-  const FollowerState({this.isLoading = false, this.error});
+  /// 가이드 투어를 이미 본 적이 있는지. 서버에 저장되는 값이라 조회가 끝나기
+  /// 전에는 null 이다. (모르는 채로 투어를 열면 본 사람에게도 다시 뜬다)
+  final bool? isTourSeen;
+
+  const FollowerState({
+    this.isLoading = false,
+    this.error,
+    this.isTourSeen,
+  });
 
   FollowerState copyWith({
     bool? isLoading,
     GroupActionError? error,
     bool clearError = false,
+    bool? isTourSeen,
   }) {
     return FollowerState(
       isLoading: isLoading ?? this.isLoading,
       // copyWith(error: null) 은 기존 값을 유지하므로 리셋은 clear 로만.
       error: clearError ? null : (error ?? this.error),
+      isTourSeen: isTourSeen ?? this.isTourSeen,
     );
   }
 }

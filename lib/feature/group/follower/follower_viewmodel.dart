@@ -21,6 +21,29 @@ class FollowerViewModel extends AutoDisposeNotifier<FollowerState>
     state = state.copyWith(clearError: true);
   }
 
+  /// 가이드 투어를 이미 봤는지 서버에서 확인한다.
+  ///
+  /// 조회에 실패하면 못 본 것으로 두어 안내가 한 번 더 뜨게 한다. 안내를
+  /// 놓치는 쪽보다 다시 보는 쪽이 낫고, 실패를 토스트로 알릴 일도 아니다.
+  Future<void> loadTourSeen() async {
+    try {
+      final seen = await ref.read(getCameraGuideStateUseCaseProvider)();
+      if (isDisposed) return;
+      state = state.copyWith(isTourSeen: seen);
+    } catch (_) {
+      if (isDisposed) return;
+      state = state.copyWith(isTourSeen: false);
+    }
+  }
+
+  /// 투어를 끝까지 본 것으로 표시한다. → 다음부터는 자동으로 뜨지 않는다.
+  /// (AppBar 의 도움말 버튼으로는 언제든 다시 볼 수 있다)
+  Future<void> completeTour() async {
+    if (state.isTourSeen ?? false) return;
+    state = state.copyWith(isTourSeen: true);
+    // TODO: 서버 저장(PATCH /api/users/me/camera-guide) 연결 — API 준비 후.
+  }
+
   /// 업로드 실패를 상태에 반영하고 로딩을 내린다.
   /// (업로드 중 화면을 벗어났으면 반영하지 않는다)
   void _fail(GroupActionError error) {

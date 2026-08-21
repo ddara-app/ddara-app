@@ -13,6 +13,8 @@ class FollowerCamera extends StatelessWidget {
     required this.guideImageUrl,
     this.forceTour = false,
     this.tourRestartToken = 0,
+    this.tourSeen,
+    this.onTourFinished,
   });
 
   /// 촬영 완료 시 저장된 이미지 파일 경로를 전달한다.
@@ -29,6 +31,12 @@ class FollowerCamera extends StatelessWidget {
 
   /// 값이 바뀌면 투어를 다시 연다. (AppBar 도움말 버튼이 올린다)
   final int tourRestartToken;
+
+  /// 가이드 투어를 이미 본 적이 있는지. null 이면 아직 확인 중이라 열지 않는다.
+  final bool? tourSeen;
+
+  /// 투어를 끝까지 봤을 때. 완료 저장은 상위 화면이 맡는다.
+  final VoidCallback? onTourFinished;
 
   /// 가이드 사진 provider. 빈 값이면 null 을 돌려 가이드 뷰를 숨긴다.
   ImageProvider? get _guideImage {
@@ -52,6 +60,8 @@ class FollowerCamera extends StatelessWidget {
       forceTour: forceTour,
       tourRestartToken: tourRestartToken,
       guideImage: _guideImage,
+      tourSeen: tourSeen,
+      onTourFinished: onTourFinished,
       onCapture: onCapture,
     );
   }

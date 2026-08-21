@@ -2,7 +2,6 @@ import 'package:ddara/core/widget/camera/camera.dart';
 import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_controller.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_steps.dart';
-import 'package:ddara/core/widget/camera/tour/provider/camera_tour_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,8 +43,12 @@ mixin CameraTourHostMixin on ConsumerState<Camera> implements CameraTourHost {
 
   /// 화면에 처음 들어왔을 때의 안내(코너 미니뷰)를 한 번 띄운다.
   /// (프리뷰가 준비된 뒤 호출해야 타겟 좌표를 잴 수 있다)
+  ///
+  /// 시청 여부를 아직 모르는 동안에는 미룬다. 모르는 채로 열면 이미 본
+  /// 사용자에게도 안내가 다시 뜬다. (다시 보겠다고 들어온 경우는 예외)
   void startInitialTourIfNeeded() {
     if (_tourAutoStarted) return;
+    if (widget.tourSeen == null && !widget.forceTour) return;
     _tourAutoStarted = true;
     startTour(CameraTourKind.corner, force: widget.forceTour);
   }
@@ -56,15 +59,14 @@ mixin CameraTourHostMixin on ConsumerState<Camera> implements CameraTourHost {
 
   /// [kind] 안내를 연다. 이미 본 적이 있으면 열지 않는다.
   /// ([force] 는 도움말 버튼·테스트 진입처럼 다시 보겠다고 요청한 경우)
+  ///
+  /// 본 적이 있는지([Camera.tourSeen])와 완료 저장([Camera.onTourFinished])은
+  /// 호출부에 맡긴다. 어디에 남길지는 화면이 정하기 때문이다.
   void startTour(CameraTourKind kind, {bool force = false}) {
     if (!widget.showTour || !mounted) return;
-    if (!force && ref.read(cameraTourSeenProvider(kind))) return;
+    if (!force && (widget.tourSeen ?? false)) return;
 
-    tour.start(
-      kind,
-      onFinished: () =>
-          ref.read(cameraTourSeenProvider(kind).notifier).complete(),
-    );
+    tour.start(kind, onFinished: () => widget.onTourFinished?.call());
   }
 
   /// 모드가 바뀐 뒤 투어를 정리한다.

@@ -55,6 +55,9 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
       'follower_page_viewed',
       properties: {'cycle_id': widget.cycleId},
     );
+    // 가이드 투어를 이미 봤는지는 이 화면에서만 필요해 여기서 확인한다.
+    // (결과가 오기 전까지 카메라는 투어를 열지 않고 기다린다)
+    ref.read(followerViewModelProvider.notifier).loadTourSeen();
   }
 
   /// 게시 확인을 받고 촬영본을 올린다. 성공하면 스택 아래 갤러리를 새로고침한
@@ -95,6 +98,9 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
     final viewModel = ref.read(followerViewModelProvider.notifier);
     final isLoading = ref.watch(
       followerViewModelProvider.select((s) => s.isLoading),
+    );
+    final tourSeen = ref.watch(
+      followerViewModelProvider.select((s) => s.isTourSeen),
     );
 
     // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
@@ -138,6 +144,8 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
                   guideImageUrl: widget.guideImageUrl,
                   forceTour: widget.forceTour,
                   tourRestartToken: _tourRestartToken,
+                  tourSeen: tourSeen,
+                  onTourFinished: viewModel.completeTour,
                   // 촬영하면 사진 확인 단계로 전환한다.
                   onCapture: (path) => setState(() => _capturedPath = path),
                 )

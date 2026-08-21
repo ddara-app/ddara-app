@@ -37,6 +37,8 @@ class Camera extends ConsumerStatefulWidget {
     this.onViewModeChanged,
     this.onFlashPressed,
     this.onCapture,
+    this.tourSeen,
+    this.onTourFinished,
   });
 
   /// '원본사진 투명도' 영역 표시 여부.
@@ -79,6 +81,16 @@ class Camera extends ConsumerStatefulWidget {
 
   /// 촬영이 끝났을 때, 저장된 이미지 파일 경로를 전달한다. (선택)
   final ValueChanged<String>? onCapture;
+
+  /// 투어를 이미 본 적이 있는지. 완료 여부의 보관은 화면(feature)의 몫이라
+  /// 여기서는 결과만 넘겨받는다.
+  ///
+  /// null 은 '아직 확인 중'이라는 뜻이라 그동안은 투어를 열지 않는다. 값이
+  /// 정해지면 그때 연다. ([forceTour] 로 들어온 경우는 확인 없이 바로 연다)
+  final bool? tourSeen;
+
+  /// 투어를 끝까지 봤을 때. 완료 저장은 호출부가 맡는다. (선택)
+  final VoidCallback? onTourFinished;
 
   @override
   ConsumerState<Camera> createState() => _CameraState();
@@ -127,6 +139,11 @@ class _CameraState extends ConsumerState<Camera>
     super.didUpdateWidget(oldWidget);
     // 바깥에서 도움말을 눌러 투어를 다시 열도록 요청했다.
     if (widget.tourRestartToken != oldWidget.tourRestartToken) restartTour();
+    // 시청 여부 확인이 늦게 끝났다면, 그 결과로 진입 투어를 다시 판단한다.
+    // (프리뷰가 준비된 뒤라야 타겟 좌표를 잴 수 있다)
+    if (widget.tourSeen != oldWidget.tourSeen && _session.isReady) {
+      startInitialTourIfNeeded();
+    }
   }
 
   @override
