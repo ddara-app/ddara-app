@@ -5,6 +5,9 @@ enum ProfileErrorCode {
   /// 400 — 프로필 이미지가 jpg/png 형식이 아님.
   invalidImageFile('INVALID_IMAGE_FILE', 'jpg 또는 png 이미지만 사용할 수 있어요.'),
 
+  /// 400 — 요청 값이 비었거나 형식이 잘못됨.
+  invalidInput('INVALID_INPUT', '요청 값이 올바르지 않아요.'),
+
   /// 네트워크 오류 등 매칭되는 서버 코드가 없을 때의 기본값.
   unknown('UNKNOWN', '네트워크 연결이 불안정합니다.');
 

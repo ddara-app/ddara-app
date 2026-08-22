@@ -1,3 +1,4 @@
+import 'package:ddara/core/network/dto/profile/camera_guide_response.dart';
 import 'package:ddara/core/network/dto/profile/notification_settings_request.dart';
 import 'package:ddara/core/network/dto/profile/notification_settings_response.dart';
 import 'package:ddara/core/network/dto/profile/profile_image_response.dart';
@@ -56,5 +57,20 @@ class ProfileDataSource {
   Future<NotificationSettingsResponse> getNotificationSettings() async {
     final response = await _dio.get('$_baseUrl/notification-settings');
     return NotificationSettingsResponse.fromJson(response.data);
+  }
+
+  /// 촬영 화면 가이드를 어디까지 봤는지 조회한다.
+  ///
+  /// 오류: 404 `USER_NOT_FOUND`.
+  Future<CameraGuideResponse> getCameraGuide() async {
+    final response = await _dio.get('$_baseUrl/camera-guide');
+    return CameraGuideResponse.fromJson(response.data);
+  }
+
+  /// [key] 가이드를 본 것으로 기록한다. (응답 body 없음)
+  ///
+  /// 오류: 400 `INVALID_INPUT`(key 누락/빈 값) · 404 `USER_NOT_FOUND`.
+  Future<void> completeCameraGuide(String key) async {
+    await _dio.patch('$_baseUrl/camera-guide', data: {'key': key});
   }
 }
