@@ -1,5 +1,9 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
+import 'package:ddara/feature/guide/widget/guide_feature_cards.dart';
+import 'package:ddara/feature/guide/widget/guide_flow_steps.dart';
+import 'package:ddara/feature/guide/widget/guide_section.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
@@ -19,10 +23,33 @@ class GuidePage extends StatelessWidget {
         title: l10n.guidePageTitle,
         onBack: () => context.pop(),
       ),
-      child: const SafeArea(
+      child: SafeArea(
         bottom: false,
-        // TODO: 가이드 본문. (진입 경로부터 먼저 잇고 내용은 뒤에 채운다)
-        child: ScrollablePageBody(child: SizedBox(width: double.infinity)),
+        child: ScrollablePageBody(
+          // 상단 s6 · 좌우 s5. 하단은 페이지 표준(s7)을 그대로 쓴다.
+          // (Safe Area 인셋은 ScrollablePageBody 가 여기에 더한다)
+          padding: const EdgeInsets.only(
+            top: AppSpacing.s6,
+            left: AppSpacing.s5,
+            right: AppSpacing.s5,
+            bottom: AppSpacing.s7,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            // 섹션 사이 간격.
+            spacing: AppSpacing.s8,
+            children: [
+              GuideSection(
+                title: l10n.guideFlowTitle,
+                child: const GuideFlowSteps(),
+              ),
+              GuideSection(
+                title: l10n.guideFeatureTitle,
+                child: const GuideFeatureCards(),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

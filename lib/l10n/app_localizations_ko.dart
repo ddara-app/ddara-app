@@ -214,6 +214,35 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCountCaption => '어서 따라찍기를 시작해봐요';
 
   @override
+  String get guideFlowTitle => '따라찍기, 이렇게 진행돼요';
+
+  @override
+  String get guideFlowStep1 => '스타터가 원본 사진을 올려요';
+
+  @override
+  String get guideFlowStep2 => '원본과 같은 구도로 따라 찍어요';
+
+  @override
+  String get guideFlowStep3 => '모두 찍거나 시간이 끝나면 공개돼요';
+
+  @override
+  String get guideFeatureCornerTitle => '코너 미니뷰';
+
+  @override
+  String get guideFeatureCornerDescription =>
+      '원본을 화면 구석에\n작게 띄워요\n원본을 보면서 그대로\n찍을 수 있어요';
+
+  @override
+  String get guideFeatureGhostTitle => '고스트 확대';
+
+  @override
+  String get guideFeatureGhostDescription =>
+      '원본을 화면 위에\n반투명하게 겹쳠요\n선을 맞추듯 구도를\n정확히 맞출 수 있어요';
+
+  @override
+  String get guideFeatureTitle => '촬영을 도와주는 기능';
+
+  @override
   String get guidePageTitle => '가이드';
 
   @override

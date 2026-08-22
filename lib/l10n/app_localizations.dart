@@ -490,6 +490,60 @@ abstract class AppLocalizations {
   /// **'어서 따라찍기를 시작해봐요'**
   String get updateCountCaption;
 
+  /// 가이드 화면 첫 번째 섹션 제목 — 진행 방식 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기, 이렇게 진행돼요'**
+  String get guideFlowTitle;
+
+  /// 가이드 화면 진행 방식 1단계 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터가 원본 사진을 올려요'**
+  String get guideFlowStep1;
+
+  /// 가이드 화면 진행 방식 2단계 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'원본과 같은 구도로 따라 찍어요'**
+  String get guideFlowStep2;
+
+  /// 가이드 화면 진행 방식 3단계 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 찍거나 시간이 끝나면 공개돼요'**
+  String get guideFlowStep3;
+
+  /// 가이드 화면 촬영 보조 기능 카드 제목 — 코너 미니뷰
+  ///
+  /// In ko, this message translates to:
+  /// **'코너 미니뷰'**
+  String get guideFeatureCornerTitle;
+
+  /// 가이드 화면 촬영 보조 기능 카드 설명 — 코너 미니뷰 (4줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'원본을 화면 구석에\n작게 띄워요\n원본을 보면서 그대로\n찍을 수 있어요'**
+  String get guideFeatureCornerDescription;
+
+  /// 가이드 화면 촬영 보조 기능 카드 제목 — 고스트 확대
+  ///
+  /// In ko, this message translates to:
+  /// **'고스트 확대'**
+  String get guideFeatureGhostTitle;
+
+  /// 가이드 화면 촬영 보조 기능 카드 설명 — 고스트 확대 (4줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'원본을 화면 위에\n반투명하게 겹쳠요\n선을 맞추듯 구도를\n정확히 맞출 수 있어요'**
+  String get guideFeatureGhostDescription;
+
+  /// 가이드 화면 두 번째 섹션 제목 — 촬영 보조 기능 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'촬영을 도와주는 기능'**
+  String get guideFeatureTitle;
+
   /// 따라찍기 사용법 안내 화면 AppBar 제목
   ///
   /// In ko, this message translates to:
