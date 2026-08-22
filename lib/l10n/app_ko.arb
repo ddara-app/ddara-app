@@ -169,6 +169,14 @@
     }
   },
   "updateCountCaption": "어서 따라찍기를 시작해봐요",
+  "guideLabel": "가이드",
+  "@guideLabel": {
+    "description": "따라찍기 모임 탭 대시보드 2페이지 제목"
+  },
+  "guideDescription": "따라찍기\n이렇게 해요",
+  "@guideDescription": {
+    "description": "따라찍기 모임 탭 대시보드 2페이지 설명 (2줄)"
+  },
   "meetingStatusInProgress": "진행 중",
   "meetingStatusCompleted": "종료",
   "meetingMemberOwner": "{name}님",
