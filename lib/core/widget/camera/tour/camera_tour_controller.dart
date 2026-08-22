@@ -46,8 +46,11 @@ const Duration _measureInterval = Duration(milliseconds: 32);
 /// (모드 토글 250ms · 코너 미니뷰 전환 200ms 보다 길게 잡는다)
 const Duration _modeSettleDelay = Duration(milliseconds: 300);
 
-/// 접기 시연을 시작하기 전, 문구를 읽을 시간.
-const Duration _foldDemoDelay = Duration(milliseconds: 1200);
+/// 접기 시연을 시작하기 전 두는 시간.
+///
+/// 너무 늦으면 시연을 보기 전에 '다음'을 눌러 버린다. 말풍선이
+/// 떠서 자리를 잡을 만큼만 기다리고 바로 움직인다.
+const Duration _foldDemoDelay = Duration(milliseconds: 500);
 
 /// 접힌 모습을 보여 주는 시간.
 const Duration _foldDemoHold = Duration(milliseconds: 900);
@@ -92,7 +95,7 @@ class CameraTourController extends ChangeNotifier {
   /// 지금 하이라이트하고 있는 타겟 id. 없으면 null.
   ///
   /// 타겟 위젯이 안내받는 동안 모양을 달리 하려고 할 때 쓴다.
-  /// (구멍을 칠해 가리는 대신 위젯 자신이 바뀜다)
+  /// (구멍을 칠해 가리는 대신 위젯 자신이 바뀐다)
   String? get activeTargetId => _activeTargetId;
 
   /// 현재 스텝. [isActive] 가 true 일 때만 호출한다.
