@@ -14,18 +14,18 @@ import 'package:ddara/core/widget/camera/session/camera_session_controller.dart'
 import 'package:ddara/core/widget/camera/tour/camera_tour_host_mixin.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 import 'package:ddara/core/widget/camera/tour/widget/camera_tour_overlay.dart';
-import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 카메라 화면 본문. 상단(헤더) · 프리뷰 · 하단(컨트롤)으로 구성한다.
 /// 카메라 컨트롤러는 여기서 보유하고 하위 위젯에 전달한다.
 /// 헤더의 투명도/플래시 처리는 외부 콜백으로 위임한다.
-class Camera extends ConsumerStatefulWidget {
+class Camera extends StatefulWidget {
   const Camera({
     super.key,
+    required this.onRequestCameraPermission,
+    required this.onOpenSettings,
     this.showOpacity = false,
     this.showViewMode = false,
     this.initialViewMode = GuideViewMode.cornerMini,
@@ -40,6 +40,13 @@ class Camera extends ConsumerStatefulWidget {
     this.tourSeen,
     this.onTourFinished,
   });
+
+  /// 카메라 권한을 확인하고, 없으면 요청까지 한 뒤 최종 허용 여부를 돌려준다.
+  /// 권한을 어디서 어떻게 다루는지는 화면(feature)의 몫이라 함수로 받는다.
+  final Future<bool> Function() onRequestCameraPermission;
+
+  /// 권한이 거부된 안내 화면에서 '설정으로 이동'을 눌렀을 때.
+  final VoidCallback onOpenSettings;
 
   /// '원본사진 투명도' 영역 표시 여부.
   final bool showOpacity;
@@ -93,14 +100,14 @@ class Camera extends ConsumerStatefulWidget {
   final VoidCallback? onTourFinished;
 
   @override
-  ConsumerState<Camera> createState() => _CameraState();
+  State<Camera> createState() => _CameraState();
 }
 
-class _CameraState extends ConsumerState<Camera>
+class _CameraState extends State<Camera>
     with WidgetsBindingObserver, CameraTourHostMixin {
   /// 기기 카메라 세션. 촬영 · 플래시 · 전환 · 줌은 전부 여기로 위임한다.
   late final CameraSessionController _session = CameraSessionController(
-    permission: ref.read(permissionServiceProvider),
+    ensureCameraPermission: widget.onRequestCameraPermission,
   );
 
   late GuideViewMode _guideMode = widget.initialViewMode;
@@ -280,8 +287,7 @@ class _CameraState extends ConsumerState<Camera>
             const SizedBox(height: AppSpacing.s6),
             AppButton(
               label: l10n.permissionGoToSettings,
-              onPressed: () =>
-                  ref.read(permissionServiceProvider).openSettings(),
+              onPressed: widget.onOpenSettings,
             ),
           ],
         ),

@@ -39,6 +39,14 @@ class PermissionHandlerService implements PermissionService {
   }
 
   @override
+  Future<bool> ensureCameraGranted() async {
+    if (await isCameraGranted()) return true;
+
+    final result = await requestCamera();
+    return result == PermissionResult.granted;
+  }
+
+  @override
   Future<PermissionResult> cameraStatus() async {
     return _toResult(await Permission.camera.status);
   }

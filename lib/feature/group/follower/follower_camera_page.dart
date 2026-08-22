@@ -3,6 +3,7 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/domain/model/group/group_action_error.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
@@ -96,6 +97,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
     final capturedPath = _capturedPath;
     final l10n = AppLocalizations.of(context);
     final viewModel = ref.read(followerViewModelProvider.notifier);
+    final permission = ref.read(permissionServiceProvider);
     final isLoading = ref.watch(
       followerViewModelProvider.select((s) => s.isLoading),
     );
@@ -146,6 +148,8 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
                   tourRestartToken: _tourRestartToken,
                   tourSeen: tourSeen,
                   onTourFinished: viewModel.completeTour,
+                  onRequestCameraPermission: permission.ensureCameraGranted,
+                  onOpenSettings: permission.openSettings,
                   // 촬영하면 사진 확인 단계로 전환한다.
                   onCapture: (path) => setState(() => _capturedPath = path),
                 )

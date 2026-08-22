@@ -10,6 +10,8 @@ class FollowerCamera extends StatelessWidget {
   const FollowerCamera({
     super.key,
     required this.onCapture,
+    required this.onRequestCameraPermission,
+    required this.onOpenSettings,
     required this.guideImageUrl,
     this.forceTour = false,
     this.tourRestartToken = 0,
@@ -19,6 +21,12 @@ class FollowerCamera extends StatelessWidget {
 
   /// 촬영 완료 시 저장된 이미지 파일 경로를 전달한다.
   final ValueChanged<String> onCapture;
+
+  /// 카메라 권한 확인·요청. 허용 여부를 돌려준다. (ViewModel 이 맡는다)
+  final Future<bool> Function() onRequestCameraPermission;
+
+  /// 권한 거부 안내에서 '설정으로 이동'을 눌렀을 때.
+  final VoidCallback onOpenSettings;
 
   /// 따라찍기 가이드(친구가 미리 찍은) 사진 URL. 빈 값이면 가이드 뷰를 숨긴다.
   ///
@@ -63,6 +71,8 @@ class FollowerCamera extends StatelessWidget {
       tourSeen: tourSeen,
       onTourFinished: onTourFinished,
       onCapture: onCapture,
+      onRequestCameraPermission: onRequestCameraPermission,
+      onOpenSettings: onOpenSettings,
     );
   }
 }

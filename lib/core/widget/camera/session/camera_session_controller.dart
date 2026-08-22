@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:camera/camera.dart';
-import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/widget/camera/util/image_mirror.dart';
 import 'package:flutter/foundation.dart';
 
@@ -10,10 +9,11 @@ import 'package:flutter/foundation.dart';
 /// 가이드 미니뷰 · 원본사진 투명도 · 투어 같은 화면 기능은 알지 못한다.
 /// 화면은 이 컨트롤러를 구독해 상태를 그리고, 조작은 메서드로만 요청한다.
 class CameraSessionController extends ChangeNotifier {
-  CameraSessionController({required this.permission});
+  CameraSessionController({required this.ensureCameraPermission});
 
-  /// 카메라 권한 확인·요청 창구.
-  final PermissionService permission;
+  /// 카메라 권한을 확인하고, 없으면 요청까지 한 뒤 최종 허용 여부를 돌려준다.
+  /// 어디서 어떻게 확인·요청하는지는 화면(feature)이 정한다.
+  final Future<bool> Function() ensureCameraPermission;
 
   CameraController? _controller;
 
@@ -53,15 +53,10 @@ class CameraSessionController extends ChangeNotifier {
 
   /// 권한을 확인하고 카메라를 연다.
   ///
-  /// 권한이 없으면 이 시점에 '카메라' 권한만 요청한다. (미결정 상태면 OS
-  /// 프롬프트가 뜨고, 이미 영구 거부면 프롬프트 없이 거부로 돌아와
-  /// [permissionDenied] 로 처리된다)
+  /// 권한 확인·요청은 [ensureCameraPermission] 에 맡긴다. 거부로 돌아오면
+  /// [permissionDenied] 로 처리되어 화면이 안내를 대신 보여준다.
   Future<void> initialize() async {
-    var granted = await permission.isCameraGranted();
-    if (!granted) {
-      final result = await permission.requestCamera();
-      granted = result == PermissionResult.granted;
-    }
+    final granted = await ensureCameraPermission();
     if (_disposed) return;
 
     if (!granted) {

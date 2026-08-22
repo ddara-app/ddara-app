@@ -47,7 +47,7 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       await showPermissionDialog(
         context,
-        permission: permission,
+        onGoToSettings: permission.openSettings,
         permissionName: AppLocalizations.of(context).permissionCamera,
       );
       return;
@@ -57,7 +57,7 @@ class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
     if (result == PermissionResult.permanentlyDenied) {
       final goSettings = await showPermissionDialog(
         context,
-        permission: permission,
+        onGoToSettings: permission.openSettings,
         permissionName: AppLocalizations.of(context).permissionCamera,
       );
       if (goSettings == true) return;

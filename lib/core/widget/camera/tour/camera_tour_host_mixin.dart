@@ -3,14 +3,13 @@ import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_controller.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_steps.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 카메라 화면에 따라찍기 가이드 투어(코치마크)를 붙이는 mixin.
 ///
 /// 투어 컨트롤러의 수명 · 시작 조건 · [CameraTourHost] 계약을 맡는다.
 /// 프리뷰 보조 모드와 코너 미니뷰는 화면이 들고 있는 표시 상태라, 여기서는
 /// [guideMode] · [setGuideMode] · [setMiniViewHidden] 으로만 오간다.
-mixin CameraTourHostMixin on ConsumerState<Camera> implements CameraTourHost {
+mixin CameraTourHostMixin on State<Camera> implements CameraTourHost {
   /// 투어 오버레이가 깔리는 Stack. 타겟 좌표를 이 기준으로 환산한다.
   final GlobalKey tourOriginKey = GlobalKey();
 

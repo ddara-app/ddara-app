@@ -9,6 +9,11 @@ abstract interface class PermissionService {
 
   Future<PermissionResult> requestCamera();
 
+  /// 카메라 권한을 확인하고, 없으면 요청까지 한 뒤 최종 허용 여부를 돌려준다.
+  /// 허용 여부만 필요한 화면이 [isCameraGranted] + [requestCamera] 를 매번
+  /// 조합하지 않도록 한곳에 모은다.
+  Future<bool> ensureCameraGranted();
+
   /// 프롬프트 없이 현재 카메라 권한 상태만 읽는다.
   /// (요청 다이얼로그가 뒤로가기로 닫혀 요청 결과를 못 받았을 때 복구용)
   Future<PermissionResult> cameraStatus();
