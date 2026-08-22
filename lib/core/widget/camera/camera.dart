@@ -26,6 +26,7 @@ class Camera extends StatefulWidget {
     super.key,
     required this.onRequestCameraPermission,
     required this.onOpenSettings,
+    this.previewImage,
     this.showOpacity = false,
     this.showViewMode = false,
     this.initialViewMode = GuideViewMode.cornerMini,
@@ -41,12 +42,43 @@ class Camera extends StatefulWidget {
     this.onTourFinished,
   });
 
+  /// 실제 카메라 대신 화면에 띄울 정적 이미지. (가이드 시연용)
+  ///
+  /// null 이 아니면 카메라 세션을 아예 열지 않아 권한도 묻지 않는다. 프리뷰
+  /// 자리에 이 이미지가 들어가고, 나머지 화면 구성과 투어는 그대로 동작한다.
+  final ImageProvider? previewImage;
+
   /// 카메라 권한을 확인하고, 없으면 요청까지 한 뒤 최종 허용 여부를 돌려준다.
   /// 권한을 어디서 어떻게 다루는지는 화면(feature)의 몫이라 함수로 받는다.
+  /// ([previewImage] 시연에서는 호출되지 않는다)
   final Future<bool> Function() onRequestCameraPermission;
 
   /// 권한이 거부된 안내 화면에서 '설정으로 이동'을 눌렀을 때.
   final VoidCallback onOpenSettings;
+
+  /// 실제 카메라 대신 [image] 를 띄우는 시연용 생성자.
+  ///
+  /// 카메라 세션을 열지 않으므로 권한 콜백이 필요 없다. 가이드 화면에서
+  /// 안내를 보여줄 때 쓴다.
+  const Camera.preview({
+    super.key,
+    required ImageProvider image,
+    this.showOpacity = false,
+    this.showViewMode = false,
+    this.initialViewMode = GuideViewMode.cornerMini,
+    this.showTour = false,
+    this.forceTour = false,
+    this.tourRestartToken = 0,
+    this.guideImage,
+    this.onOpacityChanged,
+    this.onViewModeChanged,
+    this.onFlashPressed,
+    this.onCapture,
+    this.tourSeen,
+    this.onTourFinished,
+  }) : previewImage = image,
+       onRequestCameraPermission = _previewSkipsPermission,
+       onOpenSettings = _previewSkipsSettings;
 
   /// '원본사진 투명도' 영역 표시 여부.
   final bool showOpacity;
@@ -129,7 +161,15 @@ class _CameraState extends State<Camera>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _session.addListener(_onSessionChanged);
-    _session.initialize();
+    if (widget.previewImage == null) {
+      _session.initialize();
+      return;
+    }
+    // 정적 이미지 시연에는 '프리뷰 준비됨' 신호가 없다. 타겟 좌표를 잴 수 있는
+    // 첫 프레임 뒤에 직접 투어를 연다.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => startInitialTourIfNeeded(),
+    );
   }
 
   @override
@@ -339,9 +379,7 @@ class _CameraState extends State<Camera>
               padding: const EdgeInsets.only(top: AppSpacing.s5),
               child: CameraTourTarget(
                 id: CameraTourTargets.miniGuideHandle,
-                child: CornerMiniHandle(
-                  onShow: () => setMiniViewHidden(false),
-                ),
+                child: CornerMiniHandle(onShow: () => setMiniViewHidden(false)),
               ),
             )
           : Padding(
@@ -385,7 +423,11 @@ class _CameraState extends State<Camera>
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Preview(controller: _session.controller),
+                    child: switch (widget.previewImage) {
+                      // 시연: 카메라 대신 정적 이미지를 프리뷰 자리에 채운다.
+                      final image? => Image(image: image, fit: BoxFit.cover),
+                      null => Preview(controller: _session.controller),
+                    },
                   ),
                   if (widget.showViewMode && widget.guideImage != null)
                     switch (_guideMode) {
@@ -473,3 +515,11 @@ class _PreviewControlButton extends StatelessWidget {
     );
   }
 }
+
+/// [Camera.preview] 전용 무동작 콜백.
+///
+/// 시연에서는 카메라 세션을 열지 않아 권한을 묻는 일이 없다. 호출되지 않지만
+/// 생성자에서 상수로 채워야 해 최상위 함수로 둔다.
+Future<bool> _previewSkipsPermission() async => true;
+
+void _previewSkipsSettings() {}

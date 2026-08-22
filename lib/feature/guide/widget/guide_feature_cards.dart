@@ -1,7 +1,10 @@
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 
 /// 카드 안 이미지의 가로:세로 비율. (Figma 158x112 = 79:56)
 ///
@@ -32,6 +35,10 @@ class GuideFeatureCards extends StatelessWidget {
               imagePath: 'assets/images/corner_guide.png',
               title: l10n.guideFeatureCornerTitle,
               description: l10n.guideFeatureCornerDescription,
+              onTap: () => context.push(
+                RoutePath.guideTour,
+                extra: GuideViewMode.cornerMini,
+              ),
             ),
           ),
           Expanded(
@@ -39,6 +46,10 @@ class GuideFeatureCards extends StatelessWidget {
               imagePath: 'assets/images/ghost_guide.png',
               title: l10n.guideFeatureGhostTitle,
               description: l10n.guideFeatureGhostDescription,
+              onTap: () => context.push(
+                RoutePath.guideTour,
+                extra: GuideViewMode.ghostZoom,
+              ),
             ),
           ),
         ],
@@ -53,6 +64,7 @@ class _FeatureCard extends StatelessWidget {
     required this.imagePath,
     required this.title,
     required this.description,
+    required this.onTap,
   });
 
   /// 기능을 보여주는 이미지 에셋 경로. (원본 474x336 = 158x112 의 3배)
@@ -61,35 +73,43 @@ class _FeatureCard extends StatelessWidget {
   final String title;
   final String description;
 
+  /// 카드를 누르면 그 기능의 안내 시연으로 이동한다.
+  final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.s4),
-      decoration: BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 이미지와 이름 사이 간격(s4). 아래 s2 와 달라 spacing 대신 패딩으로 둔다.
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.s4),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              child: AspectRatio(
-                aspectRatio: _imageRatio,
-                // 에셋 비율이 _imageRatio 와 같아 cover 로도 잘리지 않는다.
-                child: Image.asset(imagePath, fit: BoxFit.cover),
+    return GestureDetector(
+      // 카드 안 빈 곳을 눌러도 반응하도록 영역 전체를 받는다.
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.s4),
+        decoration: BoxDecoration(
+          color: AppColors.bgSurface,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 이미지와 이름 사이 간격(s4). 아래 s2 와 달라 spacing 대신 패딩으로 둔다.
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.s4),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                child: AspectRatio(
+                  aspectRatio: _imageRatio,
+                  // 에셋 비율이 _imageRatio 와 같아 cover 로도 잘리지 않는다.
+                  child: Image.asset(imagePath, fit: BoxFit.cover),
+                ),
               ),
             ),
-          ),
-          // label 기본색은 textSecondary 라 기능 이름용으로 올려 잡는다.
-          AppText.label(title, color: AppColors.textPrimary),
-          const SizedBox(height: AppSpacing.s2),
-          AppText.caption(description),
-        ],
+            // label 기본색은 textSecondary 라 기능 이름용으로 올려 잡는다.
+            AppText.label(title, color: AppColors.textPrimary),
+            const SizedBox(height: AppSpacing.s2),
+            AppText.caption(description),
+          ],
+        ),
       ),
     );
   }

@@ -21,6 +21,7 @@ class RoutePath {
   static const policyViewer = '/profile/terms-policy/viewer';
   static const notification = '/notification';
   static const guide = '/guide';
+  static const guideTour = '/guide/tour';
 
   // 모임 상세와 회차 갤러리는 홈 > 모임 > 갤러리로 중첩돼 있다.
   // 덕분에 딥링크로 갤러리에 바로 들어가도(go) 중간 화면이 스쳐 보이지 않으면서

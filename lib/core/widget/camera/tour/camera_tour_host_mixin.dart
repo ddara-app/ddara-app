@@ -40,8 +40,12 @@ mixin CameraTourHostMixin on State<Camera> implements CameraTourHost {
     if (mounted) setState(() {});
   }
 
-  /// 화면에 처음 들어왔을 때의 안내(코너 미니뷰)를 한 번 띄운다.
+  /// 화면에 처음 들어왔을 때의 안내를 한 번 띄운다.
   /// (프리뷰가 준비된 뒤 호출해야 타겟 좌표를 잴 수 있다)
+  ///
+  /// 어떤 안내를 열지는 시작 시점의 보조 모드가 정한다. 촬영 화면은 코너
+  /// 미니뷰로 시작하니 진입 안내가 열리고, 고스트 확대로 시작하는 화면
+  /// (가이드 시연)은 그쪽 안내가 열린다.
   ///
   /// 시청 여부를 아직 모르는 동안에는 미룬다. 모르는 채로 열면 이미 본
   /// 사용자에게도 안내가 다시 뜬다. (다시 보겠다고 들어온 경우는 예외)
@@ -49,7 +53,7 @@ mixin CameraTourHostMixin on State<Camera> implements CameraTourHost {
     if (_tourAutoStarted) return;
     if (widget.tourSeen == null && !widget.forceTour) return;
     _tourAutoStarted = true;
-    startTour(CameraTourKind.corner, force: widget.forceTour);
+    startTour(CameraTourKind.of(guideMode), force: widget.forceTour);
   }
 
   /// 지금 보고 있는 모드의 안내를 처음부터 다시 연다.
