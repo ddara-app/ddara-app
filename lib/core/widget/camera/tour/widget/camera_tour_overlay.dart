@@ -20,8 +20,12 @@ const Curve _moveCurve = Curves.easeOut;
 /// 구멍과 툴팁 사이 간격.
 const double _tooltipGap = AppSpacing.s4;
 
-/// 툴팁 최대 폭.
+/// 말풍선 최대 폭. 실제 폭은 문구 길이가 정하고 이 값을 넘지만 않는다.
 const double _tooltipMaxWidth = 320;
+
+/// 구멍 오른쪽에 놓을 때 이만큼도 안 남으면 위/아래 배치로 되돌린다.
+/// (문구 길이를 재기 전이라 배치 판단은 이 어림값으로 한다)
+const double _tooltipMinWidth = 160;
 
 /// 이만큼도 안 남으면 툴팁을 반대편으로 넘긴다.
 const double _tooltipMinHeight = 140;
@@ -169,8 +173,11 @@ class _CameraTourOverlayState extends State<CameraTourOverlay>
     );
   }
 
-  /// 구멍 위/아래에 툴팁을 놓는다. 그쪽 공간이 모자라면 반대편으로 넘기고,
-  /// 좌우는 구멍 중심에 맞추되 화면 안으로 밀어 넣는다.
+  /// 스텝이 정한 자리에 툴팁을 놓는다.
+  ///
+  /// 위/아래는 그쪽 공간이 모자라면 반대편으로 넘기고, 좌우는 구멍 중심에
+  /// 맞추되 화면 안으로 밀어 넣는다. 오른쪽 배치는 구멍이 화면 한쪽에 치우쳐
+  /// 있을 때 쓰며, 남는 폭이 모자라면 아래 배치로 되돌린다.
   ///
   /// [area] 는 오버레이가 덮는 상자의 크기다. 구멍 좌표와 같은 기준이라야
   /// 툴팁이 구멍에 붙는다.
@@ -184,23 +191,53 @@ class _CameraTourOverlayState extends State<CameraTourOverlay>
     // 오버레이 위쪽은 AppBar 가 이미 소비했으므로 아래 여백만 고려한다.
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
-    final width = math.min(area.width - AppSpacing.s5 * 2, _tooltipMaxWidth);
-    final tooltip = SizedBox(
-      width: width,
-      child: CameraTourTooltip(
-        step: step,
-        stepNumber: controller.stepNumber,
-        stepCount: controller.stepCount,
-        isLastStep: controller.isLastStep,
-        canGoBack: controller.canGoBack,
-        onNext: controller.next,
-        onPrevious: controller.previous,
-        onSkip: controller.skip,
-      ),
+    // 구멍 오른쪽에 놓을 수 있는지 먼저 본다. (폭이 모자라면 아래로 되돌린다)
+    final spaceRight = hole == null
+        ? 0.0
+        : area.width - hole.right - _tooltipGap - AppSpacing.s5;
+    final placeRight =
+        hole != null &&
+        step.placement == CameraTourPlacement.right &&
+        spaceRight >= _tooltipMinWidth;
+
+    // 폭을 고정하지 않고 상한만 준다. 실제 폭은 문구가 정한다.
+    final maxWidth = math.min(
+      _tooltipMaxWidth,
+      placeRight ? spaceRight : area.width - AppSpacing.s5 * 2,
+    );
+    final content = CameraTourTooltip(
+      step: step,
+      stepNumber: controller.stepNumber,
+      stepCount: controller.stepCount,
+      isLastStep: controller.isLastStep,
+      canGoBack: controller.canGoBack,
+      onNext: controller.next,
+      onPrevious: controller.previous,
+    );
+    final tooltip = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: content,
     );
 
     // 구멍이 없는 스텝은 화면 가운데에 띄운다.
     if (hole == null) return Center(child: tooltip);
+
+    // 구멍 오른쪽에 붙이고 위쪽을 구멍에 맞춘다.
+    if (placeRight) {
+      return Positioned(
+        left: hole.right + _tooltipGap,
+        top: hole.top,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: math.max(
+              _tooltipMinHeight,
+              area.height - bottomInset - hole.top,
+            ),
+          ),
+          child: tooltip,
+        ),
+      );
+    }
 
     final spaceAbove = hole.top - _tooltipGap;
     final spaceBelow = area.height - bottomInset - hole.bottom - _tooltipGap;
@@ -212,24 +249,32 @@ class _CameraTourOverlayState extends State<CameraTourOverlay>
       placeAbove = spaceAbove > spaceBelow;
     }
 
-    final left = (hole.center.dx - width / 2)
-        .clamp(
-          AppSpacing.s5,
-          math.max(AppSpacing.s5, area.width - width - AppSpacing.s5),
-        )
-        .toDouble();
     final maxHeight = math.max(
       _tooltipMinHeight,
       placeAbove ? spaceAbove : spaceBelow,
     );
 
+    // 폭을 미리 알 수 없으므로(문구 길이가 정한다) 좌표 대신 비율로 맞춘다.
+    // 구멍이 가운데면 말풍선도 가운데, 가장자리면 그쪽 끝으로 붙고,
+    // 그 사이는 부드럽게 이어진다. (화면 밖으로 나가지 않는다)
+    final alignX = area.width == 0
+        ? 0.0
+        : (hole.center.dx / area.width * 2 - 1).clamp(-1.0, 1.0).toDouble();
+
     return Positioned(
-      left: left,
+      left: 0,
+      right: 0,
       top: placeAbove ? null : hole.bottom + _tooltipGap,
       bottom: placeAbove ? area.height - hole.top + _tooltipGap : null,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxHeight),
-        child: tooltip,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
+        child: Align(
+          alignment: Alignment(alignX, 0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            child: tooltip,
+          ),
+        ),
       ),
     );
   }

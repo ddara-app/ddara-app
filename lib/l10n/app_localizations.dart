@@ -1831,7 +1831,7 @@ abstract class AppLocalizations {
   /// 미니뷰를 왼쪽으로 스와이프하면 손잡이만 남기고 접히는 동작
   ///
   /// In ko, this message translates to:
-  /// **'왼쪽으로 밀어 접어둘 수 있어요'**
+  /// **'왼쪽으로 밀어\n접어둘 수 있어요'**
   String get cameraTourMiniGuideFoldBody;
 
   /// 고스트 확대라는 기능이 있다는 것만 알리는 스텝 제목. 토글 라벨(cameraModeGhostZoom)과 반드시 같은 표기를 쓴다
@@ -1843,7 +1843,7 @@ abstract class AppLocalizations {
   /// 누르라고 재촉하지 않고 기능의 존재만 알린다. 실제로 누르면 고스트 확대 안내가 이어진다
   ///
   /// In ko, this message translates to:
-  /// **'고스트 확대로 바꾸면 원본이 카메라 위에 반투명하게 겹쳐요'**
+  /// **'고스트 확대를 켜면 원본이\n화면 위에 반투명하게 겹쳐요'**
   String get cameraTourModeToggleBody;
 
   /// No description provided for @cameraTourGhostGuideTitle.
@@ -1855,7 +1855,7 @@ abstract class AppLocalizations {
   /// No description provided for @cameraTourGhostGuideBody.
   ///
   /// In ko, this message translates to:
-  /// **'가이드 사진이 화면 위에 겹쳐져요.\n실제 피사체와 맞춰보세요.'**
+  /// **'가이드 사진이 화면 위에 겹쳐져요\n실제 피사체와 맞춰보세요'**
   String get cameraTourGhostGuideBody;
 
   /// 헤더의 투명도 탭(0/20/40)을 가리키는 스텝 제목. 화면 라벨(cameraOpacityLabel)과 반드시 같은 표기를 쓴다
@@ -1867,7 +1867,7 @@ abstract class AppLocalizations {
   /// 투명도 값은 0·20·40 세 단계이며 기본값은 40. 프리뷰 가로 스와이프로도 조절된다
   ///
   /// In ko, this message translates to:
-  /// **'원본 사진의 투명도를 바꿀 수 있어요.\n화면을 좌우로 밀어도 바뀌어요.'**
+  /// **'원본 사진의 투명도를 바꿀 수 있어요\n화면을 좌우로 밀어도 바뀌어요'**
   String get cameraTourOpacityBody;
 
   /// 프리뷰 우측 하단 물음표 버튼의 접근성 라벨

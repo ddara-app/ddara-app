@@ -89,6 +89,12 @@ class CameraTourController extends ChangeNotifier {
   /// 진행 중인 투어 종류. 멈춰 있으면 null.
   CameraTourKind? get kind => _kind;
 
+  /// 지금 하이라이트하고 있는 타겟 id. 없으면 null.
+  ///
+  /// 타겟 위젯이 안내받는 동안 모양을 달리 하려고 할 때 쓴다.
+  /// (구멍을 칠해 가리는 대신 위젯 자신이 바뀜다)
+  String? get activeTargetId => _activeTargetId;
+
   /// 현재 스텝. [isActive] 가 true 일 때만 호출한다.
   CameraTourStep get current => _steps[_index];
 

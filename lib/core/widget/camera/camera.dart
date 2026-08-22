@@ -415,6 +415,9 @@ class _CameraState extends State<Camera>
           // 코너 미니뷰 모드에서는 투명도 조절이 의미 없어 숨긴다.
           showOpacity:
               widget.showOpacity && _guideMode != GuideViewMode.cornerMini,
+          // 투어가 이 영역을 가리키는 동안에는 영역 스스로 강조된다.
+          highlightOpacity:
+              tour.activeTargetId == CameraTourTargets.opacityTabs,
           opacityLabel: _opacityLabel,
           onOpacityChanged: _onOpacityChanged,
         ),
@@ -495,6 +498,9 @@ class _CameraState extends State<Camera>
         const SizedBox(height: AppSpacing.s5),
         CameraModeToggle(
           visible: widget.showViewMode,
+          // 투어가 이 버튼을 가리키는 동안에는 버튼 스스로 강조된다.
+          highlightGhostZoom:
+              tour.activeTargetId == CameraTourTargets.ghostZoomMode,
           mode: _guideMode,
           onChanged: _onViewModeChanged,
         ),

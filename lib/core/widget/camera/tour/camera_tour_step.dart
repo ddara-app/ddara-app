@@ -3,7 +3,7 @@ import 'package:ddara/core/design_system/foundation/app_spacing.dart';
 import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 
 /// 툴팁을 구멍의 위/아래 어디에 붙일지.
-enum CameraTourPlacement { top, bottom }
+enum CameraTourPlacement { top, bottom, right }
 
 /// 구멍 모양.
 enum CameraTourShape { rrect, circle }

@@ -37,7 +37,8 @@ const cameraCornerTourSteps = <CameraTourStep>[
   CameraTourStep(
     id: CameraTourStepId.miniGuide,
     targetId: CameraTourTargets.miniGuide,
-    placement: CameraTourPlacement.bottom,
+    // 미니뷰가 좌상단이라 오른쪽에 붙여야 가려지지 않는다.
+    placement: CameraTourPlacement.right,
     requiresMode: GuideViewMode.cornerMini,
     // 가이드 사진이 처음 그려지는 스텝이라 여기서 로딩을 기다린다.
     waitForGuideImage: true,
@@ -48,7 +49,7 @@ const cameraCornerTourSteps = <CameraTourStep>[
   CameraTourStep(
     id: CameraTourStepId.miniGuideFold,
     targetId: CameraTourTargets.miniGuide,
-    placement: CameraTourPlacement.bottom,
+    placement: CameraTourPlacement.right,
     requiresMode: GuideViewMode.cornerMini,
     foldDemoTargetId: CameraTourTargets.miniGuideHandle,
   ),
