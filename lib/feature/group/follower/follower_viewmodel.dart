@@ -2,10 +2,18 @@ import 'package:ddara/core/exception/cycle_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/local/provider/local_provider.dart';
+import 'package:ddara/core/local/storage_key.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/follower/util/follower_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// 가이드 투어 시청 여부를 남기는 저장소 키.
+///
+/// 현재 Camera 는 투어 종류를 구분하지 않는 단일 플래그를 쓰므로, 진입
+/// 안내인 코너 미니뷰 키 하나로 둘 다 갈음한다.
+const String _tourSeenKey = StorageKey.cameraCornerTourDone;
 
 class FollowerViewModel extends AutoDisposeNotifier<FollowerState>
     with AutoDisposeGuard<FollowerState> {
@@ -21,27 +29,27 @@ class FollowerViewModel extends AutoDisposeNotifier<FollowerState>
     state = state.copyWith(clearError: true);
   }
 
-  /// 가이드 투어를 이미 봤는지 서버에서 확인한다.
+  /// 가이드 투어를 이미 봤는지 저장소(SharedPreferences)에서 확인한다.
   ///
-  /// 조회에 실패하면 못 본 것으로 두어 안내가 한 번 더 뜨게 한다. 안내를
-  /// 놓치는 쪽보다 다시 보는 쪽이 낫고, 실패를 토스트로 알릴 일도 아니다.
-  Future<void> loadTourSeen() async {
-    try {
-      final seen = await ref.read(getCameraGuideStateUseCaseProvider)();
-      if (isDisposed) return;
-      state = state.copyWith(isTourSeen: seen);
-    } catch (_) {
-      if (isDisposed) return;
-      state = state.copyWith(isTourSeen: false);
-    }
+  /// 서버 조회(GET /api/users/me/camera-guide)로 옮기기 전까지의 임시 구현이라
+  /// 기기에만 남는다. → 앱을 지우거나 다른 기기로 옮기면 안내가 다시 뜬다.
+  void loadTourSeen() {
+    final seen =
+        ref.read(sharedPreferencesProvider).getBool(_tourSeenKey) ?? false;
+    if (isDisposed) return;
+    state = state.copyWith(isTourSeen: seen);
   }
 
   /// 투어를 끝까지 본 것으로 표시한다. → 다음부터는 자동으로 뜨지 않는다.
   /// (AppBar 의 도움말 버튼으로는 언제든 다시 볼 수 있다)
   Future<void> completeTour() async {
     if (state.isTourSeen ?? false) return;
+
+    // 저장 전에 읽어둔다. 저장을 기다리는 사이 화면을 벗어나면 ref 를 더 쓸 수
+    // 없기 때문이다.
+    final prefs = ref.read(sharedPreferencesProvider);
     state = state.copyWith(isTourSeen: true);
-    // TODO: 서버 저장(PATCH /api/users/me/camera-guide) 연결 — API 준비 후.
+    await prefs.setBool(_tourSeenKey, true);
   }
 
   /// 업로드 실패를 상태에 반영하고 로딩을 내린다.
