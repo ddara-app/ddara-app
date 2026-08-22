@@ -38,7 +38,8 @@ class GuideTourPage extends StatelessWidget {
           // 이미 본 적이 있어도 눌러서 들어온 것이므로 항상 연다.
           forceTour: true,
           initialViewMode: mode,
-          onTourFinished: () => context.pop(),
+          // 어떤 안내였든 끝나면 가이드 화면으로 돌아간다.
+          onTourFinished: (_) => context.pop(),
         ),
       ),
     );

@@ -51,10 +51,17 @@ mixin CameraTourHostMixin on State<Camera> implements CameraTourHost {
   /// 사용자에게도 안내가 다시 뜬다. (다시 보겠다고 들어온 경우는 예외)
   void startInitialTourIfNeeded() {
     if (_tourAutoStarted) return;
-    if (widget.tourSeen == null && !widget.forceTour) return;
+    final kind = CameraTourKind.of(guideMode);
+    if (_tourSeen(kind) == null && !widget.forceTour) return;
     _tourAutoStarted = true;
-    startTour(CameraTourKind.of(guideMode), force: widget.forceTour);
+    startTour(kind, force: widget.forceTour);
   }
+
+  /// [kind] 안내를 본 적이 있는지. null 은 아직 확인 중.
+  bool? _tourSeen(CameraTourKind kind) => switch (kind) {
+    CameraTourKind.corner => widget.cornerTourSeen,
+    CameraTourKind.ghost => widget.ghostTourSeen,
+  };
 
   /// 지금 보고 있는 모드의 안내를 처음부터 다시 연다.
   /// (바깥에서 도움말을 눌러 요청한 경우)
@@ -63,13 +70,14 @@ mixin CameraTourHostMixin on State<Camera> implements CameraTourHost {
   /// [kind] 안내를 연다. 이미 본 적이 있으면 열지 않는다.
   /// ([force] 는 도움말 버튼·테스트 진입처럼 다시 보겠다고 요청한 경우)
   ///
-  /// 본 적이 있는지([Camera.tourSeen])와 완료 저장([Camera.onTourFinished])은
-  /// 호출부에 맡긴다. 어디에 남길지는 화면이 정하기 때문이다.
+  /// 본 적이 있는지와 완료 저장([Camera.onTourFinished])은 호출부에 맡긴다.
+  /// 어디에 남길지는 화면이 정하기 때문이다. 종류별로 따로 판단하므로 코너
+  /// 안내를 본 사용자도 고스트 안내는 처음 켤 때 받는다.
   void startTour(CameraTourKind kind, {bool force = false}) {
     if (!widget.showTour || !mounted) return;
-    if (!force && (widget.tourSeen ?? false)) return;
+    if (!force && (_tourSeen(kind) ?? false)) return;
 
-    tour.start(kind, onFinished: () => widget.onTourFinished?.call());
+    tour.start(kind, onFinished: () => widget.onTourFinished?.call(kind));
   }
 
   /// 모드가 바뀐 뒤 투어를 정리한다.

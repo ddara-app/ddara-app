@@ -12,6 +12,7 @@ import 'package:ddara/core/widget/camera/preview/corner_mini_view.dart';
 import 'package:ddara/core/widget/camera/preview/ghost_guide_view.dart';
 import 'package:ddara/core/widget/camera/session/camera_session_controller.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_host_mixin.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_steps.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 import 'package:ddara/core/widget/camera/tour/widget/camera_tour_overlay.dart';
 import 'package:ddara/core/widget/camera/preview/preview.dart';
@@ -38,7 +39,8 @@ class Camera extends StatefulWidget {
     this.onViewModeChanged,
     this.onFlashPressed,
     this.onCapture,
-    this.tourSeen,
+    this.cornerTourSeen,
+    this.ghostTourSeen,
     this.onTourFinished,
   });
 
@@ -74,7 +76,8 @@ class Camera extends StatefulWidget {
     this.onViewModeChanged,
     this.onFlashPressed,
     this.onCapture,
-    this.tourSeen,
+    this.cornerTourSeen,
+    this.ghostTourSeen,
     this.onTourFinished,
   }) : previewImage = image,
        onRequestCameraPermission = _previewSkipsPermission,
@@ -121,15 +124,20 @@ class Camera extends StatefulWidget {
   /// 촬영이 끝났을 때, 저장된 이미지 파일 경로를 전달한다. (선택)
   final ValueChanged<String>? onCapture;
 
-  /// 투어를 이미 본 적이 있는지. 완료 여부의 보관은 화면(feature)의 몫이라
-  /// 여기서는 결과만 넘겨받는다.
+  /// 진입 안내(코너 미니뷰)를 이미 본 적이 있는지. 완료 여부의 보관은
+  /// 화면(feature)의 몫이라 여기서는 결과만 넘겨받는다.
   ///
   /// null 은 '아직 확인 중'이라는 뜻이라 그동안은 투어를 열지 않는다. 값이
   /// 정해지면 그때 연다. ([forceTour] 로 들어온 경우는 확인 없이 바로 연다)
-  final bool? tourSeen;
+  final bool? cornerTourSeen;
 
-  /// 투어를 끝까지 봤을 때. 완료 저장은 호출부가 맡는다. (선택)
-  final VoidCallback? onTourFinished;
+  /// 고스트 확대 안내를 이미 본 적이 있는지. 코너 미니뷰 안내와 따로 관리되어,
+  /// 진입 안내를 본 사용자도 고스트 확대를 처음 켤 때 그쪽 안내를 받는다.
+  final bool? ghostTourSeen;
+
+  /// 투어를 끝까지 봤을 때, 끝난 투어의 종류를 전달한다.
+  /// 완료 저장은 호출부가 맡는다. (선택)
+  final ValueChanged<CameraTourKind>? onTourFinished;
 
   @override
   State<Camera> createState() => _CameraState();
@@ -188,7 +196,10 @@ class _CameraState extends State<Camera>
     if (widget.tourRestartToken != oldWidget.tourRestartToken) restartTour();
     // 시청 여부 확인이 늦게 끝났다면, 그 결과로 진입 투어를 다시 판단한다.
     // (프리뷰가 준비된 뒤라야 타겟 좌표를 잴 수 있다)
-    if (widget.tourSeen != oldWidget.tourSeen && _session.isReady) {
+    final seenChanged =
+        widget.cornerTourSeen != oldWidget.cornerTourSeen ||
+        widget.ghostTourSeen != oldWidget.ghostTourSeen;
+    if (seenChanged && _session.isReady) {
       startInitialTourIfNeeded();
     }
   }

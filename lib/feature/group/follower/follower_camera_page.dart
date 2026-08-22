@@ -5,6 +5,7 @@ import 'package:ddara/core/design_system/component/loading/app_loading_overlay.d
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_steps.dart';
 import 'package:ddara/domain/model/group/group_action_error.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
@@ -98,8 +99,11 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
     final isLoading = ref.watch(
       followerViewModelProvider.select((s) => s.isLoading),
     );
-    final tourSeen = ref.watch(
-      followerViewModelProvider.select((s) => s.isTourSeen),
+    final cornerTourSeen = ref.watch(
+      followerViewModelProvider.select((s) => s.isCornerTourSeen),
+    );
+    final ghostTourSeen = ref.watch(
+      followerViewModelProvider.select((s) => s.isGhostTourSeen),
     );
 
     // 업로드 실패는 토스트로 알린다. (성공 후 이동은 _upload 가 직접 처리)
@@ -142,8 +146,13 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
               ? FollowerCamera(
                   guideImageUrl: widget.guideImageUrl,
                   forceTour: widget.forceTour,
-                  tourSeen: tourSeen,
-                  onTourFinished: viewModel.completeTour,
+                  cornerTourSeen: cornerTourSeen,
+                  ghostTourSeen: ghostTourSeen,
+                  // 끝난 안내의 종류에 맞는 완료 처리로 나눈다.
+                  onTourFinished: (kind) => switch (kind) {
+                    CameraTourKind.corner => viewModel.completeCornerTour(),
+                    CameraTourKind.ghost => viewModel.completeGhostTour(),
+                  },
                   onRequestCameraPermission: permission.ensureCameraGranted,
                   onOpenSettings: permission.openSettings,
                   // 촬영하면 사진 확인 단계로 전환한다.

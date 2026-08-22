@@ -1,25 +1,23 @@
 import 'package:ddara/core/design_system/foundation/app_radius.dart';
-import 'package:ddara/core/local/storage_key.dart';
 import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_step.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 
 /// 가이드 투어 종류.
 ///
-/// 모드마다 안내할 것이 달라 투어를 둘로 나눈다. 각자 별도 시점에 뜨고
-/// 완료 여부도 따로 저장하므로, 코너 미니뷰 안내를 본 사용자가 나중에
-/// 고스트 확대를 처음 켰을 때 그쪽 안내를 받을 수 있다.
+/// 모드마다 안내할 것이 달라 투어를 둘로 나눈다. 각자 별도 시점에 뜬다.
+///
+/// 시청 여부를 어디에 남기는지는 이 위젯이 알지 못한다. 화면(feature)이
+/// 조회해 `Camera.tourSeen` 으로 내려주고, 완료는 `Camera.onTourFinished`
+/// 로 돌려받아 저장한다.
 enum CameraTourKind {
   /// 진입 직후. 가이드 사진과 고스트 확대라는 기능이 있다는 것을 알린다.
-  corner(StorageKey.cameraCornerTourDone, cameraCornerTourSteps),
+  corner(cameraCornerTourSteps),
 
   /// 고스트 확대로 처음 전환했을 때. 겹쳐 보기와 투명도를 알린다.
-  ghost(StorageKey.cameraGhostTourDone, cameraGhostTourSteps);
+  ghost(cameraGhostTourSteps);
 
-  const CameraTourKind(this.storageKey, this.steps);
-
-  /// 완료 여부를 저장할 SharedPreferences 키.
-  final String storageKey;
+  const CameraTourKind(this.steps);
 
   final List<CameraTourStep> steps;
 

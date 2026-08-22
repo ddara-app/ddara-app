@@ -41,7 +41,7 @@ class AuthStateNotifier extends AsyncNotifier<bool> {
     final token = await ref.read(authRepositoryProvider).getAccessToken();
     return token != null && token.isNotEmpty;
   }
-  
+
   void markLoggedOut() {
     state = const AsyncData(false);
   }

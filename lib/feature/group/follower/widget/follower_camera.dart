@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/widget/camera/camera.dart';
 import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_steps.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 따라찍기 촬영 본문. (가이드 사진 위에 투명도·모드 컨트롤 포함)
@@ -15,7 +16,8 @@ class FollowerCamera extends StatelessWidget {
     required this.guideImageUrl,
     this.forceTour = false,
     this.tourRestartToken = 0,
-    this.tourSeen,
+    this.cornerTourSeen,
+    this.ghostTourSeen,
     this.onTourFinished,
   });
 
@@ -40,11 +42,16 @@ class FollowerCamera extends StatelessWidget {
   /// 값이 바뀌면 투어를 다시 연다. (AppBar 도움말 버튼이 올린다)
   final int tourRestartToken;
 
-  /// 가이드 투어를 이미 본 적이 있는지. null 이면 아직 확인 중이라 열지 않는다.
-  final bool? tourSeen;
+  /// 진입 안내(코너 미니뷰)를 이미 본 적이 있는지.
+  /// null 이면 아직 확인 중이라 열지 않는다.
+  final bool? cornerTourSeen;
 
-  /// 투어를 끝까지 봤을 때. 완료 저장은 상위 화면이 맡는다.
-  final VoidCallback? onTourFinished;
+  /// 고스트 확대 안내를 이미 본 적이 있는지. (코너 안내와 따로 관리)
+  final bool? ghostTourSeen;
+
+  /// 투어를 끝까지 봤을 때, 끝난 투어의 종류를 전달한다.
+  /// 완료 저장은 상위 화면이 맡는다.
+  final ValueChanged<CameraTourKind>? onTourFinished;
 
   /// 가이드 사진 provider. 빈 값이면 null 을 돌려 가이드 뷰를 숨긴다.
   ImageProvider? get _guideImage {
@@ -68,7 +75,8 @@ class FollowerCamera extends StatelessWidget {
       forceTour: forceTour,
       tourRestartToken: tourRestartToken,
       guideImage: _guideImage,
-      tourSeen: tourSeen,
+      cornerTourSeen: cornerTourSeen,
+      ghostTourSeen: ghostTourSeen,
       onTourFinished: onTourFinished,
       onCapture: onCapture,
       onRequestCameraPermission: onRequestCameraPermission,
