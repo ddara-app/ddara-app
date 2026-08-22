@@ -691,7 +691,6 @@
     "description": "가이드 투어를 한 스텝 되돌리는 버튼. 첫 스텝에서는 표시하지 않는다"
   },
   "cameraTourDone": "시작하기",
-  "cameraTourSkip": "건너뛰기",
   "cameraTourProgress": "{current}/{total}",
   "@cameraTourProgress": {
     "description": "가이드 투어 진행 표시. 예: 2/5",
@@ -700,37 +699,19 @@
       "total": { "type": "int" }
     }
   },
-  "cameraTourMiniGuideTitle": "따라찍기 가이드",
-  "@cameraTourMiniGuideTitle": {
-    "description": "프리뷰 좌상단의 작은 가이드 사진을 가리키는 첫 스텝 제목"
-  },
   "cameraTourMiniGuideBody": "친구가 올린 원본이에요\n이 구도를 따라찍어요",
-  "cameraTourMiniGuideFoldTitle": "접어두기",
   "cameraTourMiniGuideFoldBody": "왼쪽으로 밀어\n접어둘 수 있어요",
   "@cameraTourMiniGuideFoldBody": {
     "description": "미니뷰를 왼쪽으로 스와이프하면 손잡이만 남기고 접히는 동작"
-  },
-  "cameraTourModeToggleTitle": "고스트 확대",
-  "@cameraTourModeToggleTitle": {
-    "description": "고스트 확대라는 기능이 있다는 것만 알리는 스텝 제목. 토글 라벨(cameraModeGhostZoom)과 반드시 같은 표기를 쓴다"
   },
   "cameraTourModeToggleBody": "고스트 확대를 켜면 원본이\n화면 위에 반투명하게 겹쳐요",
   "@cameraTourModeToggleBody": {
     "description": "누르라고 재촉하지 않고 기능의 존재만 알린다. 실제로 누르면 고스트 확대 안내가 이어진다"
   },
-  "cameraTourGhostGuideTitle": "화면에 겹쳐 보기",
   "cameraTourGhostGuideBody": "가이드 사진이 화면 위에 겹쳐져요\n실제 피사체와 맞춰보세요",
-  "cameraTourOpacityTitle": "원본사진 투명도",
-  "@cameraTourOpacityTitle": {
-    "description": "헤더의 투명도 탭(0/20/40)을 가리키는 스텝 제목. 화면 라벨(cameraOpacityLabel)과 반드시 같은 표기를 쓴다"
-  },
   "cameraTourOpacityBody": "원본 사진의 투명도를 바꿀 수 있어요\n화면을 좌우로 밀어도 바뀌어요",
   "@cameraTourOpacityBody": {
     "description": "투명도 값은 0·20·40 세 단계이며 기본값은 40. 프리뷰 가로 스와이프로도 조절된다"
-  },
-  "cameraTourRestart": "가이드 다시 보기",
-  "@cameraTourRestart": {
-    "description": "프리뷰 우측 하단 물음표 버튼의 접근성 라벨"
   },
 
   "notificationTitle": "알림",

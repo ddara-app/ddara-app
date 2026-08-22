@@ -917,45 +917,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cameraTourDone => '시작하기';
 
   @override
-  String get cameraTourSkip => '건너뛰기';
-
-  @override
   String cameraTourProgress(int current, int total) {
     return '$current/$total';
   }
 
   @override
-  String get cameraTourMiniGuideTitle => '따라찍기 가이드';
-
-  @override
   String get cameraTourMiniGuideBody => '친구가 올린 원본이에요\n이 구도를 따라찍어요';
-
-  @override
-  String get cameraTourMiniGuideFoldTitle => '접어두기';
 
   @override
   String get cameraTourMiniGuideFoldBody => '왼쪽으로 밀어\n접어둘 수 있어요';
 
   @override
-  String get cameraTourModeToggleTitle => '고스트 확대';
-
-  @override
   String get cameraTourModeToggleBody => '고스트 확대를 켜면 원본이\n화면 위에 반투명하게 겹쳐요';
-
-  @override
-  String get cameraTourGhostGuideTitle => '화면에 겹쳐 보기';
 
   @override
   String get cameraTourGhostGuideBody => '가이드 사진이 화면 위에 겹쳐져요\n실제 피사체와 맞춰보세요';
 
   @override
-  String get cameraTourOpacityTitle => '원본사진 투명도';
-
-  @override
   String get cameraTourOpacityBody => '원본 사진의 투명도를 바꿀 수 있어요\n화면을 좌우로 밀어도 바뀌어요';
-
-  @override
-  String get cameraTourRestart => '가이드 다시 보기';
 
   @override
   String get notificationTitle => '알림';
