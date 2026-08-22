@@ -84,7 +84,14 @@ class _HomeDashboardState extends State<HomeDashboard> {
     return Container(
       // 폭은 열에 맞춰 stretch 되고 높이는 고정. (_dashboardHeight 주석 참고)
       height: _dashboardHeight,
-      padding: const EdgeInsets.all(AppSpacing.s5),
+      // 하단만 s4. 인디케이터가 아래 끝에 들어가 다른 면보다 바깥으로
+      // 더 떨어져 보이는 것을 줄인다.
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s5,
+        AppSpacing.s5,
+        AppSpacing.s5,
+        AppSpacing.s4,
+      ),
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         gradient: const LinearGradient(
