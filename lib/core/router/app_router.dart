@@ -24,6 +24,7 @@ import '../../feature/permission/route/required_permission_route.dart';
 import '../../feature/profile/account/route/account_manage_route.dart';
 import '../../feature/profile/blocked/route/blocked_users_route.dart';
 import '../../feature/profile/policy/route/policy_viewer_route.dart';
+import '../../feature/guide/route/guide_route.dart';
 import '../../feature/profile/policy/route/terms_policy_route.dart';
 import '../../feature/profile/route/profile_route.dart';
 import '../../feature/profile/settings/route/notification_settings_route.dart';
@@ -152,6 +153,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       termsPolicyRoute,
       policyViewerRoute,
       notificationRoute,
+      guideRoute,
       groupCreateRoute,
       inviteCodeInputRoute,
       inviteLandingRoute,

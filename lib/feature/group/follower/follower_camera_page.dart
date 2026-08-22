@@ -4,6 +4,7 @@ import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
+import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/domain/model/group/group_action_error.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
@@ -44,10 +45,6 @@ class FollowerCameraPage extends ConsumerStatefulWidget {
 class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
   /// 촬영된 사진 경로. null 이면 촬영 단계, 값이 있으면 사진 확인 단계.
   String? _capturedPath;
-
-  /// 가이드 투어 재실행 요청 횟수. 값이 바뀌면 [FollowerCamera] 가 투어를 연다.
-  /// (투어 상태는 카메라 위젯이 들고 있어 직접 열 수 없다)
-  int _tourRestartToken = 0;
 
   @override
   void initState() {
@@ -126,10 +123,10 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
         //  못해 우측 여백 보정이 빠진다 — 라벨은 아이콘 쪽에 붙인다)
         trailing: capturedPath == null
             ? AppBarIconButton(
-                onPressed: () => setState(() => _tourRestartToken++),
+                onPressed: () => context.push(RoutePath.guide),
                 child: Semantics(
                   button: true,
-                  label: l10n.cameraTourRestart,
+                  label: l10n.guidePageTitle,
                   child: const AppIcon(
                     AppIcons.help,
                     size: 24,
@@ -145,7 +142,6 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
               ? FollowerCamera(
                   guideImageUrl: widget.guideImageUrl,
                   forceTour: widget.forceTour,
-                  tourRestartToken: _tourRestartToken,
                   tourSeen: tourSeen,
                   onTourFinished: viewModel.completeTour,
                   onRequestCameraPermission: permission.ensureCameraGranted,

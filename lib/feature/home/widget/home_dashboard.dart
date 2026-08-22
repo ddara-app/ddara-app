@@ -39,12 +39,14 @@ class HomeDashboard extends StatefulWidget {
   const HomeDashboard.groupCount({
     super.key,
     required this.count,
+    required this.onGuideTap,
     this.maxCount = maxJoinedGroupCount,
   }) : _variant = _HomeDashboardVariant.groupCount;
 
   /// 친구들의 업데이트 개수([count]개) 대시보드.
   const HomeDashboard.updateCount({super.key, required this.count})
     : maxCount = 0,
+      onGuideTap = null,
       _variant = _HomeDashboardVariant.updateCount;
 
   /// 표시할 개수. (외부 주입)
@@ -52,6 +54,9 @@ class HomeDashboard extends StatefulWidget {
 
   /// 참여 가능한 최대 모임 개수. (groupCount 변형에서만 사용)
   final int maxCount;
+
+  /// 가이드 페이지를 눌렀을 때. (groupCount 변형에서만 쓰이므로 nullable)
+  final VoidCallback? onGuideTap;
 
   final _HomeDashboardVariant _variant;
 
@@ -132,38 +137,43 @@ class _HomeDashboardState extends State<HomeDashboard> {
   /// 맞춰 폭을 되줄이므로 카드 밖으로 삐져나가지 않는다.
   Widget _guide(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      // 문구와 이미지 사이 간격.
-      spacing: AppSpacing.s4,
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: AppSpacing.s2,
-          children: [
-            AppText.title(l10n.guideLabel, color: AppColors.textAccent),
-            AppText.titleLarge(l10n.guideDescription),
-          ],
-        ),
-        Expanded(
-          child: Align(
-            alignment: Alignment.topRight,
-            child: AspectRatio(
-              aspectRatio: _guideImageRatio,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.xs),
-                // 원본(52x72)이 3:4 보다 살짝 세로로 길어, 폭에 맞추고 위아래를
-                // 아주 조금 잘라 낸다. (여백을 남기는 것보다 자연스럽다)
-                child: Image.asset(
-                  'assets/images/dashboard_guide.png',
-                  fit: BoxFit.cover,
+    return GestureDetector(
+      // 문구·이미지 사이 빈 곳을 눌러도 반응하도록 영역 전체를 받는다.
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onGuideTap,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        // 문구와 이미지 사이 간격.
+        spacing: AppSpacing.s4,
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: AppSpacing.s2,
+            children: [
+              AppText.title(l10n.guideLabel, color: AppColors.textAccent),
+              AppText.titleLarge(l10n.guideDescription),
+            ],
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: AspectRatio(
+                aspectRatio: _guideImageRatio,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.xs),
+                  // 원본(52x72)이 3:4 보다 살짝 세로로 길어, 폭에 맞추고 위아래를
+                  // 아주 조금 잘라 낸다. (여백을 남기는 것보다 자연스럽다)
+                  child: Image.asset(
+                    'assets/images/dashboard_guide.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

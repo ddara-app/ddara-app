@@ -214,6 +214,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCountCaption => '어서 따라찍기를 시작해봐요';
 
   @override
+  String get guidePageTitle => '가이드';
+
+  @override
   String get guideLabel => '가이드';
 
   @override

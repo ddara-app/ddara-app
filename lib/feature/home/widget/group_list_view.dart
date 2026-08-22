@@ -28,7 +28,10 @@ class GroupListView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CardGridView(
       items: groups,
-      dashboard: HomeDashboard.groupCount(count: groups.length),
+      dashboard: HomeDashboard.groupCount(
+        count: groups.length,
+        onGuideTap: () => context.push(RoutePath.guide),
+      ),
       cardBuilder: (context, group) {
         // 차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다.
         final thumbnailBlocked = blockedUserIds.contains(group.thumbnailUserId);

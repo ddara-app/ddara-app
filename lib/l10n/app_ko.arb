@@ -169,6 +169,10 @@
     }
   },
   "updateCountCaption": "어서 따라찍기를 시작해봐요",
+  "guidePageTitle": "가이드",
+  "@guidePageTitle": {
+    "description": "따라찍기 사용법 안내 화면 AppBar 제목"
+  },
   "guideLabel": "가이드",
   "@guideLabel": {
     "description": "따라찍기 모임 탭 대시보드 2페이지 제목"

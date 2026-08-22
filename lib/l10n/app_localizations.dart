@@ -490,6 +490,12 @@ abstract class AppLocalizations {
   /// **'어서 따라찍기를 시작해봐요'**
   String get updateCountCaption;
 
+  /// 따라찍기 사용법 안내 화면 AppBar 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드'**
+  String get guidePageTitle;
+
   /// 따라찍기 모임 탭 대시보드 2페이지 제목
   ///
   /// In ko, this message translates to:
