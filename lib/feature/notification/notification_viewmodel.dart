@@ -50,30 +50,19 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
 
   /// [notificationId] 알림을 읽음으로 표시한다.
   ///
-  /// 목록을 먼저 바꾸고 서버 응답을 기다리지 않는다. 누르면 바로 다른
-  /// 화면으로 이동하므로 기다려봐야 보여 줄 곳이 없다.
+  /// 목록은 건드리지 않는다. 누르면 바로 다른 화면으로 이동하면서 이 화면이
+  /// 폐기되고, 돌아올 때는 서버에서 다시 조회하기 때문이다.
   ///
-  /// 실패해도 화면에 알리지 않는다. 다음 조회 때 안 읽음으로 되돌아올 뿐이다.
+  /// 서버 응답을 기다리지 않고, 실패해도 화면에 알리지 않는다.
+  /// 다음 조회 때 안 읽음으로 남을 뿐이다.
   void markAsRead(int notificationId) {
     final current = state;
     if (current is! NotificationLoaded) return;
 
-    // 목록에 없거나(재조회로 사라짐) 이미 읽은 알림이면 아무것도 하지 않는다.
+    // 목록에 없거나(재조회로 사라짐) 이미 읽은 알림이면 부르지 않는다.
     final index = current.items.indexWhere((item) => item.id == notificationId);
     if (index < 0 || current.items[index].isRead) return;
 
-    _update(
-      (_) => NotificationLoaded(
-        items: [
-          for (final item in current.items)
-            if (item.id == notificationId)
-              item.copyWith(readAt: DateTime.now())
-            else
-              item,
-        ],
-        blockedUserIds: current.blockedUserIds,
-      ),
-    );
     unawaited(_sendRead(notificationId));
   }
 
