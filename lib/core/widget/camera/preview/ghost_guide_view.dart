@@ -1,4 +1,5 @@
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 고스트 확대 모드에서 가이드(친구가 미리 찍은) 사진을 크게 반투명으로 겹쳐 보여주는 뷰.
@@ -51,32 +52,36 @@ class GhostGuideView extends StatelessWidget {
       child: FractionallySizedBox(
         widthFactor: windowFactor,
         heightFactor: windowFactor,
-        child: Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: ShapeDecoration(
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(width: 2, color: AppColors.borderStrong),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+        // 투어 하이라이트는 프리뷰 전체가 아니라 이 창에 맞춘다.
+        child: CameraTourTarget(
+          id: CameraTourTargets.ghostGuide,
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(width: 2, color: AppColors.borderStrong),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
             ),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // 창 크기를 프리뷰 전체 크기로 되돌린 값.
-              final previewWidth = constraints.maxWidth / windowFactor;
-              final previewHeight = constraints.maxHeight / windowFactor;
-              return OverflowBox(
-                maxWidth: previewWidth,
-                maxHeight: previewHeight,
-                // 그림 박스를 프리뷰 크기로 고정해 프리뷰에 채웠을 때와 같은
-                // 배율로 그리고, 창 밖으로 넘치는 부분은 위 Container 가
-                // 잘라낸다. (창이 90% 이므로 상하좌우 5%씩 더 잘려 보인다)
-                child: SizedBox(
-                  width: previewWidth,
-                  height: previewHeight,
-                  child: picture,
-                ),
-              );
-            },
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // 창 크기를 프리뷰 전체 크기로 되돌린 값.
+                final previewWidth = constraints.maxWidth / windowFactor;
+                final previewHeight = constraints.maxHeight / windowFactor;
+                return OverflowBox(
+                  maxWidth: previewWidth,
+                  maxHeight: previewHeight,
+                  // 그림 박스를 프리뷰 크기로 고정해 프리뷰에 채웠을 때와 같은
+                  // 배율로 그리고, 창 밖으로 넘치는 부분은 위 Container 가
+                  // 잘라낸다. (창이 90% 이므로 상하좌우 5%씩 더 잘려 보인다)
+                  child: SizedBox(
+                    width: previewWidth,
+                    height: previewHeight,
+                    child: picture,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),

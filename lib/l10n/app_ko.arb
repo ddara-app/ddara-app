@@ -169,6 +169,54 @@
     }
   },
   "updateCountCaption": "어서 따라찍기를 시작해봐요",
+  "guideFlowTitle": "따라찍기, 이렇게 진행돼요",
+  "@guideFlowTitle": {
+    "description": "가이드 화면 첫 번째 섹션 제목 — 진행 방식 안내"
+  },
+  "guideFlowStep1": "스타터가 원본 사진을 올려요",
+  "@guideFlowStep1": {
+    "description": "가이드 화면 진행 방식 1단계 설명"
+  },
+  "guideFlowStep2": "원본과 같은 구도로 따라 찍어요",
+  "@guideFlowStep2": {
+    "description": "가이드 화면 진행 방식 2단계 설명"
+  },
+  "guideFlowStep3": "모두 찍거나 시간이 끝나면 공개돼요",
+  "@guideFlowStep3": {
+    "description": "가이드 화면 진행 방식 3단계 설명"
+  },
+  "guideFeatureCornerTitle": "코너 미니뷰",
+  "@guideFeatureCornerTitle": {
+    "description": "가이드 화면 촬영 보조 기능 카드 제목 — 코너 미니뷰"
+  },
+  "guideFeatureCornerDescription": "원본을 화면 구석에\n작게 띄워요\n원본을 보면서 그대로\n찍을 수 있어요",
+  "@guideFeatureCornerDescription": {
+    "description": "가이드 화면 촬영 보조 기능 카드 설명 — 코너 미니뷰 (4줄)"
+  },
+  "guideFeatureGhostTitle": "고스트 확대",
+  "@guideFeatureGhostTitle": {
+    "description": "가이드 화면 촬영 보조 기능 카드 제목 — 고스트 확대"
+  },
+  "guideFeatureGhostDescription": "원본을 화면 위에\n반투명하게 겹쳠요\n선을 맞추듯 구도를\n정확히 맞출 수 있어요",
+  "@guideFeatureGhostDescription": {
+    "description": "가이드 화면 촬영 보조 기능 카드 설명 — 고스트 확대 (4줄)"
+  },
+  "guideFeatureTitle": "촬영을 도와주는 기능",
+  "@guideFeatureTitle": {
+    "description": "가이드 화면 두 번째 섹션 제목 — 촬영 보조 기능 안내"
+  },
+  "guidePageTitle": "가이드",
+  "@guidePageTitle": {
+    "description": "따라찍기 사용법 안내 화면 AppBar 제목"
+  },
+  "guideLabel": "가이드",
+  "@guideLabel": {
+    "description": "따라찍기 모임 탭 대시보드 2페이지 제목"
+  },
+  "guideDescription": "따라찍기\n이렇게 해요",
+  "@guideDescription": {
+    "description": "따라찍기 모임 탭 대시보드 2페이지 설명 (2줄)"
+  },
   "meetingMemberOwner": "{name}님",
   "@meetingMemberOwner": {
     "description": "멤버가 모임장 1명뿐일 때의 요약",
@@ -605,6 +653,35 @@
   "cameraModeCornerMini": "코너 미니뷰",
   "cameraModeGhostZoom": "고스트 확대",
   "cameraOpacityLabel": "원본사진 투명도",
+
+  "cameraTourNext": "다음",
+  "cameraTourPrevious": "이전",
+  "@cameraTourPrevious": {
+    "description": "가이드 투어를 한 스텝 되돌리는 버튼. 첫 스텝에서는 표시하지 않는다"
+  },
+  "cameraTourDone": "시작하기",
+  "cameraTourProgress": "{current}/{total}",
+  "@cameraTourProgress": {
+    "description": "가이드 투어 진행 표시. 예: 2/5",
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "cameraTourMiniGuideBody": "친구가 올린 원본이에요\n이 구도를 따라찍어요",
+  "cameraTourMiniGuideFoldBody": "왼쪽으로 밀어\n접어둘 수 있어요",
+  "@cameraTourMiniGuideFoldBody": {
+    "description": "미니뷰를 왼쪽으로 스와이프하면 손잡이만 남기고 접히는 동작"
+  },
+  "cameraTourModeToggleBody": "고스트 확대를 켜면 원본이\n화면 위에 반투명하게 겹쳐요",
+  "@cameraTourModeToggleBody": {
+    "description": "누르라고 재촉하지 않고 기능의 존재만 알린다. 실제로 누르면 고스트 확대 안내가 이어진다"
+  },
+  "cameraTourGhostGuideBody": "가이드 사진이 화면 위에 겹쳐져요\n실제 피사체와 맞춰보세요",
+  "cameraTourOpacityBody": "원본 사진의 투명도를 바꿀 수 있어요\n화면을 좌우로 밀어도 바뀌어요",
+  "@cameraTourOpacityBody": {
+    "description": "투명도 값은 0·20·40 세 단계이며 기본값은 40. 프리뷰 가로 스와이프로도 조절된다"
+  },
 
   "notificationTitle": "알림",
   "notificationTabAll": "전체",
