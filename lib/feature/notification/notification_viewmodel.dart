@@ -19,6 +19,12 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
     return const NotificationLoading();
   }
 
+  /// 조회에 실패한 뒤 다시 불러온다. (안내 화면의 '다시 시도')
+  void retry() {
+    _update((_) => const NotificationLoading());
+    _load();
+  }
+
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
   void _update(NotificationState Function(NotificationState state) updater) {
     if (isDisposed) return;

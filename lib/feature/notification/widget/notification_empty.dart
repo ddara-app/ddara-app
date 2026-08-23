@@ -1,37 +1,38 @@
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/title_description.dart';
-import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 
-/// 알림이 하나도 없을 때 보여주는 빈 상태 화면.
+/// 알림 목록 대신 보여주는 안내 화면. (문구 두 줄 + 일러스트)
 ///
-/// 탭마다 비어 있는 이유가 달라 문구만 바꾸고 구성은 같이 쓴다.
+/// 받은 알림이 아예 없을 때·탭과 칩으로 걸러낸 결과가 없을 때·조회에 실패했을
+/// 때 모두 같은 구성을 쓰고 문구만 달라진다. 일러스트는 어느 경우든 같다.
 class NotificationEmpty extends StatelessWidget {
-  /// 전체 탭 — 받은 알림 자체가 없다.
-  const NotificationEmpty({super.key}) : _unread = false;
-
-  /// 안 읽음 탭 — 받은 알림은 있지만 모두 읽은 상태다.
-  const NotificationEmpty.unread({super.key}) : _unread = true;
-
-  final bool _unread;
+  const NotificationEmpty({
+    super.key,
+    required this.title,
+    required this.description,
+    this.action,
+  });
 
   /// 빈 상태 일러스트 이미지 폭.
   static const double _imageWidth = 160;
 
+  final String title;
+  final String description;
+
+  /// 일러스트 아래에 둘 동작. (예: '다시 시도' 버튼) 없으면 표시하지 않는다.
+  final Widget? action;
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         TitleDescription(
-          title: _unread
-              ? l10n.notificationUnreadEmptyTitle
-              : l10n.notificationEmptyTitle,
-          description: _unread
-              ? l10n.notificationUnreadEmptyDescription
-              : l10n.notificationEmptyDescription,
+          title: title,
+          description: description,
           centered: true,
         ),
         const SizedBox(height: AppSpacing.s4),
@@ -40,6 +41,8 @@ class NotificationEmpty extends StatelessWidget {
           width: _imageWidth,
           fit: BoxFit.contain,
         ),
+        // 일러스트 아래로 바로 붙인다. (이미지 자체에 여백이 들어 있다)
+        ?action,
       ],
     );
   }
