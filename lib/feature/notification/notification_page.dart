@@ -85,7 +85,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                     AppSpacing.s5,
                     AppSpacing.s0,
                     AppSpacing.s5,
-                    AppSpacing.s6,
+                    AppSpacing.s4,
                   ),
                   child: Align(
                     alignment: Alignment.centerLeft,
@@ -207,8 +207,15 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     return LazyRevealList(
       items: items,
       pageSize: _pageSize,
-      // 페이지 여백·스크롤 정책은 공용 ScrollablePageBody 를 따른다.
+      // 스크롤 정책은 공용 ScrollablePageBody 를 따르고, 여백만 손본다.
       builder: (context, visibleItems) => ScrollablePageBody(
+        // 칩 줄이 바로 위에 붙으므로 표준 패딩에서 상단만 뺀다.
+        padding: const EdgeInsets.only(
+          top: AppSpacing.s0,
+          left: AppSpacing.s5,
+          right: AppSpacing.s5,
+          bottom: AppSpacing.s7,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: AppSpacing.s4,
