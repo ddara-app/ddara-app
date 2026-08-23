@@ -10,6 +10,7 @@ import 'package:ddara/feature/home/widget/empty_group_view.dart';
 import 'package:ddara/feature/home/widget/home_tabs_view.dart';
 import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/home/util/home_state.dart';
+import 'package:ddara/feature/notification/provider/unread_notification_provider.dart';
 import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -53,6 +54,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     final profileImageUrl = ref.watch(
       currentProfileProvider.select((v) => v.valueOrNull?.profileImageUrl),
     );
+    // 안 읽은 알림 여부. (조회 전·실패면 false → 기본 종)
+    final hasUnread = ref.watch(
+      hasUnreadNotificationProvider.select((v) => v.valueOrNull ?? false),
+    );
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -63,8 +68,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBarIconButton(
-              child: const AppIcon(AppIcons.bell, size: 24),
-              onPressed: () => context.push(RoutePath.notification),
+              onPressed: _openNotification,
+              child: AppIcon(
+                hasUnread ? AppIcons.bellUnread : AppIcons.bell,
+                size: 24,
+              ),
             ),
             AppBarIconButton(
               size: 32,
@@ -78,6 +86,16 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       child: SafeArea(bottom: false, child: _body(state, l10n)),
     );
+  }
+
+  /// 알림 목록으로 이동하고, 돌아오면 안 읽음 여부를 다시 조회한다.
+  ///
+  /// 홈은 그대로 떠 있어 알아서 갱신되지 않는다. 목록에서 알림을 탭해
+  /// 다른 화면으로 넘어가는 경우는 ViewModel 이 읽음 처리 뒤 따로 갱신한다.
+  Future<void> _openNotification() async {
+    await context.push(RoutePath.notification);
+    if (!mounted) return;
+    ref.invalidate(hasUnreadNotificationProvider);
   }
 
   /// 조회 결과에 따라 화면을 분기한다.

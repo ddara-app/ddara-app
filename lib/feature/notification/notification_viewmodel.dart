@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
+import 'package:ddara/feature/notification/provider/unread_notification_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,6 +76,9 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
   Future<void> _sendRead(int notificationId) async {
     try {
       await ref.read(markNotificationAsReadUseCaseProvider)(notificationId);
+      // 홈 종 아이콘을 다시 판정하게 한다. 이 화면이 폐기된 뒤에도
+      // 홈은 그대로 떠 있어, 목록에서 바로 다른 화면으로 넘어가도 반영된다.
+      ref.invalidate(hasUnreadNotificationProvider);
     } catch (e) {
       debugPrint('[Notification] 읽음 처리 실패(id=$notificationId): $e');
     }
