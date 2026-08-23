@@ -193,23 +193,33 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     final groupId = payload.groupId;
     if (groupId == null) return null;
 
+    /// 이동 직전에 읽음으로 표시한다.
+    void markRead() =>
+        ref.read(notificationViewModelProvider.notifier).markAsRead(item.id);
+
     // 이동은 모두 홈 기준으로 스택을 다시 세운다 — 갤러리에서 뒤로 나오면
     // 알림 목록이 아니라 그 모임으로, 모임에서 한 번 더 나오면 홈이다.
     // (모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다)
     final cycleId = payload.cycleId;
     if (cycleId != null) {
-      return () => goCycleGallery(
-        GoRouter.of(context),
-        groupId: groupId,
-        cycleId: cycleId,
-        groupName: payload.groupName,
-      );
+      return () {
+        markRead();
+        goCycleGallery(
+          GoRouter.of(context),
+          groupId: groupId,
+          cycleId: cycleId,
+          groupName: payload.groupName,
+        );
+      };
     }
 
-    return () => goGroup(
-      GoRouter.of(context),
-      groupId: groupId,
-      groupName: payload.groupName,
-    );
+    return () {
+      markRead();
+      goGroup(
+        GoRouter.of(context),
+        groupId: groupId,
+        groupName: payload.groupName,
+      );
+    };
   }
 }

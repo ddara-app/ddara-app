@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
@@ -43,6 +45,46 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
       _update(
         (s) => s is NotificationLoaded ? s : const NotificationLoadError(),
       );
+    }
+  }
+
+  /// [notificationId] 알림을 읽음으로 표시한다.
+  ///
+  /// 목록을 먼저 바꾸고 서버 응답을 기다리지 않는다. 누르면 바로 다른
+  /// 화면으로 이동하므로 기다려봐야 보여 줄 곳이 없다.
+  ///
+  /// 실패해도 화면에 알리지 않는다. 다음 조회 때 안 읽음으로 되돌아올 뿐이다.
+  void markAsRead(int notificationId) {
+    final current = state;
+    if (current is! NotificationLoaded) return;
+
+    final target = current.items.firstWhere(
+      (item) => item.id == notificationId,
+      orElse: () => throw StateError('목록에 없는 알림: $notificationId'),
+    );
+    // 이미 읽은 알림은 서버를 다시 부르지 않는다.
+    if (target.isRead) return;
+
+    _update(
+      (_) => NotificationLoaded(
+        items: [
+          for (final item in current.items)
+            if (item.id == notificationId)
+              item.copyWith(readAt: DateTime.now())
+            else
+              item,
+        ],
+        blockedUserIds: current.blockedUserIds,
+      ),
+    );
+    unawaited(_sendRead(notificationId));
+  }
+
+  Future<void> _sendRead(int notificationId) async {
+    try {
+      await ref.read(markNotificationAsReadUseCaseProvider)(notificationId);
+    } catch (e) {
+      debugPrint('[Notification] 읽음 처리 실패(id=$notificationId): $e');
     }
   }
 }

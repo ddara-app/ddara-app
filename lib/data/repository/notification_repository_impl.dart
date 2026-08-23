@@ -1,4 +1,6 @@
 import 'package:ddara/core/exception/login_exception.dart';
+import 'package:ddara/core/exception/notification_error_code.dart';
+import 'package:ddara/core/exception/notification_exception.dart';
 import 'package:ddara/domain/model/notification/notification_category.dart';
 import 'package:ddara/domain/model/notification/notification_list.dart';
 import 'package:ddara/data/datasource/notification/notification_datasource.dart';
@@ -25,6 +27,24 @@ class NotificationRepositoryImpl implements NotificationRepository {
     } on DioException {
       // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
       throw NetworkException();
+    }
+  }
+
+  @override
+  Future<void> markAsRead(int notificationId) async {
+    try {
+      await _notificationDataSource.markAsRead(notificationId);
+    } on DioException catch (e) {
+      final code = e.response?.data is Map
+          ? NotificationErrorCode.fromValue(e.response?.data['code'])
+          : null;
+
+      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
+      throw switch (code) {
+        NotificationErrorCode.forbidden => NotificationForbiddenException(),
+        NotificationErrorCode.notFound => NotificationNotFoundException(),
+        _ => NetworkException(),
+      };
     }
   }
 }
