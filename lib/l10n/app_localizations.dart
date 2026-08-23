@@ -1708,6 +1708,48 @@ abstract class AppLocalizations {
   /// **'알림'**
   String get notificationTitle;
 
+  /// 알림 화면 탭 — 전체 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get notificationTabAll;
+
+  /// 알림 화면 탭 — 아직 읽지 않은 알림만
+  ///
+  /// In ko, this message translates to:
+  /// **'안 읽음'**
+  String get notificationTabUnread;
+
+  /// No description provided for @notificationUnreadEmptyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'안 읽은 알림이 없어요'**
+  String get notificationUnreadEmptyTitle;
+
+  /// No description provided for @notificationUnreadEmptyDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 알림이 오면 여기에 표시돼요'**
+  String get notificationUnreadEmptyDescription;
+
+  /// 알림 화면 칩 — 모든 종류
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get notificationFilterAll;
+
+  /// 알림 화면 칩 — 댓글을 제외한 일반 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get notificationFilterNotice;
+
+  /// 알림 화면 칩 — 댓글 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글'**
+  String get notificationFilterComment;
+
   /// No description provided for @notificationEmptyTitle.
   ///
   /// In ko, this message translates to:

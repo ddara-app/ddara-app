@@ -1,9 +1,8 @@
-import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/home/widget/fab_speed_dial.dart';
 import 'package:ddara/feature/home/widget/group_list_view.dart';
-import 'package:ddara/feature/home/widget/home_tab_header.dart';
+import 'package:ddara/core/widget/tab/page_tab_header.dart';
 import 'package:ddara/feature/home/widget/recent_updates_view.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -63,13 +62,8 @@ class _HomeTabsViewState extends State<HomeTabsView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.s5,
-                AppSpacing.s5,
-                AppSpacing.s5,
-                AppSpacing.s7,
-              ),
-              child: HomeTabHeader(
+              padding: pageTabHeaderPadding,
+              child: PageTabHeader(
                 controller: _pageController,
                 labels: [l10n.homeTabGroups, l10n.homeTabRecentUpdates],
                 currentIndex: _tabIndex,

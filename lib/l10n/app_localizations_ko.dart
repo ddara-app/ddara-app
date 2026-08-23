@@ -870,6 +870,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationTitle => '알림';
 
   @override
+  String get notificationTabAll => '전체';
+
+  @override
+  String get notificationTabUnread => '안 읽음';
+
+  @override
+  String get notificationUnreadEmptyTitle => '안 읽은 알림이 없어요';
+
+  @override
+  String get notificationUnreadEmptyDescription => '새 알림이 오면 여기에 표시돼요';
+
+  @override
+  String get notificationFilterAll => '전체';
+
+  @override
+  String get notificationFilterNotice => '알림';
+
+  @override
+  String get notificationFilterComment => '댓글';
+
+  @override
   String get notificationEmptyTitle => '새로운 알림이 없어요';
 
   @override
