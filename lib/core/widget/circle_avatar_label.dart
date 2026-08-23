@@ -31,6 +31,7 @@ class CircleAvatarLabel extends StatelessWidget {
     required this.child,
     required this.label,
     this.labelDecoration,
+    this.labelColor,
     this.onTap,
   });
 
@@ -52,6 +53,9 @@ class CircleAvatarLabel extends StatelessWidget {
   /// 라벨 글자 장식. (예: 차단 멤버 취소선)
   final TextDecoration? labelDecoration;
 
+  /// 라벨 글자색. null 이면 caption 기본색을 따른다.
+  final Color? labelColor;
+
   /// [child] 를 눌렀을 때의 콜백. null 이면 탭에 반응하지 않는다.
   final VoidCallback? onTap;
 
@@ -72,6 +76,7 @@ class CircleAvatarLabel extends StatelessWidget {
           child,
         AppText.caption(
           label,
+          color: labelColor,
           decoration: labelDecoration,
           decorationThickness: strikeThickness,
         ),

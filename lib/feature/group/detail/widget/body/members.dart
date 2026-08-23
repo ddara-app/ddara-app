@@ -5,6 +5,7 @@ import 'package:ddara/core/widget/circle_avatar_label.dart';
 import 'package:ddara/feature/group/widget/anchored_context_menu.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// 모임 멤버 한 명의 표시 데이터.
 ///
@@ -73,14 +74,13 @@ class _MemberAvatar extends StatelessWidget {
     required this.onBlock,
   });
 
-  /// 스타터가 아닌 프로필의 테두리 두께.
+  /// 프로필 원 가장자리 테두리 두께.
   static const double _ringWidth = 1;
 
-  /// 스타터 프로필 바깥 테두리(강조색) 두께.
-  static const double _starterOuterRingWidth = 2;
-
-  /// 바깥 테두리 안쪽에 덧대는 배경색 테두리 두께.
-  static const double _starterInnerRingWidth = 2;
+  /// 스타터 배지. (멀티컬러 아트라 틴트하지 않고 원본 비율을 지킨다)
+  static const String _starterBadgeAsset = 'assets/images/starter_badge.svg';
+  static const double _starterBadgeWidth = 18;
+  static const double _starterBadgeHeight = 22;
 
   final MemberDisplay member;
 
@@ -104,65 +104,48 @@ class _MemberAvatar extends StatelessWidget {
     final avatar = CircleAvatarLabel(
       label: label,
       labelDecoration: labelDecoration,
+      // 스타터는 프로필을 다른 멤버와 똑같이 두고 이름만 강조색으로 구분한다.
+      labelColor: member.isStarter ? AppColors.accentDefault : null,
       child: Stack(
         children: [
           ProfileAvatar(size: CircleAvatarLabel.circleSize, imageUrl: imageUrl),
-          // 스타터는 프로필 원형 테두리에 색을 입혀 표시한다.
-          // (이미지 위에 겹쳐 그려 아바타 지름은 그대로 유지한다)
-          if (member.isStarter)
-            Positioned.fill(
-              child: Semantics(
-                label: l10n.groupMembersStarterBadge,
-                child: const DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.fromBorderSide(
-                      BorderSide(
-                        width: _starterOuterRingWidth,
-                        color: AppColors.statusSuccess,
-                      ),
-                    ),
-                  ),
-                  // 초록 테두리 바로 안쪽에 배경색 테두리를 한 겹 더 둬,
-                  // 프로필 사진과 강조색 사이에 여백처럼 보이는 띠를 만든다.
-                  child: Padding(
-                    padding: EdgeInsets.all(_starterOuterRingWidth),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.fromBorderSide(
-                          BorderSide(
-                            width: _starterInnerRingWidth,
-                            color: AppColors.bgBase,
-                          ),
-                        ),
-                      ),
-                    ),
+          // 원 가장자리를 배경과 구분해 주는 테두리.
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.fromBorderSide(
+                  BorderSide(
+                    width: _ringWidth,
+                    color: AppColors.borderDefault,
                   ),
                 ),
               ),
-            )
-          else
-            // 그 외 프로필은 원 가장자리를 배경과 구분해 주는 테두리만 둔다.
-            const Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.fromBorderSide(
-                    BorderSide(
-                      width: _ringWidth,
-                      color: AppColors.borderDefault,
-                    ),
-                  ),
-                ),
+            ),
+          ),
+          // 스타터 배지를 프로필 우측 하단에 걸친다.
+          // (상자 모서리가 원의 45도 지점과 거의 같아 테두리에 걸쳐 보인다)
+          if (member.isStarter)
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: SvgPicture.asset(
+                _starterBadgeAsset,
+                width: _starterBadgeWidth,
+                height: _starterBadgeHeight,
               ),
             ),
         ],
       ),
     );
 
+    // 색만으로는 스타터를 알 수 없으므로 시맨틱으로도 함께 알린다.
+    final labeled = member.isStarter
+        ? Semantics(label: l10n.groupMembersStarterBadge, child: avatar)
+        : avatar;
+
     // 본인 프로필은 신고·차단 대상이 아니므로 메뉴 없이 아바타만 보여준다.
-    if (member.isMe) return avatar;
+    if (member.isMe) return labeled;
 
     // 아바타가 작아 메뉴가 위를 덮지 않도록 대각선으로 띄운다.
     return AnchoredContextMenu(
@@ -177,7 +160,7 @@ class _MemberAvatar extends StatelessWidget {
           onSelect: onReport,
         ),
       ],
-      child: avatar,
+      child: labeled,
     );
   }
 }
