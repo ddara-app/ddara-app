@@ -50,7 +50,7 @@ const Duration _modeSettleDelay = Duration(milliseconds: 300);
 ///
 /// 너무 늦으면 시연을 보기 전에 '다음'을 눌러 버린다. 말풍선이
 /// 떠서 자리를 잡을 만큼만 기다리고 바로 움직인다.
-const Duration _foldDemoDelay = Duration(milliseconds: 500);
+const Duration _foldDemoDelay = Duration(milliseconds: 250);
 
 /// 접힌 모습을 보여 주는 시간.
 const Duration _foldDemoHold = Duration(milliseconds: 900);
