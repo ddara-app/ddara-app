@@ -6,7 +6,7 @@ import 'package:ddara/core/exception/group_create_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/detail/group_page.dart';
+import 'package:ddara/feature/group/detail/util/group_page_args.dart';
 import 'package:ddara/feature/group_create/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group_create/widget/set_group_name.dart';
 import 'package:ddara/core/widget/set_nickname.dart';

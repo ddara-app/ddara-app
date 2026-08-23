@@ -6,44 +6,32 @@ import 'package:flutter/cupertino.dart';
 /// 카메라 프리뷰 영역.
 /// 컨트롤러가 아직 준비되지 않았으면 로딩 인디케이터를 보여준다.
 class Preview extends StatelessWidget {
-  const Preview({
-    super.key,
-    required this.controller,
-    required this.initFuture,
-  });
+  const Preview({super.key, required this.controller});
 
   /// 상위에서 관리하는 카메라 컨트롤러. 초기화 전이면 null.
   final CameraController? controller;
 
-  /// 카메라 초기화 Future. 완료 여부에 따라 프리뷰/로딩을 전환한다.
-  final Future<void>? initFuture;
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: initFuture,
-      builder: (context, snapshot) {
-        final c = controller;
-        // key 가 바뀌면 AnimatedSwitcher 가 페이드로 전환한다.
-        // (로딩 ↔ 프리뷰, 카메라 전환 시 카메라별 key 로 구분)
-        final Widget child = (c == null || !c.value.isInitialized)
-            ? const Center(
-                key: ValueKey('camera-loading'),
-                child: CupertinoActivityIndicator(),
-              )
-            : _FittedCameraPreview(
-                controller: c,
-                key: ValueKey(c.description.name),
-              );
+    final c = controller;
+    // key 가 바뀌면 AnimatedSwitcher 가 페이드로 전환한다.
+    // (로딩 ↔ 프리뷰, 카메라 전환 시 카메라별 key 로 구분)
+    final Widget child = (c == null || !c.value.isInitialized)
+        ? const Center(
+            key: ValueKey('camera-loading'),
+            child: CupertinoActivityIndicator(),
+          )
+        : _FittedCameraPreview(
+            controller: c,
+            key: ValueKey(c.description.name),
+          );
 
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 400),
-          switchInCurve: Curves.easeInOut,
-          switchOutCurve: Curves.easeInOut,
-          transitionBuilder: _flipTransition,
-          child: child,
-        );
-      },
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      switchInCurve: Curves.easeInOut,
+      switchOutCurve: Curves.easeInOut,
+      transitionBuilder: _flipTransition,
+      child: child,
     );
   }
 

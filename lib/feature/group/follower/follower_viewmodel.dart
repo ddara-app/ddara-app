@@ -1,8 +1,12 @@
+import 'dart:async' show unawaited;
+
 import 'package:ddara/core/exception/cycle_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
+import 'package:ddara/domain/model/camera/camera_guide_key.dart';
 import 'package:ddara/domain/model/group/group_action_error.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/follower/util/follower_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +23,63 @@ class FollowerViewModel extends AutoDisposeNotifier<FollowerState>
   /// 에러 토스트를 띄운 뒤 호출해, 같은 에러가 다시 노출되지 않게 비운다.
   void clearError() {
     state = state.copyWith(clearError: true);
+  }
+
+  /// 두 가이드 안내를 각각 이미 봤는지 서버에서 확인한다.
+  ///
+  /// 조회에 실패하면 둘 다 못 본 것으로 둔다. 안내를 놓치는 쪽보다 다시
+  /// 보는 쪽이 낫고, 실패를 토스트로 알릴 일도 아니다.
+  Future<void> loadTourSeen() async {
+    try {
+      final seen = await ref.read(getSeenCameraGuidesUseCaseProvider)();
+      if (isDisposed) return;
+      state = state.copyWith(
+        isCornerTourSeen: seen.contains(CameraGuideKey.miniView),
+        isGhostTourSeen: seen.contains(CameraGuideKey.ghostView),
+      );
+    } catch (e) {
+      debugPrint('[CameraGuide] 시청 여부 조회 실패: $e');
+      if (isDisposed) return;
+      state = state.copyWith(isCornerTourSeen: false, isGhostTourSeen: false);
+    }
+  }
+
+  /// 진입 안내(코너 미니뷰)를 끝까지 본 것으로 표시하고 서버에 남긴다.
+  void completeCornerTour() => _completeTour(CameraGuideKey.miniView);
+
+  /// 고스트 확대 안내를 끝까지 본 것으로 표시하고 서버에 남긴다.
+  void completeGhostTour() => _completeTour(CameraGuideKey.ghostView);
+
+  /// [key] 안내를 본 것으로 기록한다.
+  ///
+  /// 이미 본 안내면 아무것도 하지 않는다. 그래야 도움말로 다시 본 경우가
+  /// 서버에 중복으로 기록되지 않는다.
+  ///
+  /// 기록 실패는 화면에 알리지 않는다. 안내를 다 본 사용자에게 오류를
+  /// 보여 줄 일이 아니고, 다음 진입에 안내가 한 번 더 뜼 뿐이다.
+  void _completeTour(CameraGuideKey key) {
+    final alreadySeen = switch (key) {
+      CameraGuideKey.miniView => state.isCornerTourSeen ?? false,
+      CameraGuideKey.ghostView => state.isGhostTourSeen ?? false,
+    };
+    if (alreadySeen) return;
+
+    state = switch (key) {
+      CameraGuideKey.miniView => state.copyWith(isCornerTourSeen: true),
+      CameraGuideKey.ghostView => state.copyWith(isGhostTourSeen: true),
+    };
+
+    // 서버 기록은 기다리지 않는다. 화면을 바로 이어가게 하고, 실패해도
+    // 상태는 그대로 둔다. (이 화면에 머무는 동안은 다시 뜼지 않는다)
+    unawaited(_recordTour(key));
+  }
+
+  Future<void> _recordTour(CameraGuideKey key) async {
+    try {
+      await ref.read(completeCameraGuideUseCaseProvider)(key);
+    } catch (e) {
+      debugPrint('[CameraGuide] 시청 기록 실패(${key.value}): $e');
+    }
   }
 
   /// 업로드 실패를 상태에 반영하고 로딩을 내린다.

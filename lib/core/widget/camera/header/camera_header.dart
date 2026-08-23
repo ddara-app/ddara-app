@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -8,6 +9,14 @@ const cameraOpacityLabels = ['0', '20', '40'];
 
 /// 처음 선택돼 있는 투명도 옵션. (가장 진한 값)
 const cameraDefaultOpacityLabel = '40';
+
+/// 투어 타겟(라벨 + 탭) 안쪽 여백.
+///
+/// 강조할 때 둥근 모서리가 라벨 끝을 물지 않도록 두는 공간이다.
+/// 강조 여부에 따라 크기가 변하면 구멍과 어꺋나므로 항상 적용하고,
+/// 바깥 여백에서 그만큼 뺀다.
+const double _targetPaddingX = AppSpacing.s3;
+const double _targetPaddingY = AppSpacing.s2;
 
 /// 투명도 변경으로 인정하는 최소 가로 스와이프 속도. (px/s)
 const double _swipeVelocityThreshold = 200;
@@ -36,12 +45,19 @@ class CameraHeader extends StatelessWidget {
   const CameraHeader({
     super.key,
     this.showOpacity = false,
+    this.highlightOpacity = false,
     this.opacityLabel = cameraDefaultOpacityLabel,
     required this.onOpacityChanged,
   });
 
   /// '원본사진 투명도' 영역(라벨 + 탭) 표시 여부.
   final bool showOpacity;
+
+  /// 가이드 투어가 이 영역을 가리키는 중인지.
+  ///
+  /// true 면 배경을 깔고 라벨을 밝혀 딥 위에서도 읽힌다.
+  /// (테두리는 스포트라이트가 구멍 경계에 그린다)
+  final bool highlightOpacity;
 
   /// 현재 선택된 투명도 라벨. ([cameraOpacityLabels] 중 하나)
   final String opacityLabel;
@@ -52,9 +68,11 @@ class CameraHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
+      // 타겟 안쪽 여백을 뺀 값. 둘을 더하면 원래 여백(좌우 s5 ·
+      // 상하 s4)과 같아져, 라벨 위치는 그대로다.
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s5,
-        vertical: AppSpacing.s4,
+        horizontal: AppSpacing.s5 - _targetPaddingX,
+        vertical: AppSpacing.s4 - _targetPaddingY,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,16 +84,40 @@ class CameraHeader extends StatelessWidget {
             maintainSize: true,
             maintainAnimation: true,
             maintainState: true,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: AppSpacing.s4,
-              children: [
-                AppText.label(AppLocalizations.of(context).cameraOpacityLabel),
-                _OpacityTabs(
-                  selectedLabel: opacityLabel,
-                  onChanged: onOpacityChanged,
+            // 라벨과 탭을 하나의 타겟으로 묶는다. 안내 문구가 '원본사진
+            // 투명도' 를 가리키므로 탭만 뚚으면 무엇을 말하는지 불분명하다.
+            child: CameraTourTarget(
+              id: CameraTourTargets.opacityTabs,
+              child: Container(
+                // 여백은 강조 여부와 상관없이 항상 둔다. 강조할 때만 붙이면
+                // 타겟 크기가 바뀌어, 먼저 재둔 구멍 테두리와 배경이 어꺋난다.
+                padding: const EdgeInsets.symmetric(
+                  horizontal: _targetPaddingX,
+                  vertical: _targetPaddingY,
                 ),
-              ],
+                decoration: highlightOpacity
+                    ? ShapeDecoration(
+                        color: AppColors.bgSurfaceAlt,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.full),
+                        ),
+                      )
+                    : null,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: AppSpacing.s4,
+                  children: [
+                    AppText.label(
+                      AppLocalizations.of(context).cameraOpacityLabel,
+                      color: highlightOpacity ? AppColors.textPrimary : null,
+                    ),
+                    _OpacityTabs(
+                      selectedLabel: opacityLabel,
+                      onChanged: onOpacityChanged,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],

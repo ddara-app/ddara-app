@@ -66,7 +66,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
     if (wasBlocked) {
       final goSettings = await showPermissionDialog(
         context,
-        permission: permission,
+        onGoToSettings: permission.openSettings,
         permissionName: AppLocalizations.of(context).permissionCamera,
       );
       if (goSettings == true) return;
@@ -92,7 +92,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
 
     await showPermissionDialog(
       context,
-      permission: permission,
+      onGoToSettings: permission.openSettings,
       permissionName: permissionName,
     );
   });

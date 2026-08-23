@@ -214,6 +214,44 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCountCaption => '어서 따라찍기를 시작해봐요';
 
   @override
+  String get guideFlowTitle => '따라찍기, 이렇게 진행돼요';
+
+  @override
+  String get guideFlowStep1 => '스타터가 원본 사진을 올려요';
+
+  @override
+  String get guideFlowStep2 => '원본과 같은 구도로 따라 찍어요';
+
+  @override
+  String get guideFlowStep3 => '모두 찍거나 시간이 끝나면 공개돼요';
+
+  @override
+  String get guideFeatureCornerTitle => '코너 미니뷰';
+
+  @override
+  String get guideFeatureCornerDescription =>
+      '원본을 화면 구석에\n작게 띄워요\n원본을 보면서 그대로\n찍을 수 있어요';
+
+  @override
+  String get guideFeatureGhostTitle => '고스트 확대';
+
+  @override
+  String get guideFeatureGhostDescription =>
+      '원본을 화면 위에\n반투명하게 겹쳠요\n선을 맞추듯 구도를\n정확히 맞출 수 있어요';
+
+  @override
+  String get guideFeatureTitle => '촬영을 도와주는 기능';
+
+  @override
+  String get guidePageTitle => '가이드';
+
+  @override
+  String get guideLabel => '가이드';
+
+  @override
+  String get guideDescription => '따라찍기\n이렇게 해요';
+
+  @override
   String get meetingStatusInProgress => '진행 중';
 
   @override
@@ -865,6 +903,35 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get cameraOpacityLabel => '원본사진 투명도';
+
+  @override
+  String get cameraTourNext => '다음';
+
+  @override
+  String get cameraTourPrevious => '이전';
+
+  @override
+  String get cameraTourDone => '시작하기';
+
+  @override
+  String cameraTourProgress(int current, int total) {
+    return '$current/$total';
+  }
+
+  @override
+  String get cameraTourMiniGuideBody => '친구가 올린 원본이에요\n이 구도를 따라찍어요';
+
+  @override
+  String get cameraTourMiniGuideFoldBody => '왼쪽으로 밀어\n접어둘 수 있어요';
+
+  @override
+  String get cameraTourModeToggleBody => '고스트 확대를 켜면 원본이\n화면 위에 반투명하게 겹쳐요';
+
+  @override
+  String get cameraTourGhostGuideBody => '가이드 사진이 화면 위에 겹쳐져요\n실제 피사체와 맞춰보세요';
+
+  @override
+  String get cameraTourOpacityBody => '원본 사진의 투명도를 바꿀 수 있어요\n화면을 좌우로 밀어도 바뀌어요';
 
   @override
   String get notificationTitle => '알림';

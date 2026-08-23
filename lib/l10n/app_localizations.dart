@@ -490,6 +490,78 @@ abstract class AppLocalizations {
   /// **'어서 따라찍기를 시작해봐요'**
   String get updateCountCaption;
 
+  /// 가이드 화면 첫 번째 섹션 제목 — 진행 방식 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기, 이렇게 진행돼요'**
+  String get guideFlowTitle;
+
+  /// 가이드 화면 진행 방식 1단계 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'스타터가 원본 사진을 올려요'**
+  String get guideFlowStep1;
+
+  /// 가이드 화면 진행 방식 2단계 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'원본과 같은 구도로 따라 찍어요'**
+  String get guideFlowStep2;
+
+  /// 가이드 화면 진행 방식 3단계 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 찍거나 시간이 끝나면 공개돼요'**
+  String get guideFlowStep3;
+
+  /// 가이드 화면 촬영 보조 기능 카드 제목 — 코너 미니뷰
+  ///
+  /// In ko, this message translates to:
+  /// **'코너 미니뷰'**
+  String get guideFeatureCornerTitle;
+
+  /// 가이드 화면 촬영 보조 기능 카드 설명 — 코너 미니뷰 (4줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'원본을 화면 구석에\n작게 띄워요\n원본을 보면서 그대로\n찍을 수 있어요'**
+  String get guideFeatureCornerDescription;
+
+  /// 가이드 화면 촬영 보조 기능 카드 제목 — 고스트 확대
+  ///
+  /// In ko, this message translates to:
+  /// **'고스트 확대'**
+  String get guideFeatureGhostTitle;
+
+  /// 가이드 화면 촬영 보조 기능 카드 설명 — 고스트 확대 (4줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'원본을 화면 위에\n반투명하게 겹쳠요\n선을 맞추듯 구도를\n정확히 맞출 수 있어요'**
+  String get guideFeatureGhostDescription;
+
+  /// 가이드 화면 두 번째 섹션 제목 — 촬영 보조 기능 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'촬영을 도와주는 기능'**
+  String get guideFeatureTitle;
+
+  /// 따라찍기 사용법 안내 화면 AppBar 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드'**
+  String get guidePageTitle;
+
+  /// 따라찍기 모임 탭 대시보드 2페이지 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드'**
+  String get guideLabel;
+
+  /// 따라찍기 모임 탭 대시보드 2페이지 설명 (2줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기\n이렇게 해요'**
+  String get guideDescription;
+
   /// No description provided for @meetingStatusInProgress.
   ///
   /// In ko, this message translates to:
@@ -1701,6 +1773,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'원본사진 투명도'**
   String get cameraOpacityLabel;
+
+  /// No description provided for @cameraTourNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get cameraTourNext;
+
+  /// 가이드 투어를 한 스텝 되돌리는 버튼. 첫 스텝에서는 표시하지 않는다
+  ///
+  /// In ko, this message translates to:
+  /// **'이전'**
+  String get cameraTourPrevious;
+
+  /// No description provided for @cameraTourDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작하기'**
+  String get cameraTourDone;
+
+  /// 가이드 투어 진행 표시. 예: 2/5
+  ///
+  /// In ko, this message translates to:
+  /// **'{current}/{total}'**
+  String cameraTourProgress(int current, int total);
+
+  /// No description provided for @cameraTourMiniGuideBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'친구가 올린 원본이에요\n이 구도를 따라찍어요'**
+  String get cameraTourMiniGuideBody;
+
+  /// 미니뷰를 왼쪽으로 스와이프하면 손잡이만 남기고 접히는 동작
+  ///
+  /// In ko, this message translates to:
+  /// **'왼쪽으로 밀어\n접어둘 수 있어요'**
+  String get cameraTourMiniGuideFoldBody;
+
+  /// 누르라고 재촉하지 않고 기능의 존재만 알린다. 실제로 누르면 고스트 확대 안내가 이어진다
+  ///
+  /// In ko, this message translates to:
+  /// **'고스트 확대를 켜면 원본이\n화면 위에 반투명하게 겹쳐요'**
+  String get cameraTourModeToggleBody;
+
+  /// No description provided for @cameraTourGhostGuideBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드 사진이 화면 위에 겹쳐져요\n실제 피사체와 맞춰보세요'**
+  String get cameraTourGhostGuideBody;
+
+  /// 투명도 값은 0·20·40 세 단계이며 기본값은 40. 프리뷰 가로 스와이프로도 조절된다
+  ///
+  /// In ko, this message translates to:
+  /// **'원본 사진의 투명도를 바꿀 수 있어요\n화면을 좌우로 밀어도 바뀌어요'**
+  String get cameraTourOpacityBody;
 
   /// No description provided for @notificationTitle.
   ///

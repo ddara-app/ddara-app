@@ -1,60 +1,30 @@
 import 'package:ddara/core/analytics/app_analytics.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
-import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/domain/model/group/group_action_error.dart';
-import 'package:ddara/domain/model/group/group_detail.dart';
-import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/util/tap_guard.dart';
-import 'package:ddara/core/widget/dialog/app_dialog.dart';
-import 'package:ddara/core/widget/bottom_sheet/invite_share_sheet.dart';
-import 'package:ddara/core/widget/bottom_sheet/report_sheets.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
+import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/feature/group/detail/group_page_actions.dart';
 import 'package:ddara/feature/group/detail/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';
-import 'package:ddara/feature/group/detail/widget/body/history_photos.dart';
-import 'package:ddara/feature/group/detail/widget/body/members.dart';
-import 'package:ddara/feature/group/detail/widget/edit_nickname_sheet.dart';
+import 'package:ddara/feature/group/detail/widget/body/group_header_section.dart';
+import 'package:ddara/feature/group/detail/widget/body/history_section.dart';
+import 'package:ddara/feature/group/detail/widget/body/members_section.dart';
 import 'package:ddara/feature/group/detail/widget/group_page_skeleton.dart';
-import 'package:ddara/feature/group/detail/widget/group_section.dart';
-import 'package:ddara/feature/group/detail/widget/header/group_header.dart';
-import 'package:ddara/feature/group/random_starter/random_starter_page.dart';
 import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
-import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// [GroupPage] 진입 시 함께 넘기는 표시 힌트.
-///
-/// 모임 id 는 경로([RoutePath.group])에 있으므로 여기엔 담지 않는다. 상세 조회가
-/// 끝나기 전 화면을 미리 채우는 용도라 모든 값이 선택이며, 모르는 진입(딥링크
-/// 등)은 인자 없이 이동해도 된다.
-class GroupPageArgs {
-  const GroupPageArgs({
-    this.groupName,
-    this.hasCurrentCycle,
-    this.thumbnailUrl,
-  });
-
-  /// 상세 조회 전 AppBar 에 미리 띄울 모임 이름. 모르면 null.
-  final String? groupName;
-
-  /// 진행 중 사이클 유무. 헤더 모양(빈 상태 / 사진)이 갈리므로, 아는 경우에만
-  /// 넘겨 조회 전 골격의 높이를 맞춘다. 모르면 null.
-  final bool? hasCurrentCycle;
-
-  /// 진행 중 사이클의 스타터 썸네일 URL.
-  /// 목록에서 이미 보여준 이미지라면 캐시가 있어 조회 전에도 바로 그려진다.
-  final String? thumbnailUrl;
-}
-
 /// 모임 화면. 전달받은 [groupId] 로 상세를 조회해 그린다.
+///
+/// 이동·액션 배선은 [GroupPageActions] 가, 본문 섹션은 `widget/body/` 의
+/// 세 위젯이 맡는다. 이 파일에는 상태 분기와 화면 골격만 둔다.
 class GroupPage extends ConsumerWidget {
   const GroupPage({
     super.key,
@@ -79,20 +49,15 @@ class GroupPage extends ConsumerWidget {
   /// 조회 전 골격의 사진 자리를 캐시 이미지로 채우는 데만 쓴다.
   final String? thumbnailUrl;
 
-  /// 초대 공유 카드에 넣을 모임 대표 이미지. (카카오가 접근 가능한 공개 https URL)
-  // TODO: 모임 대표 이미지로 대체. (현재 응답에 없음 — 임시 placeholder)
-  static const _shareImageUrl = 'https://placehold.co/800x400.png';
-
-  /// 초대 시트를 자동으로 띄우는 인원 기준. (이 수 미만이면 띄운다)
-  static const _inviteThreshold = 2;
-
-  /// 따라찍기를 시작할 수 있는 최소 인원. (이 수 미만이면 시작 버튼 비활성화)
-  static const _minMembersToStart = 2;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // groupId 를 그대로 provider 에 넘기면 ViewModel.build(int groupId) 가 받아 로드한다.
     final state = ref.watch(groupPageViewModelProvider(groupId));
+    final actions = GroupPageActions(
+      context: context,
+      ref: ref,
+      groupId: groupId,
+    );
 
     ref.listen(groupPageViewModelProvider(groupId), (prev, next) {
       if (next is! GroupPageLoaded) return;
@@ -113,14 +78,13 @@ class GroupPage extends ConsumerWidget {
       }
 
       // 진입해 상세가 처음 로드된 시점을 조회 이벤트로 남긴다.
-      final detail = next.groupDetail;
       if (prev is! GroupPageLoaded) {
         AppAnalytics.track(
           'group_page_viewed',
           properties: {'group_id': groupId},
         );
 
-        _onDetailLoaded(context, ref, detail);
+        actions.onDetailLoaded(next.groupDetail);
       }
     });
 
@@ -138,7 +102,7 @@ class GroupPage extends ConsumerWidget {
         }
         // 딥링크 진입 등으로 스택이 없으면(canPop=false) 시스템 뒤로가기
         // (Android)를 가로채 홈으로 보낸다.
-        _goHome(context, ref);
+        actions.goHome();
       },
       child: CupertinoPageScaffold(
         navigationBar: AppBar(
@@ -147,13 +111,13 @@ class GroupPage extends ConsumerWidget {
           title: state is GroupPageLoaded
               ? state.groupDetail.name
               : groupName ?? '',
-          onBack: () => _back(context, ref),
+          onBack: actions.back,
           trailing: AppBarIconButton(
             // 상세가 뜨기 전이거나 나가기·닉네임 변경이 진행되는 동안 메뉴
             // 진입을 차단한다. (메뉴 항목이 모두 상세를 전제로 한다)
             onPressed: tapGuard(
               state is! GroupPageLoaded || state.isBusy,
-              () => _showMenu(context, ref),
+              actions.showMenu,
             ),
             child: const AppIcon(
               AppIcons.moreVertical,
@@ -162,244 +126,20 @@ class GroupPage extends ConsumerWidget {
             ),
           ),
         ),
-        child: SafeArea(bottom: false, child: _body(context, ref, state)),
-      ),
-    );
-  }
-
-  /// 상세가 처음 로드된 직후의 진입 처리.
-  /// 랜덤 스타터 공개가 필요하면 그 화면으로 보내고, 아니면 인원이 기준 미만일 때
-  /// 초대 시트를 띄운다. (빌드·네비게이션 도중 화면을 띄우지 않도록 다음 프레임에 연다)
-  Future<void> _onDetailLoaded(
-    BuildContext context,
-    WidgetRef ref,
-    GroupDetail detail,
-  ) async {
-    final revealStarter = await _shouldRevealStarter(ref, detail);
-    if (!context.mounted) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!context.mounted) return;
-      // 이 화면 위에 이미 다른 화면이 올라와 있으면(딥링크로 갤러리에 바로
-      // 들어와 이 화면이 스택 아래에 깔린 경우 등) 자동으로 열리는 화면을
-      // 띄우지 않는다. 사용자가 보고 있는 화면을 덮어 버리기 때문이다.
-      if (ModalRoute.of(context)?.isCurrent == false) return;
-
-      // 슬롯머신(랜덤 스타터 공개)으로 이동한다. (상세를 재조회하지 않고 push
-      //  한다 — 재조회하면 nextStarter 가 남아 다시 이동하는 루프가 된다)
-      final nextStarter = detail.nextStarter;
-      if (revealStarter && nextStarter != null) {
-        context
-            .push(
-              RoutePath.randomStarter,
-              extra: RandomStarterArgs(
-                groupId: groupId,
-                starterUserId: nextStarter.userId,
-                members: detail.members,
-              ),
-            )
-            // 공개를 보고 돌아오면 친구들 목록의 스타터 배지가 바로 뜨도록
-            // 확인 표시만 로컬 상태에 남긴다. (재조회는 하지 않는다)
-            .then(
-              (_) => ref
-                  .read(groupPageViewModelProvider(groupId).notifier)
-                  .markNextStarterSeen(),
-            );
-        return;
-      }
-
-      // 인원이 기준 미만이면 초대 시트를 띄운다.
-      if (detail.members.length < _inviteThreshold) {
-        InviteShareSheet.show(
-          context,
-          inviteCode: detail.inviteCode,
-          imageUrl: _shareImageUrl,
-          // 인원 부족으로 자동으로 띄운 경우라 머리말을 안내 문구로 바꾼다.
-          memberShortage: true,
-        );
-      }
-    });
-  }
-
-  /// 진입 시 랜덤 스타터 공개 화면을 띄워야 하는지 판단한다.
-  /// - 아직 공개를 보지 않았으면(seen=false) 따라찍기가 이미 시작됐더라도 보여준다.
-  ///   (당첨 사실 자체를 아직 못 본 상태라 한 번은 알려야 한다)
-  /// - 이미 봤으면(seen=true) 당첨된 본인에게만, 그것도 **아직 아무도 시작하지
-  ///   않았을 때**(currentCycle 없음) 진입할 때마다 다시 보여준다. 누군가
-  ///   시작해 사이클이 열렸다면 공개를 다시 볼 이유가 없다.
-  /// - 그 외(이미 본 다른 멤버)에는 띄우지 않는다.
-  Future<bool> _shouldRevealStarter(WidgetRef ref, GroupDetail detail) async {
-    final nextStarter = detail.nextStarter;
-    if (nextStarter == null) return false;
-    if (!nextStarter.seen) return true;
-
-    // 공개를 이미 본 뒤라면, 따라찍기가 시작된 시점부터는 재노출하지 않는다.
-    if (detail.currentCycle != null) return false;
-
-    // 내 프로필을 못 얻으면 당첨자 본인인지 알 수 없으므로 재노출하지 않는다.
-    // (스타터는 헤더의 시작 버튼으로도 따라찍기를 시작할 수 있다)
-    try {
-      final myUserId = (await ref.read(currentProfileProvider.future)).id;
-      return myUserId == nextStarter.userId;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  /// AppBar 뒤로가기: 스택이 있으면 이전 화면으로 pop 하고, 없으면(딥링크
-  /// 진입 등) 홈으로 보낸다. (홈 무효화는 PopScope 의 pop 콜백에서 처리)
-  void _back(BuildContext context, WidgetRef ref) {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      _goHome(context, ref);
-    }
-  }
-
-  /// 홈으로 돌아간다. 나가기 직전 홈 목록을 무효화해, 복귀 시 최신 상태로
-  /// 재조회되도록 한다. (스타터 시작 사진 등 이 화면에서 생긴 변경을 홈 카드에 반영)
-  void _goHome(BuildContext context, WidgetRef ref) {
-    ref.invalidate(homeViewModelProvider);
-    context.go(RoutePath.home);
-  }
-
-  /// 하위 화면(스타터·갤러리)으로 이동했다가 돌아오면 모임 상세를 무효화해
-  /// 재조회한다. (하위 화면에서 생긴 변경을 복귀 시 반영 — 홈 복귀 갱신과 동일 패턴)
-  Future<void> _pushThenRefresh(
-    BuildContext context,
-    WidgetRef ref,
-    String path, {
-    Object? extra,
-  }) async {
-    await context.push(path, extra: extra);
-    ref.invalidate(groupPageViewModelProvider(groupId));
-  }
-
-  /// 이 모임의 [cycleId] 회차 갤러리로 이동한다. (복귀 시 상세 갱신)
-  Future<void> _pushGallery(
-    BuildContext context,
-    WidgetRef ref,
-    int cycleId,
-  ) => _pushThenRefresh(
-    context,
-    ref,
-    RoutePath.cycleGallery(groupId: groupId, cycleId: cycleId),
-  );
-
-  /// 우측 메뉴 버튼을 눌렀을 때 뜨는 모임 메뉴(액션 시트).
-  void _showMenu(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (sheetContext) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(sheetContext).pop();
-              _editNickname(context, ref);
-            },
-            child: AppText.title(l10n.groupMenuEditNickname),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(sheetContext).pop();
-              _reportGroup(context, ref);
-            },
-            child: AppText.title(l10n.groupMenuReport),
-          ),
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.of(sheetContext).pop();
-              _exitGroup(context, ref);
-            },
-            child: AppText.title(
-              l10n.groupMenuExit,
-              color: AppColors.statusDanger,
-            ),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(sheetContext).pop(),
-          child: AppText.title(l10n.commonCancel),
+        child: SafeArea(
+          bottom: false,
+          child: _body(context, ref, state, actions),
         ),
       ),
     );
   }
 
-  /// 모임 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
-  /// 성공 시 완료 토스트를 띄운다. (신고해도 모임은 그대로 노출 — 관리자 검토
-  /// 후 처리, 실패 시 ViewModel 이 error → 토스트로 처리)
-  Future<void> _reportGroup(BuildContext context, WidgetRef ref) async {
-    final result = await GroupReportSheet.show(context);
-    if (result == null || !context.mounted) return;
-
-    final success = await ref
-        .read(groupPageViewModelProvider(groupId).notifier)
-        .reportGroup(
-          reason: result.reason,
-          reasonText: result.detail.isEmpty ? null : result.detail,
-        );
-    if (!success || !context.mounted) return;
-
-    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
-  }
-
-  /// 닉네임 수정 바텀시트를 띄우고, 입력을 받으면 변경을 요청한다.
-  /// (실패 시 ViewModel 이 error → 토스트로 처리, 성공 시 상세 재조회로 반영)
-  Future<void> _editNickname(BuildContext context, WidgetRef ref) async {
-    // 메뉴는 상세가 뜬 뒤에만 열리므로 여기선 항상 Loaded 다.
-    final state = ref.read(groupPageViewModelProvider(groupId));
-    if (state is! GroupPageLoaded) return;
-    final detail = state.groupDetail;
-
-    final nickName = await EditNicknameSheet.show(
-      context,
-      groupName: detail.name,
-      // 멤버가 이미 쓰는 닉네임은 시트에서 중복 에러로 미리 막는다.
-      takenNicknames: detail.members.map((m) => m.nickname).toSet(),
-    );
-    if (nickName == null || !context.mounted) return;
-
-    final success = await ref
-        .read(groupPageViewModelProvider(groupId).notifier)
-        .changeNickName(nickName);
-    if (success) {
-      AppAnalytics.track(
-        'group_nickname_changed',
-        properties: {'group_id': groupId},
-      );
-    }
-  }
-
-  /// 모임 나가기를 실행한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
-  /// 성공하면 홈의 목록을 새로 조회(invalidate)해 나간 모임이 사라지도록 반영한
-  /// 뒤 홈으로 이동한다. (실패 시 ViewModel 이 에러 토스트 처리)
-  Future<void> _exitGroup(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context);
-    final confirmed = await AppDialog.show(
-      context,
-      title: l10n.groupExitConfirmTitle,
-      confirmLabel: l10n.groupExitConfirmAction,
-      confirmColor: AppColors.statusDanger,
-      confirmLabelColor: AppColors.textPrimary,
-    );
-    if (!confirmed || !context.mounted) return;
-
-    final success = await ref
-        .read(groupPageViewModelProvider(groupId).notifier)
-        .exitGroup();
-    if (!success || !context.mounted) return;
-
-    AppAnalytics.track(
-      'group_exit_succeeded',
-      properties: {'group_id': groupId},
-    );
-    ref.invalidate(homeViewModelProvider);
-    context.go(RoutePath.home);
-  }
-
-  Widget _body(BuildContext context, WidgetRef ref, GroupPageState state) {
+  Widget _body(
+    BuildContext context,
+    WidgetRef ref,
+    GroupPageState state,
+    GroupPageActions actions,
+  ) {
     // 최상단에서 아래로 당기면 상세·히스토리를 다시 조회한다.
     Future<void> onRefresh() => refreshWithMinDuration(
       () => ref.read(groupPageViewModelProvider(groupId).notifier).refresh(),
@@ -457,9 +197,7 @@ class GroupPage extends ConsumerWidget {
                 // 상하 s6 여백만. (좌우 여백은 일단 헤더에만 적용) 하단은 콘텐츠가
                 // 홈 인디케이터와 겹치지 않도록 Safe Area 인셋만큼 더 띄운다.
                 padding: bodyPadding,
-                sliver: SliverToBoxAdapter(
-                  child: _content(context, ref, state),
-                ),
+                sliver: SliverToBoxAdapter(child: _content(state, actions)),
               ),
             ],
           ),
@@ -471,195 +209,32 @@ class GroupPage extends ConsumerWidget {
     };
   }
 
-  Widget _content(BuildContext context, WidgetRef ref, GroupPageLoaded state) {
-    final groupDetail = state.groupDetail;
-    final cycles = state.historyCycles.cycles;
-    final l10n = AppLocalizations.of(context);
-    // 현재 사용자 id. (본인 프로필에는 신고·차단 메뉴를 띄우지 않기 위함)
-    // id 만 보므로 닉네임·이미지 변경으로는 다시 그리지 않는다.
-    final myUserId = ref.watch(
-      currentProfileProvider.select((profile) => profile.valueOrNull?.id),
-    );
-    final starterUserId = _starterUserId(groupDetail);
+  /// 헤더 · 친구들 · 지난 따라찍기 세 섹션.
+  Widget _content(GroupPageLoaded state, GroupPageActions actions) {
+    final detail = state.groupDetail;
     return Column(
       // 상단부터 쌓되 가로는 중앙 정렬.
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpacing.s9,
       children: [
-        // 좌우 여백은 일단 헤더에만 적용한다.
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s5),
-          child: GroupHeader(
-            // 진행 중인 사이클을 그대로 전달. null 이면 헤더가 빈 상태를 보여준다.
-            progress: groupDetail.currentCycle,
-            // 헤더의 참여 인원 표시 'n/총원'에 쓸 모임 총원.
-            memberCount: groupDetail.members.length,
-            // 멤버가 최소 인원 미만이면 시작 버튼을 비활성화한다.
-            canStart: groupDetail.members.length >= _minMembersToStart,
-            // 스타터를 차단했으면 헤더에 사진 대신 차단 자리표시를 보여준다.
-            starterBlocked: state.blockedUserIds.contains(
-              groupDetail.currentCycle?.starterUserId,
-            ),
-            navigateToStart: () => _pushThenRefresh(
-              context,
-              ref,
-              RoutePath.starter,
-              extra: groupId,
-            ),
-            // 촬영 버튼은 진행 중 사이클이 있을 때만 노출되므로 cycleId 가 존재한다.
-            onTakePhoto: () {
-              final cycleId = groupDetail.currentCycle?.cycleId;
-              if (cycleId == null) return;
-              _pushGallery(context, ref, cycleId);
-            },
-            // 스타터 사진 탭 → 히스토리 카드와 동일하게 사진 갤러리로 이동.
-            onStarterImageTap: () {
-              final cycleId = groupDetail.currentCycle?.cycleId;
-              if (cycleId == null) return;
-              _pushGallery(context, ref, cycleId);
-            },
-          ),
+        GroupHeaderSection(
+          detail: detail,
+          blockedUserIds: state.blockedUserIds,
+          actions: actions,
         ),
-        GroupSection(
-          title: AppText.headlineLarge(l10n.groupMembersTitle),
-          body: Members(
-            members: groupDetail.members
-                .map(
-                  (member) => (
-                    userId: member.userId,
-                    name: member.nickname,
-                    imageUrl: member.profileImageUrl,
-                    // 차단한 멤버는 기본 아이콘 + 취소선 닉네임으로 표시된다.
-                    isBlocked: state.blockedUserIds.contains(member.userId),
-                    // 본인 프로필에는 롱프레스 메뉴를 띄우지 않는다.
-                    isMe: member.userId == myUserId,
-                    // 스타터는 프로필에 배지를 달아 목록에서도 알아볼 수 있게 한다.
-                    isStarter:
-                        starterUserId != null &&
-                        member.userId == starterUserId,
-                  ),
-                )
-                .toList(),
-            onAddMember: () => InviteShareSheet.show(
-              context,
-              inviteCode: groupDetail.inviteCode,
-              imageUrl: _shareImageUrl,
-            ),
-            onReportMember: (member) => _reportMember(context, ref, member),
-            onBlockMember: (member) => _blockMember(context, ref, member),
-          ),
+        MembersSection(
+          detail: detail,
+          blockedUserIds: state.blockedUserIds,
+          actions: actions,
         ),
-        GroupSection(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              AppText.headlineLarge(l10n.groupHistoryTitle),
-              AppTextButton(
-                label: l10n.groupHistoryMore,
-                // 지난 따라찍기 전체 목록으로 이동. (복귀 시 상세 갱신)
-                onPressed: () {
-                  AppAnalytics.track(
-                    'group_history_more_clicked',
-                    properties: {'group_id': groupId},
-                  );
-                  _pushThenRefresh(
-                    context,
-                    ref,
-                    RoutePath.historyList,
-                    extra: groupId,
-                  );
-                },
-              ),
-            ],
-          ),
-          // 히스토리가 있으면 사진 카드들을, 없으면 같은 높이의 빈 상태 안내를 보여준다.
-          // (카드 높이 + HistoryPhotos 의 상하 s5 패딩)
-          body: cycles.isEmpty
-              ? SizedBox(
-                  height: HistoryPhotos.cardHeight + AppSpacing.s5 * 2,
-                  child: Center(child: AppText.body(l10n.groupHistoryEmpty)),
-                )
-              : HistoryPhotos(
-                  cycles: cycles,
-                  // 차단한 스타터의 썸네일은 차단 자리표시로 가린다.
-                  blockedUserIds: state.blockedUserIds,
-                  // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
-                  onCycleTap: (cycleId) {
-                    AppAnalytics.track(
-                      'group_history_cycle_clicked',
-                      properties: {'group_id': groupId, 'cycle_id': cycleId},
-                    );
-                    _pushGallery(context, ref, cycleId);
-                  },
-                ),
+        HistorySection(
+          cycles: state.historyCycles.cycles,
+          blockedUserIds: state.blockedUserIds,
+          groupId: groupId,
+          actions: actions,
         ),
       ],
     );
-  }
-
-  /// 친구들 목록에서 스타터 배지를 달 멤버의 userId. 대상이 없으면 null.
-  ///
-  /// 따라찍기가 시작됐으면 그 사이클의 스타터를, 아직이면 다음 사이클의
-  /// 스타터를 가리킨다. 다음 스타터는 랜덤 공개(룰렛)를 본 뒤에만 표시해,
-  /// 아직 공개를 보지 못한 멤버에게 결과가 미리 새지 않게 한다.
-  int? _starterUserId(GroupDetail detail) {
-    final cycle = detail.currentCycle;
-    if (cycle != null) return cycle.starterUserId;
-
-    final nextStarter = detail.nextStarter;
-    if (nextStarter == null || !nextStarter.seen) return null;
-    return nextStarter.userId;
-  }
-
-  /// 유저 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
-  /// 성공하면 완료 토스트를 띄운다.
-  /// (실패 시 ViewModel 이 error → 토스트로 처리)
-  Future<void> _reportMember(
-    BuildContext context,
-    WidgetRef ref,
-    MemberDisplay member,
-  ) async {
-    final result = await UserReportSheet.show(context);
-    if (result == null || !context.mounted) return;
-
-    final success = await ref
-        .read(groupPageViewModelProvider(groupId).notifier)
-        .reportMember(
-          userId: member.userId,
-          reason: result.reason,
-          reasonText: result.detail.isEmpty ? null : result.detail,
-        );
-    if (!success || !context.mounted) return;
-
-    Toast.showToast(context, AppLocalizations.of(context).reportSubmitted);
-  }
-
-  /// 멤버를 차단한다. 먼저 확인 다이얼로그를 띄우고, 확인 시에만 진행한다.
-  /// 성공하면 차단이 반영된 상세를 다시 조회하고 완료 토스트를 띄운다.
-  /// (실패 시 ViewModel 이 error → 토스트로 처리)
-  Future<void> _blockMember(
-    BuildContext context,
-    WidgetRef ref,
-    MemberDisplay member,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final confirmed = await AppDialog.show(
-      context,
-      title: l10n.memberBlockConfirmTitle(member.name),
-      message: l10n.memberBlockConfirmMessage,
-      confirmLabel: l10n.memberBlockConfirmAction,
-      confirmColor: AppColors.statusDanger,
-      confirmLabelColor: AppColors.textPrimary,
-    );
-    if (!confirmed || !context.mounted) return;
-
-    final success = await ref
-        .read(groupPageViewModelProvider(groupId).notifier)
-        .blockMember(member.userId);
-    if (!success || !context.mounted) return;
-
-    Toast.showToast(context, l10n.memberBlockedToast(member.name));
   }
 }

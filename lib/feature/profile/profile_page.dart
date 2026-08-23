@@ -224,7 +224,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     if (result == PermissionResult.permanentlyDenied && context.mounted) {
       await showPermissionDialog(
         context,
-        permission: permission,
+        onGoToSettings: permission.openSettings,
         permissionName: AppLocalizations.of(context).permissionPhotos,
       );
     }

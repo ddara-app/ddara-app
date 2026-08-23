@@ -106,10 +106,7 @@ class _MemberAvatar extends StatelessWidget {
       labelDecoration: labelDecoration,
       child: Stack(
         children: [
-          ProfileAvatar(
-            size: CircleAvatarLabel.circleSize,
-            imageUrl: imageUrl,
-          ),
+          ProfileAvatar(size: CircleAvatarLabel.circleSize, imageUrl: imageUrl),
           // 스타터는 프로필 원형 테두리에 색을 입혀 표시한다.
           // (이미지 위에 겹쳐 그려 아바타 지름은 그대로 유지한다)
           if (member.isStarter)

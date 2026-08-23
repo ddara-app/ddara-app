@@ -1,6 +1,7 @@
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/exception/profile_error_code.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
+import 'package:ddara/domain/model/camera/camera_guide_key.dart';
 import 'package:ddara/domain/model/profile/notification_settings.dart';
 import 'package:ddara/domain/model/profile/profile.dart';
 import 'package:ddara/core/network/dto/cycle/presign_response.dart';
@@ -155,5 +156,45 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<NotificationSettings> getNotificationSettings() async {
     final response = await _profileDataSource.getNotificationSettings();
     return response.toDomain();
+  }
+
+  @override
+  Future<Set<CameraGuideKey>> getSeenCameraGuides() async {
+    try {
+      final response = await _profileDataSource.getCameraGuide();
+      // 앱이 모르는 키가 늘어도 조회가 실패하지 않게 걸러낸다.
+      return response.seen
+          .map(CameraGuideKey.fromValue)
+          .nonNulls
+          .toSet();
+    } on DioException catch (e) {
+      throw _cameraGuideError(e);
+    }
+  }
+
+  @override
+  Future<void> completeCameraGuide(CameraGuideKey key) async {
+    try {
+      await _profileDataSource.completeCameraGuide(key.value);
+    } on DioException catch (e) {
+      throw _cameraGuideError(e);
+    }
+  }
+
+  /// 가이드 조회·기록의 서버 오류를 도메인 예외로 바꾼다.
+  ///
+  /// 401(UNAUTHORIZED)은 인터셉터가 따로 처리하므로 여기서 다루지 않는다.
+  Exception _cameraGuideError(DioException e) {
+    final code = e.response?.data is Map
+        ? ProfileErrorCode.fromValue(e.response?.data['code'])
+        : null;
+
+    return switch (code) {
+      // 404 — 사용자를 찾을 수 없음
+      ProfileErrorCode.userNotFound => UserNotFoundException(),
+      // 400 — key 누락/빈 값
+      ProfileErrorCode.invalidInput => InvalidInputException(),
+      _ => NetworkException(),
+    };
   }
 }
