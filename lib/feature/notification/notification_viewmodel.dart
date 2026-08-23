@@ -58,12 +58,9 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
     final current = state;
     if (current is! NotificationLoaded) return;
 
-    final target = current.items.firstWhere(
-      (item) => item.id == notificationId,
-      orElse: () => throw StateError('목록에 없는 알림: $notificationId'),
-    );
-    // 이미 읽은 알림은 서버를 다시 부르지 않는다.
-    if (target.isRead) return;
+    // 목록에 없거나(재조회로 사라짐) 이미 읽은 알림이면 아무것도 하지 않는다.
+    final index = current.items.indexWhere((item) => item.id == notificationId);
+    if (index < 0 || current.items[index].isRead) return;
 
     _update(
       (_) => NotificationLoaded(
