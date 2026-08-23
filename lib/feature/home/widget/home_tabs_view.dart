@@ -63,11 +63,13 @@ class _HomeTabsViewState extends State<HomeTabsView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.s5,
-                AppSpacing.s5,
-                AppSpacing.s5,
-                AppSpacing.s7,
+              // 하단 여백은 두지 않는다. 인디케이터와 첫 카드 사이 간격은
+              // 스크롤되는 본문(CardGridView) 상단이 갖고 있어, 스크롤하면
+              // 여백째 올라가 카드가 탭 바로 아래까지 붙는다.
+              padding: const EdgeInsets.only(
+                left: AppSpacing.s5,
+                top: AppSpacing.s5,
+                right: AppSpacing.s5,
               ),
               child: HomeTabHeader(
                 controller: _pageController,

@@ -35,6 +35,12 @@ class CardGridView<T> extends StatelessWidget {
   /// 좌/우 열에 절반씩 나뉘므로 지그재그 5행 분량이다)
   static const _cardPageSize = 10;
 
+  /// 탭 인디케이터와 첫 카드 사이 여백.
+  ///
+  /// 탭 헤더가 아니라 스크롤되는 이쪽이 갖고 있어, 스크롤하면 여백도 함께
+  /// 올라가 카드가 인디케이터 바로 아래까지 붙는다.
+  static const _headerGap = AppSpacing.s4;
+
   @override
   Widget build(BuildContext context) {
     // 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
@@ -63,11 +69,11 @@ class CardGridView<T> extends StatelessWidget {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Padding(
-              // 위는 탭 헤더가 있어 s4, 좌우 s5(16, Page 규칙). (하단은 FAB 에
-              // 가리지 않도록 버튼 높이 + Safe Area 인셋만큼 더 여유)
+              // 좌우 s5(16, Page 규칙). (하단은 FAB 에 가리지 않도록 버튼
+              // 높이 + Safe Area 인셋만큼 더 여유)
               padding: EdgeInsets.fromLTRB(
                 AppSpacing.s5,
-                AppSpacing.s4,
+                _headerGap,
                 AppSpacing.s5,
                 AppSpacing.s6 +
                     SpeedDialFab.size +
