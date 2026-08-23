@@ -190,13 +190,6 @@ class GroupPageActions {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(sheetContext).pop();
-              openTourTest();
-            },
-            child: AppText.title(l10n.groupMenuTourTest),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(sheetContext).pop();
               editNickname();
             },
             child: AppText.title(l10n.groupMenuEditNickname),
@@ -227,20 +220,6 @@ class GroupPageActions {
       ),
     );
   }
-
-  /// 가이드 투어 확인용 진입. (개발 중 동작 확인 목적)
-  ///
-  /// 진행 중인 회차가 없어도 열 수 있도록 가이드 사진은 번들 더미를 쓰고,
-  /// 사이클 id 는 업로드하지 않을 전제로 0 을 넘긴다. 투어는 완료 플래그와
-  /// 무관하게 매번 처음부터 뜬다.
-  void openTourTest() => context.push(
-    RoutePath.followerCamera,
-    extra: (
-      cycleId: 0,
-      guideImageUrl: 'assets/images/photo_image.png',
-      forceTour: true,
-    ),
-  );
 
   /// 모임 신고 사유 시트를 띄우고, 확정하면 신고를 접수한다.
   /// 성공 시 완료 토스트를 띄운다. (신고해도 모임은 그대로 노출 — 관리자 검토

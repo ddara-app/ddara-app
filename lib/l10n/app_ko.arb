@@ -331,10 +331,6 @@
   "groupDetailEmptyTitle": "아직 따라찍기가 없어요",
   "groupHeaderStart": "내가 먼저 시작하기",
   "groupHeaderTakePhoto": "따라찍으러 가기",
-  "groupMenuTourTest": "가이드 투어 테스트",
-  "@groupMenuTourTest": {
-    "description": "모임 메뉴의 개발 확인용 항목. 더미 가이드 사진으로 따라찍기 촬영 화면을 열어 가이드 투어를 처음부터 보여준다"
-  },
   "groupMenuEditNickname": "닉네임 수정",
   "groupMenuReport": "모임 신고",
   "groupMenuExit": "모임 나가기",

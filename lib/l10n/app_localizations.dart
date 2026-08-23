@@ -880,12 +880,6 @@ abstract class AppLocalizations {
   /// **'따라찍으러 가기'**
   String get groupHeaderTakePhoto;
 
-  /// 모임 메뉴의 개발 확인용 항목. 더미 가이드 사진으로 따라찍기 촬영 화면을 열어 가이드 투어를 처음부터 보여준다
-  ///
-  /// In ko, this message translates to:
-  /// **'가이드 투어 테스트'**
-  String get groupMenuTourTest;
-
   /// No description provided for @groupMenuEditNickname.
   ///
   /// In ko, this message translates to:

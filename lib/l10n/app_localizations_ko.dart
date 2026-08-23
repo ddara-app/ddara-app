@@ -428,9 +428,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupHeaderTakePhoto => '따라찍으러 가기';
 
   @override
-  String get groupMenuTourTest => '가이드 투어 테스트';
-
-  @override
   String get groupMenuEditNickname => '닉네임 수정';
 
   @override
