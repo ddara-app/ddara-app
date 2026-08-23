@@ -16,6 +16,7 @@ import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/feed_card.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
+import 'package:ddara/feature/home/widget/home_refresh_control.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -65,7 +66,7 @@ class RecentUpdatesView extends ConsumerWidget {
           parent: AlwaysScrollableScrollPhysics(),
         ),
         slivers: [
-          CupertinoSliverRefreshControl(onRefresh: onRefresh),
+          HomeRefreshControl(onRefresh: onRefresh),
           SliverFillRemaining(
             hasScrollBody: false,
             child: Center(

@@ -1,3 +1,4 @@
+import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/home/widget/fab_speed_dial.dart';
@@ -62,7 +63,10 @@ class _HomeTabsViewState extends State<HomeTabsView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: pageTabHeaderPadding,
+              // 하단 여백은 두지 않는다. 인디케이터와 첫 카드 사이 간격은
+              // 스크롤되는 본문(CardGridView) 상단이 갖고 있어, 스크롤하면
+              // 여백째 올라가 카드가 탭 바로 아래까지 붙는다.
+              padding: pageTabHeaderPadding.copyWith(bottom: AppSpacing.s0),
               child: PageTabHeader(
                 controller: _pageController,
                 labels: [l10n.homeTabGroups, l10n.homeTabRecentUpdates],
