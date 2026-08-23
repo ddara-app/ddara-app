@@ -82,6 +82,9 @@ class _MemberAvatar extends StatelessWidget {
   static const double _starterBadgeWidth = 18;
   static const double _starterBadgeHeight = 22;
 
+  /// 배지를 원 바깥으로 살짝 밀어내는 값. (우측·하단 동일)
+  static const double _starterBadgeOffset = -2;
+
   final MemberDisplay member;
 
   /// 컨텍스트 메뉴에서 '유저 신고'를 선택했을 때.
@@ -107,6 +110,8 @@ class _MemberAvatar extends StatelessWidget {
       // 스타터는 프로필을 다른 멤버와 똑같이 두고 이름만 강조색으로 구분한다.
       labelColor: member.isStarter ? AppColors.accentDefault : null,
       child: Stack(
+        // 배지가 원 밖으로 걸치므로 잘리지 않게 둔다.
+        clipBehavior: Clip.none,
         children: [
           ProfileAvatar(size: CircleAvatarLabel.circleSize, imageUrl: imageUrl),
           // 원 가장자리를 배경과 구분해 주는 테두리.
@@ -127,8 +132,8 @@ class _MemberAvatar extends StatelessWidget {
           // (상자 모서리가 원의 45도 지점과 거의 같아 테두리에 걸쳐 보인다)
           if (member.isStarter)
             Positioned(
-              right: 0,
-              bottom: 0,
+              right: _starterBadgeOffset,
+              bottom: _starterBadgeOffset,
               child: SvgPicture.asset(
                 _starterBadgeAsset,
                 width: _starterBadgeWidth,
