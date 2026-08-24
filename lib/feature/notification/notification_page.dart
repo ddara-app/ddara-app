@@ -334,14 +334,14 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     void markRead() =>
         ref.read(notificationViewModelProvider.notifier).markAsRead(item.id);
 
-    // 이동은 모두 홈 기준으로 스택을 다시 세운다 — 갤러리에서 뒤로 나오면
-    // 알림 목록이 아니라 그 모임으로, 모임에서 한 번 더 나오면 홈이다.
-    // (모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다)
+    // 이동은 목록 위에 쌓는다 — 뒤로가기로 이 목록에 돌아와 다음 알림을 이어
+    // 볼 수 있다. (docs/tech_notes/notification_navigation.md)
+    // 모임 이름을 함께 넘겨 조회 전에도 AppBar 를 채운다.
     final cycleId = payload.cycleId;
     if (cycleId != null) {
       return () {
         markRead();
-        goCycleGallery(
+        pushCycleGallery(
           GoRouter.of(context),
           groupId: groupId,
           cycleId: cycleId,
@@ -352,7 +352,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
 
     return () {
       markRead();
-      goGroup(
+      pushGroup(
         GoRouter.of(context),
         groupId: groupId,
         groupName: payload.groupName,
