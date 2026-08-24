@@ -16,12 +16,10 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<NotificationList> getNotifications({
     required NotificationCategory category,
-    required int size,
   }) async {
     try {
       final response = await _notificationDataSource.getNotifications(
         category: category.value,
-        size: size,
       );
       return response.toDomain();
     } on DioException {

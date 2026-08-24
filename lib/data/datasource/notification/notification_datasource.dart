@@ -10,14 +10,17 @@ class NotificationDataSource {
   static final String _baseUrl = '/api/notifications';
 
   /// 알림 목록을 조회한다.
-  /// [category] 는 all·activity·etc 중 하나, [size] 는 조회할 개수.
+  ///
+  /// [category] 는 all·activity·etc 중 하나.
+  ///
+  /// 개수 제한 없이 전량 받는다. 화면에 나눠 그리는 일은 클라이언트 사이드
+  /// 페이징이 맡는다. (docs/tech_notes/client_side_paging.md)
   Future<NotificationListResponse> getNotifications({
     required String category,
-    required int size,
   }) async {
     final response = await _dio.get(
       _baseUrl,
-      queryParameters: {'category': category, 'size': size},
+      queryParameters: {'category': category},
     );
     return NotificationListResponse.fromJson(response.data);
   }

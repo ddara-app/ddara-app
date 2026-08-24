@@ -202,6 +202,8 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     return LazyRevealList(
       items: items,
       pageSize: _pageSize,
+      // 칩을 바꾸면 목록이 통째로 갈리므로 노출 개수를 첫 페이지로 되돌린다.
+      resetKey: _filter,
       builder: (context, visibleItems) => _scrollBody(
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
