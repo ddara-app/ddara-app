@@ -3,7 +3,7 @@ import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/feature/home/widget/fab_speed_dial.dart';
 import 'package:ddara/feature/home/widget/group_list_view.dart';
-import 'package:ddara/feature/home/widget/home_tab_header.dart';
+import 'package:ddara/core/widget/tab/page_tab_header.dart';
 import 'package:ddara/feature/home/widget/recent_updates_view.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -66,12 +66,8 @@ class _HomeTabsViewState extends State<HomeTabsView> {
               // 하단 여백은 두지 않는다. 인디케이터와 첫 카드 사이 간격은
               // 스크롤되는 본문(CardGridView) 상단이 갖고 있어, 스크롤하면
               // 여백째 올라가 카드가 탭 바로 아래까지 붙는다.
-              padding: const EdgeInsets.only(
-                left: AppSpacing.s5,
-                top: AppSpacing.s5,
-                right: AppSpacing.s5,
-              ),
-              child: HomeTabHeader(
+              padding: pageTabHeaderPadding.copyWith(bottom: AppSpacing.s0),
+              child: PageTabHeader(
                 controller: _pageController,
                 labels: [l10n.homeTabGroups, l10n.homeTabRecentUpdates],
                 currentIndex: _tabIndex,

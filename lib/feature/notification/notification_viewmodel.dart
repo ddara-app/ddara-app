@@ -1,5 +1,8 @@
+import 'dart:async' show unawaited;
+
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
+import 'package:ddara/feature/notification/provider/unread_notification_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +18,12 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
     _load();
 
     return const NotificationLoading();
+  }
+
+  /// 조회에 실패한 뒤 다시 불러온다. (안내 화면의 '다시 시도')
+  void retry() {
+    _update((_) => const NotificationLoading());
+    _load();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
@@ -43,6 +52,35 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
       _update(
         (s) => s is NotificationLoaded ? s : const NotificationLoadError(),
       );
+    }
+  }
+
+  /// [notificationId] 알림을 읽음으로 표시한다.
+  ///
+  /// 목록은 건드리지 않는다. 누르면 바로 다른 화면으로 이동하면서 이 화면이
+  /// 폐기되고, 돌아올 때는 서버에서 다시 조회하기 때문이다.
+  ///
+  /// 서버 응답을 기다리지 않고, 실패해도 화면에 알리지 않는다.
+  /// 다음 조회 때 안 읽음으로 남을 뿐이다.
+  void markAsRead(int notificationId) {
+    final current = state;
+    if (current is! NotificationLoaded) return;
+
+    // 목록에 없거나(재조회로 사라짐) 이미 읽은 알림이면 부르지 않는다.
+    final index = current.items.indexWhere((item) => item.id == notificationId);
+    if (index < 0 || current.items[index].isRead) return;
+
+    unawaited(_sendRead(notificationId));
+  }
+
+  Future<void> _sendRead(int notificationId) async {
+    try {
+      await ref.read(markNotificationAsReadUseCaseProvider)(notificationId);
+      // 홈 종 아이콘을 다시 판정하게 한다. 이 화면이 폐기된 뒤에도
+      // 홈은 그대로 떠 있어, 목록에서 바로 다른 화면으로 넘어가도 반영된다.
+      ref.invalidate(hasUnreadNotificationProvider);
+    } catch (e) {
+      debugPrint('[Notification] 읽음 처리 실패(id=$notificationId): $e');
     }
   }
 }

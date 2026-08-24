@@ -17,6 +17,7 @@ import 'core/router/app_router.dart';
 import 'core/router/gallery_navigation.dart';
 import 'core/router/route_path.dart';
 import 'data/provider/repository_provider.dart';
+import 'domain/provider/use_case_provider.dart';
 import 'feature/onboarding/provider/viewmodel_provider.dart';
 import 'feature/splash/splash_page.dart';
 
@@ -145,6 +146,9 @@ class _MyAppState extends ConsumerState<MyApp> {
     final router = ref.read(routerProvider);
     final groupName = data['groupName'] as String?;
 
+    // 라우팅 가능 여부와 무관하게 탭했으면 읽은 것으로 본다.
+    _markPushAsRead(data);
+
     // 모임을 모르면 어느 화면으로도 갈 수 없다. (알림 종류를 불문하고 함께 온다)
     final groupId = int.tryParse('${data['groupId']}');
     if (groupId == null) {
@@ -166,6 +170,31 @@ class _MyAppState extends ConsumerState<MyApp> {
     }
 
     goGroup(router, groupId: groupId, groupName: groupName);
+  }
+
+  /// 푸시로 온 알림을 읽음으로 표시한다.
+  ///
+  /// FCM data 는 값이 모두 문자열이라 파싱해서 쓴다. id 가 오지 않는
+  /// 알림은 건너뛴다 — 라우팅은 그대로 동작하고 읽음만 남지 않는다.
+  ///
+  /// 응답을 기다리지 않고, 실패해도 화면에 알리지 않는다. 탭은 화면 이동이
+  /// 우선이고, 실패하면 알림 목록에 안 읽음으로 남을 뿐이다.
+  void _markPushAsRead(Map<String, dynamic> data) {
+    final notificationId = int.tryParse('${data['notificationId']}');
+    if (notificationId == null) {
+      debugPrint('[FCM] 알림 id 없음 — 읽음 처리 생략');
+      return;
+    }
+
+    unawaited(_sendPushRead(notificationId));
+  }
+
+  Future<void> _sendPushRead(int notificationId) async {
+    try {
+      await ref.read(markNotificationAsReadUseCaseProvider)(notificationId);
+    } catch (e) {
+      debugPrint('[FCM] 읽음 처리 실패(id=$notificationId): $e');
+    }
   }
 
   /// 콜드 스타트 시 스플래시를 네트워크에 묶지 않기 위해, 로컬 토큰으로 낙관적

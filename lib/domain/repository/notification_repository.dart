@@ -6,4 +6,7 @@ abstract interface class NotificationRepository {
     required NotificationCategory category,
     required int size,
   });
+
+  /// [notificationId] 알림을 읽음으로 표시한다.
+  Future<void> markAsRead(int notificationId);
 }

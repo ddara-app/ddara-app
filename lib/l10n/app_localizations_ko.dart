@@ -252,12 +252,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get guideDescription => '따라찍기\n이렇게 해요';
 
   @override
-  String get meetingStatusInProgress => '진행 중';
-
-  @override
-  String get meetingStatusCompleted => '종료';
-
-  @override
   String meetingMemberOwner(String name) {
     return '$name님';
   }
@@ -300,9 +294,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get groupCreateIntroPlaceholder => '어떤 모임인지 알려주세요';
-
-  @override
-  String get groupCreateSubmit => '만들기';
 
   @override
   String get groupCreateNameLengthError => '20자 이하로 입력해주세요';
@@ -537,12 +528,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get memberBlockFailedToast => '차단하지 못했어요.';
 
   @override
-  String get recordCycleLabel => '따라찍기';
-
-  @override
-  String get recordPhotoLabel => '함께한 사진';
-
-  @override
   String get recordSectionTitle => '기록';
 
   @override
@@ -597,25 +582,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String startedHeaderCycle(int count) {
-    return '$count번째 따라찍기';
-  }
-
-  @override
-  String startedHeaderStarter(String name) {
-    return '$name님이 시작했어요';
-  }
-
-  @override
-  String get startedHeaderCheckUploads => '업로드 친구 확인하기';
-
-  @override
   String startedHeaderStarterChip(String nickname) {
     return '스타터 · $nickname';
   }
-
-  @override
-  String get remainingDeadline => '마감';
 
   @override
   String remainingHours(int hours) {
@@ -937,13 +906,46 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationTitle => '알림';
 
   @override
+  String get notificationTabAll => '전체';
+
+  @override
+  String get notificationTabUnread => '안 읽음';
+
+  @override
+  String get notificationCommentEmptyTitle => '아직 댓글 알림이 없어요';
+
+  @override
+  String get notificationCommentEmptyDescription => '사진에 댓글이 달리면 여기서 알려드려요';
+
+  @override
+  String get notificationUnreadEmptyTitle => '새로 확인할 알림이 없어요';
+
+  @override
+  String get notificationUnreadEmptyDescription => '모든 알림을 확인했어요';
+
+  @override
+  String get notificationFilterAll => '전체';
+
+  @override
+  String get notificationFilterNotice => '알림';
+
+  @override
+  String get notificationFilterComment => '댓글';
+
+  @override
   String get notificationEmptyTitle => '새로운 알림이 없어요';
 
   @override
   String get notificationEmptyDescription => '알림을 받으면 여기에 표시돼요';
 
   @override
-  String get notificationLoadFailed => '알림을 불러오지 못했어요.';
+  String get notificationLoadFailedTitle => '알림을 불러오지 못했어요';
+
+  @override
+  String get notificationLoadFailedDescription => '잠시 후 다시 시도해 주세요';
+
+  @override
+  String get notificationRetry => '다시 시도';
 
   @override
   String get notificationLabelDefault => '알림';

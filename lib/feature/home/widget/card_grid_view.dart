@@ -39,7 +39,7 @@ class CardGridView<T> extends StatelessWidget {
   ///
   /// 탭 헤더가 아니라 스크롤되는 이쪽이 갖고 있어, 스크롤하면 여백도 함께
   /// 올라가 카드가 인디케이터 바로 아래까지 붙는다.
-  static const _headerGap = AppSpacing.s4;
+  static const _headerGap = AppSpacing.s7;
 
   @override
   Widget build(BuildContext context) {

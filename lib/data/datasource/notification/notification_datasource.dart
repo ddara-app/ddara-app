@@ -20,4 +20,12 @@ class NotificationDataSource {
     );
     return NotificationListResponse.fromJson(response.data);
   }
+
+  /// [notificationId] 알림을 읽음으로 표시한다. (응답 body 없음)
+  ///
+  /// 이미 읽은 알림을 다시 보내도 성공으로 돌아온다.
+  /// 오류: 403 `NOTIFICATION_FORBIDDEN` · 404 `NOTIFICATION_NOT_FOUND`.
+  Future<void> markAsRead(int notificationId) async {
+    await _dio.patch('$_baseUrl/$notificationId/read');
+  }
 }

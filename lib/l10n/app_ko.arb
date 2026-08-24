@@ -217,8 +217,6 @@
   "@guideDescription": {
     "description": "따라찍기 모임 탭 대시보드 2페이지 설명 (2줄)"
   },
-  "meetingStatusInProgress": "진행 중",
-  "meetingStatusCompleted": "종료",
   "meetingMemberOwner": "{name}님",
   "@meetingMemberOwner": {
     "description": "멤버가 모임장 1명뿐일 때의 요약",
@@ -263,7 +261,6 @@
   "groupCreateNamePlaceholder": "예) 마라탕 걸즈",
   "groupCreateIntroLabel": "한 줄 소개 (선택)",
   "groupCreateIntroPlaceholder": "어떤 모임인지 알려주세요",
-  "groupCreateSubmit": "만들기",
   "groupCreateNameLengthError": "20자 이하로 입력해주세요",
   "groupCreateIntroLengthError": "100자 이하로 입력해주세요",
   "groupCreateErrorInvalidName": "모임 이름을 확인해주세요.",
@@ -384,8 +381,6 @@
       "nickname": { "type": "String" }
     }
   },
-  "recordCycleLabel": "따라찍기",
-  "recordPhotoLabel": "함께한 사진",
   "recordSectionTitle": "기록",
   "recordMyCycleLabel": "나의 따라찍기",
   "recordGroupCycleLabel": "모임 따라찍기",
@@ -438,34 +433,12 @@
       "time": { "type": "String" }
     }
   },
-  "startedHeaderCycle": "{count}번째 따라찍기",
-  "@startedHeaderCycle": {
-    "description": "현재 따라찍기 회차",
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
-  "startedHeaderStarter": "{name}님이 시작했어요",
-  "@startedHeaderStarter": {
-    "description": "따라찍기를 시작한 사람 안내",
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
-  "startedHeaderCheckUploads": "업로드 친구 확인하기",
-  "@startedHeaderCheckUploads": {
-    "description": "헤더 우상단에서 멤버들의 업로드 현황을 펼쳐 보는 토글 라벨"
-  },
   "startedHeaderStarterChip": "스타터 · {nickname}",
   "@startedHeaderStarterChip": {
     "description": "헤더 우상단 스타터 안내 칩 (스타터 · 닉네임)",
     "placeholders": {
       "nickname": { "type": "String" }
     }
-  },
-  "remainingDeadline": "마감",
-  "@remainingDeadline": {
-    "description": "마감 시간이 지난 경우 표시"
   },
   "remainingHours": "{hours}시간",
   "@remainingHours": {
@@ -711,12 +684,35 @@
   },
 
   "notificationTitle": "알림",
+  "notificationTabAll": "전체",
+  "@notificationTabAll": {
+    "description": "알림 화면 탭 — 전체 알림"
+  },
+  "notificationTabUnread": "안 읽음",
+  "@notificationTabUnread": {
+    "description": "알림 화면 탭 — 아직 읽지 않은 알림만"
+  },
+  "notificationCommentEmptyTitle": "아직 댓글 알림이 없어요",
+  "notificationCommentEmptyDescription": "사진에 댓글이 달리면 여기서 알려드려요",
+  "notificationUnreadEmptyTitle": "새로 확인할 알림이 없어요",
+  "notificationUnreadEmptyDescription": "모든 알림을 확인했어요",
+  "notificationFilterAll": "전체",
+  "@notificationFilterAll": {
+    "description": "알림 화면 칩 — 모든 종류"
+  },
+  "notificationFilterNotice": "알림",
+  "@notificationFilterNotice": {
+    "description": "알림 화면 칩 — 댓글을 제외한 일반 알림"
+  },
+  "notificationFilterComment": "댓글",
+  "@notificationFilterComment": {
+    "description": "알림 화면 칩 — 댓글 알림"
+  },
   "notificationEmptyTitle": "새로운 알림이 없어요",
   "notificationEmptyDescription": "알림을 받으면 여기에 표시돼요",
-  "notificationLoadFailed": "알림을 불러오지 못했어요.",
-  "@notificationLoadFailed": {
-    "description": "알림 목록 조회 실패 본문"
-  },
+  "notificationLoadFailedTitle": "알림을 불러오지 못했어요",
+  "notificationLoadFailedDescription": "잠시 후 다시 시도해 주세요",
+  "notificationRetry": "다시 시도",
   "notificationLabelDefault": "알림",
   "@notificationLabelDefault": {
     "description": "알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다."
