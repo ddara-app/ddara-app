@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -24,6 +24,13 @@ class PermissionPage extends ConsumerStatefulWidget {
 
 class _PermissionPageState extends ConsumerState<PermissionPage>
     with WidgetsBindingObserver, PermissionRequestRecovery {
+  @override
+  void initState() {
+    // 권한 요청 복구(PermissionRequestRecovery)의 옵저버 등록이 여기 담겨 있다.
+    super.initState();
+    AnalyticsEvents.permissionPageViewed();
+  }
+
   /// 확인 버튼: 카메라부터 순차로 권한을 요청한다.
   /// - 허용 → 홈
   /// - 이번 요청에서 프롬프트가 떴고 거부됨 → 필수 권한 안내 페이지
@@ -100,9 +107,9 @@ class _PermissionPageState extends ConsumerState<PermissionPage>
   /// 권한 요청 결과(허용/거부/영구거부)를 Mixpanel 로 전송한다.
   /// permission: camera·notification·photos, result: PermissionResult.name.
   void _trackPermissionResult(String permission, PermissionResult result) {
-    AppAnalytics.track(
-      'permission_result',
-      properties: {'permission': permission, 'result': result.name},
+    AnalyticsEvents.permissionResult(
+      permission: permission,
+      result: result.name,
     );
   }
 

@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -93,10 +93,7 @@ class GroupPageActions {
 
   /// 지난 따라찍기 전체 목록으로 이동한다. (복귀 시 상세 갱신)
   Future<void> pushHistoryList() {
-    AppAnalytics.track(
-      'group_history_more_clicked',
-      properties: {'group_id': groupId},
-    );
+    AnalyticsEvents.groupHistoryMoreClicked(groupId);
     return pushThenRefresh(RoutePath.historyList, extra: groupId);
   }
 
@@ -255,10 +252,7 @@ class GroupPageActions {
 
     final success = await _viewModel.changeNickName(nickName);
     if (success) {
-      AppAnalytics.track(
-        'group_nickname_changed',
-        properties: {'group_id': groupId},
-      );
+      AnalyticsEvents.groupNicknameChanged(groupId);
     }
   }
 
@@ -279,10 +273,7 @@ class GroupPageActions {
     final success = await _viewModel.exitGroup();
     if (!success || !context.mounted) return;
 
-    AppAnalytics.track(
-      'group_exit_succeeded',
-      properties: {'group_id': groupId},
-    );
+    AnalyticsEvents.groupExitSucceeded(groupId);
     goHome();
   }
 

@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -99,10 +99,7 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
   @override
   void initState() {
     super.initState();
-    AppAnalytics.track(
-      'random_starter_page_viewed',
-      properties: {'group_id': widget.args.groupId},
-    );
+    AnalyticsEvents.randomStarterPageViewed(widget.args.groupId);
     _markSeen();
     _configureReel();
   }

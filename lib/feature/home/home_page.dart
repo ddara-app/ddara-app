@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/logo/logo.dart';
@@ -34,12 +34,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     // 아직 어떤 화면인지 확정되지 않았으므로 보류.
     if (state is! HomeLoaded) return;
     _viewTracked = true;
-    AppAnalytics.track(
-      'home_viewed',
-      properties: {
-        'state': state.groups.isEmpty ? 'empty' : 'list',
-        'group_count': state.groups.length,
-      },
+    AnalyticsEvents.homeViewed(
+      isEmpty: state.groups.isEmpty,
+      groupCount: state.groups.length,
     );
   }
 

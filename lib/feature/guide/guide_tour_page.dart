@@ -1,3 +1,5 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
+import 'package:ddara/core/widget/screen_view_tracker.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/widget/camera/camera.dart';
 import 'package:ddara/core/widget/camera/mode/camera_mode_toggle.dart';
@@ -24,6 +26,13 @@ class GuideTourPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ScreenViewTracker(
+      onView: () => AnalyticsEvents.guideTourViewed(mode.name),
+      child: _content(context),
+    );
+  }
+
+  Widget _content(BuildContext context) {
     return CupertinoPageScaffold(
       // 안내를 끝까지 보지 않고도 나갈 수 있도록 뒤로가기를 남긴다.
       navigationBar: AppBar(onBack: () => context.pop()),

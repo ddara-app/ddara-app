@@ -1,3 +1,5 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
+import 'package:ddara/core/widget/screen_view_tracker.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -30,6 +32,13 @@ class PolicyViewerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ScreenViewTracker(
+      onView: () => AnalyticsEvents.policyViewerViewed(args.assetPath),
+      child: _content(context),
+    );
+  }
+
+  Widget _content(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: AppBar(title: args.title, onBack: () => context.pop()),
       child: SafeArea(

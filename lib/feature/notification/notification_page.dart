@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/domain/model/notification/notification_item.dart';
@@ -41,6 +42,12 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   ///
   /// 탭과 따로 놀고, 탭을 오가도 그대로 유지된다.
   NotificationFilter _filter = NotificationFilter.all;
+
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsEvents.notificationPageViewed();
+  }
 
   @override
   void dispose() {

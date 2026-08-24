@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -79,10 +79,7 @@ class GroupPage extends ConsumerWidget {
 
       // 진입해 상세가 처음 로드된 시점을 조회 이벤트로 남긴다.
       if (prev is! GroupPageLoaded) {
-        AppAnalytics.track(
-          'group_page_viewed',
-          properties: {'group_id': groupId},
-        );
+        AnalyticsEvents.groupPageViewed(groupId);
 
         actions.onDetailLoaded(next.groupDetail);
       }

@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/permission/permission_service.dart';
@@ -22,6 +23,13 @@ class RequiredPermissionPage extends ConsumerStatefulWidget {
 
 class _RequiredPermissionPageState extends ConsumerState<RequiredPermissionPage>
     with WidgetsBindingObserver, PermissionRequestRecovery {
+  @override
+  void initState() {
+    // 권한 요청 복구(PermissionRequestRecovery)의 옵저버 등록이 여기 담겨 있다.
+    super.initState();
+    AnalyticsEvents.requiredPermissionPageViewed();
+  }
+
   /// 확인 버튼: 카메라 권한을 다시 요청한다.
   /// - 허용 → 홈 이동
   /// - 비허용:

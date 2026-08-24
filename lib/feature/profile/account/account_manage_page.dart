@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
@@ -19,11 +19,22 @@ import 'package:go_router/go_router.dart';
 /// 연동 계정 정보와 로그아웃·회원 탈퇴 액션을 모아 보여준다.
 /// 파괴적 액션을 프로필 화면에서 한 단계 안쪽으로 분리해, 프로필을 가볍게
 /// 유지하면서 실수로 누를 가능성을 줄인다.
-class AccountManagePage extends ConsumerWidget {
+class AccountManagePage extends ConsumerStatefulWidget {
   const AccountManagePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AccountManagePage> createState() => _AccountManagePageState();
+}
+
+class _AccountManagePageState extends ConsumerState<AccountManagePage> {
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsEvents.accountManagePageViewed();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(profileViewModelProvider);
 
@@ -36,7 +47,7 @@ class AccountManagePage extends ConsumerWidget {
         context,
         success: status == LogoutStatus.success,
         fail: status == LogoutStatus.fail,
-        trackEvent: 'logout_succeeded',
+        trackSuccess: AnalyticsEvents.logoutSucceeded,
         failMessage: l10n.profileLogoutFailed,
       );
     });
@@ -50,7 +61,7 @@ class AccountManagePage extends ConsumerWidget {
         context,
         success: status == WithdrawStatus.success,
         fail: status == WithdrawStatus.fail,
-        trackEvent: 'account_withdraw_succeeded',
+        trackSuccess: AnalyticsEvents.accountWithdrawSucceeded,
         failMessage: l10n.profileWithdrawFailed,
       );
     });
@@ -112,12 +123,12 @@ class AccountManagePage extends ConsumerWidget {
     BuildContext context, {
     required bool success,
     required bool fail,
-    required String trackEvent,
+    required VoidCallback trackSuccess,
     required String failMessage,
   }) {
     if (!context.mounted) return;
     if (success) {
-      AppAnalytics.track(trackEvent);
+      trackSuccess();
       context.go(RoutePath.login);
     } else if (fail) {
       Toast.showToast(context, failMessage, type: ToastType.error);

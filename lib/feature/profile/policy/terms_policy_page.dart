@@ -1,3 +1,5 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
+import 'package:ddara/core/widget/screen_view_tracker.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -33,6 +35,13 @@ class TermsPolicyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ScreenViewTracker(
+      onView: AnalyticsEvents.termsPolicyPageViewed,
+      child: _content(context),
+    );
+  }
+
+  Widget _content(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return CupertinoPageScaffold(
       navigationBar: AppBar(

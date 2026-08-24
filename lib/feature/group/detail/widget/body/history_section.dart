@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -58,9 +58,9 @@ class HistorySection extends StatelessWidget {
               blockedUserIds: blockedUserIds,
               // 카드 탭 → 해당 사이클의 사진 갤러리로 이동. (복귀 시 상세 갱신)
               onCycleTap: (cycleId) {
-                AppAnalytics.track(
-                  'group_history_cycle_clicked',
-                  properties: {'group_id': groupId, 'cycle_id': cycleId},
+                AnalyticsEvents.groupHistoryCycleClicked(
+                  groupId: groupId,
+                  cycleId: cycleId,
                 );
                 actions.pushGallery(cycleId);
               },

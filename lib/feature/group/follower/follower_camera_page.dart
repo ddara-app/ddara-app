@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
@@ -50,10 +50,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
   @override
   void initState() {
     super.initState();
-    AppAnalytics.track(
-      'follower_page_viewed',
-      properties: {'cycle_id': widget.cycleId},
-    );
+    AnalyticsEvents.followerPageViewed(widget.cycleId);
     // 가이드 투어를 이미 봤는지는 이 화면에서만 필요해 여기서 확인한다.
     // (결과가 오기 전까지 카메라는 투어를 열지 않고 기다린다)
     ref.read(followerViewModelProvider.notifier).loadTourSeen();
@@ -77,10 +74,7 @@ class _FollowerCameraPageState extends ConsumerState<FollowerCameraPage> {
         .upload(widget.cycleId, path);
     if (cycleId == null || !mounted) return;
 
-    AppAnalytics.track(
-      'follower_photo_posted',
-      properties: {'cycle_id': cycleId},
-    );
+    AnalyticsEvents.followerPhotoPosted(cycleId);
     // 스택 아래의 갤러리를 새로고침한 뒤 촬영 화면을 닫아 그 갤러리로 돌아간다.
     // (pushReplacement 로 갤러리를 새로 쌓으면 중복·미갱신 문제가 생긴다)
     ref.invalidate(cyclePhotoGalleryViewModelProvider(cycleId));
