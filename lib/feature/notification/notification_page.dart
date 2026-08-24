@@ -33,7 +33,24 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   /// 한 번에 화면에 드러내는 알림 개수. (클라이언트 사이드 페이징 단위)
   static const _pageSize = 20;
 
+  /// 목록을 맨 위로 되돌리는 데 걸리는 시간의 하한·상한.
+  ///
+  /// 스크롤 거리에 비례해 정한다 — 가까우면 짧게 끝내고, 아무리 멀어도 상한을
+  /// 넘지 않아 되돌아오는 동안 화면이 붙잡히지 않는다.
+  static const _scrollToTopMinDuration = Duration(milliseconds: 200);
+  static const _scrollToTopMaxDuration = Duration(milliseconds: 600);
+
+  /// 떨어진 거리 1px 마다 더해지는 시간(ms).
+  static const double _scrollToTopMsPerPixel = 0.3;
+
   final PageController _pageController = PageController();
+
+  /// 탭별 스크롤 컨트롤러. 탭마다 스크롤 위치가 따로 유지되므로 하나씩 둔다.
+  /// (0 = 전체, 1 = 안 읽음 — 탭 인덱스와 같은 순서)
+  final List<ScrollController> _scrollControllers = [
+    ScrollController(),
+    ScrollController(),
+  ];
 
   /// 현재 선택된 탭 인덱스. (0 = 전체, 1 = 안 읽음)
   int _tabIndex = 0;
@@ -51,6 +68,9 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
 
   @override
   void dispose() {
+    for (final controller in _scrollControllers) {
+      controller.dispose();
+    }
     _pageController.dispose();
     super.dispose();
   }
@@ -86,6 +106,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                     currentIndex: _tabIndex,
                     // 라벨이 짧아 그대로 두면 밑줄이 밀착해 보인다. 홈과 같은 폭으로 맞춘다.
                     tabWidth: pageTabWidth,
+                    onReselected: _scrollToTop,
                   ),
                 ),
                 Expanded(
@@ -112,6 +133,40 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
           ],
         ),
       ),
+    );
+  }
+
+  /// 이미 보고 있는 탭을 다시 눌렀을 때 그 목록을 맨 위로 되돌린다.
+  ///
+  /// 칩 줄도 목록과 함께 스크롤되므로, 되돌리면 칩이 다시 보인다.
+  void _scrollToTop(int index) {
+    final controller = _scrollControllers[index];
+    // 아직 그려지지 않았거나(빈 화면) 이미 맨 위면 할 일이 없다.
+    if (!controller.hasClients || controller.offset <= 0) return;
+
+    controller.animateTo(
+      0,
+      duration: _scrollToTopDurationFor(controller.offset),
+      // 초반에 확 올라가고, 최상단에 가까워질수록 눈에 띄게 느려진다.
+      curve: Curves.easeOutQuint,
+    );
+  }
+
+  /// [distance] px 만큼 떨어져 있을 때 되돌리는 데 쓸 시간.
+  ///
+  /// 거리와 무관하게 고정하면 멀리서 되돌아올 때 순간이동처럼 보인다.
+  static Duration _scrollToTopDurationFor(double distance) {
+    final milliseconds =
+        _scrollToTopMinDuration.inMilliseconds +
+        distance * _scrollToTopMsPerPixel;
+
+    return Duration(
+      milliseconds: milliseconds
+          .clamp(
+            _scrollToTopMinDuration.inMilliseconds.toDouble(),
+            _scrollToTopMaxDuration.inMilliseconds.toDouble(),
+          )
+          .toInt(),
     );
   }
 
@@ -162,14 +217,16 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   /// 보여줄 목록이 없으면(로딩·에러·걸러낸 결과 없음) 칩 줄만 남긴다.
   /// (그때 보여줄 화면은 [_placeholder] 가 위에 올린다)
   Widget _page(NotificationState state, {required bool unreadOnly}) {
+    final controller = _scrollControllers[unreadOnly ? 1 : 0];
+
     if (state is! NotificationLoaded) {
-      return _scrollBody(const SizedBox.shrink());
+      return _scrollBody(controller, const SizedBox.shrink());
     }
 
     final items = _visibleItems(state.items, unreadOnly: unreadOnly);
-    if (items.isEmpty) return _scrollBody(const SizedBox.shrink());
+    if (items.isEmpty) return _scrollBody(controller, const SizedBox.shrink());
 
-    return _listView(items, state.blockedUserIds);
+    return _listView(items, state.blockedUserIds, controller);
   }
 
   /// 걸러낸 결과가 없을 때 보여줄 화면. 탭·칩 조합마다 문구가 다르다.
@@ -198,13 +255,18 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   }
 
   /// 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
-  Widget _listView(List<NotificationItem> items, Set<int> blockedUserIds) {
+  Widget _listView(
+    List<NotificationItem> items,
+    Set<int> blockedUserIds,
+    ScrollController controller,
+  ) {
     return LazyRevealList(
       items: items,
       pageSize: _pageSize,
       // 칩을 바꾸면 목록이 통째로 갈리므로 노출 개수를 첫 페이지로 되돌린다.
       resetKey: _filter,
       builder: (context, visibleItems) => _scrollBody(
+        controller,
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: AppSpacing.s4,
@@ -226,8 +288,9 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   /// 스크롤 정책은 공용 [ScrollablePageBody] 를 따르고 여백만 손본다.
   /// 상단 여백을 탭 헤더가 아니라 스크롤되는 이쪽이 갖고 있어, 스크롤하면
   /// 칩과 여백이 함께 올라간다. 다시 보려면 최상단까지 되돌려야 한다.
-  Widget _scrollBody(Widget list) {
+  Widget _scrollBody(ScrollController controller, Widget list) {
     return ScrollablePageBody(
+      controller: controller,
       padding: const EdgeInsets.only(
         top: AppSpacing.s4,
         left: AppSpacing.s5,

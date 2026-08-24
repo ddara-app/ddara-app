@@ -44,6 +44,7 @@ class PageTabHeader extends StatefulWidget {
     required this.labels,
     required this.currentIndex,
     this.tabWidth,
+    this.onReselected,
   });
 
   /// 본문 [PageView] 와 공유하는 컨트롤러. (진행도 소스)
@@ -59,6 +60,11 @@ class PageTabHeader extends StatefulWidget {
   ///
   /// 라벨이 짧아 밑줄이 밀착해 보이는 헤더는 [pageTabWidth] 를 넘긴다.
   final double? tabWidth;
+
+  /// 이미 보고 있는 탭을 다시 눌렀을 때. (목록을 맨 위로 되돌리는 용도)
+  ///
+  /// 넘기지 않으면 재선택은 아무 일도 하지 않는다.
+  final ValueChanged<int>? onReselected;
 
   @override
   State<PageTabHeader> createState() => _PageTabHeaderState();
@@ -118,7 +124,10 @@ class _PageTabHeaderState extends State<PageTabHeader> {
   }
 
   void _onTabTap(int index) {
-    if (index == widget.currentIndex) return;
+    if (index == widget.currentIndex) {
+      widget.onReselected?.call(index);
+      return;
+    }
     widget.controller.animateToPage(
       index,
       duration: _tabSwitchDuration,
