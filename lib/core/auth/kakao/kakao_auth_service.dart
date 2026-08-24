@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:ddara/core/analytics/crashlytics_manager.dart';
 import 'package:ddara/core/auth/social_auth_result.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
@@ -27,8 +30,18 @@ class KakaoAuthService {
     try {
       final token = await UserApi.instance.loginWithKakaoAccount();
       return SocialAuthSuccess(token.accessToken);
-    } catch (error) {
+    } catch (error, stack) {
       if (_isCancelled(error)) return const SocialAuthCancelled();
+
+      // 취소가 아닌 실패만 남긴다. 카카오계정 로그인은 마지막 수단이라
+      // 여기서 실패하면 사용자가 앱에 들어올 방법이 없다.
+      unawaited(
+        CrashlyticsManager.instance.recordError(
+          error,
+          stack,
+          reason: 'kakao account sign-in failed',
+        ),
+      );
       return SocialAuthFailure('$error');
     }
   }
