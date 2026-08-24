@@ -73,8 +73,10 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  // 칩 줄이 바로 아래 붙으므로 하단만 좁힌다.
-                  padding: pageTabHeaderPadding.copyWith(bottom: AppSpacing.s4),
+                  // 하단 여백은 두지 않는다. 인디케이터와 칩 사이 간격은
+                  // 스크롤되는 본문(_scrollBody) 상단이 갖고 있어, 스크롤하면
+                  // 여백째 올라가 목록이 탭 바로 아래까지 붙는다. (홈과 같은 방식)
+                  padding: pageTabHeaderPadding.copyWith(bottom: AppSpacing.s0),
                   child: PageTabHeader(
                     controller: _pageController,
                     labels: [
@@ -86,30 +88,14 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                     tabWidth: pageTabWidth,
                   ),
                 ),
-                // 탭과 달리 PageView 밖에 둔다. 탭을 오가도 그대로 남아야 하기 때문이다.
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.s5,
-                    AppSpacing.s0,
-                    AppSpacing.s5,
-                    AppSpacing.s4,
-                  ),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: NotificationFilterChips(
-                      selected: _filter,
-                      onChanged: (filter) => setState(() => _filter = filter),
-                    ),
-                  ),
-                ),
                 Expanded(
                   child: PageView(
                     controller: _pageController,
                     // 스와이프로 넘겨도 탭 라벨 강조가 따라오도록 인덱스를 동기화.
                     onPageChanged: (index) => setState(() => _tabIndex = index),
                     children: [
-                      _list(context, state, unreadOnly: false),
-                      _list(context, state, unreadOnly: true),
+                      _page(state, unreadOnly: false),
+                      _page(state, unreadOnly: true),
                     ],
                   ),
                 ),
@@ -165,19 +151,25 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
         .toList();
   }
 
-  /// 한 탭의 목록. 보여줄 것이 없으면 빈 자리만 둔다.
+  /// 한 탭의 본문. 필터 칩 줄과 목록이 한 몸으로 스크롤된다.
+  ///
+  /// 칩을 스크롤 밖에 두면 목록만 올라가고 칩은 남지만, 여기선 함께 올라간다.
+  /// 다시 보려면 목록을 최상단까지 되돌려야 한다.
+  ///
+  /// 탭마다 한 벌씩 그려도 선택 상태([_filter])는 화면이 들고 있어 두 탭이
+  /// 같은 값을 본다.
+  ///
+  /// 보여줄 목록이 없으면(로딩·에러·걸러낸 결과 없음) 칩 줄만 남긴다.
   /// (그때 보여줄 화면은 [_placeholder] 가 위에 올린다)
-  Widget _list(
-    BuildContext context,
-    NotificationState state, {
-    required bool unreadOnly,
-  }) {
-    if (state is! NotificationLoaded) return const SizedBox.shrink();
+  Widget _page(NotificationState state, {required bool unreadOnly}) {
+    if (state is! NotificationLoaded) {
+      return _scrollBody(const SizedBox.shrink());
+    }
 
     final items = _visibleItems(state.items, unreadOnly: unreadOnly);
-    if (items.isEmpty) return const SizedBox.shrink();
+    if (items.isEmpty) return _scrollBody(const SizedBox.shrink());
 
-    return _listView(context, items, state.blockedUserIds);
+    return _listView(items, state.blockedUserIds);
   }
 
   /// 걸러낸 결과가 없을 때 보여줄 화면. 탭·칩 조합마다 문구가 다르다.
@@ -206,24 +198,12 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   }
 
   /// 전량 받아둔 목록을 청크 단위로만 그린다. (docs/client_side_paging.md)
-  Widget _listView(
-    BuildContext context,
-    List<NotificationItem> items,
-    Set<int> blockedUserIds,
-  ) {
+  Widget _listView(List<NotificationItem> items, Set<int> blockedUserIds) {
     return LazyRevealList(
       items: items,
       pageSize: _pageSize,
-      // 스크롤 정책은 공용 ScrollablePageBody 를 따르고, 여백만 손본다.
-      builder: (context, visibleItems) => ScrollablePageBody(
-        // 칩 줄이 바로 위에 붙으므로 표준 패딩에서 상단만 뺀다.
-        padding: const EdgeInsets.only(
-          top: AppSpacing.s0,
-          left: AppSpacing.s5,
-          right: AppSpacing.s5,
-          bottom: AppSpacing.s7,
-        ),
-        child: Column(
+      builder: (context, visibleItems) => _scrollBody(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: AppSpacing.s4,
           children: [
@@ -235,6 +215,39 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 필터 칩 줄과 [list] 를 한 몸으로 스크롤시키는 본문.
+  ///
+  /// 스크롤 정책은 공용 [ScrollablePageBody] 를 따르고 여백만 손본다.
+  /// 상단 여백을 탭 헤더가 아니라 스크롤되는 이쪽이 갖고 있어, 스크롤하면
+  /// 칩과 여백이 함께 올라간다. 다시 보려면 최상단까지 되돌려야 한다.
+  Widget _scrollBody(Widget list) {
+    return ScrollablePageBody(
+      padding: const EdgeInsets.only(
+        top: AppSpacing.s4,
+        left: AppSpacing.s5,
+        right: AppSpacing.s5,
+        bottom: AppSpacing.s7,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            // 칩과 첫 알림 사이 간격.
+            padding: const EdgeInsets.only(bottom: AppSpacing.s4),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: NotificationFilterChips(
+                selected: _filter,
+                onChanged: (filter) => setState(() => _filter = filter),
+              ),
+            ),
+          ),
+          list,
+        ],
       ),
     );
   }
