@@ -31,6 +31,17 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
+  Future<bool> hasUnread() async {
+    try {
+      final response = await _notificationDataSource.getUnread();
+      return response.hasUnread;
+    } on DioException {
+      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
+      throw NetworkException();
+    }
+  }
+
+  @override
   Future<void> markAsRead(int notificationId) async {
     try {
       await _notificationDataSource.markAsRead(notificationId);

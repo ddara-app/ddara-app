@@ -1,4 +1,5 @@
 import 'package:ddara/core/network/dto/notification/notification_list_response.dart';
+import 'package:ddara/core/network/dto/notification/unread_notification_response.dart';
 import 'package:dio/dio.dart';
 
 class NotificationDataSource {
@@ -19,6 +20,14 @@ class NotificationDataSource {
       queryParameters: {'category': category, 'size': size},
     );
     return NotificationListResponse.fromJson(response.data);
+  }
+
+  /// 안 읽은 알림이 하나라도 있는지 조회한다.
+  ///
+  /// 목록을 받지 않고 여부만 확인하는 경량 API 다. (홈 종 아이콘 분기용)
+  Future<UnreadNotificationResponse> getUnread() async {
+    final response = await _dio.get('$_baseUrl/unread');
+    return UnreadNotificationResponse.fromJson(response.data);
   }
 
   /// [notificationId] 알림을 읽음으로 표시한다. (응답 body 없음)
