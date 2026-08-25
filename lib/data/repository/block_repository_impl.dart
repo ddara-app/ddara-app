@@ -1,4 +1,3 @@
-import 'package:ddara/core/exception/block_error_code.dart';
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/domain/model/block/blocked_users.dart';
@@ -18,23 +17,7 @@ class BlockRepositoryImpl implements BlockRepository {
     try {
       await _blockDataSource.blockUser(userId, groupId: groupId);
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? BlockErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case BlockErrorCode.invalidInput:
-          // 400 — userId 누락 또는 자기 자신 차단
-          throw InvalidBlockInputException();
-
-        case BlockErrorCode.userNotFound:
-          // 404 — 차단 대상 유저 없음
-          throw BlockTargetNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -56,5 +39,12 @@ class BlockRepositoryImpl implements BlockRepository {
       // 별도 에러 코드가 없는 API 라 네트워크 오류로 통일한다.
       throw NetworkException();
     }
+  }
+
+  /// 서버 오류 응답을 도메인 예외로 옮긴다.
+  /// (매칭되는 code 가 없으면 네트워크 오류로 본다)
+  Exception _toException(DioException e) {
+    final code = e.response?.data is Map ? e.response?.data['code'] : null;
+    return BlockException.fromCode(code) ?? NetworkException();
   }
 }

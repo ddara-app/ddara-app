@@ -4,7 +4,7 @@ import 'package:ddara/core/exception/cycle_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/domain/model/camera/camera_guide_key.dart';
-import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';

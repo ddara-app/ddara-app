@@ -1,18 +1,18 @@
 /// 다음 스타터 공개 확인 처리(`POST /api/groups/{groupId}/next-starter/seen`)
 /// 실패 시 서버가 내려주는 에러 코드.
+///
+/// enum 은 서버 코드 값만 갖는다. 사용자 노출 문구는 이 코드를 예외로 옮긴 뒤
+/// 화면이 l10n 으로 매핑한다.
 enum GroupNextStarterSeenErrorCode {
-  notGroupMember('NOT_GROUP_MEMBER', '해당 모임의 멤버가 아니에요.'),
-  groupNotFound('GROUP_NOT_FOUND', '존재하지 않는 모임이에요.'),
+  notGroupMember('NOT_GROUP_MEMBER'),
+  groupNotFound('GROUP_NOT_FOUND'),
 
   /// 네트워크 오류 등 매칭되는 서버 코드가 없을 때의 기본값.
-  unknown('UNKNOWN', '네트워크 연결이 불안정합니다.');
+  unknown('UNKNOWN');
 
-  const GroupNextStarterSeenErrorCode(this.value, this.message);
+  const GroupNextStarterSeenErrorCode(this.value);
 
   final String value;
-
-  /// 사용자에게 노출할 안내 메시지.
-  final String message;
 
   /// 서버 응답의 code 문자열을 enum 으로 역매핑. 매칭 실패 시 null.
   static GroupNextStarterSeenErrorCode? fromValue(String? value) {
