@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ddara/core/analytics/analytics_events.dart';
-import 'package:ddara/core/comment/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -66,18 +65,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
         ref
             .read(cyclePhotoGalleryViewModelProvider(cycleId).notifier)
             .clearActionError();
-      }
-      // 댓글 액션 실패는 종류(enum)로 오므로 l10n 으로 문구를 매핑한다.
-      final commentError = next.commentError;
-      if (commentError != null) {
-        Toast.showToast(
-          context,
-          commentError.message(AppLocalizations.of(context)),
-          type: ToastType.error,
-        );
-        ref
-            .read(cyclePhotoGalleryViewModelProvider(cycleId).notifier)
-            .clearCommentError();
       }
     });
 
@@ -216,30 +203,15 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     // 본인이 스타터인지 여부. (본인 사진은 신고·차단 대상이 아니다)
     final iAmStarter = cycle.starterUserId == state.myUserId;
 
-    // 스타터 사진에 읽지 않은 댓글이 있는지. (이 화면에서 이미 열어 봤으면 해제)
-    final commentUnread = state.isCommentUnread(
-      cycle.starterShotId,
-      hasUnreadComments: cycle.hasUnreadComments,
-    );
-
     // 스타터 대표 사진 크게 보기. (사진이 없으면 열지 않는다)
-    // 헤더에서 보이던 프레임 그대로 보여준다. 댓글은 스타터 shot id 로 등록·조회한다.
+    // 헤더에서 보이던 프레임 그대로 보여준다.
     VoidCallback? openViewer;
-    VoidCallback? openComments;
     final starterImageUrl = cycle.starterImageUrl;
     if (starterImageUrl != null && starterImageUrl.isNotEmpty) {
-      void show({bool withComments = false}) => actions.showShotViewer(
-        shotId: cycle.starterShotId,
+      openViewer = () => actions.showShotViewer(
         image: CachedNetworkImageProvider(starterImageUrl),
         aspectRatio: AppRatio.photo,
-        // 댓글 시트 헤더: 스타터 닉네임 + 따라찍기 주제.
-        title: cycle.starterNickname,
-        body: cycle.topic,
-        openCommentSheet: withComments,
-        commentUnread: commentUnread,
       );
-      openViewer = () => show();
-      openComments = () => show(withComments: true);
     }
 
     return StartedHeader(
@@ -274,9 +246,6 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
             ),
       // 스타터 대표 사진 탭 → 헤더에서 보이던 프레임 그대로 크게 보여준다.
       onImageTap: openViewer,
-      // 우상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
-      onComment: openComments,
-      commentUnread: commentUnread,
     );
   }
 }

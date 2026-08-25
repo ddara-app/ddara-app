@@ -1,4 +1,3 @@
-import 'package:ddara/domain/model/report/comment_report_reason.dart';
 import 'package:ddara/domain/model/report/group_report_reason.dart';
 import 'package:ddara/domain/model/report/report_reason.dart';
 import 'package:ddara/domain/model/report/user_report_reason.dart';
@@ -20,9 +19,6 @@ typedef UserReportResult = ReportSheetResult<UserReportReason>;
 
 /// 시트가 반환하는 모임 신고 내용.
 typedef GroupReportResult = ReportSheetResult<GroupReportReason>;
-
-/// 시트가 반환하는 댓글 신고 내용.
-typedef CommentReportResult = ReportSheetResult<CommentReportReason>;
 
 /// 사진 신고 사유를 선택하는 바텀시트.
 abstract final class PhotoReportSheet {
@@ -62,20 +58,6 @@ abstract final class GroupReportSheet {
       reasons: GroupReportReason.values,
       labelOf: (reason) => reason.label(l10n),
       etcReason: GroupReportReason.etc,
-    );
-  }
-}
-
-/// 댓글 신고 사유를 선택하는 바텀시트.
-abstract final class CommentReportSheet {
-  /// 바텀시트를 띄우고 확정한 신고 내용을 받는다. 취소·바깥 탭이면 null.
-  static Future<CommentReportResult?> show(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return ReportReasonSheet.show<CommentReportReason>(
-      context,
-      reasons: CommentReportReason.values,
-      labelOf: (reason) => reason.label(l10n),
-      etcReason: CommentReportReason.etc,
     );
   }
 }

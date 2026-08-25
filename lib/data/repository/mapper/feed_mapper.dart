@@ -28,24 +28,8 @@ extension FeedItemMapper on FeedItemResponse {
       cycleId: cycleId,
       topic: topic,
       locked: locked,
-      commentCount: commentCount,
-      latestComments: latestComments
-          .map((comment) => comment.toDomain())
-          .toList(),
       uploadedAt: uploadedAt,
     );
   }
 }
 
-extension FeedCommentMapper on FeedCommentResponse {
-  FeedComment toDomain() {
-    return FeedComment(
-      userId: userId,
-      nickname: nickname,
-      profileImageUrl: profileImageUrl,
-      content: content,
-      underReview: underReview,
-      reportedByMe: reportedByMe,
-    );
-  }
-}

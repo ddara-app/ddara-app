@@ -30,7 +30,6 @@ _ActivityNotificationRequest _$ActivityNotificationRequestFromJson(
   followShot: json['followShot'] as bool,
   friendShot: json['friendShot'] as bool,
   starterAssigned: json['starterAssigned'] as bool,
-  comment: json['comment'] as bool,
 );
 
 Map<String, dynamic> _$ActivityNotificationRequestToJson(
@@ -39,7 +38,6 @@ Map<String, dynamic> _$ActivityNotificationRequestToJson(
   'followShot': instance.followShot,
   'friendShot': instance.friendShot,
   'starterAssigned': instance.starterAssigned,
-  'comment': instance.comment,
 };
 
 _EtcNotificationRequest _$EtcNotificationRequestFromJson(

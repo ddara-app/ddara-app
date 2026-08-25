@@ -137,12 +137,6 @@ class _NotificationSettingsPageState
                       value: state.starterAssigned,
                       onChanged: viewModel.changeStarterAssigned,
                     ),
-                    _ToggleRow(
-                      label: l10n.notificationComment,
-                      caption: l10n.notificationCommentCaption,
-                      value: state.comment,
-                      onChanged: viewModel.changeComment,
-                    ),
                   ],
                 ),
                 _SettingCard(

@@ -24,7 +24,7 @@ extension NotificationDisplay on NotificationItem {
       case NotificationType.starterAssigned:
         return l10n.notificationStarterAssigned;
       case NotificationType.comment:
-        return l10n.notificationComment;
+        return l10n.notificationChat;
       case NotificationType.memberJoin:
         return l10n.notificationMemberJoin;
       case NotificationType.unknown:

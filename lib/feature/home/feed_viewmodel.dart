@@ -1,5 +1,3 @@
-import 'package:ddara/core/comment/comment_action_error.dart';
-import 'package:ddara/core/comment/comment_actions.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/home/util/feed_state.dart';
@@ -7,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FeedViewModel extends AutoDisposeNotifier<FeedState>
-    with CommentActions<FeedState>, AutoDisposeGuard<FeedState> {
+    with AutoDisposeGuard<FeedState> {
   @override
   FeedState build() {
     // 폐기 후 도착한 in-flight 응답이 state 를 만지지 않도록 감시를 건다.
@@ -25,7 +23,6 @@ class FeedViewModel extends AutoDisposeNotifier<FeedState>
   }
 
   /// 최근 업데이트 피드를 조회해 state 에 담는다.
-  /// (댓글 시트가 쓰는 내 프로필은 currentProfileProvider 가 공유 제공한다)
   ///
   /// 실패 시: 피드를 이미 보고 있으면(재조회) 토스트용 actionError 로,
   /// 아직 로드 전이면 본문 에러로 전환한다.
@@ -53,33 +50,5 @@ class FeedViewModel extends AutoDisposeNotifier<FeedState>
   /// 같은 에러가 이후 상태 변경 때 재노출되는 것을 막는다.
   void clearActionError() {
     _update((s) => s is FeedLoaded ? s.copyWith(clearActionError: true) : s);
-  }
-
-  @override
-  void onCommentError(CommentActionError error) {
-    // 댓글 액션은 피드가 떠 있어야만 가능하므로 Loaded 외 상태에선 무시한다.
-    _update(
-      (s) => s is FeedLoaded
-          ? s.copyWith(actionError: FeedCommentError(error))
-          : s,
-    );
-  }
-
-  /// 등록·삭제·신고 성공 시 댓글 수·미리보기가 반영되도록 피드를 다시 조회한다.
-  @override
-  Future<void> afterCommentMutation() => _refreshFeed();
-
-  /// 피드만 조용히 다시 조회한다. (댓글 수·미리보기 갱신용)
-  ///
-  /// 실패해도 이미 보이는 피드를 지우거나 에러를 띄우지 않는다. 유발한 동작
-  /// (댓글 등록·삭제·신고)은 이미 성공했고, 반영이 한 박자 늦을 뿐이다.
-  Future<void> _refreshFeed() async {
-    try {
-      final feed = await ref.read(getFeedUseCaseProvider)();
-      _update((s) => s is FeedLoaded ? s.copyWith(feed: feed) : s);
-    } catch (e) {
-      // 화면엔 반영하지 않는다. (다음 진입 때 갱신된다)
-      debugPrint('[Feed] 조용한 재조회 실패: $e');
-    }
   }
 }

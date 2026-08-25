@@ -1306,180 +1306,6 @@ abstract class AppLocalizations {
   /// **'촬영하러 가기'**
   String get photoTakeAction;
 
-  /// 사진 뷰어 댓글 입력 필드 플레이스홀더
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글을 남겨보세요...'**
-  String get photoViewerCommentHint;
-
-  /// 잠긴(블러+자물쇠) 사진에서 댓글 입력이 비활성화됐을 때의 안내 플레이스홀더
-  ///
-  /// In ko, this message translates to:
-  /// **'따라찍기를 이용한 후 댓글을 남길 수 있어요'**
-  String get photoViewerCommentLockedHint;
-
-  /// 사진 뷰어 댓글이 하나도 없을 때 안내 문구
-  ///
-  /// In ko, this message translates to:
-  /// **'아직 댓글이 없습니다.'**
-  String get photoViewerCommentEmpty;
-
-  /// 내 댓글 더보기 메뉴 - 수정
-  ///
-  /// In ko, this message translates to:
-  /// **'수정하기'**
-  String get commentMenuEdit;
-
-  /// 내 댓글 더보기 메뉴 - 삭제
-  ///
-  /// In ko, this message translates to:
-  /// **'삭제하기'**
-  String get commentMenuDelete;
-
-  /// 상대방 댓글 더보기 메뉴 - 신고
-  ///
-  /// In ko, this message translates to:
-  /// **'신고하기'**
-  String get commentMenuReport;
-
-  /// 댓글 수정 모드에서 입력창 위에 뜨는 라벨
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글 수정 중'**
-  String get commentEditingLabel;
-
-  /// 수정된 댓글의 시간 옆에 붙는 표시
-  ///
-  /// In ko, this message translates to:
-  /// **'수정됨'**
-  String get commentEdited;
-
-  /// 서버 응답을 기다리는 댓글의 더보기 자리 표시 (버튼 아님)
-  ///
-  /// In ko, this message translates to:
-  /// **'전송중'**
-  String get commentSending;
-
-  /// 전송에 실패한 댓글을 다시 보내는 버튼
-  ///
-  /// In ko, this message translates to:
-  /// **'재전송'**
-  String get commentRetry;
-
-  /// 전송 실패 댓글의 재전송 확인창 제목
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글을 다시 전송할까요?'**
-  String get commentRetryTitle;
-
-  /// 전송 실패 댓글을 목록에서 치우는 버튼 (서버 삭제가 아님)
-  ///
-  /// In ko, this message translates to:
-  /// **'삭제'**
-  String get commentDiscard;
-
-  /// 전송 실패 댓글 삭제 확인창 제목
-  ///
-  /// In ko, this message translates to:
-  /// **'이 댓글을 삭제할까요?'**
-  String get commentDiscardTitle;
-
-  /// 전송 실패 댓글 삭제 확인창 본문
-  ///
-  /// In ko, this message translates to:
-  /// **'전송하지 못한 댓글은 되돌릴 수 없어요.'**
-  String get commentDiscardMessage;
-
-  /// 전송에 실패한 댓글에서 작성 시각 자리에 대신 뜨는 표시
-  ///
-  /// In ko, this message translates to:
-  /// **'실패'**
-  String get commentSendFailed;
-
-  /// No description provided for @commentErrorPhotoDeleted.
-  ///
-  /// In ko, this message translates to:
-  /// **'이미 삭제된 사진이에요.'**
-  String get commentErrorPhotoDeleted;
-
-  /// No description provided for @commentErrorNotGroupMember.
-  ///
-  /// In ko, this message translates to:
-  /// **'해당 모임의 멤버가 아니에요.'**
-  String get commentErrorNotGroupMember;
-
-  /// No description provided for @commentErrorLoadFailed.
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글을 불러오지 못했어요.'**
-  String get commentErrorLoadFailed;
-
-  /// No description provided for @commentErrorInvalidInput.
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글 내용을 확인해 주세요.'**
-  String get commentErrorInvalidInput;
-
-  /// No description provided for @commentErrorPhotoLocked.
-  ///
-  /// In ko, this message translates to:
-  /// **'내 인증샷을 올려야 댓글을 달 수 있어요.'**
-  String get commentErrorPhotoLocked;
-
-  /// No description provided for @commentErrorPhotoUnderReview.
-  ///
-  /// In ko, this message translates to:
-  /// **'검토 중인 사진에는 댓글을 달 수 없어요.'**
-  String get commentErrorPhotoUnderReview;
-
-  /// No description provided for @commentErrorSubmitFailed.
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글을 등록하지 못했어요.'**
-  String get commentErrorSubmitFailed;
-
-  /// No description provided for @commentErrorDeleteForbidden.
-  ///
-  /// In ko, this message translates to:
-  /// **'내가 작성한 댓글만 삭제할 수 있어요.'**
-  String get commentErrorDeleteForbidden;
-
-  /// No description provided for @commentErrorAlreadyDeleted.
-  ///
-  /// In ko, this message translates to:
-  /// **'이미 삭제된 댓글이에요.'**
-  String get commentErrorAlreadyDeleted;
-
-  /// No description provided for @commentErrorDeleteFailed.
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글을 삭제하지 못했어요.'**
-  String get commentErrorDeleteFailed;
-
-  /// No description provided for @commentErrorEditForbidden.
-  ///
-  /// In ko, this message translates to:
-  /// **'내가 작성한 댓글만 수정할 수 있어요.'**
-  String get commentErrorEditForbidden;
-
-  /// No description provided for @commentErrorEditFailed.
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글을 수정하지 못했어요.'**
-  String get commentErrorEditFailed;
-
-  /// No description provided for @commentErrorInvalidReport.
-  ///
-  /// In ko, this message translates to:
-  /// **'신고 내용이 올바르지 않아요.'**
-  String get commentErrorInvalidReport;
-
-  /// No description provided for @commentErrorReportFailed.
-  ///
-  /// In ko, this message translates to:
-  /// **'신고하지 못했어요.'**
-  String get commentErrorReportFailed;
-
   /// No description provided for @groupErrorNotGroupMember.
   ///
   /// In ko, this message translates to:
@@ -1630,66 +1456,6 @@ abstract class AppLocalizations {
   /// **'사진을 올리지 못했어요.'**
   String get groupErrorFollowerUploadFailed;
 
-  /// 전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 제목
-  ///
-  /// In ko, this message translates to:
-  /// **'전송하지 못한 댓글이 있어요'**
-  String get commentPendingLeaveTitle;
-
-  /// 전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 본문
-  ///
-  /// In ko, this message translates to:
-  /// **'지금 나가면 작성한 댓글이 사라져요.'**
-  String get commentPendingLeaveMessage;
-
-  /// 전송 실패 댓글을 버리고 사진 뷰어를 닫는 확인 버튼
-  ///
-  /// In ko, this message translates to:
-  /// **'나가기'**
-  String get commentPendingLeaveConfirm;
-
-  /// 댓글 신고 사유 - 성적 발언
-  ///
-  /// In ko, this message translates to:
-  /// **'성적 발언'**
-  String get commentReportReasonSexual;
-
-  /// 댓글 신고 사유 - 폭력·혐오 표현
-  ///
-  /// In ko, this message translates to:
-  /// **'폭력·혐오 표현'**
-  String get commentReportReasonViolence;
-
-  /// 댓글 신고 사유 - 욕설·비방 표현
-  ///
-  /// In ko, this message translates to:
-  /// **'욕설·비방 표현'**
-  String get commentReportReasonAbuse;
-
-  /// 댓글 신고 사유 - 사칭·괴롭힘
-  ///
-  /// In ko, this message translates to:
-  /// **'사칭·괴롭힘'**
-  String get commentReportReasonHarassment;
-
-  /// 댓글 신고 사유 - 기타
-  ///
-  /// In ko, this message translates to:
-  /// **'기타'**
-  String get commentReportReasonEtc;
-
-  /// 댓글 삭제 확인 다이얼로그 제목
-  ///
-  /// In ko, this message translates to:
-  /// **'이 댓글을 삭제할까요?'**
-  String get commentDeleteTitle;
-
-  /// 댓글 삭제 확인 다이얼로그 본문
-  ///
-  /// In ko, this message translates to:
-  /// **'삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.'**
-  String get commentDeleteMessage;
-
   /// No description provided for @cameraPermissionTitle.
   ///
   /// In ko, this message translates to:
@@ -1792,17 +1558,17 @@ abstract class AppLocalizations {
   /// **'안 읽음'**
   String get notificationTabUnread;
 
-  /// No description provided for @notificationCommentEmptyTitle.
+  /// No description provided for @notificationChatEmptyTitle.
   ///
   /// In ko, this message translates to:
-  /// **'아직 댓글 알림이 없어요'**
-  String get notificationCommentEmptyTitle;
+  /// **'아직 채팅 알림이 없어요'**
+  String get notificationChatEmptyTitle;
 
-  /// No description provided for @notificationCommentEmptyDescription.
+  /// No description provided for @notificationChatEmptyDescription.
   ///
   /// In ko, this message translates to:
   /// **'사진에 댓글이 달리면 여기서 알려드려요'**
-  String get notificationCommentEmptyDescription;
+  String get notificationChatEmptyDescription;
 
   /// No description provided for @notificationUnreadEmptyTitle.
   ///
@@ -1822,17 +1588,17 @@ abstract class AppLocalizations {
   /// **'전체'**
   String get notificationFilterAll;
 
-  /// 알림 화면 칩 — 댓글을 제외한 일반 알림
+  /// 알림 화면 칩 — 채팅을 제외한 일반 알림
   ///
   /// In ko, this message translates to:
   /// **'알림'**
   String get notificationFilterNotice;
 
-  /// 알림 화면 칩 — 댓글 알림
+  /// 알림 화면 칩 — 사진에 달린 댓글(COMMENT) 알림
   ///
   /// In ko, this message translates to:
-  /// **'댓글'**
-  String get notificationFilterComment;
+  /// **'채팅'**
+  String get notificationFilterChat;
 
   /// No description provided for @notificationEmptyTitle.
   ///
@@ -1863,6 +1629,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'다시 시도'**
   String get notificationRetry;
+
+  /// 알림 목록 분류 라벨 — 사진에 달린 댓글(COMMENT) 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'채팅 알림'**
+  String get notificationChat;
 
   /// 알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다.
   ///
@@ -2044,18 +1816,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'랜덤 스타터 지정됐을 때'**
   String get notificationStarterAssignedCaption;
-
-  /// No description provided for @notificationComment.
-  ///
-  /// In ko, this message translates to:
-  /// **'댓글 알림'**
-  String get notificationComment;
-
-  /// No description provided for @notificationCommentCaption.
-  ///
-  /// In ko, this message translates to:
-  /// **'내 사진에 댓글이 달릴 때'**
-  String get notificationCommentCaption;
 
   /// No description provided for @notificationSectionEtc.
   ///

@@ -35,14 +35,6 @@ _FeedItemResponse _$FeedItemResponseFromJson(Map<String, dynamic> json) =>
       cycleId: (json['cycleId'] as num).toInt(),
       topic: json['topic'] as String,
       locked: json['locked'] as bool? ?? false,
-      commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
-      latestComments:
-          (json['latestComments'] as List<dynamic>?)
-              ?.map(
-                (e) => FeedCommentResponse.fromJson(e as Map<String, dynamic>),
-              )
-              .toList() ??
-          const <FeedCommentResponse>[],
       uploadedAt: DateTime.parse(json['uploadedAt'] as String),
     );
 
@@ -59,28 +51,5 @@ Map<String, dynamic> _$FeedItemResponseToJson(_FeedItemResponse instance) =>
       'cycleId': instance.cycleId,
       'topic': instance.topic,
       'locked': instance.locked,
-      'commentCount': instance.commentCount,
-      'latestComments': instance.latestComments,
       'uploadedAt': instance.uploadedAt.toIso8601String(),
     };
-
-_FeedCommentResponse _$FeedCommentResponseFromJson(Map<String, dynamic> json) =>
-    _FeedCommentResponse(
-      userId: (json['userId'] as num).toInt(),
-      nickname: json['nickname'] as String,
-      profileImageUrl: json['profileImageUrl'] as String?,
-      content: json['content'] as String?,
-      underReview: json['underReview'] as bool? ?? false,
-      reportedByMe: json['reportedByMe'] as bool? ?? false,
-    );
-
-Map<String, dynamic> _$FeedCommentResponseToJson(
-  _FeedCommentResponse instance,
-) => <String, dynamic>{
-  'userId': instance.userId,
-  'nickname': instance.nickname,
-  'profileImageUrl': instance.profileImageUrl,
-  'content': instance.content,
-  'underReview': instance.underReview,
-  'reportedByMe': instance.reportedByMe,
-};

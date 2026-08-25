@@ -34,29 +34,6 @@ abstract class FeedItem with _$FeedItem {
     required String topic,
     // 잠금 여부. 해당 회차에 내 인증샷을 올리지 않았으면 true.
     @Default(false) bool locked,
-    @Default(0) int commentCount,
-    // 최신 댓글 미리보기. 없으면 빈 목록.
-    @Default(<FeedComment>[]) List<FeedComment> latestComments,
     required DateTime uploadedAt,
   }) = _FeedItem;
-}
-
-/// 피드 항목에 딸린 최신 댓글 미리보기.
-///
-/// 댓글 시트의 [Comment] 와 달리 commentId·작성 시각 없이
-/// 미리보기에 필요한 최소 정보만 담는다.
-@freezed
-abstract class FeedComment with _$FeedComment {
-  const factory FeedComment({
-    required int userId,
-    required String nickname,
-    // 작성자 프로필 이미지 URL. 미등록이면 null. (기본 아바타 표시)
-    String? profileImageUrl,
-    // 댓글 내용. 신고 접수로 검토 중(underReview)이면 null.
-    required String? content,
-    // 신고 접수로 검토 중인 댓글인지 여부. (검토 중인 댓글은 미리보기에서 숨긴다)
-    @Default(false) bool underReview,
-    // 내가 신고한 댓글인지 여부. (내가 신고한 댓글은 미리보기에서 숨긴다)
-    @Default(false) bool reportedByMe,
-  }) = _FeedComment;
 }

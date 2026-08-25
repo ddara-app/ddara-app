@@ -509,80 +509,6 @@
   "@photoTakeAction": {
     "description": "촬영 화면으로 이동하는 알약 버튼"
   },
-  "photoViewerCommentHint": "댓글을 남겨보세요...",
-  "@photoViewerCommentHint": {
-    "description": "사진 뷰어 댓글 입력 필드 플레이스홀더"
-  },
-  "photoViewerCommentLockedHint": "따라찍기를 이용한 후 댓글을 남길 수 있어요",
-  "@photoViewerCommentLockedHint": {
-    "description": "잠긴(블러+자물쇠) 사진에서 댓글 입력이 비활성화됐을 때의 안내 플레이스홀더"
-  },
-  "photoViewerCommentEmpty": "아직 댓글이 없습니다.",
-  "@photoViewerCommentEmpty": {
-    "description": "사진 뷰어 댓글이 하나도 없을 때 안내 문구"
-  },
-  "commentMenuEdit": "수정하기",
-  "@commentMenuEdit": {
-    "description": "내 댓글 더보기 메뉴 - 수정"
-  },
-  "commentMenuDelete": "삭제하기",
-  "@commentMenuDelete": {
-    "description": "내 댓글 더보기 메뉴 - 삭제"
-  },
-  "commentMenuReport": "신고하기",
-  "@commentMenuReport": {
-    "description": "상대방 댓글 더보기 메뉴 - 신고"
-  },
-  "commentEditingLabel": "댓글 수정 중",
-  "@commentEditingLabel": {
-    "description": "댓글 수정 모드에서 입력창 위에 뜨는 라벨"
-  },
-  "commentEdited": "수정됨",
-  "@commentEdited": {
-    "description": "수정된 댓글의 시간 옆에 붙는 표시"
-  },
-  "commentSending": "전송중",
-  "@commentSending": {
-    "description": "서버 응답을 기다리는 댓글의 더보기 자리 표시 (버튼 아님)"
-  },
-  "commentRetry": "재전송",
-  "@commentRetry": {
-    "description": "전송에 실패한 댓글을 다시 보내는 버튼"
-  },
-  "commentRetryTitle": "댓글을 다시 전송할까요?",
-  "@commentRetryTitle": {
-    "description": "전송 실패 댓글의 재전송 확인창 제목"
-  },
-  "commentDiscard": "삭제",
-  "@commentDiscard": {
-    "description": "전송 실패 댓글을 목록에서 치우는 버튼 (서버 삭제가 아님)"
-  },
-  "commentDiscardTitle": "이 댓글을 삭제할까요?",
-  "@commentDiscardTitle": {
-    "description": "전송 실패 댓글 삭제 확인창 제목"
-  },
-  "commentDiscardMessage": "전송하지 못한 댓글은 되돌릴 수 없어요.",
-  "@commentDiscardMessage": {
-    "description": "전송 실패 댓글 삭제 확인창 본문"
-  },
-  "commentSendFailed": "실패",
-  "@commentSendFailed": {
-    "description": "전송에 실패한 댓글에서 작성 시각 자리에 대신 뜨는 표시"
-  },
-  "commentErrorPhotoDeleted": "이미 삭제된 사진이에요.",
-  "commentErrorNotGroupMember": "해당 모임의 멤버가 아니에요.",
-  "commentErrorLoadFailed": "댓글을 불러오지 못했어요.",
-  "commentErrorInvalidInput": "댓글 내용을 확인해 주세요.",
-  "commentErrorPhotoLocked": "내 인증샷을 올려야 댓글을 달 수 있어요.",
-  "commentErrorPhotoUnderReview": "검토 중인 사진에는 댓글을 달 수 없어요.",
-  "commentErrorSubmitFailed": "댓글을 등록하지 못했어요.",
-  "commentErrorDeleteForbidden": "내가 작성한 댓글만 삭제할 수 있어요.",
-  "commentErrorAlreadyDeleted": "이미 삭제된 댓글이에요.",
-  "commentErrorDeleteFailed": "댓글을 삭제하지 못했어요.",
-  "commentErrorEditForbidden": "내가 작성한 댓글만 수정할 수 있어요.",
-  "commentErrorEditFailed": "댓글을 수정하지 못했어요.",
-  "commentErrorInvalidReport": "신고 내용이 올바르지 않아요.",
-  "commentErrorReportFailed": "신고하지 못했어요.",
   "groupErrorNotGroupMember": "해당 모임의 멤버가 아니에요.",
   "groupErrorGroupNotFound": "존재하지 않는 모임이에요.",
   "groupErrorCycleNotFound": "존재하지 않는 회차예요.",
@@ -608,46 +534,6 @@
   "groupErrorCycleAlreadyInProgress": "이미 진행 중인 회차가 있어요.",
   "groupErrorStarterUploadFailed": "따라찍기를 시작하지 못했어요.",
   "groupErrorFollowerUploadFailed": "사진을 올리지 못했어요.",
-  "commentPendingLeaveTitle": "전송하지 못한 댓글이 있어요",
-  "@commentPendingLeaveTitle": {
-    "description": "전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 제목"
-  },
-  "commentPendingLeaveMessage": "지금 나가면 작성한 댓글이 사라져요.",
-  "@commentPendingLeaveMessage": {
-    "description": "전송 실패 댓글이 남은 채 사진 뷰어를 닫으려 할 때 확인창 본문"
-  },
-  "commentPendingLeaveConfirm": "나가기",
-  "@commentPendingLeaveConfirm": {
-    "description": "전송 실패 댓글을 버리고 사진 뷰어를 닫는 확인 버튼"
-  },
-  "commentReportReasonSexual": "성적 발언",
-  "@commentReportReasonSexual": {
-    "description": "댓글 신고 사유 - 성적 발언"
-  },
-  "commentReportReasonViolence": "폭력·혐오 표현",
-  "@commentReportReasonViolence": {
-    "description": "댓글 신고 사유 - 폭력·혐오 표현"
-  },
-  "commentReportReasonAbuse": "욕설·비방 표현",
-  "@commentReportReasonAbuse": {
-    "description": "댓글 신고 사유 - 욕설·비방 표현"
-  },
-  "commentReportReasonHarassment": "사칭·괴롭힘",
-  "@commentReportReasonHarassment": {
-    "description": "댓글 신고 사유 - 사칭·괴롭힘"
-  },
-  "commentReportReasonEtc": "기타",
-  "@commentReportReasonEtc": {
-    "description": "댓글 신고 사유 - 기타"
-  },
-  "commentDeleteTitle": "이 댓글을 삭제할까요?",
-  "@commentDeleteTitle": {
-    "description": "댓글 삭제 확인 다이얼로그 제목"
-  },
-  "commentDeleteMessage": "삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.",
-  "@commentDeleteMessage": {
-    "description": "댓글 삭제 확인 다이얼로그 본문"
-  },
   "cameraPermissionTitle": "카메라 권한이 필요해요",
   "cameraPermissionDescription": "촬영하려면 설정에서 카메라 권한을 허용해주세요.",
   "cameraModeCornerMini": "코너 미니뷰",
@@ -692,8 +578,8 @@
   "@notificationTabUnread": {
     "description": "알림 화면 탭 — 아직 읽지 않은 알림만"
   },
-  "notificationCommentEmptyTitle": "아직 댓글 알림이 없어요",
-  "notificationCommentEmptyDescription": "사진에 댓글이 달리면 여기서 알려드려요",
+  "notificationChatEmptyTitle": "아직 채팅 알림이 없어요",
+  "notificationChatEmptyDescription": "사진에 댓글이 달리면 여기서 알려드려요",
   "notificationUnreadEmptyTitle": "새로 확인할 알림이 없어요",
   "notificationUnreadEmptyDescription": "모든 알림을 확인했어요",
   "notificationFilterAll": "전체",
@@ -702,17 +588,21 @@
   },
   "notificationFilterNotice": "알림",
   "@notificationFilterNotice": {
-    "description": "알림 화면 칩 — 댓글을 제외한 일반 알림"
+    "description": "알림 화면 칩 — 채팅을 제외한 일반 알림"
   },
-  "notificationFilterComment": "댓글",
-  "@notificationFilterComment": {
-    "description": "알림 화면 칩 — 댓글 알림"
+  "notificationFilterChat": "채팅",
+  "@notificationFilterChat": {
+    "description": "알림 화면 칩 — 사진에 달린 댓글(COMMENT) 알림"
   },
   "notificationEmptyTitle": "새로운 알림이 없어요",
   "notificationEmptyDescription": "알림을 받으면 여기에 표시돼요",
   "notificationLoadFailedTitle": "알림을 불러오지 못했어요",
   "notificationLoadFailedDescription": "잠시 후 다시 시도해 주세요",
   "notificationRetry": "다시 시도",
+  "notificationChat": "채팅 알림",
+  "@notificationChat": {
+    "description": "알림 목록 분류 라벨 — 사진에 달린 댓글(COMMENT) 알림"
+  },
   "notificationLabelDefault": "알림",
   "@notificationLabelDefault": {
     "description": "알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다."
@@ -831,8 +721,6 @@
   "notificationFriendShotCaption": "같은 모임의 친구가 따라찍기를 올렸을 때",
   "notificationStarterAssigned": "랜덤 스타터 알림",
   "notificationStarterAssignedCaption": "랜덤 스타터 지정됐을 때",
-  "notificationComment": "댓글 알림",
-  "notificationCommentCaption": "내 사진에 댓글이 달릴 때",
   "notificationSectionEtc": "기타",
   "notificationMemberJoin": "친구 참여 알림",
   "notificationMemberJoinCaption": "내가 보낸 초대를 친구가 받았을 때",

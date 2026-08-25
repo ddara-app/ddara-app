@@ -28,7 +28,6 @@ abstract class ActivityNotificationRequest with _$ActivityNotificationRequest {
     // 랜덤 스타터 알림. (STARTER_ASSIGNED)
     required bool starterAssigned,
     // 댓글 알림.
-    required bool comment,
   }) = _ActivityNotificationRequest;
 
   factory ActivityNotificationRequest.fromJson(Map<String, dynamic> json) =>

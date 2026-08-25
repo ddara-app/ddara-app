@@ -194,7 +194,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   /// 걸러낸 결과가 없을 때 보여줄 화면. 탭·칩 조합마다 문구가 다르다.
   ///
   /// - 안 읽음 탭: 남은 것이 없다는 뜻
-  /// - 댓글 칩: 아직 댓글이 없다는 뜻
+  /// - 채팅 칩: 아직 댓글 알림이 없다는 뜻
   /// - 그 외: 받은 알림 자체가 없는 상태
   Widget _empty(BuildContext context, {required bool unreadOnly}) {
     final l10n = AppLocalizations.of(context);
@@ -204,10 +204,10 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
         description: l10n.notificationUnreadEmptyDescription,
       );
     }
-    if (_filter == NotificationFilter.comment) {
+    if (_filter == NotificationFilter.chat) {
       return NotificationEmpty(
-        title: l10n.notificationCommentEmptyTitle,
-        description: l10n.notificationCommentEmptyDescription,
+        title: l10n.notificationChatEmptyTitle,
+        description: l10n.notificationChatEmptyDescription,
       );
     }
     return NotificationEmpty(
@@ -284,8 +284,6 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   /// cycleId 가 있으면(NEW_CYCLE·CYCLE_COMPLETED·DEADLINE·FRIEND_SHOT·COMMENT)
   /// 해당 사이클 갤러리로, 없고 groupId 만 있으면(MEMBER_JOIN·STARTER_ASSIGNED)
   /// 해당 모임 화면으로 이동한다.
-  /// (COMMENT 의 shotId 로 사진 뷰어까지 바로 여는 건 갤러리 라우트가 사이클
-  ///  단위라 지원하지 않는다 — 갤러리에서 사진을 골라 들어간다)
   VoidCallback? _onTap(BuildContext context, NotificationItem item) {
     final payload = item.payload;
     // 모임을 모르면 어느 화면으로도 갈 수 없다. (알림 종류를 불문하고 함께 온다)

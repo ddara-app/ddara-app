@@ -16,9 +16,6 @@ class NotificationSettingsState {
   /// '랜덤 스타터 알림'.
   final bool starterAssigned;
 
-  /// '댓글 알림'.
-  final bool comment;
-
   /// '친구 참여 알림'.
   final bool memberJoin;
 
@@ -38,7 +35,6 @@ class NotificationSettingsState {
     this.followShot = true,
     this.friendShot = true,
     this.starterAssigned = true,
-    this.comment = true,
     this.memberJoin = true,
     this.permissionGranted = false,
     this.isLoading = false,
@@ -49,7 +45,6 @@ class NotificationSettingsState {
     bool? followShot,
     bool? friendShot,
     bool? starterAssigned,
-    bool? comment,
     bool? memberJoin,
     bool? permissionGranted,
     bool? isLoading,
@@ -59,7 +54,6 @@ class NotificationSettingsState {
       followShot: followShot ?? this.followShot,
       friendShot: friendShot ?? this.friendShot,
       starterAssigned: starterAssigned ?? this.starterAssigned,
-      comment: comment ?? this.comment,
       memberJoin: memberJoin ?? this.memberJoin,
       permissionGranted: permissionGranted ?? this.permissionGranted,
       isLoading: isLoading ?? this.isLoading,

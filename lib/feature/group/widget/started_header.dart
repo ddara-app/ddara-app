@@ -61,8 +61,6 @@ class StartedHeader extends StatefulWidget {
     super.key,
     required this.info,
     this.onImageTap,
-    this.onComment,
-    this.commentUnread = false,
     this.onReport,
     this.onBlock,
     this.starterBlocked = false,
@@ -78,14 +76,6 @@ class StartedHeader extends StatefulWidget {
 
   /// 대표 이미지를 탭했을 때의 콜백. (크게 보기 등) null 이면 탭에 반응하지 않는다.
   final VoidCallback? onImageTap;
-
-  /// 우상단 댓글 버튼을 눌렀을 때의 콜백. (크게 보기를 댓글이 열린 채로 여는 데
-  /// 쓴다) null 이면 버튼을 표시하지 않는다. (펼친 상태·사진이 보일 때만 노출)
-  final VoidCallback? onComment;
-
-  /// 스타터 사진에 아직 읽지 않은 댓글이 있는지 여부.
-  /// true 면 댓글 버튼을 강조 아이콘으로 바꾼다.
-  final bool commentUnread;
 
   /// 대표 이미지를 롱프레스해 '신고하기'를 선택했을 때.
   /// null 이면 메뉴에 신고 항목이 뜨지 않는다. (펼친 상태에서만 동작)
@@ -124,12 +114,6 @@ class _StartedHeaderState extends State<StartedHeader> {
   /// 저장하기는 본인 사진에도 쓸 수 있어 콜백 없이 항상 들어간다. 신고·차단은
   /// 각 콜백이 있을 때만 붙으므로, 본인이 스타터면 저장 항목만 남는다.
   bool get _canOpenMenu => !_obscured && _imageUrl.isNotEmpty;
-
-  /// 우상단 댓글 버튼을 그리는 상태인지.
-  /// (가려진 사진은 크게 보기가 막히므로 버튼도 숨긴다)
-  ///
-  /// 버튼이 우상단을 차지하면 스타터 안내 pill 은 좌상단으로 비켜난다.
-  bool get _showCommentButton => widget.onComment != null && !_obscured;
 
   void _toggle() => setState(() => _expanded = !_expanded);
 
@@ -227,17 +211,13 @@ class _StartedHeaderState extends State<StartedHeader> {
               ),
             ),
             // 스타터 안내 pill. (스타터 · 닉네임)
-            // 기본은 우상단이고, 댓글 버튼이 그 자리를 쓰면 좌상단으로 비켜난다.
             Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 top: AppSpacing.s5,
-                left: _showCommentButton ? AppSpacing.s5 : 0,
-                right: _showCommentButton ? 0 : AppSpacing.s5,
+                right: AppSpacing.s5,
               ),
               child: Align(
-                alignment: _showCommentButton
-                    ? Alignment.topLeft
-                    : Alignment.topRight,
+                alignment: Alignment.topRight,
                 child: _pill(
                   child: AppText.caption(
                     l10n.startedHeaderStarterChip(widget.info.starterNickname),
@@ -246,35 +226,6 @@ class _StartedHeaderState extends State<StartedHeader> {
                 ),
               ),
             ),
-            // 우상단: 댓글 버튼.
-            if (_showCommentButton)
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: AppSpacing.s5,
-                  right: AppSpacing.s5,
-                ),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: GestureDetector(
-                    onTap: widget.onComment,
-                    child: Container(
-                      // 아이콘 24 + 패딩 s4(12)×2 = 지름 48 원.
-                      padding: const EdgeInsets.all(AppSpacing.s4),
-                      decoration: const BoxDecoration(
-                        color: AppColors.overlayScrim,
-                        shape: BoxShape.circle,
-                      ),
-                      // 읽지 않은 댓글이 있으면 점이 찍힌 말풍선으로 바꾼다.
-                      child: AppIcon(
-                        widget.commentUnread
-                            ? AppIcons.commentActive
-                            : AppIcons.comment,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),

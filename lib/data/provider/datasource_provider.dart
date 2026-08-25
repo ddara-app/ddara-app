@@ -1,6 +1,5 @@
 import 'package:ddara/core/local/provider/local_provider.dart';
 import 'package:ddara/data/datasource/block/block_datasource.dart';
-import 'package:ddara/data/datasource/comment/comment_datasource.dart';
 import 'package:ddara/data/datasource/cycle/cycle_datasource.dart';
 import 'package:ddara/data/datasource/fcm/fcm_datasource.dart';
 import 'package:ddara/data/datasource/feed/feed_datasource.dart';
@@ -51,10 +50,6 @@ final blockDataSourceProvider = Provider<BlockDataSource>((ref) {
 
 final reportDataSourceProvider = Provider<ReportDataSource>((ref) {
   return ReportDataSource(ref.read(dioProvider));
-});
-
-final commentDataSourceProvider = Provider<CommentDataSource>((ref) {
-  return CommentDataSource(ref.read(dioProvider));
 });
 
 final feedDataSourceProvider = Provider<FeedDataSource>((ref) {

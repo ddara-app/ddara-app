@@ -15,7 +15,7 @@ enum NotificationType {
   // 같은 모임의 친구가 따라찍기를 올림.
   friendShot('FRIEND_SHOT'),
 
-  // 내 사진에 댓글이 달림.
+  // 내 사진에 댓글이 달림. (목록에서는 '채팅' 으로 묶어 보여준다)
   comment('COMMENT'),
 
   // 그룹에 새 멤버가 참여함.

@@ -24,8 +24,6 @@ class MemberPhotoCard extends StatelessWidget {
     required this.name,
     this.onTakePhoto,
     this.onTap,
-    this.onComment,
-    this.commentUnread = false,
     this.heroTag,
     this.isLocked = false,
     this.isBlocked = false,
@@ -45,13 +43,6 @@ class MemberPhotoCard extends StatelessWidget {
   /// 카드(사진)를 탭했을 때의 콜백. 크게 보기 등에 사용한다.
   /// 보통 사진이 있고 잠기지 않은 카드에만 연결한다. null 이면 탭에 반응하지 않는다.
   final VoidCallback? onTap;
-
-  /// 우측 상단 댓글 버튼을 눌렀을 때의 콜백. 크게 보기를 댓글이 열린 채로
-  /// 여는 데 쓴다. null 이면 버튼을 표시하지 않는다. (사진이 없는 카드 등)
-  final VoidCallback? onComment;
-
-  /// 아직 읽지 않은 댓글이 있는지 여부. true 면 댓글 버튼을 강조 아이콘으로 바꾼다.
-  final bool commentUnread;
 
   /// 크게 보기 전환에 쓸 Hero 태그. null 이면 Hero 전환을 하지 않는다.
   final Object? heroTag;
@@ -132,36 +123,6 @@ class MemberPhotoCard extends StatelessWidget {
                         size: 32,
                         color: AppColors.textSecondary,
                       ),
-              ),
-            // 우측 상단 댓글 버튼. (차단·검토 자리표시 카드에는 띄우지 않는다)
-            if (!obscured && onComment != null)
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: AppSpacing.s4,
-                    right: AppSpacing.s4,
-                  ),
-                  child: GestureDetector(
-                    onTap: onComment,
-                    child: Container(
-                      // 아이콘 16 + 패딩 s3(8)×2 = 지름 32 원.
-                      // (뷰어 우하단 말풍선의 축소판 — 지름 48)
-                      padding: const EdgeInsets.all(AppSpacing.s3),
-                      decoration: const BoxDecoration(
-                        color: AppColors.overlayScrim,
-                        shape: BoxShape.circle,
-                      ),
-                      // 읽지 않은 댓글이 있으면 점이 찍힌 말풍선으로 바꾼다.
-                      child: AppIcon(
-                        commentUnread
-                            ? AppIcons.commentActive
-                            : AppIcons.comment,
-                        size: 16,
-                      ),
-                    ),
-                  ),
-                ),
               ),
             // 하단 이름 라벨. (차단·검토 중 카드는 닉네임도 노출하지 않는다)
             if (!obscured)

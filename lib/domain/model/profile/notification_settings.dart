@@ -13,8 +13,6 @@ abstract class NotificationSettings with _$NotificationSettings {
     required bool friendShot,
     // 랜덤 스타터 알림. (STARTER_ASSIGNED)
     required bool starterAssigned,
-    // 댓글 알림.
-    required bool comment,
     // 멤버 참여 알림. (MEMBER_JOIN)
     required bool memberJoin,
   }) = _NotificationSettings;

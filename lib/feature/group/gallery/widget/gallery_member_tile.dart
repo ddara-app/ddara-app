@@ -58,35 +58,20 @@ class GalleryMemberTile extends StatelessWidget {
     final canView = canOpen && !locked;
     // 잠긴 사진은 카드가 블러라 Hero 전환을 하지 않는다.
     final heroTag = canView ? 'gallery-photo-${member.userId}' : null;
-    // 댓글 등록 대상 shot id. (미업로드면 null → 댓글 불가)
+    // 사진 신고 대상 shot id. (미업로드면 null → 신고 불가)
     final shotId = member.shotId;
-    // 읽지 않은 댓글이 있는지. (이 화면에서 이미 열어 봤으면 해제)
-    final commentUnread = state.isCommentUnread(
-      shotId,
-      hasUnreadComments: member.hasUnreadComments,
-    );
 
-    // 사진이 있으면 잠겨 있어도 탭해 뷰어·댓글을 열 수 있다.
+    // 사진이 있으면 잠겨 있어도 탭해 뷰어를 열 수 있다.
     // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
-    // (사진이 있으면 shot id 도 함께 오지만, 없으면 열지 않는다)
     VoidCallback? openViewer;
-    VoidCallback? openComments;
-    if (canOpen && shotId != null) {
-      void show({bool withComments = false}) => actions.showShotViewer(
-        shotId: shotId,
+    if (canOpen) {
+      openViewer = () => actions.showShotViewer(
         image: image,
         heroTag: heroTag,
         // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.
         aspectRatio: AppRatio.photo,
-        // 댓글 시트 헤더: 멤버 닉네임 + 따라찍기 주제.
-        title: member.nickname,
-        body: cycle.topic,
         locked: locked,
-        openCommentSheet: withComments,
-        commentUnread: commentUnread,
       );
-      openViewer = () => show();
-      openComments = () => show(withComments: true);
     }
 
     final card = MemberPhotoCard(
@@ -97,9 +82,6 @@ class GalleryMemberTile extends StatelessWidget {
       isBlocked: isBlockedMember,
       isUnderReview: isReported,
       onTap: openViewer,
-      // 우측 상단 댓글 버튼 → 댓글 시트가 열린 채로 크게 보기.
-      onComment: openComments,
-      commentUnread: commentUnread,
       // 본인 카드만 촬영 콜백을 연결한다. (타인은 null)
       // 마감(done) 회차는 촬영할 수 없으므로 본인 카드도 버튼을 숨긴다.
       // 스타터 차단·신고 검토 중이면 가이드 사진을 볼 수 없으므로 역시 숨긴다.

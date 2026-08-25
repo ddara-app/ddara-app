@@ -29,8 +29,6 @@ abstract class ActivityNotificationResponse
     required bool friendShot,
     // 랜덤 스타터 알림. (STARTER_ASSIGNED)
     required bool starterAssigned,
-    // 댓글 알림. (COMMENT)
-    required bool comment,
   }) = _ActivityNotificationResponse;
 
   factory ActivityNotificationResponse.fromJson(Map<String, dynamic> json) =>

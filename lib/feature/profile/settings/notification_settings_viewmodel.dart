@@ -49,7 +49,6 @@ class NotificationSettingsViewModel
           followShot: settings.followShot,
           friendShot: settings.friendShot,
           starterAssigned: settings.starterAssigned,
-          comment: settings.comment,
           memberJoin: settings.memberJoin,
           permissionGranted: permissionGranted,
         ),
@@ -134,12 +133,6 @@ class NotificationSettingsViewModel
     await _persist();
   }
 
-  /// '댓글 알림' 변경.
-  Future<void> changeComment(bool value) async {
-    _update((s) => s.copyWith(comment: value));
-    await _persist();
-  }
-
   /// '친구 참여 알림' 변경.
   Future<void> changeMemberJoin(bool value) async {
     _update((s) => s.copyWith(memberJoin: value));
@@ -159,7 +152,6 @@ class NotificationSettingsViewModel
       followShot: state.followShot,
       friendShot: state.friendShot,
       starterAssigned: state.starterAssigned,
-      comment: state.comment,
       memberJoin: state.memberJoin,
     );
 
@@ -175,7 +167,6 @@ class NotificationSettingsViewModel
           followShot: saved.followShot,
           friendShot: saved.friendShot,
           starterAssigned: saved.starterAssigned,
-          comment: saved.comment,
           memberJoin: saved.memberJoin,
         ),
       );

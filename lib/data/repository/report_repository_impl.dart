@@ -2,7 +2,6 @@ import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/exception/report_error_code.dart';
 import 'package:ddara/core/exception/report_exception.dart';
-import 'package:ddara/domain/model/report/comment_report_reason.dart';
 import 'package:ddara/domain/model/report/group_report_reason.dart';
 import 'package:ddara/domain/model/report/report_reason.dart';
 import 'package:ddara/domain/model/report/user_report_reason.dart';
@@ -24,23 +23,6 @@ class ReportRepositoryImpl implements ReportRepository {
     try {
       await _reportDataSource.reportShot(
         shotId: shotId,
-        reasonCode: reason.code,
-        reasonText: reasonText,
-      );
-    } on DioException catch (e) {
-      throw _toException(e);
-    }
-  }
-
-  @override
-  Future<void> reportComment({
-    required int commentId,
-    required CommentReportReason reason,
-    String? reasonText,
-  }) async {
-    try {
-      await _reportDataSource.reportComment(
-        commentId: commentId,
         reasonCode: reason.code,
         reasonText: reasonText,
       );

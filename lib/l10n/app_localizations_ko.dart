@@ -667,93 +667,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoTakeAction => '촬영하러 가기';
 
   @override
-  String get photoViewerCommentHint => '댓글을 남겨보세요...';
-
-  @override
-  String get photoViewerCommentLockedHint => '따라찍기를 이용한 후 댓글을 남길 수 있어요';
-
-  @override
-  String get photoViewerCommentEmpty => '아직 댓글이 없습니다.';
-
-  @override
-  String get commentMenuEdit => '수정하기';
-
-  @override
-  String get commentMenuDelete => '삭제하기';
-
-  @override
-  String get commentMenuReport => '신고하기';
-
-  @override
-  String get commentEditingLabel => '댓글 수정 중';
-
-  @override
-  String get commentEdited => '수정됨';
-
-  @override
-  String get commentSending => '전송중';
-
-  @override
-  String get commentRetry => '재전송';
-
-  @override
-  String get commentRetryTitle => '댓글을 다시 전송할까요?';
-
-  @override
-  String get commentDiscard => '삭제';
-
-  @override
-  String get commentDiscardTitle => '이 댓글을 삭제할까요?';
-
-  @override
-  String get commentDiscardMessage => '전송하지 못한 댓글은 되돌릴 수 없어요.';
-
-  @override
-  String get commentSendFailed => '실패';
-
-  @override
-  String get commentErrorPhotoDeleted => '이미 삭제된 사진이에요.';
-
-  @override
-  String get commentErrorNotGroupMember => '해당 모임의 멤버가 아니에요.';
-
-  @override
-  String get commentErrorLoadFailed => '댓글을 불러오지 못했어요.';
-
-  @override
-  String get commentErrorInvalidInput => '댓글 내용을 확인해 주세요.';
-
-  @override
-  String get commentErrorPhotoLocked => '내 인증샷을 올려야 댓글을 달 수 있어요.';
-
-  @override
-  String get commentErrorPhotoUnderReview => '검토 중인 사진에는 댓글을 달 수 없어요.';
-
-  @override
-  String get commentErrorSubmitFailed => '댓글을 등록하지 못했어요.';
-
-  @override
-  String get commentErrorDeleteForbidden => '내가 작성한 댓글만 삭제할 수 있어요.';
-
-  @override
-  String get commentErrorAlreadyDeleted => '이미 삭제된 댓글이에요.';
-
-  @override
-  String get commentErrorDeleteFailed => '댓글을 삭제하지 못했어요.';
-
-  @override
-  String get commentErrorEditForbidden => '내가 작성한 댓글만 수정할 수 있어요.';
-
-  @override
-  String get commentErrorEditFailed => '댓글을 수정하지 못했어요.';
-
-  @override
-  String get commentErrorInvalidReport => '신고 내용이 올바르지 않아요.';
-
-  @override
-  String get commentErrorReportFailed => '신고하지 못했어요.';
-
-  @override
   String get groupErrorNotGroupMember => '해당 모임의 멤버가 아니에요.';
 
   @override
@@ -829,36 +742,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupErrorFollowerUploadFailed => '사진을 올리지 못했어요.';
 
   @override
-  String get commentPendingLeaveTitle => '전송하지 못한 댓글이 있어요';
-
-  @override
-  String get commentPendingLeaveMessage => '지금 나가면 작성한 댓글이 사라져요.';
-
-  @override
-  String get commentPendingLeaveConfirm => '나가기';
-
-  @override
-  String get commentReportReasonSexual => '성적 발언';
-
-  @override
-  String get commentReportReasonViolence => '폭력·혐오 표현';
-
-  @override
-  String get commentReportReasonAbuse => '욕설·비방 표현';
-
-  @override
-  String get commentReportReasonHarassment => '사칭·괴롭힘';
-
-  @override
-  String get commentReportReasonEtc => '기타';
-
-  @override
-  String get commentDeleteTitle => '이 댓글을 삭제할까요?';
-
-  @override
-  String get commentDeleteMessage => '삭제한 댓글은 되돌릴 수 없어요.\n친구들에게도 더 이상 보이지 않아요.';
-
-  @override
   String get cameraPermissionTitle => '카메라 권한이 필요해요';
 
   @override
@@ -912,10 +795,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationTabUnread => '안 읽음';
 
   @override
-  String get notificationCommentEmptyTitle => '아직 댓글 알림이 없어요';
+  String get notificationChatEmptyTitle => '아직 채팅 알림이 없어요';
 
   @override
-  String get notificationCommentEmptyDescription => '사진에 댓글이 달리면 여기서 알려드려요';
+  String get notificationChatEmptyDescription => '사진에 댓글이 달리면 여기서 알려드려요';
 
   @override
   String get notificationUnreadEmptyTitle => '새로 확인할 알림이 없어요';
@@ -930,7 +813,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationFilterNotice => '알림';
 
   @override
-  String get notificationFilterComment => '댓글';
+  String get notificationFilterChat => '채팅';
 
   @override
   String get notificationEmptyTitle => '새로운 알림이 없어요';
@@ -946,6 +829,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get notificationRetry => '다시 시도';
+
+  @override
+  String get notificationChat => '채팅 알림';
 
   @override
   String get notificationLabelDefault => '알림';
@@ -1074,12 +960,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get notificationStarterAssignedCaption => '랜덤 스타터 지정됐을 때';
-
-  @override
-  String get notificationComment => '댓글 알림';
-
-  @override
-  String get notificationCommentCaption => '내 사진에 댓글이 달릴 때';
 
   @override
   String get notificationSectionEtc => '기타';

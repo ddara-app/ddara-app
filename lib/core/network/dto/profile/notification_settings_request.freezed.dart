@@ -329,8 +329,7 @@ mixin _$ActivityNotificationRequest {
 // 따라찍기 알림. (NEW_CYCLE · CYCLE_COMPLETED · DEADLINE)
  bool get followShot;// 다른 친구의 따라찍기 알림.
  bool get friendShot;// 랜덤 스타터 알림. (STARTER_ASSIGNED)
- bool get starterAssigned;// 댓글 알림.
- bool get comment;
+ bool get starterAssigned;
 /// Create a copy of ActivityNotificationRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -343,16 +342,16 @@ $ActivityNotificationRequestCopyWith<ActivityNotificationRequest> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ActivityNotificationRequest&&(identical(other.followShot, followShot) || other.followShot == followShot)&&(identical(other.friendShot, friendShot) || other.friendShot == friendShot)&&(identical(other.starterAssigned, starterAssigned) || other.starterAssigned == starterAssigned)&&(identical(other.comment, comment) || other.comment == comment));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ActivityNotificationRequest&&(identical(other.followShot, followShot) || other.followShot == followShot)&&(identical(other.friendShot, friendShot) || other.friendShot == friendShot)&&(identical(other.starterAssigned, starterAssigned) || other.starterAssigned == starterAssigned));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,followShot,friendShot,starterAssigned,comment);
+int get hashCode => Object.hash(runtimeType,followShot,friendShot,starterAssigned);
 
 @override
 String toString() {
-  return 'ActivityNotificationRequest(followShot: $followShot, friendShot: $friendShot, starterAssigned: $starterAssigned, comment: $comment)';
+  return 'ActivityNotificationRequest(followShot: $followShot, friendShot: $friendShot, starterAssigned: $starterAssigned)';
 }
 
 
@@ -363,7 +362,7 @@ abstract mixin class $ActivityNotificationRequestCopyWith<$Res>  {
   factory $ActivityNotificationRequestCopyWith(ActivityNotificationRequest value, $Res Function(ActivityNotificationRequest) _then) = _$ActivityNotificationRequestCopyWithImpl;
 @useResult
 $Res call({
- bool followShot, bool friendShot, bool starterAssigned, bool comment
+ bool followShot, bool friendShot, bool starterAssigned
 });
 
 
@@ -380,12 +379,11 @@ class _$ActivityNotificationRequestCopyWithImpl<$Res>
 
 /// Create a copy of ActivityNotificationRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? followShot = null,Object? friendShot = null,Object? starterAssigned = null,Object? comment = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? followShot = null,Object? friendShot = null,Object? starterAssigned = null,}) {
   return _then(_self.copyWith(
 followShot: null == followShot ? _self.followShot : followShot // ignore: cast_nullable_to_non_nullable
 as bool,friendShot: null == friendShot ? _self.friendShot : friendShot // ignore: cast_nullable_to_non_nullable
 as bool,starterAssigned: null == starterAssigned ? _self.starterAssigned : starterAssigned // ignore: cast_nullable_to_non_nullable
-as bool,comment: null == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -471,10 +469,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool followShot,  bool friendShot,  bool starterAssigned,  bool comment)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool followShot,  bool friendShot,  bool starterAssigned)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ActivityNotificationRequest() when $default != null:
-return $default(_that.followShot,_that.friendShot,_that.starterAssigned,_that.comment);case _:
+return $default(_that.followShot,_that.friendShot,_that.starterAssigned);case _:
   return orElse();
 
 }
@@ -492,10 +490,10 @@ return $default(_that.followShot,_that.friendShot,_that.starterAssigned,_that.co
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool followShot,  bool friendShot,  bool starterAssigned,  bool comment)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool followShot,  bool friendShot,  bool starterAssigned)  $default,) {final _that = this;
 switch (_that) {
 case _ActivityNotificationRequest():
-return $default(_that.followShot,_that.friendShot,_that.starterAssigned,_that.comment);case _:
+return $default(_that.followShot,_that.friendShot,_that.starterAssigned);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -512,10 +510,10 @@ return $default(_that.followShot,_that.friendShot,_that.starterAssigned,_that.co
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool followShot,  bool friendShot,  bool starterAssigned,  bool comment)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool followShot,  bool friendShot,  bool starterAssigned)?  $default,) {final _that = this;
 switch (_that) {
 case _ActivityNotificationRequest() when $default != null:
-return $default(_that.followShot,_that.friendShot,_that.starterAssigned,_that.comment);case _:
+return $default(_that.followShot,_that.friendShot,_that.starterAssigned);case _:
   return null;
 
 }
@@ -527,7 +525,7 @@ return $default(_that.followShot,_that.friendShot,_that.starterAssigned,_that.co
 @JsonSerializable()
 
 class _ActivityNotificationRequest implements ActivityNotificationRequest {
-  const _ActivityNotificationRequest({required this.followShot, required this.friendShot, required this.starterAssigned, required this.comment});
+  const _ActivityNotificationRequest({required this.followShot, required this.friendShot, required this.starterAssigned});
   factory _ActivityNotificationRequest.fromJson(Map<String, dynamic> json) => _$ActivityNotificationRequestFromJson(json);
 
 // 따라찍기 알림. (NEW_CYCLE · CYCLE_COMPLETED · DEADLINE)
@@ -536,8 +534,6 @@ class _ActivityNotificationRequest implements ActivityNotificationRequest {
 @override final  bool friendShot;
 // 랜덤 스타터 알림. (STARTER_ASSIGNED)
 @override final  bool starterAssigned;
-// 댓글 알림.
-@override final  bool comment;
 
 /// Create a copy of ActivityNotificationRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -552,16 +548,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ActivityNotificationRequest&&(identical(other.followShot, followShot) || other.followShot == followShot)&&(identical(other.friendShot, friendShot) || other.friendShot == friendShot)&&(identical(other.starterAssigned, starterAssigned) || other.starterAssigned == starterAssigned)&&(identical(other.comment, comment) || other.comment == comment));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ActivityNotificationRequest&&(identical(other.followShot, followShot) || other.followShot == followShot)&&(identical(other.friendShot, friendShot) || other.friendShot == friendShot)&&(identical(other.starterAssigned, starterAssigned) || other.starterAssigned == starterAssigned));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,followShot,friendShot,starterAssigned,comment);
+int get hashCode => Object.hash(runtimeType,followShot,friendShot,starterAssigned);
 
 @override
 String toString() {
-  return 'ActivityNotificationRequest(followShot: $followShot, friendShot: $friendShot, starterAssigned: $starterAssigned, comment: $comment)';
+  return 'ActivityNotificationRequest(followShot: $followShot, friendShot: $friendShot, starterAssigned: $starterAssigned)';
 }
 
 
@@ -572,7 +568,7 @@ abstract mixin class _$ActivityNotificationRequestCopyWith<$Res> implements $Act
   factory _$ActivityNotificationRequestCopyWith(_ActivityNotificationRequest value, $Res Function(_ActivityNotificationRequest) _then) = __$ActivityNotificationRequestCopyWithImpl;
 @override @useResult
 $Res call({
- bool followShot, bool friendShot, bool starterAssigned, bool comment
+ bool followShot, bool friendShot, bool starterAssigned
 });
 
 
@@ -589,12 +585,11 @@ class __$ActivityNotificationRequestCopyWithImpl<$Res>
 
 /// Create a copy of ActivityNotificationRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? followShot = null,Object? friendShot = null,Object? starterAssigned = null,Object? comment = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? followShot = null,Object? friendShot = null,Object? starterAssigned = null,}) {
   return _then(_ActivityNotificationRequest(
 followShot: null == followShot ? _self.followShot : followShot // ignore: cast_nullable_to_non_nullable
 as bool,friendShot: null == friendShot ? _self.friendShot : friendShot // ignore: cast_nullable_to_non_nullable
 as bool,starterAssigned: null == starterAssigned ? _self.starterAssigned : starterAssigned // ignore: cast_nullable_to_non_nullable
-as bool,comment: null == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

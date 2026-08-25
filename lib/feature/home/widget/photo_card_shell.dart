@@ -42,7 +42,6 @@ class PhotoCardShell extends StatelessWidget {
     this.topLabel,
     this.topLabelColor = AppColors.textPrimary,
     this.topIndicatorColor,
-    this.topAction,
     this.borderColor,
     this.blocked = false,
     this.underReview = false,
@@ -69,11 +68,6 @@ class PhotoCardShell extends StatelessWidget {
   /// [topLabel] 오른쪽에 붙는 상태 점의 색. null 이면 점을 그리지 않는다.
   /// (진행 중 / 진행 종료를 색으로 한눈에 구분)
   final Color? topIndicatorColor;
-
-  /// 카드 상단에 얹을 위젯. 좌우 여백(s3) 안을 가득 쓸 수 있고, 정렬은
-  /// 주입한 쪽에서 정한다. null 이면 표시하지 않는다.
-  /// ([topLabel] 과 자리가 겹치므로 둘 중 하나만 쓴다)
-  final Widget? topAction;
 
   /// 카드를 강조하는 테두리 색. null 이면 테두리를 두르지 않는다.
   final Color? borderColor;
@@ -209,15 +203,6 @@ class PhotoCardShell extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
-              // 상단 오버레이. (피드 카드의 댓글 버튼·댓글 미리보기)
-              // 좌우 여백만 잡아 주고, 그 안에서의 정렬은 주입한 쪽이 정한다.
-              if (topAction != null)
-                Positioned(
-                  top: AppSpacing.s4,
-                  left: AppSpacing.s4,
-                  right: AppSpacing.s4,
-                  child: topAction!,
                 ),
               // 하단: 제목 · 부제 (가독성은 위의 스크림 레이어가 담당)
               Positioned(

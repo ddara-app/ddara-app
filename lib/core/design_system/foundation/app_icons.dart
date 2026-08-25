@@ -83,12 +83,6 @@ abstract final class AppIcons {
   static const bellUnread = AppIconData.svg('ic_bell_noti');
   static const lock = AppIconData.svg('ic_lock');
   static const people = AppIconData.svg('ic_people');
-  static const comment = AppIconData.svg('ic_comment');
-
-  /// 읽지 않은 댓글이 있는 상태의 말풍선. (우상단 빨간 점 — 점 색이 고정이라
-  /// [AppIcon] 에 color 를 주면 말풍선만 바뀐다)
-  static const commentActive = AppIconData.svg('ic_comment_circle_active');
-
   static const personCropCircle = AppIconData.font(
     CupertinoIcons.person_crop_circle,
   );

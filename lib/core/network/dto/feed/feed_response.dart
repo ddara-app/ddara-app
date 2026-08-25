@@ -38,34 +38,9 @@ abstract class FeedItemResponse with _$FeedItemResponse {
     required String topic,
     // 잠금 여부. 해당 회차에 내 인증샷을 올리지 않았으면 true.
     @Default(false) bool locked,
-    @Default(0) int commentCount,
-    // 최신 댓글 미리보기. 없으면 빈 목록.
-    @Default(<FeedCommentResponse>[]) List<FeedCommentResponse> latestComments,
     required DateTime uploadedAt,
   }) = _FeedItemResponse;
 
   factory FeedItemResponse.fromJson(Map<String, dynamic> json) =>
       _$FeedItemResponseFromJson(json);
-}
-
-/// 피드 항목에 딸린 최신 댓글 미리보기.
-///
-/// 댓글 시트의 [CommentResponse] 와 달리 commentId·작성 시각 없이
-/// 미리보기에 필요한 최소 정보만 내려온다.
-@freezed
-abstract class FeedCommentResponse with _$FeedCommentResponse {
-  const factory FeedCommentResponse({
-    required int userId,
-    required String nickname,
-    // 작성자 프로필 이미지 URL. 미등록이면 null.
-    String? profileImageUrl,
-    // 댓글 내용. 검토 중이면 null.
-    required String? content,
-    @Default(false) bool underReview,
-    // 내가 신고한 댓글인지 여부.
-    @Default(false) bool reportedByMe,
-  }) = _FeedCommentResponse;
-
-  factory FeedCommentResponse.fromJson(Map<String, dynamic> json) =>
-      _$FeedCommentResponseFromJson(json);
 }

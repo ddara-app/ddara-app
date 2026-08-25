@@ -24,7 +24,6 @@ extension NotificationSettingsMapper on NotificationSettingsResponse {
       followShot: activity.followShot,
       friendShot: activity.friendShot,
       starterAssigned: activity.starterAssigned,
-      comment: activity.comment,
       memberJoin: etc.memberJoin,
     );
   }
@@ -39,7 +38,6 @@ extension NotificationSettingsRequestMapper on NotificationSettings {
         followShot: followShot,
         friendShot: friendShot,
         starterAssigned: starterAssigned,
-        comment: comment,
       ),
       etc: EtcNotificationRequest(memberJoin: memberJoin),
     );

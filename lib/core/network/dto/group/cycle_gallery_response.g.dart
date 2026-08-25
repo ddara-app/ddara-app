@@ -43,7 +43,6 @@ _CycleGalleryCycleResponse _$CycleGalleryCycleResponseFromJson(
   starterShotId: (json['starterShotId'] as num).toInt(),
   starterImageUrl: json['starterImageUrl'] as String?,
   starterImageUnderReview: json['starterImageUnderReview'] as bool,
-  hasUnreadComments: json['hasUnreadComments'] as bool? ?? false,
   status: json['status'] as String,
   deadlineAt: DateTime.parse(json['deadlineAt'] as String),
 );
@@ -59,7 +58,6 @@ Map<String, dynamic> _$CycleGalleryCycleResponseToJson(
   'starterShotId': instance.starterShotId,
   'starterImageUrl': instance.starterImageUrl,
   'starterImageUnderReview': instance.starterImageUnderReview,
-  'hasUnreadComments': instance.hasUnreadComments,
   'status': instance.status,
   'deadlineAt': instance.deadlineAt.toIso8601String(),
 };
@@ -77,7 +75,6 @@ _CycleGalleryMemberResponse _$CycleGalleryMemberResponseFromJson(
   uploadedAt: json['uploadedAt'] == null
       ? null
       : DateTime.parse(json['uploadedAt'] as String),
-  hasUnreadComments: json['hasUnreadComments'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$CycleGalleryMemberResponseToJson(
@@ -91,5 +88,4 @@ Map<String, dynamic> _$CycleGalleryMemberResponseToJson(
   'status': instance.status,
   'imageUrl': instance.imageUrl,
   'uploadedAt': instance.uploadedAt?.toIso8601String(),
-  'hasUnreadComments': instance.hasUnreadComments,
 };

@@ -1,9 +1,6 @@
-import 'package:ddara/core/comment/comment_action_error.dart';
-import 'package:ddara/core/comment/comment_actions.dart';
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
-import 'package:ddara/domain/model/comment/comment.dart';
 import 'package:ddara/domain/model/group/cycle_gallery.dart';
 import 'package:ddara/domain/model/group/group_action_error.dart';
 import 'package:ddara/domain/model/profile/profile.dart';
@@ -16,9 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CyclePhotoGalleryViewModel
     extends AutoDisposeFamilyNotifier<CyclePhotoGalleryState, int>
-    with
-        CommentActions<CyclePhotoGalleryState>,
-        AutoDisposeGuard<CyclePhotoGalleryState> {
+    with AutoDisposeGuard<CyclePhotoGalleryState> {
   @override
   CyclePhotoGalleryState build(int cycleId) {
     watchDispose();
@@ -158,63 +153,5 @@ class CyclePhotoGalleryViewModel
       // NetworkException 및 기타 예기치 못한 오류.
       return _fail(GroupActionError.blockFailed);
     }
-  }
-
-  @override
-  void onCommentError(CommentActionError error) {
-    // 댓글 액션은 갤러리가 떠 있어야만 가능하므로 Loaded 외 상태에선 무시한다.
-    // (뷰어를 닫고 화면을 벗어난 뒤 도착한 실패도 여기서 걸러진다)
-    final current = state;
-    if (current is! CyclePhotoGalleryLoaded) return;
-    state = current.copyWith(commentError: error);
-  }
-
-  /// [shotId] 사진의 댓글을 읽음 처리한다.
-  ///
-  /// 서버에 읽음을 남기고, 화면에도 즉시 반영한다 — 서버 응답을 기다리거나
-  /// 갤러리를 다시 조회하지 않아도 뷰어를 닫는 순간 강조가 사라지도록.
-  ///
-  /// 실패해도 알리지 않는다 — 사용자가 한 동작(댓글 보기)은 이미 성공했고,
-  /// 서버에 표시가 남지 않았다면 다음에 이 갤러리에 들어와 댓글을 열 때
-  /// 다시 시도된다. (화면 안에서는 이미 읽음으로 보이므로 재요청하지 않는다)
-  Future<void> markCommentsRead(int shotId) async {
-    final current = state;
-    if (current is! CyclePhotoGalleryLoaded) return;
-    if (current.readShotIds.contains(shotId)) return;
-    state = current.copyWith(readShotIds: {...current.readShotIds, shotId});
-
-    try {
-      await ref.read(markCommentsReadUseCaseProvider)(shotId);
-    } catch (_) {
-      // 무시. (다음에 댓글을 열 때 다시 시도된다)
-    }
-  }
-
-  /// 댓글 액션 에러를 소비한 뒤(토스트로 노출 후) 다시 비운다.
-  void clearCommentError() {
-    final current = state;
-    if (current is! CyclePhotoGalleryLoaded || current.commentError == null) {
-      return;
-    }
-    state = current.copyWith(clearCommentError: true);
-  }
-
-  // 갤러리는 댓글이 화면에 노출되지 않으므로 변경 성공 후 재조회하지 않는다.
-  // (afterCommentMutation 은 기본 no-op 유지)
-
-  /// [shotId] 사진의 댓글 목록을 조회한다. 뷰어가 열린 동안 차단이 늘 수
-  /// 있어, 호출 시점의 최신 차단 목록(state)으로 필터링한다.
-  @override
-  Future<List<Comment>?> loadComments({
-    required int shotId,
-    Set<int> blockedUserIds = const {},
-  }) {
-    final current = state;
-    return super.loadComments(
-      shotId: shotId,
-      blockedUserIds: current is CyclePhotoGalleryLoaded
-          ? current.blockedUserIds
-          : const {},
-    );
   }
 }
