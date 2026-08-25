@@ -5,7 +5,8 @@ import 'package:ddara/l10n/app_localizations.dart';
 /// ViewModel 은 종류만 상태에 담고, 사용자 노출 문구는 화면에서
 /// [GroupActionErrorMessage.message] 로 l10n 매핑한다. 같은 예외가 화면마다
 /// 다른 문구로 갈라지지 않도록 매핑을 한곳에 모은다.
-/// (댓글 쪽 `CommentActionError` 와 같은 구조)
+/// ([CommentActionError] 와 같은 구조 — 이 폴더의 `*_action_error` · `*_error`
+/// 는 모두 같은 규약이다)
 enum GroupActionError {
   // 공통
   /// 해당 모임의 멤버가 아님.

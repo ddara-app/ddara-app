@@ -1,4 +1,4 @@
-import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 import 'package:ddara/domain/model/group/group_detail.dart';
 import 'package:ddara/domain/model/group/history_cycles.dart';
 

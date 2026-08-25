@@ -1,6 +1,4 @@
-import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
-import 'package:ddara/core/exception/report_error_code.dart';
 import 'package:ddara/core/exception/report_exception.dart';
 import 'package:ddara/domain/model/report/comment_report_reason.dart';
 import 'package:ddara/domain/model/report/group_report_reason.dart';
@@ -86,37 +84,9 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   /// 신고 접수 실패 응답을 도메인 예외로 변환한다. (사진·댓글·유저·모임 신고 공통)
-  ///
-  /// 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
+  /// (매칭되는 code 가 없으면 네트워크 오류로 본다)
   Exception _toException(DioException e) {
-    final code = e.response?.data is Map
-        ? ReportErrorCode.fromValue(e.response?.data['code'])
-        : null;
-
-    switch (code) {
-      case ReportErrorCode.invalidInput:
-        // 400 — 필수값 누락, 본인 콘텐츠 신고, ETC 인데 reasonText 없음,
-        // targetType 에 허용되지 않는 reasonCode, USER 인데 groupId 누락
-        return InvalidReportInputException();
-
-      case ReportErrorCode.notGroupMember:
-        // 403 — 대상이 속한 모임의 멤버가 아님
-        return NotGroupMemberException();
-
-      case ReportErrorCode.shotNotFound:
-        // 404 — 대상 없음 (운영 삭제된 사진·댓글 포함)
-        return ShotNotFoundException();
-
-      case ReportErrorCode.userNotFound:
-        // 404 — 신고 대상이 해당 모임의 멤버가 아니거나 없음
-        return ReportUserNotFoundException();
-
-      case ReportErrorCode.groupNotFound:
-        // 404 — 신고 대상 모임이 없음
-        return GroupNotFoundException();
-
-      default:
-        return NetworkException();
-    }
+    final code = e.response?.data is Map ? e.response?.data['code'] : null;
+    return ReportException.fromCode(code) ?? NetworkException();
   }
 }

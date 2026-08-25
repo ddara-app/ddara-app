@@ -1,4 +1,4 @@
-import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 
 /// 따라찍기 촬영 화면 상태.
 ///

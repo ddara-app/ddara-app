@@ -1,7 +1,7 @@
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
-import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 import 'package:ddara/domain/model/group/group_detail.dart';
 import 'package:ddara/domain/model/group/history_cycles.dart';
 import 'package:ddara/domain/model/report/group_report_reason.dart';

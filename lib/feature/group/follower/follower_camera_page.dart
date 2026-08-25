@@ -6,7 +6,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/camera/tour/camera_tour_steps.dart';
-import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/detail/provider/viewmodel_provider.dart'

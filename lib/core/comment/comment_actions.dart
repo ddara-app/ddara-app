@@ -1,4 +1,4 @@
-import 'package:ddara/core/comment/comment_action_error.dart';
+import 'package:ddara/core/exception/comment_action_error.dart';
 import 'package:ddara/core/exception/comment_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';

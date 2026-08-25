@@ -7,7 +7,7 @@ import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 import 'package:ddara/feature/group/detail/group_page_actions.dart';
 import 'package:ddara/feature/group/detail/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';

@@ -5,7 +5,7 @@ import 'package:ddara/core/design_system/component/text_field/app_text_field.dar
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';

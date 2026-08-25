@@ -1,5 +1,4 @@
 import 'package:ddara/core/exception/login_exception.dart';
-import 'package:ddara/core/exception/profile_error_code.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
 import 'package:ddara/domain/model/camera/camera_guide_key.dart';
 import 'package:ddara/domain/model/profile/notification_settings.dart';
@@ -29,19 +28,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final response = await _profileDataSource.getProfile();
       return response.toDomain();
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ProfileErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ProfileErrorCode.userNotFound:
-          // 404 — 사용자를 찾을 수 없음
-          throw UserNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -52,19 +39,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
         appleAuthorizationCode: appleAuthorizationCode,
       );
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ProfileErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ProfileErrorCode.userNotFound:
-          // 404 — 사용자를 찾을 수 없음 (이미 탈퇴한 계정 포함)
-          throw UserNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -101,23 +76,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       await _uploadDataSource.deleteTempFile(imagePath);
       return newUrl;
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ProfileErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ProfileErrorCode.invalidImageFile:
-          // 400 — jpg/png 가 아닌 형식
-          throw InvalidImageFileException();
-
-        case ProfileErrorCode.userNotFound:
-          // 404 — 사용자를 찾을 수 없음
-          throw UserNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -126,19 +85,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       await _profileDataSource.resetProfileImage();
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ProfileErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ProfileErrorCode.userNotFound:
-          // 404 — 사용자를 찾을 수 없음
-          throw UserNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -168,7 +115,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
           .nonNulls
           .toSet();
     } on DioException catch (e) {
-      throw _cameraGuideError(e);
+      throw _toException(e);
     }
   }
 
@@ -177,24 +124,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       await _profileDataSource.completeCameraGuide(key.value);
     } on DioException catch (e) {
-      throw _cameraGuideError(e);
+      throw _toException(e);
     }
   }
 
-  /// 가이드 조회·기록의 서버 오류를 도메인 예외로 바꾼다.
-  ///
-  /// 401(UNAUTHORIZED)은 인터셉터가 따로 처리하므로 여기서 다루지 않는다.
-  Exception _cameraGuideError(DioException e) {
-    final code = e.response?.data is Map
-        ? ProfileErrorCode.fromValue(e.response?.data['code'])
-        : null;
-
-    return switch (code) {
-      // 404 — 사용자를 찾을 수 없음
-      ProfileErrorCode.userNotFound => UserNotFoundException(),
-      // 400 — key 누락/빈 값
-      ProfileErrorCode.invalidInput => InvalidInputException(),
-      _ => NetworkException(),
-    };
+  /// 서버 오류 응답을 도메인 예외로 옮긴다.
+  /// (매칭되는 code 가 없으면 네트워크 오류로 본다)
+  Exception _toException(DioException e) {
+    final code = e.response?.data is Map ? e.response?.data['code'] : null;
+    return ProfileException.fromCode(code) ?? NetworkException();
   }
 }

@@ -1,11 +1,11 @@
-import 'package:ddara/core/comment/comment_action_error.dart';
+import 'package:ddara/core/exception/comment_action_error.dart';
 import 'package:ddara/core/comment/comment_actions.dart';
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
 import 'package:ddara/domain/model/comment/comment.dart';
 import 'package:ddara/domain/model/group/cycle_gallery.dart';
-import 'package:ddara/domain/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 import 'package:ddara/domain/model/profile/profile.dart';
 import 'package:ddara/domain/model/report/report_reason.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';

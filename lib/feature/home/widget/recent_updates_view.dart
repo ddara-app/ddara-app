@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ddara/core/comment/comment_action_error.dart';
+import 'package:ddara/core/exception/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/domain/model/feed/feed.dart';
