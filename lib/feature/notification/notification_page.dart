@@ -130,11 +130,18 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
             // 목록 대신 보여줄 화면은 헤더·칩 위에 올려 **화면 가운데**에 둔다.
             // 본문 안에 두면 헤더·칩이 차지한 높이만큼 아래로 치우쳐 보인다.
             //
-            // 탭·칩은 그대로 누를 수 있어야 하는데, [Center] 는 자식 크기만큼만
-            // 터치를 받아 바깥 빈 자리는 알아서 통과된다. IgnorePointer 로 막으면
-            // 안내 안의 '다시 시도' 버튼까지 막힌다.
+            // 위에 얹는 만큼 터치를 가로채는데, 안내 문구·일러스트 위에서도
+            // 스와이프로 탭을 넘길 수 있어야 하므로 통과시킨다. 예외는 조회
+            // 실패뿐 — 안내 안의 '다시 시도' 버튼이 눌려야 한다.
+            // ([Center] 는 자식 크기만큼만 터치를 받아 바깥 빈 자리는 어느
+            //  경우든 알아서 통과된다)
             if (_placeholder(context, state) case final placeholder?)
-              Positioned.fill(child: Center(child: placeholder)),
+              Positioned.fill(
+                child: IgnorePointer(
+                  ignoring: state is! NotificationLoadError,
+                  child: Center(child: placeholder),
+                ),
+              ),
           ],
         ),
       ),
