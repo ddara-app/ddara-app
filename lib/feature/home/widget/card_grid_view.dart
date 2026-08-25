@@ -17,6 +17,7 @@ class CardGridView<T> extends StatelessWidget {
     required this.dashboard,
     required this.cardBuilder,
     required this.onRefresh,
+    this.controller,
   });
 
   /// 카드로 그릴 항목 목록. (탭마다 타입이 다르다 — 모임 / 피드 항목)
@@ -30,6 +31,9 @@ class CardGridView<T> extends StatelessWidget {
 
   /// 당겨서 새로고침 콜백. (탭마다 다시 조회할 데이터가 다르다)
   final Future<void> Function() onRefresh;
+
+  /// 스크롤 컨트롤러. 바깥에서 스크롤 위치를 읽거나 되돌릴 때 넘긴다.
+  final ScrollController? controller;
 
   /// 한 번에 화면에 드러내는 카드 개수. (클라이언트 사이드 페이징 단위 —
   /// 좌/우 열에 절반씩 나뉘므로 지그재그 5행 분량이다)
@@ -55,6 +59,7 @@ class CardGridView<T> extends StatelessWidget {
   Widget _grid(List<T> visibleItems) {
     return Builder(
       builder: (context) => CustomScrollView(
+        controller: controller,
         // 당겨서 새로고침에 필요한 상단 overscroll(바운스)을 허용하고,
         // 카드가 적어 화면에 다 들어가도 당길 수 있도록 AlwaysScrollable 을
         // 부모로 둔다. (모임 페이지와 동일 패턴)

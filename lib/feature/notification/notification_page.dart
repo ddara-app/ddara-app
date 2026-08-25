@@ -3,6 +3,7 @@ import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/domain/model/notification/notification_item.dart';
 import 'package:ddara/core/router/gallery_navigation.dart';
+import 'package:ddara/core/util/scroll_to_top.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/widget/tab/page_tab_header.dart';
@@ -32,16 +33,6 @@ class NotificationPage extends ConsumerStatefulWidget {
 class _NotificationPageState extends ConsumerState<NotificationPage> {
   /// 한 번에 화면에 드러내는 알림 개수. (클라이언트 사이드 페이징 단위)
   static const _pageSize = 20;
-
-  /// 목록을 맨 위로 되돌리는 데 걸리는 시간의 하한·상한.
-  ///
-  /// 스크롤 거리에 비례해 정한다 — 가까우면 짧게 끝내고, 아무리 멀어도 상한을
-  /// 넘지 않아 되돌아오는 동안 화면이 붙잡히지 않는다.
-  static const _scrollToTopMinDuration = Duration(milliseconds: 200);
-  static const _scrollToTopMaxDuration = Duration(milliseconds: 600);
-
-  /// 떨어진 거리 1px 마다 더해지는 시간(ms).
-  static const double _scrollToTopMsPerPixel = 0.3;
 
   final PageController _pageController = PageController();
 
@@ -139,36 +130,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   /// 이미 보고 있는 탭을 다시 눌렀을 때 그 목록을 맨 위로 되돌린다.
   ///
   /// 칩 줄도 목록과 함께 스크롤되므로, 되돌리면 칩이 다시 보인다.
-  void _scrollToTop(int index) {
-    final controller = _scrollControllers[index];
-    // 아직 그려지지 않았거나(빈 화면) 이미 맨 위면 할 일이 없다.
-    if (!controller.hasClients || controller.offset <= 0) return;
-
-    controller.animateTo(
-      0,
-      duration: _scrollToTopDurationFor(controller.offset),
-      // 초반에 확 올라가고, 최상단에 가까워질수록 눈에 띄게 느려진다.
-      curve: Curves.easeOutQuint,
-    );
-  }
-
-  /// [distance] px 만큼 떨어져 있을 때 되돌리는 데 쓸 시간.
-  ///
-  /// 거리와 무관하게 고정하면 멀리서 되돌아올 때 순간이동처럼 보인다.
-  static Duration _scrollToTopDurationFor(double distance) {
-    final milliseconds =
-        _scrollToTopMinDuration.inMilliseconds +
-        distance * _scrollToTopMsPerPixel;
-
-    return Duration(
-      milliseconds: milliseconds
-          .clamp(
-            _scrollToTopMinDuration.inMilliseconds.toDouble(),
-            _scrollToTopMaxDuration.inMilliseconds.toDouble(),
-          )
-          .toInt(),
-    );
-  }
+  void _scrollToTop(int index) => _scrollControllers[index].animateToTop();
 
   /// 목록 대신 보여줄 화면. 보여줄 목록이 있으면 null.
   ///

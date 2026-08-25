@@ -16,6 +16,7 @@ class GroupListView extends ConsumerWidget {
     super.key,
     required this.groups,
     required this.blockedUserIds,
+    this.controller,
   });
 
   final List<Group> groups;
@@ -24,9 +25,13 @@ class GroupListView extends ConsumerWidget {
   /// (차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다)
   final Set<int> blockedUserIds;
 
+  /// 스크롤 컨트롤러. 탭 재선택으로 목록을 맨 위로 되돌릴 때 쓴다.
+  final ScrollController? controller;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardGridView(
+      controller: controller,
       items: groups,
       dashboard: HomeDashboard.groupCount(
         count: groups.length,
