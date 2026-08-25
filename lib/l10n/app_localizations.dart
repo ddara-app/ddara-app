@@ -1864,6 +1864,36 @@ abstract class AppLocalizations {
   /// **'다시 시도'**
   String get notificationRetry;
 
+  /// 알림 화면 칩 줄 우측의 전체 읽음 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 읽음'**
+  String get notificationReadAll;
+
+  /// No description provided for @notificationReadAllConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 알림을 읽음으로 표시할까요?'**
+  String get notificationReadAllConfirmTitle;
+
+  /// No description provided for @notificationReadAllConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'안 읽은 알림이 모두 읽음으로 표시됩니다.'**
+  String get notificationReadAllConfirmMessage;
+
+  /// No description provided for @notificationReadAllDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 알림을 읽음으로 표시했어요'**
+  String get notificationReadAllDone;
+
+  /// No description provided for @notificationReadAllFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'읽음 처리에 실패했어요'**
+  String get notificationReadAllFailed;
+
   /// 알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다.
   ///
   /// In ko, this message translates to:

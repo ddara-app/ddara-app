@@ -1,12 +1,15 @@
 import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
+import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/domain/model/notification/notification_item.dart';
 import 'package:ddara/core/router/gallery_navigation.dart';
 import 'package:ddara/core/util/scroll_to_top.dart';
+import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/widget/tab/page_tab_header.dart';
+import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/notification/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/notification/util/notification_filter.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
@@ -70,6 +73,17 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(notificationViewModelProvider);
+
+    // '전체 읽음' 실패를 토스트로 안내한다. (성공은 목록이 바뀌는 것으로 보인다)
+    ref.listen(notificationViewModelProvider, (_, next) {
+      if (next is! NotificationLoaded || !next.readAllFailed) return;
+      Toast.showToast(
+        context,
+        l10n.notificationReadAllFailed,
+        type: ToastType.error,
+      );
+      ref.read(notificationViewModelProvider.notifier).clearReadAllFailure();
+    });
 
     return CupertinoPageScaffold(
       navigationBar: AppBar(
@@ -265,18 +279,58 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
           Padding(
             // 칩과 첫 알림 사이 간격.
             padding: const EdgeInsets.only(bottom: AppSpacing.s4),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: NotificationFilterChips(
-                selected: _filter,
-                onChanged: (filter) => setState(() => _filter = filter),
-              ),
+            child: Row(
+              // 칩은 왼쪽에 모으고 '전체 읽음' 은 오른쪽 끝에 붙인다.
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                NotificationFilterChips(
+                  selected: _filter,
+                  onChanged: (filter) => setState(() => _filter = filter),
+                ),
+                _readAllButton(context),
+              ],
             ),
           ),
           list,
         ],
       ),
     );
+  }
+
+  /// 칩 줄 우측 끝의 '전체 읽음'. 안 읽은 알림이 없으면 자리만 비운다.
+  ///
+  /// 목록을 아직 못 받았거나(로딩·에러) 다 읽은 상태에서는 누를 것이 없어
+  /// 숨긴다. 자리를 [SizedBox.shrink] 로 비워 두면 칩 줄 높이는 그대로다.
+  Widget _readAllButton(BuildContext context) {
+    final state = ref.watch(notificationViewModelProvider);
+    if (state is! NotificationLoaded || !state.hasUnread) {
+      return const SizedBox.shrink();
+    }
+
+    return AppTextButton.label(
+      label: AppLocalizations.of(context).notificationReadAll,
+      // 요청이 나가 있는 동안에는 잠근다. (중복 전송 방지)
+      onPressed: state.isMarkingAllRead ? null : () => _confirmReadAll(context),
+    );
+  }
+
+  /// 되돌릴 수 없는 일괄 처리라 먼저 확인받는다.
+  Future<void> _confirmReadAll(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await AppDialog.show(
+      context,
+      title: l10n.notificationReadAllConfirmTitle,
+      message: l10n.notificationReadAllConfirmMessage,
+      confirmLabel: l10n.commonConfirm,
+    );
+    if (!confirmed) return;
+
+    final done = await ref
+        .read(notificationViewModelProvider.notifier)
+        .markAllAsRead();
+    if (!done || !context.mounted) return;
+
+    Toast.showToast(context, l10n.notificationReadAllDone);
   }
 
   /// 알림 탭 시 이동할 화면.

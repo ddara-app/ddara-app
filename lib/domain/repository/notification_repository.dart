@@ -12,4 +12,7 @@ abstract interface class NotificationRepository {
 
   /// [notificationId] 알림을 읽음으로 표시한다.
   Future<void> markAsRead(int notificationId);
+
+  /// 안 읽은 알림을 모두 읽음으로 표시한다.
+  Future<void> markAllAsRead();
 }

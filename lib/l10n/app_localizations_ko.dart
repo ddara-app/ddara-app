@@ -948,6 +948,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationRetry => '다시 시도';
 
   @override
+  String get notificationReadAll => '전체 읽음';
+
+  @override
+  String get notificationReadAllConfirmTitle => '모든 알림을 읽음으로 표시할까요?';
+
+  @override
+  String get notificationReadAllConfirmMessage => '안 읽은 알림이 모두 읽음으로 표시됩니다.';
+
+  @override
+  String get notificationReadAllDone => '모든 알림을 읽음으로 표시했어요';
+
+  @override
+  String get notificationReadAllFailed => '읽음 처리에 실패했어요';
+
+  @override
   String get notificationLabelDefault => '알림';
 
   @override

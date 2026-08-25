@@ -33,6 +33,13 @@ class NotificationDataSource {
     return UnreadNotificationResponse.fromJson(response.data);
   }
 
+  /// 안 읽은 알림을 모두 읽음으로 표시한다. (응답 body 없음)
+  ///
+  /// 안 읽은 알림이 없어도 성공으로 돌아온다.
+  Future<void> markAllAsRead() async {
+    await _dio.patch('$_baseUrl/read-all');
+  }
+
   /// [notificationId] 알림을 읽음으로 표시한다. (응답 body 없음)
   ///
   /// 이미 읽은 알림을 다시 보내도 성공으로 돌아온다.

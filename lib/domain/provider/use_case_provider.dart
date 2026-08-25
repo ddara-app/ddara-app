@@ -19,6 +19,7 @@ import 'package:ddara/domain/usecase/group/create_group_use_case.dart';
 import 'package:ddara/domain/usecase/group/get_group_list_use_case.dart';
 import 'package:ddara/domain/usecase/notification/get_notifications_use_case.dart';
 import 'package:ddara/domain/usecase/notification/get_unread_notification_use_case.dart';
+import 'package:ddara/domain/usecase/notification/mark_all_notifications_as_read_use_case.dart';
 import 'package:ddara/domain/usecase/notification/mark_notification_as_read_use_case.dart';
 import 'package:ddara/domain/usecase/profile/change_notification_settings_use_case.dart';
 import 'package:ddara/domain/usecase/profile/delete_account_use_case.dart';
@@ -188,6 +189,13 @@ final getUnreadNotificationUseCaseProvider =
 final markNotificationAsReadUseCaseProvider =
     Provider<MarkNotificationAsReadUseCase>((ref) {
       return MarkNotificationAsReadUseCase(
+        ref.read(notificationRepositoryProvider),
+      );
+    });
+
+final markAllNotificationsAsReadUseCaseProvider =
+    Provider<MarkAllNotificationsAsReadUseCase>((ref) {
+      return MarkAllNotificationsAsReadUseCase(
         ref.read(notificationRepositoryProvider),
       );
     });

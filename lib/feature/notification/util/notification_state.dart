@@ -16,11 +16,40 @@ final class NotificationLoadError extends NotificationState {
 }
 
 final class NotificationLoaded extends NotificationState {
-  const NotificationLoaded({required this.items, required this.blockedUserIds});
+  const NotificationLoaded({
+    required this.items,
+    required this.blockedUserIds,
+    this.isMarkingAllRead = false,
+    this.readAllFailed = false,
+  });
 
   /// 조회된 알림 목록. (비어 있으면 빈 상태 화면)
   final List<NotificationItem> items;
 
   /// 내가 차단한 사용자 userId 집합. (차단한 멤버의 썸네일을 가리는 데 사용)
   final Set<int> blockedUserIds;
+
+  /// '전체 읽음' 처리 중 여부. (중복 전송을 막고 버튼을 잠근다)
+  final bool isMarkingAllRead;
+
+  /// '전체 읽음' 실패. (토스트용 일회성 — 화면이 소비한 뒤
+  /// clearReadAllFailure 로 비운다)
+  final bool readAllFailed;
+
+  /// 안 읽은 알림이 하나라도 있는지. ('전체 읽음' 노출 판단)
+  bool get hasUnread => items.any((item) => !item.isRead);
+
+  NotificationLoaded copyWith({
+    List<NotificationItem>? items,
+    Set<int>? blockedUserIds,
+    bool? isMarkingAllRead,
+    bool? readAllFailed,
+  }) {
+    return NotificationLoaded(
+      items: items ?? this.items,
+      blockedUserIds: blockedUserIds ?? this.blockedUserIds,
+      isMarkingAllRead: isMarkingAllRead ?? this.isMarkingAllRead,
+      readAllFailed: readAllFailed ?? this.readAllFailed,
+    );
+  }
 }
