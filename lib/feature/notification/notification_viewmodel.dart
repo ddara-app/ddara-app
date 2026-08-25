@@ -85,6 +85,55 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
     unawaited(_sendRead(notificationId));
   }
 
+  /// 안 읽은 알림을 모두 읽음으로 표시한다. ('전체 읽음')
+  ///
+  /// 개별 읽음과 달리 서버 응답을 기다린다 — 사용자가 명시적으로 누른 동작이라
+  /// 실패를 알려야 하고, 성공한 뒤에 목록을 한 번에 바꿔야 되돌릴 일이 없다.
+  ///
+  /// 성공하면 true. (호출부가 완료 토스트를 띄운다 — 실패 안내는 상태의
+  /// [NotificationLoaded.readAllFailed] 로 따로 흐른다)
+  Future<bool> markAllAsRead() async {
+    final current = state;
+    if (current is! NotificationLoaded) return false;
+    // 처리 중이거나 이미 다 읽었으면 부르지 않는다.
+    if (current.isMarkingAllRead || !current.hasUnread) return false;
+
+    _updateLoaded((s) => s.copyWith(isMarkingAllRead: true));
+
+    try {
+      await ref.read(markAllNotificationsAsReadUseCaseProvider)();
+      final readAt = DateTime.now();
+      _updateLoaded(
+        (s) => s.copyWith(
+          items: [
+            for (final item in s.items)
+              item.isRead ? item : item.copyWith(readAt: readAt),
+          ],
+          isMarkingAllRead: false,
+        ),
+      );
+      // 홈 종 아이콘을 다시 판정하게 한다.
+      ref.invalidate(hasUnreadNotificationProvider);
+      return true;
+    } catch (e) {
+      debugPrint('[Notification] 전체 읽음 처리 실패: $e');
+      _updateLoaded(
+        (s) => s.copyWith(isMarkingAllRead: false, readAllFailed: true),
+      );
+      return false;
+    }
+  }
+
+  /// '전체 읽음' 실패를 소비한 뒤(토스트로 노출 후) 다시 비운다.
+  void clearReadAllFailure() {
+    _updateLoaded((s) => s.copyWith(readAllFailed: false));
+  }
+
+  /// 목록이 떠 있을 때만 상태를 갱신한다. (로딩·에러 상태에서는 무시)
+  void _updateLoaded(NotificationLoaded Function(NotificationLoaded s) updater) {
+    _update((s) => s is NotificationLoaded ? updater(s) : s);
+  }
+
   Future<void> _sendRead(int notificationId) async {
     try {
       await ref.read(markNotificationAsReadUseCaseProvider)(notificationId);

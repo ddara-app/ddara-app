@@ -43,8 +43,23 @@ class NotificationRepositoryImpl implements NotificationRepository {
     try {
       await _notificationDataSource.markAsRead(notificationId);
     } on DioException catch (e) {
-      final code = e.response?.data is Map ? e.response?.data['code'] : null;
-      throw NotificationException.fromCode(code) ?? NetworkException();
+      throw _toException(e);
     }
+  }
+
+  @override
+  Future<void> markAllAsRead() async {
+    try {
+      await _notificationDataSource.markAllAsRead();
+    } on DioException catch (e) {
+      throw _toException(e);
+    }
+  }
+
+  /// 서버 오류 응답을 도메인 예외로 옮긴다.
+  /// (매칭되는 code 가 없으면 네트워크 오류로 본다)
+  Exception _toException(DioException e) {
+    final code = e.response?.data is Map ? e.response?.data['code'] : null;
+    return NotificationException.fromCode(code) ?? NetworkException();
   }
 }

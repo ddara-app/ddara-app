@@ -603,6 +603,14 @@
   "@notificationChat": {
     "description": "알림 목록 분류 라벨 — 사진에 달린 댓글(COMMENT) 알림"
   },
+  "notificationReadAll": "전체 읽음",
+  "@notificationReadAll": {
+    "description": "알림 화면 칩 줄 우측의 전체 읽음 버튼"
+  },
+  "notificationReadAllConfirmTitle": "모든 알림을 읽음으로 표시할까요?",
+  "notificationReadAllConfirmMessage": "안 읽은 알림이 모두 읽음으로 표시됩니다.",
+  "notificationReadAllDone": "모든 알림을 읽음으로 표시했어요",
+  "notificationReadAllFailed": "읽음 처리에 실패했어요",
   "notificationLabelDefault": "알림",
   "@notificationLabelDefault": {
     "description": "알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다."
