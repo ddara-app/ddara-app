@@ -1,6 +1,7 @@
 import 'package:ddara/core/local/provider/local_provider.dart';
 import 'package:ddara/core/local/storage_key.dart';
 import 'package:ddara/core/network/auth_interceptor.dart';
+import 'package:ddara/core/network/error_reporting_interceptor.dart';
 import 'package:ddara/core/network/performance_interceptor.dart';
 import 'package:ddara/core/router/app_router.dart';
 import 'package:ddara/core/router/route_path.dart';
@@ -46,6 +47,10 @@ final Provider<Dio> dioProvider = Provider<Dio>((ref) {
       ),
     ),
   );
+
+  // AuthInterceptor 뒤에 둔다. 401 을 세션 복구로 되살린 요청은 여기까지
+  // 오지 않아야 하기 때문이다.
+  dio.interceptors.add(ErrorReportingInterceptor());
 
   return dio;
 });

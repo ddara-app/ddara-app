@@ -1,6 +1,6 @@
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/invite_group.dart';
+import 'package:ddara/domain/model/group/invite_group.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/l10n/app_localizations.dart';

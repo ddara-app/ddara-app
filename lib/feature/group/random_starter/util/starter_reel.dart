@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
 import 'package:flutter/animation.dart';
 
 /// 스타터 슬롯머신 릴 레이아웃 상수. (Figma Swyp-designers-v4 · 40003384:16447,
@@ -70,38 +70,38 @@ Animation<double> buildStarterReelOffset({
 
   return TweenSequence<double>([
     TweenSequenceItem(
-      tween:
-          Tween<double>(
-            begin: StarterReelLayout.reelStartY + pitch,
-            end: targetOffset - pitch * 6,
-          ).chain(
-            CurveTween(curve: Curves.linear),
-          ),
+      tween: Tween<double>(
+        begin: StarterReelLayout.reelStartY + pitch,
+        end: targetOffset - pitch * 6,
+      ).chain(CurveTween(curve: Curves.linear)),
       weight: 72,
     ),
     TweenSequenceItem(
-      tween:
-          Tween<double>(
-            begin: targetOffset - pitch * 6,
-            end: targetOffset + pitch,
-          ).chain(
-            CurveTween(curve: Curves.easeOutCubic),
-          ),
+      tween: Tween<double>(
+        begin: targetOffset - pitch * 6,
+        end: targetOffset + pitch,
+      ).chain(CurveTween(curve: Curves.easeOutCubic)),
       weight: 12,
     ),
     TweenSequenceItem(
-      tween: Tween<double>(begin: targetOffset + pitch, end: targetOffset - 18)
-          .chain(CurveTween(curve: Curves.easeOut)),
+      tween: Tween<double>(
+        begin: targetOffset + pitch,
+        end: targetOffset - 18,
+      ).chain(CurveTween(curve: Curves.easeOut)),
       weight: 7,
     ),
     TweenSequenceItem(
-      tween: Tween<double>(begin: targetOffset - 18, end: targetOffset + 10)
-          .chain(CurveTween(curve: Curves.easeInOut)),
+      tween: Tween<double>(
+        begin: targetOffset - 18,
+        end: targetOffset + 10,
+      ).chain(CurveTween(curve: Curves.easeInOut)),
       weight: 5,
     ),
     TweenSequenceItem(
-      tween: Tween<double>(begin: targetOffset + 10, end: targetOffset)
-          .chain(CurveTween(curve: Curves.easeOutCubic)),
+      tween: Tween<double>(
+        begin: targetOffset + 10,
+        end: targetOffset,
+      ).chain(CurveTween(curve: Curves.easeOutCubic)),
       weight: 4,
     ),
   ]).animate(controller);

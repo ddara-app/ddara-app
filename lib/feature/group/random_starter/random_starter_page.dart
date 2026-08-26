@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/random_starter/util/starter_reel.dart';
 import 'package:ddara/feature/group/random_starter/widget/starter_confetti.dart';
@@ -99,10 +99,7 @@ class _RandomStarterPageState extends ConsumerState<RandomStarterPage>
   @override
   void initState() {
     super.initState();
-    AppAnalytics.track(
-      'random_starter_page_viewed',
-      properties: {'group_id': widget.args.groupId},
-    );
+    AnalyticsEvents.randomStarterPageViewed(widget.args.groupId);
     _markSeen();
     _configureReel();
   }

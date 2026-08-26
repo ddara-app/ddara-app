@@ -1,5 +1,8 @@
+import 'dart:async' show unawaited;
+
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
+import 'package:ddara/feature/notification/provider/unread_notification_provider.dart';
 import 'package:ddara/feature/notification/util/notification_state.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +18,12 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
     _load();
 
     return const NotificationLoading();
+  }
+
+  /// 조회에 실패한 뒤 다시 불러온다. (안내 화면의 '다시 시도')
+  void retry() {
+    _update((_) => const NotificationLoading());
+    _load();
   }
 
   /// 폐기 이후 도착한 응답을 무시하고 상태를 갱신한다.
@@ -43,6 +52,96 @@ class NotificationViewModel extends AutoDisposeNotifier<NotificationState>
       _update(
         (s) => s is NotificationLoaded ? s : const NotificationLoadError(),
       );
+    }
+  }
+
+  /// [notificationId] 알림을 읽음으로 표시한다.
+  ///
+  /// 목록도 함께 읽음으로 바꾼다. 알림을 눌러 이동해도 이 화면은 스택에 남아
+  /// 있어(알림 > 상세), 뒤로 돌아왔을 때 다시 조회하지 않기 때문이다.
+  /// (docs/tech_notes/notification_navigation.md)
+  ///
+  /// 서버 응답은 기다리지 않는다. 실패해도 화면에 알리거나 되돌리지 않고,
+  /// 다음 조회 때 안 읽음으로 남을 뿐이다.
+  void markAsRead(int notificationId) {
+    final current = state;
+    if (current is! NotificationLoaded) return;
+
+    // 목록에 없거나(재조회로 사라짐) 이미 읽은 알림이면 부르지 않는다.
+    final index = current.items.indexWhere((item) => item.id == notificationId);
+    if (index < 0 || current.items[index].isRead) return;
+
+    final items = [...current.items];
+    items[index] = items[index].copyWith(readAt: DateTime.now());
+    _update(
+      (s) => s is NotificationLoaded
+          ? NotificationLoaded(
+              items: items,
+              blockedUserIds: s.blockedUserIds,
+            )
+          : s,
+    );
+
+    unawaited(_sendRead(notificationId));
+  }
+
+  /// 안 읽은 알림을 모두 읽음으로 표시한다. ('전체 읽음')
+  ///
+  /// 개별 읽음과 달리 서버 응답을 기다린다 — 사용자가 명시적으로 누른 동작이라
+  /// 실패를 알려야 하고, 성공한 뒤에 목록을 한 번에 바꿔야 되돌릴 일이 없다.
+  ///
+  /// 성공하면 true. (호출부가 완료 토스트를 띄운다 — 실패 안내는 상태의
+  /// [NotificationLoaded.readAllFailed] 로 따로 흐른다)
+  Future<bool> markAllAsRead() async {
+    final current = state;
+    if (current is! NotificationLoaded) return false;
+    // 처리 중이거나 이미 다 읽었으면 부르지 않는다.
+    if (current.isMarkingAllRead || !current.hasUnread) return false;
+
+    _updateLoaded((s) => s.copyWith(isMarkingAllRead: true));
+
+    try {
+      await ref.read(markAllNotificationsAsReadUseCaseProvider)();
+      final readAt = DateTime.now();
+      _updateLoaded(
+        (s) => s.copyWith(
+          items: [
+            for (final item in s.items)
+              item.isRead ? item : item.copyWith(readAt: readAt),
+          ],
+          isMarkingAllRead: false,
+        ),
+      );
+      // 홈 종 아이콘을 다시 판정하게 한다.
+      ref.invalidate(hasUnreadNotificationProvider);
+      return true;
+    } catch (e) {
+      debugPrint('[Notification] 전체 읽음 처리 실패: $e');
+      _updateLoaded(
+        (s) => s.copyWith(isMarkingAllRead: false, readAllFailed: true),
+      );
+      return false;
+    }
+  }
+
+  /// '전체 읽음' 실패를 소비한 뒤(토스트로 노출 후) 다시 비운다.
+  void clearReadAllFailure() {
+    _updateLoaded((s) => s.copyWith(readAllFailed: false));
+  }
+
+  /// 목록이 떠 있을 때만 상태를 갱신한다. (로딩·에러 상태에서는 무시)
+  void _updateLoaded(NotificationLoaded Function(NotificationLoaded s) updater) {
+    _update((s) => s is NotificationLoaded ? updater(s) : s);
+  }
+
+  Future<void> _sendRead(int notificationId) async {
+    try {
+      await ref.read(markNotificationAsReadUseCaseProvider)(notificationId);
+      // 홈 종 아이콘을 다시 판정하게 한다. 이 화면이 폐기된 뒤에도
+      // 홈은 그대로 떠 있어, 목록에서 바로 다른 화면으로 넘어가도 반영된다.
+      ref.invalidate(hasUnreadNotificationProvider);
+    } catch (e) {
+      debugPrint('[Notification] 읽음 처리 실패(id=$notificationId): $e');
     }
   }
 }

@@ -172,9 +172,10 @@ class _CommentItemState extends State<CommentItem> {
           ]
         : [
             // 멤버 아바타·사진 카드 메뉴와 같은 순서. (차단하기 → 신고하기)
+            // 경고색은 되돌릴 수 없는 신고에만 쓴다. (차단은 해제할 수 있다)
             _menuItem(
               l10n.memberBlock,
-              color: AppColors.statusDanger,
+              color: AppColors.textPrimary,
               onPressed: () => _select(dialogContext, widget.onBlock),
             ),
             Container(height: 1, color: AppColors.borderDefault),

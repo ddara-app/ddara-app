@@ -1,7 +1,9 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
+import 'package:ddara/core/widget/screen_view_tracker.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/block/blocked_users.dart';
+import 'package:ddara/domain/model/block/blocked_users.dart';
 import 'package:ddara/core/util/date_format.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
@@ -25,6 +27,13 @@ class BlockedUsersPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return ScreenViewTracker(
+      onView: AnalyticsEvents.blockedUsersPageViewed,
+      child: _content(context, ref),
+    );
+  }
+
+  Widget _content(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(blockedUsersViewModelProvider);
 

@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -54,7 +54,7 @@ class InviteShareSheet extends StatelessWidget {
   }
 
   Future<void> _onKakaoShare(BuildContext context) async {
-    AppAnalytics.track('invite_kakao_share_clicked');
+    AnalyticsEvents.inviteKakaoShareClicked();
     final navigator = Navigator.of(context);
     try {
       await KakaoShareService().shareInvite(inviteCode, imageUrl: imageUrl);
@@ -75,7 +75,7 @@ class InviteShareSheet extends StatelessWidget {
   }
 
   void _onCopyCode(BuildContext context) {
-    AppAnalytics.track('invite_code_copy_clicked');
+    AnalyticsEvents.inviteCodeCopyClicked();
     Clipboard.setData(ClipboardData(text: inviteCode));
     // 시트가 닫혀도 토스트는 루트 오버레이에 남으므로 pop 전에 띄운다.
     Toast.showToast(context, AppLocalizations.of(context).inviteCodeCopied);

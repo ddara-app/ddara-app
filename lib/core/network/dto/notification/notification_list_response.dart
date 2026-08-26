@@ -60,6 +60,12 @@ abstract class NotificationPayloadResponse with _$NotificationPayloadResponse {
     bool? locked,
     // 썸네일을 올린 스타터의 userId. (NEW_CYCLE·CYCLE_COMPLETED 에 존재)
     int? starterUserId,
+    // 댓글이 달린 사진의 주인. (COMMENT 에 존재)
+    // isMyShot 이 false 면 문구에 이 닉네임을 넣어 남의 사진임을 알린다.
+    int? shotOwnerUserId,
+    String? shotOwnerNickname,
+    // 댓글이 달린 사진이 내 사진인지 여부. (COMMENT 에 존재)
+    bool? isMyShot,
   }) = _NotificationPayloadResponse;
 
   factory NotificationPayloadResponse.fromJson(Map<String, dynamic> json) =>

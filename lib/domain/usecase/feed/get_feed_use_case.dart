@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/feed/feed.dart';
+import 'package:ddara/domain/model/feed/feed.dart';
 
 import '../../repository/feed_repository.dart';
 

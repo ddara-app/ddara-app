@@ -1,9 +1,10 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_action_error.dart';
-import 'package:ddara/core/model/group/history_list.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
+import 'package:ddara/domain/model/group/history_list.dart';
 import 'package:ddara/core/widget/list/lazy_reveal_list.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
@@ -32,6 +33,12 @@ class HistoryListPage extends ConsumerStatefulWidget {
 }
 
 class _HistoryListPageState extends ConsumerState<HistoryListPage> {
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsEvents.historyListViewed(widget.groupId);
+  }
+
   /// 한 번에 화면에 드러내는 월 섹션 개수. (클라이언트 사이드 페이징 단위)
   static const _sectionPageSize = 4;
 

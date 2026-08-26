@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/divider/app_divider.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
@@ -39,7 +40,20 @@ class _TermsPageState extends State<TermsPage> {
 
   bool get _allAgreed => _termsOfService && _privacyPolicy && _ageOver14;
 
-  void _notify() => widget.onAgreementChanged(_allAgreed);
+  /// 전체 동의 이벤트를 이미 보냈는지.
+  ///
+  /// 체크를 껐다 켤 때마다 중복 전송되지 않도록 한 번만 보낸다.
+  /// 뒤로가기로 동의 상태를 복원한 경우([TermsPage.initialAgreed])도
+  /// 새로 동의한 것이 아니므로 보내지 않는다.
+  late bool _agreedTracked = widget.initialAgreed;
+
+  void _notify() {
+    if (_allAgreed && !_agreedTracked) {
+      _agreedTracked = true;
+      AnalyticsEvents.signupTermsAgreed();
+    }
+    widget.onAgreementChanged(_allAgreed);
+  }
 
   void _toggleAll(bool value) {
     setState(() {

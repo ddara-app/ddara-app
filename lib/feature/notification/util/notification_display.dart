@@ -1,5 +1,5 @@
-import 'package:ddara/core/model/notification/notification_item.dart';
-import 'package:ddara/core/model/notification/notification_type.dart';
+import 'package:ddara/domain/model/notification/notification_item.dart';
+import 'package:ddara/domain/model/notification/notification_type.dart';
 import 'package:ddara/core/util/time_ago.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 
@@ -66,10 +66,24 @@ extension NotificationDisplay on NotificationItem {
           payload.actorNickname ?? '',
         );
       case NotificationType.comment:
-        return l10n.notificationMessageComment(
-          groupName,
-          payload.actorNickname ?? '',
-        );
+        final actor = payload.actorNickname ?? '';
+        // 남의 사진에 달린 댓글도 알림으로 오므로 사진 주인을 밝혀 준다.
+        // (주인 닉네임을 모르면 '내 사진' 으로 단정하지 않게 기본 문구로 둔다)
+        final owner = payload.shotOwnerNickname;
+        if (!payload.isMyShot && owner != null && owner.isNotEmpty) {
+          // 작성자와 사진 주인이 같으면 같은 이름을 두 번 부르지 않고
+          // '본인 사진' 으로 줄인다. 한 모임 안에서 닉네임은 중복될 수 없어
+          // (닉네임 변경 시트가 막는다) 이름으로 견줘도 안전하다.
+          if (owner == actor) {
+            return l10n.notificationMessageCommentOnOwn(groupName, actor);
+          }
+          return l10n.notificationMessageCommentOnOthers(
+            groupName,
+            actor,
+            owner,
+          );
+        }
+        return l10n.notificationMessageComment(groupName, actor);
       case NotificationType.unknown:
         return l10n.notificationMessageDefault;
     }

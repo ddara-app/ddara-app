@@ -1,9 +1,9 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/foundation/app_spacing.dart';
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/sign/signup/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/sign/signup/terms_page.dart';
@@ -30,10 +30,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     if (_pageViewTracked) return;
     _pageViewTracked = true;
     final social = GoRouterState.of(context).extra as SocialLoginType;
-    AppAnalytics.track(
-      'signup_page_viewed',
-      properties: {'provider': social.name},
-    );
+    AnalyticsEvents.signupPageViewed(social.name);
   }
 
   /// 실패 사유(enum)를 사용자 노출 문구로 매핑한다.
@@ -60,10 +57,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
       switch (next.submit) {
         case SignUpSuccess():
-          AppAnalytics.track(
-            'signup_succeeded',
-            properties: {'provider': social.name},
-          );
+          AnalyticsEvents.signupSucceeded(social.name);
           // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
           routeAfterAuth(ref, GoRouter.of(context));
 

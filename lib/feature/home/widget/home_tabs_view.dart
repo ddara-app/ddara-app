@@ -1,9 +1,10 @@
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_list.dart';
+import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
+import 'package:ddara/core/util/scroll_to_top.dart';
 import 'package:ddara/feature/home/widget/fab_speed_dial.dart';
 import 'package:ddara/feature/home/widget/group_list_view.dart';
-import 'package:ddara/feature/home/widget/home_tab_header.dart';
+import 'package:ddara/core/widget/tab/page_tab_header.dart';
 import 'package:ddara/feature/home/widget/recent_updates_view.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,14 +36,27 @@ class HomeTabsView extends StatefulWidget {
 class _HomeTabsViewState extends State<HomeTabsView> {
   final PageController _pageController = PageController();
 
+  /// 탭별 스크롤 컨트롤러. 탭마다 스크롤 위치가 따로 유지되므로 하나씩 둔다.
+  /// (0 = 따라찍기 모임, 1 = 최근 업데이트 — 탭 인덱스와 같은 순서)
+  final List<ScrollController> _scrollControllers = [
+    ScrollController(),
+    ScrollController(),
+  ];
+
   /// 현재 선택된 탭 인덱스. (0 = 따라찍기 모임, 1 = 최근 업데이트)
   int _tabIndex = 0;
 
   @override
   void dispose() {
+    for (final controller in _scrollControllers) {
+      controller.dispose();
+    }
     _pageController.dispose();
     super.dispose();
   }
+
+  /// 이미 보고 있는 탭을 다시 눌렀을 때 그 목록을 맨 위로 되돌린다.
+  void _scrollToTop(int index) => _scrollControllers[index].animateToTop();
 
   /// PageView 의 현재 페이지 값(스와이프 진행도 포함).
   /// 첫 레이아웃 전(치수 미확정)에는 선택 인덱스로 대체한다.
@@ -63,16 +77,15 @@ class _HomeTabsViewState extends State<HomeTabsView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.s5,
-                AppSpacing.s5,
-                AppSpacing.s5,
-                AppSpacing.s7,
-              ),
-              child: HomeTabHeader(
+              // 하단 여백은 두지 않는다. 인디케이터와 첫 카드 사이 간격은
+              // 스크롤되는 본문(CardGridView) 상단이 갖고 있어, 스크롤하면
+              // 여백째 올라가 카드가 탭 바로 아래까지 붙는다.
+              padding: pageTabHeaderPadding.copyWith(bottom: AppSpacing.s0),
+              child: PageTabHeader(
                 controller: _pageController,
                 labels: [l10n.homeTabGroups, l10n.homeTabRecentUpdates],
                 currentIndex: _tabIndex,
+                onReselected: _scrollToTop,
               ),
             ),
             Expanded(
@@ -84,8 +97,12 @@ class _HomeTabsViewState extends State<HomeTabsView> {
                   GroupListView(
                     groups: widget.groups,
                     blockedUserIds: widget.blockedUserIds,
+                    controller: _scrollControllers[0],
                   ),
-                  RecentUpdatesView(blockedUserIds: widget.blockedUserIds),
+                  RecentUpdatesView(
+                    blockedUserIds: widget.blockedUserIds,
+                    controller: _scrollControllers[1],
+                  ),
                 ],
               ),
             ),

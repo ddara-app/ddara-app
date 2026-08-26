@@ -66,6 +66,9 @@ abstract final class AppIcons {
   static const flashOn = AppIconData.font(CupertinoIcons.bolt_fill);
   static const flashOff = AppIconData.font(CupertinoIcons.bolt_slash_fill);
 
+  /// 도움말. (촬영 화면의 가이드 투어 다시 보기)
+  static const help = AppIconData.font(CupertinoIcons.question_circle);
+
   /// 사진 없음 placeholder. (반투명 — 카드·빈 썸네일용)
   static const gallery = AppIconData.svg('ic_image');
 
@@ -75,6 +78,9 @@ abstract final class AppIcons {
   // 상태·개체
   /// 알림 종. (홈 상단 알림 버튼 · 권한 안내 목록 공용)
   static const bell = AppIconData.svg('ic_bell');
+
+  /// 안 읽은 알림이 있을 때의 종. (점이 찍힌 모양)
+  static const bellUnread = AppIconData.svg('ic_bell_noti');
   static const lock = AppIconData.svg('ic_lock');
   static const people = AppIconData.svg('ic_people');
   static const comment = AppIconData.svg('ic_comment');

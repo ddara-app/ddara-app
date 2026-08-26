@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/text_field/app_text_field.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
 import 'package:ddara/core/widget/scrollable_page_body.dart';
@@ -65,9 +65,9 @@ class _StarterInfoState extends ConsumerState<StarterInfo> {
         .upload(widget.groupId);
     if (cycleId == null || !mounted) return;
 
-    AppAnalytics.track(
-      'starter_photo_posted',
-      properties: {'group_id': widget.groupId, 'cycle_id': cycleId},
+    AnalyticsEvents.starterPhotoPosted(
+      groupId: widget.groupId,
+      cycleId: cycleId,
     );
     // 새 사이클이 생겼으므로 스택 아래 모임 상세를 무효화해, 갤러리에서
     // 돌아갔을 때 진행 중 사이클이 반영된 최신 상태로 보이게 한다.

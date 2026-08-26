@@ -1,6 +1,6 @@
 import 'package:ddara/core/auth/provider/auth_provider.dart';
 import 'package:ddara/core/auth/social_auth_result.dart';
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 import 'package:ddara/feature/sign/login/util/login_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

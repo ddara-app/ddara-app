@@ -1,6 +1,6 @@
-import 'package:ddara/core/model/group/group_list.dart';
+import 'package:ddara/domain/model/group/group_list.dart';
 import 'package:ddara/core/router/route_path.dart';
-import 'package:ddara/feature/group/detail/group_page.dart';
+import 'package:ddara/feature/group/detail/util/group_page_args.dart';
 import 'package:ddara/feature/home/provider/viewmodel_provider.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
@@ -16,6 +16,7 @@ class GroupListView extends ConsumerWidget {
     super.key,
     required this.groups,
     required this.blockedUserIds,
+    this.controller,
   });
 
   final List<Group> groups;
@@ -24,11 +25,18 @@ class GroupListView extends ConsumerWidget {
   /// (차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다)
   final Set<int> blockedUserIds;
 
+  /// 스크롤 컨트롤러. 탭 재선택으로 목록을 맨 위로 되돌릴 때 쓴다.
+  final ScrollController? controller;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CardGridView(
+      controller: controller,
       items: groups,
-      dashboard: HomeDashboard.groupCount(count: groups.length),
+      dashboard: HomeDashboard.groupCount(
+        count: groups.length,
+        onGuideTap: () => context.push(RoutePath.guide),
+      ),
       cardBuilder: (context, group) {
         // 차단한 멤버가 올린 썸네일은 차단 자리표시로 가린다.
         final thumbnailBlocked = blockedUserIds.contains(group.thumbnailUserId);

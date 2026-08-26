@@ -1,4 +1,5 @@
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/camera/tour/camera_tour_target.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -27,12 +28,19 @@ class CameraModeToggle extends StatelessWidget {
   const CameraModeToggle({
     super.key,
     this.visible = false,
+    this.highlightGhostZoom = false,
     required this.mode,
     required this.onChanged,
   });
 
   /// 토글 표시 여부. (false 면 자리만 차지한다)
   final bool visible;
+
+  /// 가이드 투어가 '고스트 확대' 버튼을 가리키는 중인지.
+  ///
+  /// true 면 그 버튼이 배경을 깔고 글자를 밝혀 딥 위에서도 읽힌다.
+  /// (테두리는 스포트라이트가 구멍 경계에 그리므로 여기서는 그리지 않는다)
+  final bool highlightGhostZoom;
 
   /// 현재 선택된 모드.
   final GuideViewMode mode;
@@ -87,10 +95,17 @@ class CameraModeToggle extends StatelessWidget {
                   selected: cornerSelected,
                   onPressed: () => _select(GuideViewMode.cornerMini),
                 ),
-                _ModeButton(
-                  label: l10n.cameraModeGhostZoom,
-                  selected: !cornerSelected,
-                  onPressed: () => _select(GuideViewMode.ghostZoom),
+                // 가이드 투어는 이 버튼 하나만 하이라이트한다.
+                // (묶음이나 바깥 GestureDetector 를 감싸면 구멍이 안내하려는
+                //  기능보다 훨씬 넓게 뚫린다)
+                CameraTourTarget(
+                  id: CameraTourTargets.ghostZoomMode,
+                  child: _ModeButton(
+                    label: l10n.cameraModeGhostZoom,
+                    selected: !cornerSelected,
+                    highlighted: highlightGhostZoom,
+                    onPressed: () => _select(GuideViewMode.ghostZoom),
+                  ),
                 ),
               ],
             ),
@@ -108,11 +123,15 @@ class _ModeButton extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onPressed,
+    this.highlighted = false,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onPressed;
+
+  /// 가이드 투어가 이 버튼을 가리키는 중인지.
+  final bool highlighted;
 
   static const _duration = Duration(milliseconds: 250);
 
@@ -122,13 +141,24 @@ class _ModeButton extends StatelessWidget {
       padding: EdgeInsets.zero,
       minimumSize: Size.zero,
       onPressed: onPressed,
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.all(AppSpacing.s4),
+        clipBehavior: highlighted ? Clip.antiAlias : Clip.none,
+        decoration: highlighted
+            ? ShapeDecoration(
+                color: AppColors.bgSurfaceAlt,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                ),
+              )
+            : null,
         child: AnimatedDefaultTextStyle(
           duration: _duration,
           curve: Curves.easeInOut,
           style: AppTypography.label.copyWith(
-            color: selected ? AppColors.accentDefault : AppColors.textTertiary,
+            color: highlighted
+                ? AppColors.textPrimary
+                : (selected ? AppColors.accentDefault : AppColors.textTertiary),
           ),
           child: Text(label),
         ),

@@ -1,6 +1,6 @@
-import 'package:ddara/core/comment/comment_action_error.dart';
-import 'package:ddara/core/model/group/cycle_gallery.dart';
-import 'package:ddara/core/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/comment_action_error.dart';
+import 'package:ddara/domain/model/group/cycle_gallery.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 
 /// 사이클 사진 갤러리 화면 상태. 로딩·초기 조회 실패·본문이 상호배타인 sealed 설계다.
 ///

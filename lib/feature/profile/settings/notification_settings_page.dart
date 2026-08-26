@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
@@ -26,6 +27,7 @@ class _NotificationSettingsPageState
   @override
   void initState() {
     super.initState();
+    AnalyticsEvents.notificationSettingsPageViewed();
     // 설정 화면에서 권한을 바꾸고 돌아오는 경우까지 반영하기 위해 옵저버 등록.
     WidgetsBinding.instance.addObserver(this);
   }

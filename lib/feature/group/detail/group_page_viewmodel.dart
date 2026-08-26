@@ -1,11 +1,11 @@
 import 'package:ddara/core/exception/block_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
-import 'package:ddara/core/model/group/group_action_error.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
-import 'package:ddara/core/model/group/history_cycles.dart';
-import 'package:ddara/core/model/report/group_report_reason.dart';
-import 'package:ddara/core/model/report/user_report_reason.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/history_cycles.dart';
+import 'package:ddara/domain/model/report/group_report_reason.dart';
+import 'package:ddara/domain/model/report/user_report_reason.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:ddara/feature/group/detail/util/group_page_state.dart';

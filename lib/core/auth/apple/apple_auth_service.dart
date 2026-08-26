@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:ddara/core/analytics/crashlytics_manager.dart';
 import 'package:ddara/core/auth/apple/apple_credential_storage.dart';
 import 'package:ddara/core/auth/social_auth_result.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -46,8 +48,17 @@ class AppleAuthService {
       // null 이면 사용자가 취소한 것.
       if (idToken == null) return const SocialAuthCancelled();
       return SocialAuthSuccess(idToken);
-    } catch (e) {
-      return SocialAuthFailure('$e');
+    } catch (error, stack) {
+      // 취소는 플랫폼별 흐름 안에서 이미 null 로 걸러져 여기 오지 않는다.
+      // 남는 것은 Firebase 자격증명 교환 실패 등 손봐야 할 문제뿐이다.
+      unawaited(
+        CrashlyticsManager.instance.recordError(
+          error,
+          stack,
+          reason: 'apple sign-in failed',
+        ),
+      );
+      return SocialAuthFailure('$error');
     }
   }
 

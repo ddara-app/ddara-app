@@ -1,6 +1,6 @@
-import 'package:ddara/core/model/cycle/follower_upload.dart';
-import 'package:ddara/core/model/cycle/starter_upload.dart';
-import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/domain/model/cycle/follower_upload.dart';
+import 'package:ddara/domain/model/cycle/starter_upload.dart';
+import 'package:ddara/domain/model/group/cycle_gallery.dart';
 
 abstract interface class CycleRepository {
   Future<StarterUpload> uploadStarter(int groupId, String topic, String path);

@@ -9,13 +9,21 @@ import 'package:flutter/widgets.dart';
 /// 하 s7 + Safe Area 인셋 (하단까지 배경을 잇되 마지막 항목이 홈 인디케이터와
 /// 겹치지 않도록). 화면 사정으로 다른 여백이 필요하면 [padding] 으로 바꾼다.
 class ScrollablePageBody extends StatelessWidget {
-  const ScrollablePageBody({super.key, required this.child, this.padding});
+  const ScrollablePageBody({
+    super.key,
+    required this.child,
+    this.padding,
+    this.controller,
+  });
 
   final Widget child;
 
   /// 본문 여백 override. null 이면 페이지 표준 패딩([_defaultPadding])을 쓴다.
   /// 하단 Safe Area 인셋은 어느 쪽이든 여기에 더해진다.
   final EdgeInsets? padding;
+
+  /// 스크롤 컨트롤러. 바깥에서 스크롤 위치를 읽거나 되돌릴 때 넘긴다.
+  final ScrollController? controller;
 
   /// 페이지 표준 패딩. (상 s3 · 좌우 s5 · 하 s7)
   static const _defaultPadding = EdgeInsets.only(
@@ -30,6 +38,7 @@ class ScrollablePageBody extends StatelessWidget {
     final base = padding ?? _defaultPadding;
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
+        controller: controller,
         // 콘텐츠가 화면에 다 들어가도(AlwaysScrollable) 당기면 늘어났다
         // 돌아오도록(Bouncing) — 안드로이드에서도 iOS 와 같은 반응을 준다.
         physics: const BouncingScrollPhysics(

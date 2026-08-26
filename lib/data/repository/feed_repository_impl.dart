@@ -1,5 +1,5 @@
 import 'package:ddara/core/exception/login_exception.dart';
-import 'package:ddara/core/model/feed/feed.dart';
+import 'package:ddara/domain/model/feed/feed.dart';
 import 'package:ddara/data/datasource/feed/feed_datasource.dart';
 import 'package:ddara/domain/repository/feed_repository.dart';
 import 'package:dio/dio.dart';

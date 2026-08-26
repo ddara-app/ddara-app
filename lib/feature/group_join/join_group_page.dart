@@ -1,13 +1,13 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/core/exception/group_join_error_code.dart';
-import 'package:ddara/core/model/group/invite_group.dart';
+import 'package:ddara/domain/model/group/invite_group.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/tap_guard.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
-import 'package:ddara/feature/group/detail/group_page.dart';
+import 'package:ddara/feature/group/detail/util/group_page_args.dart';
 import 'package:ddara/feature/group_join/widget/join_confirm.dart';
 import 'package:ddara/feature/group_join/provider/viewmodel_provider.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
@@ -68,10 +68,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
   void initState() {
     super.initState();
     // joinable: 진입 시점에 실제로 참여 가능한 모임이었는지. (만원·이미참여·조회실패 구분용)
-    AppAnalytics.track(
-      'group_join_page_viewed',
-      properties: {'joinable': _canJoin},
-    );
+    AnalyticsEvents.groupJoinPageViewed(joinable: _canJoin);
   }
 
   /// 뒤로가기: 닉네임 스텝이면 확인 스텝으로, 첫 스텝이면 pop(없으면 홈).
@@ -109,10 +106,7 @@ class _JoinGroupPageState extends ConsumerState<JoinGroupPage> {
       // 참여 성공 시 모임 화면으로 이동. (홈 목록을 무효화해 새 모임이 반영되게 한다)
       // 모임 화면의 뒤로가기(AppBar·OS)는 GroupPage 가 항상 홈으로 처리한다.
       if (prev?.joinedGroupId == -1 && next.joinedGroupId > -1) {
-        AppAnalytics.track(
-          'group_join_succeeded',
-          properties: {'group_id': next.joinedGroupId},
-        );
+        AnalyticsEvents.groupJoinSucceeded(next.joinedGroupId);
         ref.invalidate(homeViewModelProvider);
         // 초대 확인 스텝에서 받은 모임 이름을 넘겨 상세 조회 전에도 AppBar 를 채운다.
         context.pushReplacement(

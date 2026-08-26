@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -49,6 +50,7 @@ class _InviteLandingPageState extends ConsumerState<InviteLandingPage> {
   @override
   void initState() {
     super.initState();
+    AnalyticsEvents.inviteLandingViewed();
     // 콜드 스타트로 보관됐던 초대코드는 여기서 소비한다. (코드는 URL 로 전달받음)
     Future.microtask(
       () => ref.read(pendingInviteCodeProvider.notifier).state = null,

@@ -490,17 +490,77 @@ abstract class AppLocalizations {
   /// **'어서 따라찍기를 시작해봐요'**
   String get updateCountCaption;
 
-  /// No description provided for @meetingStatusInProgress.
+  /// 가이드 화면 첫 번째 섹션 제목 — 진행 방식 안내
   ///
   /// In ko, this message translates to:
-  /// **'진행 중'**
-  String get meetingStatusInProgress;
+  /// **'따라찍기, 이렇게 진행돼요'**
+  String get guideFlowTitle;
 
-  /// No description provided for @meetingStatusCompleted.
+  /// 가이드 화면 진행 방식 1단계 설명
   ///
   /// In ko, this message translates to:
-  /// **'종료'**
-  String get meetingStatusCompleted;
+  /// **'스타터가 원본 사진을 올려요'**
+  String get guideFlowStep1;
+
+  /// 가이드 화면 진행 방식 2단계 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'원본과 같은 구도로 따라 찍어요'**
+  String get guideFlowStep2;
+
+  /// 가이드 화면 진행 방식 3단계 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 찍거나 시간이 끝나면 공개돼요'**
+  String get guideFlowStep3;
+
+  /// 가이드 화면 촬영 보조 기능 카드 제목 — 코너 미니뷰
+  ///
+  /// In ko, this message translates to:
+  /// **'코너 미니뷰'**
+  String get guideFeatureCornerTitle;
+
+  /// 가이드 화면 촬영 보조 기능 카드 설명 — 코너 미니뷰 (4줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'원본을 화면 구석에\n작게 띄워요\n원본을 보면서 그대로\n찍을 수 있어요'**
+  String get guideFeatureCornerDescription;
+
+  /// 가이드 화면 촬영 보조 기능 카드 제목 — 고스트 확대
+  ///
+  /// In ko, this message translates to:
+  /// **'고스트 확대'**
+  String get guideFeatureGhostTitle;
+
+  /// 가이드 화면 촬영 보조 기능 카드 설명 — 고스트 확대 (4줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'원본을 화면 위에\n반투명하게 겹쳠요\n선을 맞추듯 구도를\n정확히 맞출 수 있어요'**
+  String get guideFeatureGhostDescription;
+
+  /// 가이드 화면 두 번째 섹션 제목 — 촬영 보조 기능 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'촬영을 도와주는 기능'**
+  String get guideFeatureTitle;
+
+  /// 따라찍기 사용법 안내 화면 AppBar 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드'**
+  String get guidePageTitle;
+
+  /// 따라찍기 모임 탭 대시보드 2페이지 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드'**
+  String get guideLabel;
+
+  /// 따라찍기 모임 탭 대시보드 2페이지 설명 (2줄)
+  ///
+  /// In ko, this message translates to:
+  /// **'따라찍기\n이렇게 해요'**
+  String get guideDescription;
 
   /// 멤버가 모임장 1명뿐일 때의 요약
   ///
@@ -573,12 +633,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'어떤 모임인지 알려주세요'**
   String get groupCreateIntroPlaceholder;
-
-  /// No description provided for @groupCreateSubmit.
-  ///
-  /// In ko, this message translates to:
-  /// **'만들기'**
-  String get groupCreateSubmit;
 
   /// No description provided for @groupCreateNameLengthError.
   ///
@@ -868,6 +922,30 @@ abstract class AppLocalizations {
   /// **'신고하기'**
   String get report;
 
+  /// 사진 롱프레스 컨텍스트 메뉴의 저장 항목.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하기'**
+  String get photoSave;
+
+  /// No description provided for @photoSaveSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 저장했어요'**
+  String get photoSaveSuccess;
+
+  /// No description provided for @photoSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 저장하지 못했어요'**
+  String get photoSaveFailed;
+
+  /// No description provided for @photoSavePermissionDenied.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 접근 권한이 필요해요'**
+  String get photoSavePermissionDenied;
+
   /// No description provided for @reportSheetTitle.
   ///
   /// In ko, this message translates to:
@@ -994,18 +1072,6 @@ abstract class AppLocalizations {
   /// **'차단하지 못했어요.'**
   String get memberBlockFailedToast;
 
-  /// No description provided for @recordCycleLabel.
-  ///
-  /// In ko, this message translates to:
-  /// **'따라찍기'**
-  String get recordCycleLabel;
-
-  /// No description provided for @recordPhotoLabel.
-  ///
-  /// In ko, this message translates to:
-  /// **'함께한 사진'**
-  String get recordPhotoLabel;
-
   /// No description provided for @recordSectionTitle.
   ///
   /// In ko, this message translates to:
@@ -1090,35 +1156,11 @@ abstract class AppLocalizations {
   /// **'진행 중 · 마감 {time} 전'**
   String startedHeaderRemaining(String time);
 
-  /// 현재 따라찍기 회차
-  ///
-  /// In ko, this message translates to:
-  /// **'{count}번째 따라찍기'**
-  String startedHeaderCycle(int count);
-
-  /// 따라찍기를 시작한 사람 안내
-  ///
-  /// In ko, this message translates to:
-  /// **'{name}님이 시작했어요'**
-  String startedHeaderStarter(String name);
-
-  /// 헤더 우상단에서 멤버들의 업로드 현황을 펼쳐 보는 토글 라벨
-  ///
-  /// In ko, this message translates to:
-  /// **'업로드 친구 확인하기'**
-  String get startedHeaderCheckUploads;
-
   /// 헤더 우상단 스타터 안내 칩 (스타터 · 닉네임)
   ///
   /// In ko, this message translates to:
   /// **'스타터 · {nickname}'**
   String startedHeaderStarterChip(String nickname);
-
-  /// 마감 시간이 지난 경우 표시
-  ///
-  /// In ko, this message translates to:
-  /// **'마감'**
-  String get remainingDeadline;
 
   /// 남은 시간(시간 단위)
   ///
@@ -1153,7 +1195,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteMemberShortageDescription.
   ///
   /// In ko, this message translates to:
-  /// **'3명부터 시작 가능해요'**
+  /// **'2명부터 시작 가능해요'**
   String get inviteMemberShortageDescription;
 
   /// No description provided for @inviteShareKakao.
@@ -1567,7 +1609,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupErrorNotEnoughMembers.
   ///
   /// In ko, this message translates to:
-  /// **'활동 멤버가 3명 이상이어야 시작할 수 있어요.'**
+  /// **'활동 멤버가 2명 이상이어야 시작할 수 있어요.'**
   String get groupErrorNotEnoughMembers;
 
   /// No description provided for @groupErrorCycleAlreadyInProgress.
@@ -1678,11 +1720,119 @@ abstract class AppLocalizations {
   /// **'원본사진 투명도'**
   String get cameraOpacityLabel;
 
+  /// No description provided for @cameraTourNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get cameraTourNext;
+
+  /// 가이드 투어를 한 스텝 되돌리는 버튼. 첫 스텝에서는 표시하지 않는다
+  ///
+  /// In ko, this message translates to:
+  /// **'이전'**
+  String get cameraTourPrevious;
+
+  /// No description provided for @cameraTourDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작하기'**
+  String get cameraTourDone;
+
+  /// 가이드 투어 진행 표시. 예: 2/5
+  ///
+  /// In ko, this message translates to:
+  /// **'{current}/{total}'**
+  String cameraTourProgress(int current, int total);
+
+  /// No description provided for @cameraTourMiniGuideBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'친구가 올린 원본이에요\n이 구도를 따라찍어요'**
+  String get cameraTourMiniGuideBody;
+
+  /// 미니뷰를 왼쪽으로 스와이프하면 손잡이만 남기고 접히는 동작
+  ///
+  /// In ko, this message translates to:
+  /// **'왼쪽으로 밀어\n접어둘 수 있어요'**
+  String get cameraTourMiniGuideFoldBody;
+
+  /// 누르라고 재촉하지 않고 기능의 존재만 알린다. 실제로 누르면 고스트 확대 안내가 이어진다
+  ///
+  /// In ko, this message translates to:
+  /// **'고스트 확대를 켜면 원본이\n화면 위에 반투명하게 겹쳐요'**
+  String get cameraTourModeToggleBody;
+
+  /// No description provided for @cameraTourGhostGuideBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'가이드 사진이 화면 위에 겹쳐져요\n실제 피사체와 맞춰보세요'**
+  String get cameraTourGhostGuideBody;
+
+  /// 투명도 값은 0·20·40 세 단계이며 기본값은 40. 프리뷰 가로 스와이프로도 조절된다
+  ///
+  /// In ko, this message translates to:
+  /// **'원본 사진의 투명도를 바꿀 수 있어요\n화면을 좌우로 밀어도 바뀌어요'**
+  String get cameraTourOpacityBody;
+
   /// No description provided for @notificationTitle.
   ///
   /// In ko, this message translates to:
   /// **'알림'**
   String get notificationTitle;
+
+  /// 알림 화면 탭 — 전체 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get notificationTabAll;
+
+  /// 알림 화면 탭 — 아직 읽지 않은 알림만
+  ///
+  /// In ko, this message translates to:
+  /// **'안 읽음'**
+  String get notificationTabUnread;
+
+  /// No description provided for @notificationCommentEmptyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 댓글 알림이 없어요'**
+  String get notificationCommentEmptyTitle;
+
+  /// No description provided for @notificationCommentEmptyDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진에 댓글이 달리면 여기서 알려드려요'**
+  String get notificationCommentEmptyDescription;
+
+  /// No description provided for @notificationUnreadEmptyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로 확인할 알림이 없어요'**
+  String get notificationUnreadEmptyTitle;
+
+  /// No description provided for @notificationUnreadEmptyDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 알림을 확인했어요'**
+  String get notificationUnreadEmptyDescription;
+
+  /// 알림 화면 칩 — 모든 종류
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get notificationFilterAll;
+
+  /// 알림 화면 칩 — 댓글을 제외한 일반 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get notificationFilterNotice;
+
+  /// 알림 화면 칩 — 댓글 알림
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글'**
+  String get notificationFilterComment;
 
   /// No description provided for @notificationEmptyTitle.
   ///
@@ -1696,11 +1846,53 @@ abstract class AppLocalizations {
   /// **'알림을 받으면 여기에 표시돼요'**
   String get notificationEmptyDescription;
 
-  /// 알림 목록 조회 실패 본문
+  /// No description provided for @notificationLoadFailedTitle.
   ///
   /// In ko, this message translates to:
-  /// **'알림을 불러오지 못했어요.'**
-  String get notificationLoadFailed;
+  /// **'알림을 불러오지 못했어요'**
+  String get notificationLoadFailedTitle;
+
+  /// No description provided for @notificationLoadFailedDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 후 다시 시도해 주세요'**
+  String get notificationLoadFailedDescription;
+
+  /// No description provided for @notificationRetry.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get notificationRetry;
+
+  /// 알림 화면 칩 줄 우측의 전체 읽음 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 읽음'**
+  String get notificationReadAll;
+
+  /// No description provided for @notificationReadAllConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 알림을 읽음으로 표시할까요?'**
+  String get notificationReadAllConfirmTitle;
+
+  /// No description provided for @notificationReadAllConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'안 읽은 알림이 모두 읽음으로 표시됩니다.'**
+  String get notificationReadAllConfirmMessage;
+
+  /// No description provided for @notificationReadAllDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 알림을 읽음으로 표시했어요'**
+  String get notificationReadAllDone;
+
+  /// No description provided for @notificationReadAllFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'읽음 처리에 실패했어요'**
+  String get notificationReadAllFailed;
 
   /// 알림 목록 분류 라벨의 기본값. 종류별 라벨은 알림 설정 화면의 항목명(notificationFollowShot 등)을 그대로 쓴다.
   ///
@@ -1757,13 +1949,29 @@ abstract class AppLocalizations {
   ///
   /// In ko, this message translates to:
   /// **'‘{groupName}’에서 {actor}님이 따라찍기를 올렸어요'**
-  String notificationMessageFriendShot(String actor, String groupName);
+  String notificationMessageFriendShot(String groupName, String actor);
 
-  /// No description provided for @notificationMessageComment.
+  /// COMMENT 알림 중 내 사진에 달린 경우. (payload.isMyShot = true)
   ///
   /// In ko, this message translates to:
   /// **'‘{groupName}’에서 {actor}님이 내 사진에 댓글을 남겼어요'**
-  String notificationMessageComment(String actor, String groupName);
+  String notificationMessageComment(String groupName, String actor);
+
+  /// COMMENT 알림 중 남의 사진에 달린 경우. (payload.isMyShot = false)
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 {actor}님이 {owner}님의 사진에 댓글을 남겼어요'**
+  String notificationMessageCommentOnOthers(
+    String groupName,
+    String actor,
+    String owner,
+  );
+
+  /// COMMENT 알림 중 댓글 작성자가 자기 사진에 남긴 경우. (actorNickname = shotOwnerNickname)
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{groupName}’에서 {actor}님이 본인 사진에 댓글을 남겼어요'**
+  String notificationMessageCommentOnOwn(String groupName, String actor);
 
   /// No description provided for @notificationMessageDefault.
   ///

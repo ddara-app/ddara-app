@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/invite_group.dart';
+import 'package:ddara/domain/model/group/invite_group.dart';
 import 'package:ddara/domain/repository/group_repository.dart';
 
 class GetInviteGroupUseCase {

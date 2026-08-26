@@ -9,13 +9,17 @@ enum AppTextButtonVariant {
 
   /// 본문 크기 글자. (기본색은 [AppText.body] 기본색)
   body,
+
+  /// 버튼·탭·칩과 같은 크기 글자. (기본색은 [AppText.label] 기본색)
+  label,
 }
 
 /// 배경·테두리 없이 텍스트만 있는 버튼.
 ///
 /// 약관 보기·"나중에 할게요" 같은 부가 액션에 쓴다.
 /// 패딩 없이 글자 영역만 탭 대상이 된다.
-/// 기본 생성자는 caption 크기, [AppTextButton.body] 는 본문 크기다.
+/// 기본 생성자는 caption 크기, [AppTextButton.body] 는 본문 크기,
+/// [AppTextButton.label] 은 칩·탭과 같은 크기다.
 /// [color] 를 주지 않으면 변형별 기본색을 사용한다.
 class AppTextButton extends StatelessWidget {
   const AppTextButton({
@@ -33,6 +37,14 @@ class AppTextButton extends StatelessWidget {
     this.color,
     this.textAlign = TextAlign.center,
   }) : variant = AppTextButtonVariant.body;
+
+  const AppTextButton.label({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.color,
+    this.textAlign = TextAlign.center,
+  }) : variant = AppTextButtonVariant.label;
 
   final String label;
   final VoidCallback? onPressed;
@@ -56,6 +68,11 @@ class AppTextButton extends StatelessWidget {
           color: color ?? AppColors.textTertiary,
         ),
         AppTextButtonVariant.body => AppText.body(
+          label,
+          textAlign: textAlign,
+          color: color,
+        ),
+        AppTextButtonVariant.label => AppText.label(
           label,
           textAlign: textAlign,
           color: color,

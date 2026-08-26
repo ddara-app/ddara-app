@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 
 /// 로그아웃 진행 상태.
 enum LogoutStatus {

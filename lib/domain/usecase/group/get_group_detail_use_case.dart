@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
 
 import '../../repository/group_repository.dart';
 

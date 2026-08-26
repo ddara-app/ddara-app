@@ -214,10 +214,42 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCountCaption => '어서 따라찍기를 시작해봐요';
 
   @override
-  String get meetingStatusInProgress => '진행 중';
+  String get guideFlowTitle => '따라찍기, 이렇게 진행돼요';
 
   @override
-  String get meetingStatusCompleted => '종료';
+  String get guideFlowStep1 => '스타터가 원본 사진을 올려요';
+
+  @override
+  String get guideFlowStep2 => '원본과 같은 구도로 따라 찍어요';
+
+  @override
+  String get guideFlowStep3 => '모두 찍거나 시간이 끝나면 공개돼요';
+
+  @override
+  String get guideFeatureCornerTitle => '코너 미니뷰';
+
+  @override
+  String get guideFeatureCornerDescription =>
+      '원본을 화면 구석에\n작게 띄워요\n원본을 보면서 그대로\n찍을 수 있어요';
+
+  @override
+  String get guideFeatureGhostTitle => '고스트 확대';
+
+  @override
+  String get guideFeatureGhostDescription =>
+      '원본을 화면 위에\n반투명하게 겹쳠요\n선을 맞추듯 구도를\n정확히 맞출 수 있어요';
+
+  @override
+  String get guideFeatureTitle => '촬영을 도와주는 기능';
+
+  @override
+  String get guidePageTitle => '가이드';
+
+  @override
+  String get guideLabel => '가이드';
+
+  @override
+  String get guideDescription => '따라찍기\n이렇게 해요';
 
   @override
   String meetingMemberOwner(String name) {
@@ -262,9 +294,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get groupCreateIntroPlaceholder => '어떤 모임인지 알려주세요';
-
-  @override
-  String get groupCreateSubmit => '만들기';
 
   @override
   String get groupCreateNameLengthError => '20자 이하로 입력해주세요';
@@ -420,6 +449,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get report => '신고하기';
 
   @override
+  String get photoSave => '저장하기';
+
+  @override
+  String get photoSaveSuccess => '사진을 저장했어요';
+
+  @override
+  String get photoSaveFailed => '사진을 저장하지 못했어요';
+
+  @override
+  String get photoSavePermissionDenied => '사진 접근 권한이 필요해요';
+
+  @override
   String get reportSheetTitle => '신고 사유를 선택해 주세요';
 
   @override
@@ -487,12 +528,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get memberBlockFailedToast => '차단하지 못했어요.';
 
   @override
-  String get recordCycleLabel => '따라찍기';
-
-  @override
-  String get recordPhotoLabel => '함께한 사진';
-
-  @override
   String get recordSectionTitle => '기록';
 
   @override
@@ -547,25 +582,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String startedHeaderCycle(int count) {
-    return '$count번째 따라찍기';
-  }
-
-  @override
-  String startedHeaderStarter(String name) {
-    return '$name님이 시작했어요';
-  }
-
-  @override
-  String get startedHeaderCheckUploads => '업로드 친구 확인하기';
-
-  @override
   String startedHeaderStarterChip(String nickname) {
     return '스타터 · $nickname';
   }
-
-  @override
-  String get remainingDeadline => '마감';
 
   @override
   String remainingHours(int hours) {
@@ -589,7 +608,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get inviteMemberShortageTitle => '아직 멤버가 부족해요';
 
   @override
-  String get inviteMemberShortageDescription => '3명부터 시작 가능해요';
+  String get inviteMemberShortageDescription => '2명부터 시작 가능해요';
 
   @override
   String get inviteShareKakao => '카카오톡';
@@ -798,7 +817,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupErrorImageUploadFailed => '이미지 업로드에 실패했어요.';
 
   @override
-  String get groupErrorNotEnoughMembers => '활동 멤버가 3명 이상이어야 시작할 수 있어요.';
+  String get groupErrorNotEnoughMembers => '활동 멤버가 2명 이상이어야 시작할 수 있어요.';
 
   @override
   String get groupErrorCycleAlreadyInProgress => '이미 진행 중인 회차가 있어요.';
@@ -855,7 +874,63 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cameraOpacityLabel => '원본사진 투명도';
 
   @override
+  String get cameraTourNext => '다음';
+
+  @override
+  String get cameraTourPrevious => '이전';
+
+  @override
+  String get cameraTourDone => '시작하기';
+
+  @override
+  String cameraTourProgress(int current, int total) {
+    return '$current/$total';
+  }
+
+  @override
+  String get cameraTourMiniGuideBody => '친구가 올린 원본이에요\n이 구도를 따라찍어요';
+
+  @override
+  String get cameraTourMiniGuideFoldBody => '왼쪽으로 밀어\n접어둘 수 있어요';
+
+  @override
+  String get cameraTourModeToggleBody => '고스트 확대를 켜면 원본이\n화면 위에 반투명하게 겹쳐요';
+
+  @override
+  String get cameraTourGhostGuideBody => '가이드 사진이 화면 위에 겹쳐져요\n실제 피사체와 맞춰보세요';
+
+  @override
+  String get cameraTourOpacityBody => '원본 사진의 투명도를 바꿀 수 있어요\n화면을 좌우로 밀어도 바뀌어요';
+
+  @override
   String get notificationTitle => '알림';
+
+  @override
+  String get notificationTabAll => '전체';
+
+  @override
+  String get notificationTabUnread => '안 읽음';
+
+  @override
+  String get notificationCommentEmptyTitle => '아직 댓글 알림이 없어요';
+
+  @override
+  String get notificationCommentEmptyDescription => '사진에 댓글이 달리면 여기서 알려드려요';
+
+  @override
+  String get notificationUnreadEmptyTitle => '새로 확인할 알림이 없어요';
+
+  @override
+  String get notificationUnreadEmptyDescription => '모든 알림을 확인했어요';
+
+  @override
+  String get notificationFilterAll => '전체';
+
+  @override
+  String get notificationFilterNotice => '알림';
+
+  @override
+  String get notificationFilterComment => '댓글';
 
   @override
   String get notificationEmptyTitle => '새로운 알림이 없어요';
@@ -864,7 +939,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notificationEmptyDescription => '알림을 받으면 여기에 표시돼요';
 
   @override
-  String get notificationLoadFailed => '알림을 불러오지 못했어요.';
+  String get notificationLoadFailedTitle => '알림을 불러오지 못했어요';
+
+  @override
+  String get notificationLoadFailedDescription => '잠시 후 다시 시도해 주세요';
+
+  @override
+  String get notificationRetry => '다시 시도';
+
+  @override
+  String get notificationReadAll => '전체 읽음';
+
+  @override
+  String get notificationReadAllConfirmTitle => '모든 알림을 읽음으로 표시할까요?';
+
+  @override
+  String get notificationReadAllConfirmMessage => '안 읽은 알림이 모두 읽음으로 표시됩니다.';
+
+  @override
+  String get notificationReadAllDone => '모든 알림을 읽음으로 표시했어요';
+
+  @override
+  String get notificationReadAllFailed => '읽음 처리에 실패했어요';
 
   @override
   String get notificationLabelDefault => '알림';
@@ -908,13 +1004,27 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String notificationMessageFriendShot(String actor, String groupName) {
+  String notificationMessageFriendShot(String groupName, String actor) {
     return '‘$groupName’에서 $actor님이 따라찍기를 올렸어요';
   }
 
   @override
-  String notificationMessageComment(String actor, String groupName) {
+  String notificationMessageComment(String groupName, String actor) {
     return '‘$groupName’에서 $actor님이 내 사진에 댓글을 남겼어요';
+  }
+
+  @override
+  String notificationMessageCommentOnOthers(
+    String groupName,
+    String actor,
+    String owner,
+  ) {
+    return '‘$groupName’에서 $actor님이 $owner님의 사진에 댓글을 남겼어요';
+  }
+
+  @override
+  String notificationMessageCommentOnOwn(String groupName, String actor) {
+    return '‘$groupName’에서 $actor님이 본인 사진에 댓글을 남겼어요';
   }
 
   @override

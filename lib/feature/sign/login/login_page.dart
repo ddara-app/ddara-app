@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/router/pending_invite.dart';
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
 import 'package:ddara/core/design_system/component/loading/app_loading_overlay.dart';
 import 'package:ddara/core/design_system/component/logo/logo.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/auth/social_login_type.dart';
+import 'package:ddara/domain/model/auth/social_login_type.dart';
 import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/sign/login/provider/viewmodel_provider.dart';
@@ -29,7 +29,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   void initState() {
     super.initState();
-    AppAnalytics.track('login_page_viewed');
+    AnalyticsEvents.loginPageViewed();
   }
 
   /// 실패 사유(enum)를 사용자 노출 문구로 매핑한다.
@@ -42,10 +42,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _onSocialLogin(SocialLoginType type) {
-    AppAnalytics.track(
-      'login_attempted',
-      properties: {'provider': type.name},
-    );
+    AnalyticsEvents.loginAttempted(type.name);
     ref.read(loginViewModelProvider.notifier).socialLogin(type);
   }
 
@@ -61,27 +58,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.listen(loginViewModelProvider, (previous, next) {
       switch (next) {
         case LoginSuccess(:final social):
-          AppAnalytics.track(
-            'login_succeeded',
-            properties: {'provider': social.name},
-          );
+          AnalyticsEvents.loginSucceeded(social.name);
           // 보관된 초대코드가 있으면 모임 참여로 복귀, 없으면 홈으로.
           routeAfterAuth(ref, GoRouter.of(context));
 
         case SignupRequired():
-          AppAnalytics.track(
-            'login_signup_required',
-            properties: {'provider': next.social.name},
-          );
+          AnalyticsEvents.loginSignupRequired(next.social.name);
           context.push(RoutePath.signup, extra: next.social);
 
         case LoginFail(:final social, :final type, :final debugMessage):
-          AppAnalytics.track(
-            'login_failed',
-            properties: {
-              'provider': social.name,
-              'reason': debugMessage ?? type.name,
-            },
+          AnalyticsEvents.loginFailed(
+            provider: social.name,
+            reason: debugMessage ?? type.name,
           );
           Toast.showToast(
             context,

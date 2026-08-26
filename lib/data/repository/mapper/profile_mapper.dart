@@ -1,5 +1,5 @@
-import 'package:ddara/core/model/profile/notification_settings.dart';
-import 'package:ddara/core/model/profile/profile.dart';
+import 'package:ddara/domain/model/profile/notification_settings.dart';
+import 'package:ddara/domain/model/profile/profile.dart';
 import 'package:ddara/core/network/dto/profile/notification_settings_request.dart';
 import 'package:ddara/core/network/dto/profile/notification_settings_response.dart';
 import 'package:ddara/core/network/dto/profile/profile_response.dart';

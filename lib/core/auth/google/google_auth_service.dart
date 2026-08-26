@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:io';
+
+import 'package:ddara/core/analytics/crashlytics_manager.dart';
 
 import 'package:ddara/core/auth/social_auth_result.dart';
 import 'package:flutter/foundation.dart';
@@ -71,11 +74,28 @@ class GoogleAuthService {
       final auth = await googleUser.authentication;
       final accessToken = auth.accessToken;
       if (accessToken == null) {
+        // 계정 선택까지 끝났는데 토큰이 없는 건 정상 흐름이 아니다.
+        // (예외가 아니라 스택이 없어 호출 지점을 직접 만들어 넘긴다)
+        unawaited(
+          CrashlyticsManager.instance.recordError(
+            StateError('google accessToken is null'),
+            StackTrace.current,
+            reason: 'google sign-in returned no access token',
+          ),
+        );
         return const SocialAuthFailure('google accessToken is null');
       }
       return SocialAuthSuccess(accessToken);
-    } catch (e) {
-      return SocialAuthFailure('$e');
+    } catch (error, stack) {
+      // 사용자 취소는 위에서 googleUser == null 로 이미 걸러졌다.
+      unawaited(
+        CrashlyticsManager.instance.recordError(
+          error,
+          stack,
+          reason: 'google sign-in failed',
+        ),
+      );
+      return SocialAuthFailure('$error');
     }
   }
 

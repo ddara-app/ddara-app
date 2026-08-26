@@ -1,3 +1,4 @@
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/text_field/app_text_field.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/button/app_button.dart';
@@ -42,6 +43,9 @@ class _InviteCodeInputPageState extends ConsumerState<InviteCodeInputPage> {
   @override
   void initState() {
     super.initState();
+    AnalyticsEvents.inviteCodeInputViewed(
+      prefilled: widget.inviteCode.isNotEmpty,
+    );
     // 딥링크로 받은 코드가 있으면 입력값으로 미리 채운다.
     _codeController = TextEditingController(text: widget.inviteCode);
 

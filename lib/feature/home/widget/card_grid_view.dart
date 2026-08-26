@@ -17,6 +17,7 @@ class CardGridView<T> extends StatelessWidget {
     required this.dashboard,
     required this.cardBuilder,
     required this.onRefresh,
+    this.controller,
   });
 
   /// 카드로 그릴 항목 목록. (탭마다 타입이 다르다 — 모임 / 피드 항목)
@@ -31,9 +32,18 @@ class CardGridView<T> extends StatelessWidget {
   /// 당겨서 새로고침 콜백. (탭마다 다시 조회할 데이터가 다르다)
   final Future<void> Function() onRefresh;
 
+  /// 스크롤 컨트롤러. 바깥에서 스크롤 위치를 읽거나 되돌릴 때 넘긴다.
+  final ScrollController? controller;
+
   /// 한 번에 화면에 드러내는 카드 개수. (클라이언트 사이드 페이징 단위 —
   /// 좌/우 열에 절반씩 나뉘므로 지그재그 5행 분량이다)
   static const _cardPageSize = 10;
+
+  /// 탭 인디케이터와 첫 카드 사이 여백.
+  ///
+  /// 탭 헤더가 아니라 스크롤되는 이쪽이 갖고 있어, 스크롤하면 여백도 함께
+  /// 올라가 카드가 인디케이터 바로 아래까지 붙는다.
+  static const _headerGap = AppSpacing.s7;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +59,7 @@ class CardGridView<T> extends StatelessWidget {
   Widget _grid(List<T> visibleItems) {
     return Builder(
       builder: (context) => CustomScrollView(
+        controller: controller,
         // 당겨서 새로고침에 필요한 상단 overscroll(바운스)을 허용하고,
         // 카드가 적어 화면에 다 들어가도 당길 수 있도록 AlwaysScrollable 을
         // 부모로 둔다. (모임 페이지와 동일 패턴)
@@ -63,11 +74,11 @@ class CardGridView<T> extends StatelessWidget {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Padding(
-              // 위는 탭 헤더가 있어 s4, 좌우 s5(16, Page 규칙). (하단은 FAB 에
-              // 가리지 않도록 버튼 높이 + Safe Area 인셋만큼 더 여유)
+              // 좌우 s5(16, Page 규칙). (하단은 FAB 에 가리지 않도록 버튼
+              // 높이 + Safe Area 인셋만큼 더 여유)
               padding: EdgeInsets.fromLTRB(
                 AppSpacing.s5,
-                AppSpacing.s4,
+                _headerGap,
                 AppSpacing.s5,
                 AppSpacing.s6 +
                     SpeedDialFab.size +

@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/group_action_error.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
 
 /// 스타터 화면에서 현재 보여줄 본문 단계. (촬영으로 시작해 정보 입력으로 넘어간다)
 enum StarterStep { camera, info }

@@ -1,6 +1,5 @@
 import 'package:ddara/core/design_system/component/button/app_button.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/exception/group_change_nickname_error_code.dart';
 import 'package:ddara/core/widget/bottom_sheet/sheet_scaffold.dart';
 import 'package:ddara/core/widget/set_nickname.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -50,10 +49,13 @@ class _EditNicknameSheetState extends State<EditNicknameSheet> {
 
   /// 형식 검증([validateNickname]) 후 멤버 닉네임과의 중복까지 검사한다.
   String? _validate(String value) {
-    final error = validateNickname(AppLocalizations.of(context), value);
+    final l10n = AppLocalizations.of(context);
+    final error = validateNickname(l10n, value);
     if (error != null) return error;
     if (value.isNotEmpty && widget.takenNicknames.contains(value)) {
-      return GroupChangeNickNameErrorCode.duplicateGroupNickname.message;
+      // 서버가 DUPLICATE_GROUP_NICKNAME 으로 돌려주는 것과 같은 상황이라
+      // 모임 화면의 중복 문구를 그대로 쓴다. (GroupActionError.nicknameDuplicate)
+      return l10n.groupErrorNicknameDuplicate;
     }
     return null;
   }

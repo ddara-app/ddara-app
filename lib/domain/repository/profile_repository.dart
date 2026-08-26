@@ -1,5 +1,6 @@
-import 'package:ddara/core/model/profile/notification_settings.dart';
-import 'package:ddara/core/model/profile/profile.dart';
+import 'package:ddara/domain/model/camera/camera_guide_key.dart';
+import 'package:ddara/domain/model/profile/notification_settings.dart';
+import 'package:ddara/domain/model/profile/profile.dart';
 
 abstract interface class ProfileRepository {
   Future<Profile> getProfile();
@@ -19,4 +20,10 @@ abstract interface class ProfileRepository {
   Future<NotificationSettings> getNotificationSettings();
 
   Future<NotificationSettings> changeNotificationSettings(NotificationSettings settings);
+
+  /// 이미 본 촬영 화면 가이드의 종류를 돌려준다. 하나도 없으면 빈 집합.
+  Future<Set<CameraGuideKey>> getSeenCameraGuides();
+
+  /// [key] 가이드를 본 것으로 기록한다.
+  Future<void> completeCameraGuide(CameraGuideKey key);
 }

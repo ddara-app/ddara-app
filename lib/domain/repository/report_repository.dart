@@ -1,7 +1,7 @@
-import 'package:ddara/core/model/report/comment_report_reason.dart';
-import 'package:ddara/core/model/report/group_report_reason.dart';
-import 'package:ddara/core/model/report/report_reason.dart';
-import 'package:ddara/core/model/report/user_report_reason.dart';
+import 'package:ddara/domain/model/report/comment_report_reason.dart';
+import 'package:ddara/domain/model/report/group_report_reason.dart';
+import 'package:ddara/domain/model/report/report_reason.dart';
+import 'package:ddara/domain/model/report/user_report_reason.dart';
 
 abstract interface class ReportRepository {
   Future<void> reportShot({

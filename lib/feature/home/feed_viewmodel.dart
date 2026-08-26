@@ -1,4 +1,4 @@
-import 'package:ddara/core/comment/comment_action_error.dart';
+import 'package:ddara/core/exception/comment_action_error.dart';
 import 'package:ddara/core/comment/comment_actions.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';

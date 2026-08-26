@@ -1,9 +1,9 @@
-import 'package:ddara/core/comment/comment_action_error.dart';
+import 'package:ddara/core/exception/comment_action_error.dart';
 import 'package:ddara/core/exception/comment_exception.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/report_exception.dart';
-import 'package:ddara/core/model/comment/comment.dart';
-import 'package:ddara/core/model/report/comment_report_reason.dart';
+import 'package:ddara/domain/model/comment/comment.dart';
+import 'package:ddara/domain/model/report/comment_report_reason.dart';
 import 'package:ddara/domain/provider/use_case_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

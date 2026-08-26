@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ddara/core/comment/comment_action_error.dart';
+import 'package:ddara/core/exception/comment_action_error.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/feed/feed.dart';
+import 'package:ddara/domain/model/feed/feed.dart';
 import 'package:ddara/core/router/gallery_navigation.dart';
 import 'package:ddara/core/util/refresh_with_min_duration.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
@@ -16,6 +16,7 @@ import 'package:ddara/feature/home/util/home_state.dart';
 import 'package:ddara/feature/home/widget/card_grid_view.dart';
 import 'package:ddara/feature/home/widget/feed_card.dart';
 import 'package:ddara/feature/home/widget/home_dashboard.dart';
+import 'package:ddara/feature/home/widget/home_refresh_control.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:ddara/feature/profile/provider/viewmodel_provider.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -28,11 +29,18 @@ import 'package:go_router/go_router.dart';
 /// 모임 카드 자리에 피드 카드(회차 주제 · 업로더 닉네임)를 채우고,
 /// 잠긴 사진은 블러 + 자물쇠로 가린다.
 class RecentUpdatesView extends ConsumerWidget {
-  const RecentUpdatesView({super.key, required this.blockedUserIds});
+  const RecentUpdatesView({
+    super.key,
+    required this.blockedUserIds,
+    this.controller,
+  });
 
   /// 내가 차단한 사용자 userId 집합.
   /// (차단한 멤버가 올린 사진은 차단 자리표시로 가린다)
   final Set<int> blockedUserIds;
+
+  /// 스크롤 컨트롤러. 탭 재선택으로 목록을 맨 위로 되돌릴 때 쓴다.
+  final ScrollController? controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,11 +69,12 @@ class RecentUpdatesView extends ConsumerWidget {
       FeedLoading() => const Center(child: CupertinoActivityIndicator()),
       // 최초 조회 실패 화면에서도 당겨서 재시도할 수 있게 한다.
       FeedLoadError() => CustomScrollView(
+        controller: controller,
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
         slivers: [
-          CupertinoSliverRefreshControl(onRefresh: onRefresh),
+          HomeRefreshControl(onRefresh: onRefresh),
           SliverFillRemaining(
             hasScrollBody: false,
             child: Center(
@@ -99,6 +108,7 @@ class RecentUpdatesView extends ConsumerWidget {
         .toList();
 
     return CardGridView(
+      controller: controller,
       items: items,
       dashboard: HomeDashboard.updateCount(count: state.feed.updateCount),
       cardBuilder: (context, item) => FeedCard(

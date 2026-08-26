@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/group/change_nickname.dart';
+import 'package:ddara/domain/model/group/change_nickname.dart';
 import 'package:ddara/domain/repository/group_repository.dart';
 
 class ChangeNicknameUseCase {

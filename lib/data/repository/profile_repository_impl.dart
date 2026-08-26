@@ -1,8 +1,8 @@
 import 'package:ddara/core/exception/login_exception.dart';
-import 'package:ddara/core/exception/profile_error_code.dart';
 import 'package:ddara/core/exception/profile_exception.dart';
-import 'package:ddara/core/model/profile/notification_settings.dart';
-import 'package:ddara/core/model/profile/profile.dart';
+import 'package:ddara/domain/model/camera/camera_guide_key.dart';
+import 'package:ddara/domain/model/profile/notification_settings.dart';
+import 'package:ddara/domain/model/profile/profile.dart';
 import 'package:ddara/core/network/dto/cycle/presign_response.dart';
 import 'package:ddara/data/datasource/profile/profile_datasource.dart';
 import 'package:ddara/data/datasource/upload/upload_datasource.dart';
@@ -28,19 +28,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final response = await _profileDataSource.getProfile();
       return response.toDomain();
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ProfileErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ProfileErrorCode.userNotFound:
-          // 404 — 사용자를 찾을 수 없음
-          throw UserNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -51,19 +39,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
         appleAuthorizationCode: appleAuthorizationCode,
       );
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ProfileErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ProfileErrorCode.userNotFound:
-          // 404 — 사용자를 찾을 수 없음 (이미 탈퇴한 계정 포함)
-          throw UserNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -100,23 +76,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       await _uploadDataSource.deleteTempFile(imagePath);
       return newUrl;
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ProfileErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ProfileErrorCode.invalidImageFile:
-          // 400 — jpg/png 가 아닌 형식
-          throw InvalidImageFileException();
-
-        case ProfileErrorCode.userNotFound:
-          // 404 — 사용자를 찾을 수 없음
-          throw UserNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -125,19 +85,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       await _profileDataSource.resetProfileImage();
     } on DioException catch (e) {
-      final code = e.response?.data is Map
-          ? ProfileErrorCode.fromValue(e.response?.data['code'])
-          : null;
-
-      // 401(UNAUTHORIZED)은 인터셉터에서 따로 처리하므로 여기서 다루지 않는다.
-      switch (code) {
-        case ProfileErrorCode.userNotFound:
-          // 404 — 사용자를 찾을 수 없음
-          throw UserNotFoundException();
-
-        default:
-          throw NetworkException();
-      }
+      throw _toException(e);
     }
   }
 
@@ -155,5 +103,35 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<NotificationSettings> getNotificationSettings() async {
     final response = await _profileDataSource.getNotificationSettings();
     return response.toDomain();
+  }
+
+  @override
+  Future<Set<CameraGuideKey>> getSeenCameraGuides() async {
+    try {
+      final response = await _profileDataSource.getCameraGuide();
+      // 앱이 모르는 키가 늘어도 조회가 실패하지 않게 걸러낸다.
+      return response.seen
+          .map(CameraGuideKey.fromValue)
+          .nonNulls
+          .toSet();
+    } on DioException catch (e) {
+      throw _toException(e);
+    }
+  }
+
+  @override
+  Future<void> completeCameraGuide(CameraGuideKey key) async {
+    try {
+      await _profileDataSource.completeCameraGuide(key.value);
+    } on DioException catch (e) {
+      throw _toException(e);
+    }
+  }
+
+  /// 서버 오류 응답을 도메인 예외로 옮긴다.
+  /// (매칭되는 code 가 없으면 네트워크 오류로 본다)
+  Exception _toException(DioException e) {
+    final code = e.response?.data is Map ? e.response?.data['code'] : null;
+    return ProfileException.fromCode(code) ?? NetworkException();
   }
 }

@@ -2,7 +2,7 @@ import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/feed/feed.dart';
+import 'package:ddara/domain/model/feed/feed.dart';
 import 'package:ddara/feature/home/widget/photo_card_shell.dart';
 import 'package:flutter/cupertino.dart';
 

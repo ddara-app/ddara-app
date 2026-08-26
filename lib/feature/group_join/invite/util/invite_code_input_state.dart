@@ -1,5 +1,5 @@
 import 'package:ddara/core/exception/group_join_error_code.dart';
-import 'package:ddara/core/model/group/invite_group.dart';
+import 'package:ddara/domain/model/group/invite_group.dart';
 
 class InviteCodeInputState {
   final String inviteCode;

@@ -1,7 +1,7 @@
-import 'package:ddara/core/model/notification/notification_item.dart';
-import 'package:ddara/core/model/notification/notification_list.dart';
-import 'package:ddara/core/model/notification/notification_payload.dart';
-import 'package:ddara/core/model/notification/notification_type.dart';
+import 'package:ddara/domain/model/notification/notification_item.dart';
+import 'package:ddara/domain/model/notification/notification_list.dart';
+import 'package:ddara/domain/model/notification/notification_payload.dart';
+import 'package:ddara/domain/model/notification/notification_type.dart';
 import 'package:ddara/core/network/dto/notification/notification_list_response.dart';
 
 extension NotificationListMapper on NotificationListResponse {
@@ -31,6 +31,10 @@ extension NotificationItemMapper on NotificationItemResponse {
         imageUnderReview: payload.imageUnderReview ?? false,
         locked: payload.locked ?? false,
         starterUserId: payload.starterUserId,
+        shotOwnerUserId: payload.shotOwnerUserId,
+        shotOwnerNickname: payload.shotOwnerNickname,
+        // 사진 주인 정보가 없는 알림 종류는 '내 사진' 으로 보지 않는다.
+        isMyShot: payload.isMyShot ?? false,
       ),
       readAt: readAt,
       createdAt: createdAt,

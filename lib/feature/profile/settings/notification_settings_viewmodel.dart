@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/profile/notification_settings.dart';
+import 'package:ddara/domain/model/profile/notification_settings.dart';
 import 'package:ddara/core/permission/permission_service.dart';
 import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/core/util/auto_dispose_guard.dart';

@@ -1,6 +1,6 @@
-import 'package:ddara/core/model/group/group_action_error.dart';
-import 'package:ddara/core/model/group/group_detail.dart';
-import 'package:ddara/core/model/group/history_cycles.dart';
+import 'package:ddara/core/exception/group_action_error.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/history_cycles.dart';
 
 /// 모임 상세 화면 상태. 로딩·초기 조회 실패·본문이 상호배타인 sealed 설계다.
 ///

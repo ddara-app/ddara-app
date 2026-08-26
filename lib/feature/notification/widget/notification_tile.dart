@@ -5,7 +5,7 @@ import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/surface/app_surface.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
-import 'package:ddara/core/model/notification/notification_item.dart';
+import 'package:ddara/domain/model/notification/notification_item.dart';
 import 'package:ddara/feature/notification/util/notification_display.dart';
 import 'package:ddara/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
@@ -25,6 +25,9 @@ const double _lockedBlurSigma = 6;
 
 /// 잠금 썸네일 가운데 자물쇠 크기. (홈 카드 32 를 썸네일 비율에 맞춘 값)
 const double _lockIconSize = 20;
+
+/// 안 읽은 알림 표시 점의 지름.
+const double _unreadDotSize = 6;
 
 /// 알림 목록의 항목 한 개.
 ///
@@ -50,6 +53,32 @@ class NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return AppSurface(
+      onTap: onTap,
+      // 누르는 동안 살짝 밝게. (앱 전반의 Cupertino 페이드와 일관)
+      pressedColor: AppColors.bgSurfaceAlt,
+      // 안 읽음 점을 카드 모서리 기준으로 놓기 위해 여백을 안쪽으로 옮긴다.
+      padding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.s5),
+            child: _content(context),
+          ),
+          // 안 읽은 알림만 표시. 카드 오른쪽·위쪽에서 각각 s3 떨어진 자리다.
+          if (!item.isRead)
+            const Positioned(
+              top: AppSpacing.s3,
+              right: AppSpacing.s3,
+              child: _UnreadDot(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// 썸네일 + (분류 라벨·경과 시간 / 본문) 으로 이뤄진 카드 본문.
+  Widget _content(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final payload = item.payload;
     // 차단·신고 검토 중인 스타터 샷은 노출하지 않는다.
@@ -58,50 +87,63 @@ class NotificationTile extends StatelessWidget {
     final thumbnailObscured =
         payload.imageUnderReview ||
         (starterUserId != null && blockedUserIds.contains(starterUserId));
-    return AppSurface(
-      onTap: onTap,
-      // 누르는 동안 살짝 밝게. (앱 전반의 Cupertino 페이드와 일관)
-      pressedColor: AppColors.bgSurfaceAlt,
-      padding: const EdgeInsets.all(AppSpacing.s5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpacing.s4,
-        children: [
-          _NotificationThumbnail(
-            imageUrl: thumbnailObscured ? null : payload.imageUrl,
-            // 잠긴 사진은 지우지 않고 블러로 가린다. (가릴 사진이 있을 때만)
-            locked: !thumbnailObscured && payload.locked,
-          ),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpacing.s3,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: AppText.caption(
-                        item.displayLabel(l10n),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpacing.s4,
+      children: [
+        _NotificationThumbnail(
+          imageUrl: thumbnailObscured ? null : payload.imageUrl,
+          // 잠긴 사진은 지우지 않고 블러로 가린다. (가릴 사진이 있을 때만)
+          locked: !thumbnailObscured && payload.locked,
+        ),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: AppSpacing.s3,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: AppText.caption(
+                      item.displayLabel(l10n),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    AppText.caption(
-                      item.displayTimeAgo(l10n),
-                      color: AppColors.textTertiary,
-                    ),
-                  ],
-                ),
-                AppText.body(
-                  item.displayMessage(l10n),
-                  color: AppColors.textPrimary,
-                ),
-              ],
-            ),
+                  ),
+                  AppText.caption(
+                    item.displayTimeAgo(l10n),
+                    color: AppColors.textTertiary,
+                  ),
+                ],
+              ),
+              AppText.body(
+                item.displayMessage(l10n),
+                color: AppColors.textPrimary,
+              ),
+            ],
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+/// 아직 읽지 않았음을 알리는 점.
+///
+/// 상태가 하나뿐이라 진행 표시용 PageIndicator 와는 따로 둔다.
+class _UnreadDot extends StatelessWidget {
+  const _UnreadDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: _unreadDotSize,
+      height: _unreadDotSize,
+      decoration: const ShapeDecoration(
+        color: AppColors.textAccent,
+        shape: CircleBorder(),
       ),
     );
   }

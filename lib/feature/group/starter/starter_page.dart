@@ -1,4 +1,4 @@
-import 'package:ddara/core/analytics/app_analytics.dart';
+import 'package:ddara/core/analytics/analytics_events.dart';
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/feature/group/starter/provider/viewmodel_provider.dart';
 import 'package:ddara/feature/group/starter/widget/starter_camera.dart';
@@ -24,10 +24,7 @@ class _StarterPageState extends ConsumerState<StarterPage> {
   @override
   void initState() {
     super.initState();
-    AppAnalytics.track(
-      'starter_page_viewed',
-      properties: {'group_id': widget.groupId},
-    );
+    AnalyticsEvents.starterPageViewed(widget.groupId);
   }
 
   @override

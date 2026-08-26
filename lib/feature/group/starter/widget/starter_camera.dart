@@ -1,3 +1,4 @@
+import 'package:ddara/core/permission/provider/permission_provider.dart';
 import 'package:ddara/feature/group/starter/provider/viewmodel_provider.dart';
 import 'package:ddara/core/widget/camera/camera.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,8 +14,13 @@ class StarterCamera extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.read(starterViewModelProvider.notifier);
+    final permission = ref.read(permissionServiceProvider);
 
     // 촬영 버튼을 누르면 사진 확인 단계로 전환한다.
-    return Camera(onCapture: viewModel.capture);
+    return Camera(
+      onRequestCameraPermission: permission.ensureCameraGranted,
+      onOpenSettings: permission.openSettings,
+      onCapture: viewModel.capture,
+    );
   }
 }

@@ -1,12 +1,11 @@
-import 'package:ddara/core/model/group/change_nickname.dart';
-import 'package:ddara/core/model/group/create_group.dart';
-import 'package:ddara/core/model/group/history_cycles.dart';
-import 'package:ddara/core/model/group/history_list.dart';
-import 'package:ddara/core/model/group/invite_group.dart';
-
-import '../../core/model/group/group_detail.dart';
-import '../../core/model/group/group_list.dart';
-import '../../core/model/group/join_group.dart';
+import 'package:ddara/domain/model/group/change_nickname.dart';
+import 'package:ddara/domain/model/group/create_group.dart';
+import 'package:ddara/domain/model/group/group_detail.dart';
+import 'package:ddara/domain/model/group/group_list.dart';
+import 'package:ddara/domain/model/group/history_cycles.dart';
+import 'package:ddara/domain/model/group/history_list.dart';
+import 'package:ddara/domain/model/group/invite_group.dart';
+import 'package:ddara/domain/model/group/join_group.dart';
 
 abstract interface class GroupRepository {
   Future<CreateGroup> createGroup(

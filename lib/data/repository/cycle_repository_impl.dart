@@ -5,9 +5,9 @@ import 'package:ddara/core/exception/follower_upload_error_code.dart';
 import 'package:ddara/core/exception/group_exception.dart';
 import 'package:ddara/core/exception/login_exception.dart';
 import 'package:ddara/core/exception/starter_upload_error_code.dart';
-import 'package:ddara/core/model/cycle/follower_upload.dart';
-import 'package:ddara/core/model/cycle/starter_upload.dart';
-import 'package:ddara/core/model/group/cycle_gallery.dart';
+import 'package:ddara/domain/model/cycle/follower_upload.dart';
+import 'package:ddara/domain/model/cycle/starter_upload.dart';
+import 'package:ddara/domain/model/group/cycle_gallery.dart';
 import 'package:ddara/core/network/dto/cycle/presign_response.dart';
 import 'package:ddara/domain/repository/cycle_repository.dart';
 import 'package:dio/dio.dart';
@@ -98,7 +98,7 @@ class CycleRepositoryImpl implements CycleRepository {
           throw GroupNotFoundException();
 
         case StarterUploadErrorCode.notEnoughMembers:
-          // 409 — 활동 멤버 3명 미만이라 시작 불가
+          // 409 — 활동 멤버 2명 미만이라 시작 불가
           throw NotEnoughMembersException();
 
         case StarterUploadErrorCode.cycleAlreadyInProgress:

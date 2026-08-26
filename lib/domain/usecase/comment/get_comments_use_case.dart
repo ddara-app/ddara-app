@@ -1,4 +1,4 @@
-import 'package:ddara/core/model/comment/comment.dart';
+import 'package:ddara/domain/model/comment/comment.dart';
 
 import '../../repository/comment_repository.dart';
 
