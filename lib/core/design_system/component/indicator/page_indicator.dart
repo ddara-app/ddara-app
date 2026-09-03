@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'package:ddara/core/design_system/foundation/app_radius.dart';
 import 'package:ddara/core/design_system/foundation/app_spacing.dart';
 import 'package:ddara/core/design_system/theme/app_colors.dart';
 
@@ -50,7 +51,7 @@ class PageIndicator extends StatelessWidget {
           decoration: ShapeDecoration(
             color: isActive ? AppColors.accentDefault : AppColors.textTertiary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(AppRadius.full),
             ),
           ),
         );

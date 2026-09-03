@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:ddara/core/design_system/theme/app_colors.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
-import 'package:flutter/widgets.dart' show Color;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -76,7 +75,7 @@ class ImagePickerService {
             hideBottomControls: true,
             // 원형 위에 겹치는 사각 격자 + 사각 프레임 제거. (원만 보이게)
             showCropGrid: false,
-            cropFrameColor: const Color(0x00000000),
+            cropFrameColor: AppColors.bgTransparent,
             initAspectRatio: CropAspectRatioPreset.square,
             aspectRatioPresets: const [CropAspectRatioPreset.square],
           ),

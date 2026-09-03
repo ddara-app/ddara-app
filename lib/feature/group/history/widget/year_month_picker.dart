@@ -1,4 +1,5 @@
 import 'package:ddara/core/design_system/component/button/app_text_button.dart';
+import 'package:ddara/core/design_system/component/divider/app_divider.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -56,7 +57,7 @@ class YearMonthPicker extends StatelessWidget {
         children: [
           _header(l10n),
           // 헤더와 월 그리드 사이 구분선.
-          Container(height: 1, color: AppColors.borderDefault),
+          const AppDivider(),
           _monthGrid(l10n),
           // 우측 하단: 선택을 전체보기로 되돌리는 초기화 버튼.
           Align(
