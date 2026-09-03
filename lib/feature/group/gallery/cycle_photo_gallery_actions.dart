@@ -3,7 +3,7 @@ import 'package:ddara/core/router/route_path.dart';
 import 'package:ddara/core/util/image_saver.dart';
 import 'package:ddara/core/widget/bottom_sheet/report_sheets.dart';
 import 'package:ddara/core/widget/dialog/app_dialog.dart';
-import 'package:ddara/core/widget/image/photo_viewer.dart';
+import 'package:ddara/feature/group/photo_viewer/util/photo_viewer_args.dart';
 import 'package:ddara/core/widget/toast/toast.dart';
 import 'package:ddara/feature/group/gallery/cycle_photo_gallery_viewmodel.dart';
 import 'package:ddara/feature/group/gallery/provider/viewmodel_provider.dart';
@@ -44,20 +44,24 @@ class CyclePhotoGalleryActions {
 
   // ── 사진 뷰어 ─────────────────────────────────────────────────────
 
-  /// 사진 뷰어를 연다.
-  void showShotViewer({
+  /// 사진 상세 화면을 연다.
+  void pushShotViewer({
     required ImageProvider image,
     Object? heroTag,
     double? aspectRatio,
     bool locked = false,
   }) {
-    showPhotoViewer(
-      context,
-      image: image,
-      heroTag: heroTag,
-      aspectRatio: aspectRatio,
-      // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
-      locked: locked,
+    context.push(
+      RoutePath.photoViewer,
+      extra: PhotoViewerArgs(
+        image: image,
+        heroTag: heroTag,
+        aspectRatio: aspectRatio,
+        // 잠긴 사진은 뷰어에서도 블러+자물쇠 유지.
+        locked: locked,
+        // TODO: 꾸미기 화면이 생기면 onDecorate 를 여기서 연결한다.
+        // (지금은 넘기지 않아 상단 바 '꾸미기' 버튼이 비활성으로 보인다)
+      ),
     );
   }
 

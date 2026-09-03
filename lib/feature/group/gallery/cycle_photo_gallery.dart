@@ -208,7 +208,7 @@ class _CyclePhotoGalleryState extends ConsumerState<CyclePhotoGallery> {
     VoidCallback? openViewer;
     final starterImageUrl = cycle.starterImageUrl;
     if (starterImageUrl != null && starterImageUrl.isNotEmpty) {
-      openViewer = () => actions.showShotViewer(
+      openViewer = () => actions.pushShotViewer(
         image: CachedNetworkImageProvider(starterImageUrl),
         aspectRatio: AppRatio.photo,
       );

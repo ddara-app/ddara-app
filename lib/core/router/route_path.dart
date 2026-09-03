@@ -19,6 +19,7 @@ class RoutePath {
   static const notificationSettings = '/profile/notification-settings';
   static const termsPolicy = '/profile/terms-policy';
   static const policyViewer = '/profile/terms-policy/viewer';
+  static const photoViewer = '/photo';
   static const notification = '/notification';
   static const guide = '/guide';
   static const guideTour = '/guide/tour';

@@ -781,6 +781,14 @@
   "@galleryMyCardLabel": {
     "description": "사진 갤러리에서 본인 카드에 닉네임 대신 표시하는 라벨."
   },
+  "photoViewerTitle": "사진 상세",
+  "@photoViewerTitle": {
+    "description": "사진 한 장을 크게 보는 화면의 상단 바 제목."
+  },
+  "photoViewerDecorate": "꾸미기",
+  "@photoViewerDecorate": {
+    "description": "사진 상세 상단 바 우측 버튼 — 스티커로 사진을 꾸미는 화면으로 이동."
+  },
   "profileLinkedAccount": "연동 계정",
   "profileLogout": "로그아웃",
   "profileWithdraw": "회원 탈퇴",

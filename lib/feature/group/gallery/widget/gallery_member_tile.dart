@@ -65,7 +65,7 @@ class GalleryMemberTile extends StatelessWidget {
     // 잠긴 사진은 뷰어에서도 블러+자물쇠를 유지한다(locked 전달).
     VoidCallback? openViewer;
     if (canOpen) {
-      openViewer = () => actions.showShotViewer(
+      openViewer = () => actions.pushShotViewer(
         image: image,
         heroTag: heroTag,
         // 카드에서 잘려 보이던 프레임 그대로 크게 보여준다.

@@ -1091,6 +1091,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get galleryMyCardLabel => '나';
 
   @override
+  String get photoViewerTitle => '사진 상세';
+
+  @override
+  String get photoViewerDecorate => '꾸미기';
+
+  @override
   String get profileLinkedAccount => '연동 계정';
 
   @override

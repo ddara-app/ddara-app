@@ -2063,6 +2063,18 @@ abstract class AppLocalizations {
   /// **'나'**
   String get galleryMyCardLabel;
 
+  /// 사진 한 장을 크게 보는 화면의 상단 바 제목.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 상세'**
+  String get photoViewerTitle;
+
+  /// 사진 상세 상단 바 우측 버튼 — 스티커로 사진을 꾸미는 화면으로 이동.
+  ///
+  /// In ko, this message translates to:
+  /// **'꾸미기'**
+  String get photoViewerDecorate;
+
   /// No description provided for @profileLinkedAccount.
   ///
   /// In ko, this message translates to:

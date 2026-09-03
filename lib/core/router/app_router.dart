@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/provider/repository_provider.dart';
 import '../../feature/group_create/route/group_create_route.dart';
 import '../../feature/group/follower/route/follower_camera_route.dart';
+import '../../feature/group/photo_viewer/route/photo_viewer_route.dart';
 import '../../feature/group/history/route/history_list_route.dart';
 import '../../feature/group/random_starter/route/random_starter_route.dart';
 import '../../feature/group/starter/route/starter_route.dart';
@@ -153,6 +154,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       notificationSettingsRoute,
       termsPolicyRoute,
       policyViewerRoute,
+      photoViewerRoute,
       notificationRoute,
       guideRoute,
       guideTourRoute,
