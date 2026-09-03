@@ -9,6 +9,7 @@ export 'foundation/app_icons.dart';
 export 'foundation/app_radius.dart';
 export 'foundation/app_ratio.dart';
 export 'foundation/app_spacing.dart';
+export 'foundation/app_stickers.dart';
 export 'theme/app_colors.dart';
 export 'theme/app_theme.dart';
 export 'theme/app_typography.dart';

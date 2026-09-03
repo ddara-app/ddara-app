@@ -115,6 +115,9 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/sticker/doodle/
+    - assets/images/sticker/pastel/
+    - assets/images/sticker/collage/
     - assets/policy/
     - .env
     - assets/lottie/
