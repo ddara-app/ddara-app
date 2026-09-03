@@ -3,6 +3,7 @@ import 'package:ddara/core/design_system/theme/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../foundation/app_radius.dart';
+import '../../foundation/app_spacing.dart';
 
 /// [AppButton] 시각 변형.
 enum AppButtonVariant {
@@ -54,7 +55,7 @@ class AppButton extends StatelessWidget {
   final Color? backgroundColor;
 
   /// 두 변형 공통 상하 여백. (primary 는 CupertinoButton 기본값과 같다)
-  static const double _verticalPadding = 16;
+  static const double _verticalPadding = AppSpacing.s5;
 
   /// outline 테두리 두께.
   static const double _borderWidth = 1;

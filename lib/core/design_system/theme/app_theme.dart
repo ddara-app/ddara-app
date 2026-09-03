@@ -14,7 +14,7 @@ abstract final class AppTheme {
   /// `main` 의 [SystemChrome.setSystemUIOverlayStyle] 또는 화면별
   /// `AnnotatedRegion` 으로 직접 적용한다.
   static const SystemUiOverlayStyle systemOverlayStyle = SystemUiOverlayStyle(
-    statusBarColor: Color(0x00000000),
+    statusBarColor: AppColors.bgTransparent,
     statusBarIconBrightness: Brightness.light, // Android
     statusBarBrightness: Brightness.dark, // iOS
     systemNavigationBarColor: AppColors.bgBase,

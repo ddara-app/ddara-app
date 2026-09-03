@@ -28,8 +28,9 @@ class SheetScaffold extends StatelessWidget {
   /// 본문 패딩. (핸들·SafeArea 는 포함하지 않는다)
   final EdgeInsetsGeometry contentPadding;
 
-  /// 드래그 핸들 크기.
-  static const Size _handleSize = Size(40, 4);
+  /// 드래그 핸들 크기. 시트를 직접 조립하는 화면도 이 값을 써서 핸들 모양이
+  /// 시트끼리 어긋나지 않게 한다.
+  static const Size handleSize = Size(40, 4);
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +52,8 @@ class SheetScaffold extends StatelessWidget {
               // 드래그 핸들
               Center(
                 child: Container(
-                  width: _handleSize.width,
-                  height: _handleSize.height,
+                  width: handleSize.width,
+                  height: handleSize.height,
                   margin: const EdgeInsets.only(top: AppSpacing.s4),
                   decoration: const ShapeDecoration(
                     color: AppColors.borderStrong,

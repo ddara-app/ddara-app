@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:ddara/core/design_system/component/divider/app_divider.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
+import 'package:ddara/core/widget/bottom_sheet/sheet_scaffold.dart';
 import 'package:ddara/core/widget/image/comment/comment_editing_banner.dart';
 import 'package:ddara/core/widget/image/comment/comment_input_field.dart';
 import 'package:ddara/core/widget/image/comment/comment_list_controller.dart';
@@ -371,8 +372,8 @@ class PhotoCommentSheetState extends State<PhotoCommentSheet>
         children: [
           // 상단 그랩 핸들.
           Container(
-            width: 36,
-            height: 4,
+            width: SheetScaffold.handleSize.width,
+            height: SheetScaffold.handleSize.height,
             margin: const EdgeInsets.only(top: AppSpacing.s4),
             decoration: BoxDecoration(
               color: AppColors.borderStrong,

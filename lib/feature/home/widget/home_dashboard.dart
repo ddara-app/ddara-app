@@ -16,8 +16,8 @@ const int _dashboardPageCount = 2;
 /// 대시보드 인디케이터 점의 지름. (온보딩보다 작은 홈 전용 크기)
 const double _indicatorDotSize = 6;
 
-/// 가이드 페이지 우측 상단 이미지의 가로:세로 비율.
-const double _guideImageRatio = 3 / 4;
+/// 가이드 페이지 우측 상단 이미지의 가로:세로 비율. (사진 프레임과 같다)
+const double _guideImageRatio = AppRatio.photo;
 
 /// 대시보드에 담는 내용의 종류. (탭마다 문구 구성이 다르다)
 enum _HomeDashboardVariant {

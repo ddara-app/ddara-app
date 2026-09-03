@@ -1,3 +1,4 @@
+import 'package:ddara/core/design_system/component/divider/app_divider.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
 import 'package:ddara/l10n/app_localizations.dart';
@@ -217,7 +218,7 @@ class _AnchoredContextMenuState extends State<AnchoredContextMenu> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < widget.actions.length; i++) ...[
-            if (i > 0) Container(height: 1, color: AppColors.borderDefault),
+            if (i > 0) const AppDivider(),
             CupertinoButton(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.s5,

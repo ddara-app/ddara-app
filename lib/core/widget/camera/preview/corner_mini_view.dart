@@ -5,6 +5,9 @@ import 'package:flutter/cupertino.dart';
 /// 살짝 흔들린 정도로는 숨겨지지 않도록 투명도 스와이프와 같은 감도를 쓴다.
 const double _hideSwipeVelocity = 200;
 
+/// 미니뷰 가로 폭. 세로는 [AppRatio.photo] 로 따라 정해진다.
+const double _width = 112;
+
 /// 따라찍기 가이드(친구가 미리 찍은) 사진을 좌상단 코너에 작게 띄우는 미니뷰.
 /// 표시할 이미지는 외부에서 주입한다.
 ///
@@ -24,9 +27,9 @@ class CornerMiniView extends StatelessWidget {
     return GestureDetector(
       onHorizontalDragEnd: onHide == null ? null : _onHorizontalDragEnd,
       child: Container(
-        // 3:4 비율 고정.
-        width: 112,
-        height: 112 * 4 / 3,
+        // 사진 프레임과 같은 비율로 고정. ([AppRatio.photo] = 가로:세로)
+        width: _width,
+        height: _width / AppRatio.photo,
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           image: DecorationImage(image: image, fit: BoxFit.cover),

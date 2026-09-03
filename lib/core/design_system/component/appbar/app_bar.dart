@@ -168,8 +168,8 @@ class AppBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       elevation: 0,
       // 스크롤 콘텐츠가 아래로 지나가도 배경 틴트/그림자가 생기지 않게 한다.
       scrolledUnderElevation: 0,
-      surfaceTintColor: const Color(0x00000000),
-      shadowColor: const Color(0x00000000),
+      surfaceTintColor: AppColors.bgTransparent,
+      shadowColor: AppColors.bgTransparent,
       // Cupertino 시절 높이를 유지한다. (Material 기본 56 → 44)
       toolbarHeight: preferredSize.height,
       centerTitle: centerTitle,
@@ -213,7 +213,7 @@ class AppBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
           backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor,
           context,
         ) ??
-        const Color(0x00000000);
+        AppColors.bgTransparent;
     return bg.a >= 1.0;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:ddara/core/design_system/component/appbar/app_bar.dart';
 import 'package:ddara/core/design_system/component/avatar/profile_avatar.dart';
+import 'package:ddara/core/design_system/component/divider/app_divider.dart';
 import 'package:ddara/core/design_system/component/icon/app_icon.dart';
 import 'package:ddara/core/design_system/component/text/app_text.dart';
 import 'package:ddara/core/design_system/design_system.dart';
@@ -66,7 +67,7 @@ class _CommentItemState extends State<CommentItem> {
     // 메뉴를 라우트로 띄워 뒤로가기(Android)가 화면 pop 대신 메뉴 닫기가
     // 되도록 한다. 배리어는 투명이라 배경을 어둡게 하지 않고, 바깥 탭으로 닫힌다.
     final route = RawDialogRoute<void>(
-      barrierColor: const Color(0x00000000),
+      barrierColor: AppColors.bgTransparent,
       barrierLabel: AppLocalizations.of(context).commonCancel,
       transitionDuration: Duration.zero,
       pageBuilder: (dialogContext, _, _) => _buildOverlay(dialogContext),
@@ -163,7 +164,7 @@ class _CommentItemState extends State<CommentItem> {
               color: AppColors.textPrimary,
               onPressed: () => _confirmDelete(dialogContext),
             ),
-            Container(height: 1, color: AppColors.borderDefault),
+            const AppDivider(),
             _menuItem(
               l10n.commentMenuEdit,
               color: AppColors.textPrimary,
@@ -178,7 +179,7 @@ class _CommentItemState extends State<CommentItem> {
               color: AppColors.textPrimary,
               onPressed: () => _select(dialogContext, widget.onBlock),
             ),
-            Container(height: 1, color: AppColors.borderDefault),
+            const AppDivider(),
             _menuItem(
               l10n.commentMenuReport,
               color: AppColors.statusDanger,
